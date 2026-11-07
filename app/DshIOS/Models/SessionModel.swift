@@ -153,7 +153,9 @@ final class SessionModel {
                         }
                     }
                     // A key that stopped working is the conversation's card to explain; none at all is the first step.
-                    if failure.credentialProblem == .missing { app.requestCredentials(.start) }
+                    if failure.credentialProblem == .missing {
+                        app.requestCredentials(modelCatalog?.selection(self)?.provider == FishPocketAPI.provider ? .fishPocket : .start)
+                    }
                 } else if event["data"]["reason"]["kind"].string == "completed", subagentAddress == nil, hasReply,
                           queued.isEmpty, composer.text.isEmpty {
                     app.noteCompletedTurn()

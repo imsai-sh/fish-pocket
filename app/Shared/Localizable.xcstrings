@@ -6293,6 +6293,16 @@
         }
       }
     },
+    "已重新连接 Fish Pocket" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reconnected to Fish Pocket"
+          }
+        }
+      }
+    },
     "已重试模型请求" : {
       "localizations" : {
         "en" : {

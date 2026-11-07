@@ -62,10 +62,8 @@ struct FishPocketPage: View {
         .groupedList()
         .navigationTitle("Fish Pocket 额度")
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            await account.refresh()
-            if account.packs.isEmpty { await account.loadPacks() }
-        }
+        // The pack list loads its own packs.
+        .task { await account.refresh() }
         .refreshable { await account.refresh() }
         .sheet(isPresented: $phoneSignIn) { PhoneSignInSheet().environment(app) }
         .alert("退出登录", isPresented: $confirmingSignOut) {
@@ -153,6 +151,8 @@ struct AppleSignInButton: View {
             }
         }
         .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+        // The style is read once: rebuild on an appearance change.
+        .id(colorScheme)
         .frame(height: 44)
         .clipShape(Capsule())
         .disabled(busy)
@@ -200,6 +200,7 @@ struct PhoneSignInSheet: View {
                         TimelineView(.periodic(from: .now, by: 1)) { context in
                             let wait = resendAt.map { Int($0.timeIntervalSince(context.date).rounded(.up)) } ?? 0
                             Button(wait > 0 ? String(localized: "\(wait) 秒后重发") : String(localized: "获取验证码")) { Task { await send() } }
+                                .buttonStyle(.borderless)
                                 .disabled(e164 == nil || sending || wait > 0)
                         }
                     }
@@ -344,7 +345,8 @@ struct FishPocketNotices: View {
                     .background(Palette.ink, in: Capsule())
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .task(id: toast) {
-                        try? await Task.sleep(for: .seconds(3))
+                        // Cancelled by a newer toast: leave that one up.
+                        do { try await Task.sleep(for: .seconds(3)) } catch { return }
                         withAnimation { app.fishPocket.toast = nil }
                     }
             }

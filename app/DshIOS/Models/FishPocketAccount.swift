@@ -71,6 +71,8 @@ final class FishPocketAccount {
 
     @ObservationIgnored private var transactionTask: Task<Void, Never>?
     @ObservationIgnored private var refreshing: Task<String?, Never>?
+    /// Transactions being redeemed: `Transaction.updates` and `.unfinished` both deliver them at launch.
+    @ObservationIgnored private var redeeming: Set<UInt64> = []
 
     init(engine: EngineClient) {
         self.engine = engine
@@ -104,10 +106,15 @@ final class FishPocketAccount {
     nonisolated static func appleNonce() -> (raw: String, hashed: String) {
         var bytes = [UInt8](repeating: 0, count: 32)
         _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        let raw = Data(bytes).base64EncodedString()
-            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
-        let hashed = SHA256.hash(data: Data(raw.utf8)).map { String(format: "%02x", $0) }.joined()
+        let raw = base64url(Data(bytes))
+        // id-service compares the token's nonce claim with base64url(SHA-256(raw)), unpadded.
+        let hashed = base64url(Data(SHA256.hash(data: Data(raw.utf8))))
         return (raw, hashed)
+    }
+
+    nonisolated private static func base64url(_ data: Data) -> String {
+        data.base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
     }
 
     func signInWithApple(_ credential: ASAuthorizationAppleIDCredential, rawNonce: String) async throws {
@@ -136,27 +143,40 @@ final class FishPocketAccount {
     }
 
     private func completeSignIn(_ reply: JSON) async throws {
-        guard let session = reply["sessionToken"].string, let refresh = reply["refreshToken"].string else {
+        guard let session = reply["sessionToken"].string, let refreshToken = reply["refreshToken"].string else {
             throw FishPocketError(status: 0, code: "invalid_reply", message: String(localized: "登录失败，请重试。"))
         }
         FishPocketKeychain.write(Stored.session, session)
-        FishPocketKeychain.write(Stored.refresh, refresh)
-        signedIn = true
+        FishPocketKeychain.write(Stored.refresh, refreshToken)
+        do {
+            try await issueRuntimeKey()
+        } catch {
+            // Without a runtime key the account is of no use here: do not half sign in.
+            FishPocketKeychain.write(Stored.session, nil)
+            FishPocketKeychain.write(Stored.refresh, nil)
+            throw error
+        }
         user = User(reply["user"])
-        try await issueRuntimeKey()
+        signedIn = true
         await refresh()
         // Purchases made before signing in are credited now.
         for await unfinished in Transaction.unfinished { await handle(unfinished) }
     }
 
-    /// A fresh runtime key for this device, handed to the engine.
+    /// A fresh runtime key for this device. The engine gets it now if it is up; otherwise
+    /// `ensureRuntimeKey` hands it over on the next connection.
     private func issueRuntimeKey() async throws {
         let reply = try await authorized("POST", "v1/runtime-keys", body: ["label": .string(UIDeviceName.current)])
         guard let key = reply["runtimeKey"].string else {
             throw FishPocketError(status: 0, code: "invalid_reply", message: String(localized: "登录失败，请重试。"))
         }
+        let previous = FishPocketKeychain.read(Stored.runtimeKey)
         FishPocketKeychain.write(Stored.runtimeKey, key)
-        try await engine.call("credentials/set", ["ref": .string(FishPocketAPI.runtimeKeyRef), "value": .string(key)])
+        _ = try? await engine.call("credentials/set", ["ref": .string(FishPocketAPI.runtimeKeyRef), "value": .string(key)])
+        // A replaced key is revoked so keys do not pile up on the server (best effort).
+        if let previous, previous != key {
+            _ = try? await authorized("POST", "v1/runtime-keys/revoke", body: ["runtimeKey": .string(previous)])
+        }
     }
 
     /// The gateway refused this device's runtime key (AUTH): issue a new one. A session that
@@ -165,6 +185,7 @@ final class FishPocketAccount {
         guard signedIn else { return }
         do {
             try await issueRuntimeKey()
+            toast = String(localized: "已重新连接 Fish Pocket")
         } catch {
             if signedIn { toast = String(localized: "暂时无法连接 Fish Pocket，请稍后再试") }
         }
@@ -192,10 +213,14 @@ final class FishPocketAccount {
 
     /// Sign out this device: the server revokes its session and runtime key, the engine forgets the key.
     func signOut() async {
-        if let refresh = FishPocketKeychain.read(Stored.refresh) {
-            var body: [String: JSON] = ["refreshToken": .string(refresh)]
-            if let key = FishPocketKeychain.read(Stored.runtimeKey) { body["runtimeKey"] = .string(key) }
-            _ = try? await authorized("POST", "v1/auth/logout", body: .object(body))
+        if FishPocketKeychain.read(Stored.refresh) != nil {
+            // Built per attempt: a renewal in between rotates the refresh token to revoke.
+            _ = try? await authorized("POST", "v1/auth/logout") {
+                var body: [String: JSON] = [:]
+                if let refresh = FishPocketKeychain.read(Stored.refresh) { body["refreshToken"] = .string(refresh) }
+                if let key = FishPocketKeychain.read(Stored.runtimeKey) { body["runtimeKey"] = .string(key) }
+                return .object(body)
+            }
         }
         await forget()
     }
@@ -222,13 +247,23 @@ final class FishPocketAccount {
     /// A call with the session, renewed once through the refresh token when it has expired.
     @discardableResult
     private func authorized(_ method: String, _ path: String, body: JSON? = nil) async throws -> JSON {
+        try await authorized(method, path) { body }
+    }
+
+    /// `body` is built for each attempt, after any renewal.
+    @discardableResult
+    private func authorized(_ method: String, _ path: String, body: () -> JSON?) async throws -> JSON {
         guard let http else { throw FishPocketError(status: 0, code: "unavailable", message: "") }
         let session = FishPocketKeychain.read(Stored.session)
         do {
-            return try await http.send(method, path, body: body, bearer: session)
+            return try await http.send(method, path, body: body(), bearer: session)
         } catch let error as FishPocketError where error.status == 401 {
             guard let renewed = await renewSession() else { throw error }
-            return try await http.send(method, path, body: body, bearer: renewed)
+            return try await http.send(method, path, body: body(), bearer: renewed)
+        } catch let error as FishPocketError where error.code == "account_deleted" {
+            // Deleted on another device: nothing here can work any more.
+            await signedOutRemotely()
+            throw error
         }
     }
 
@@ -239,7 +274,9 @@ final class FishPocketAccount {
             guard let http, let refresh = FishPocketKeychain.read(Stored.refresh) else { return nil }
             do {
                 let reply = try await http.send("POST", "v1/auth/refresh", body: ["refreshToken": .string(refresh)])
-                guard let session = reply["sessionToken"].string, let next = reply["refreshToken"].string else { return nil }
+                guard let session = reply["sessionToken"].string, let next = reply["refreshToken"].string,
+                      // Signed out (or in again) meanwhile: these tokens belong to nobody now.
+                      FishPocketKeychain.read(Stored.refresh) == refresh else { return nil }
                 FishPocketKeychain.write(Stored.session, session)
                 FishPocketKeychain.write(Stored.refresh, next)
                 return session
@@ -308,7 +345,10 @@ final class FishPocketAccount {
     /// Redeem one transaction with the server, then finish it. Unverified
     /// transactions and other products are left alone; signed out, it waits.
     private func handle(_ verification: VerificationResult<Transaction>) async {
-        guard case .verified(let transaction) = verification, transaction.productType == .consumable, signedIn else { return }
+        guard case .verified(let transaction) = verification, transaction.productType == .consumable, signedIn,
+              !redeeming.contains(transaction.id) else { return }
+        redeeming.insert(transaction.id)
+        defer { redeeming.remove(transaction.id) }
         do {
             let reply = try await authorized("POST", "v1/purchases/apple", body: ["signedTransaction": .string(verification.jwsRepresentation)])
             await transaction.finish()

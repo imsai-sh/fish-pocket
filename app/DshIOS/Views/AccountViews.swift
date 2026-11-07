@@ -479,7 +479,8 @@ struct AccountNotices: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .task(id: toast) {
                         Haptics.warning()
-                        try? await Task.sleep(for: .seconds(3))
+                        // Cancelled by a newer toast: leave that one up.
+                        do { try await Task.sleep(for: .seconds(3)) } catch { return }
                         withAnimation { app.account.toast = nil }
                     }
             }

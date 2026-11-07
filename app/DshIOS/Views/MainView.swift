@@ -230,7 +230,7 @@ struct MainView: View {
         }
         // A live turn ran out of Fish Pocket credits: the packs, bought in the app.
         .sheet(isPresented: Binding(get: { app.fishPocket.quotaPrompt }, set: { app.fishPocket.quotaPrompt = $0 })) {
-            FishPocketTopUpSheet().environment(app)
+            FishPocketTopUpSheet().sheetNotices()
         }
         .onChange(of: app.lastError) { _, error in if error != nil { Haptics.error() } }
         .alert("出错了", isPresented: Binding(get: { app.lastError != nil }, set: { if !$0 { app.lastError = nil } })) {
