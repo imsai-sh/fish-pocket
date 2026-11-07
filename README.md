@@ -43,7 +43,7 @@ https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
 - **iPad 适配：** 常驻侧栏、右侧工作台、多窗口、拖放文件，外接键盘支持常用快捷键。
 - **更私密：** 会话和工作区留在设备上。
 
-模型调用仍然需要联网，用 DeepSeek 账号或 API Key 都可以。
+模型调用仍然需要联网，用 DeepSeek 账号或 API Key 都可以。没有的话，也可以登录 Fish Pocket 账号，用 App 内购买的额度（仅 App Store 和 TestFlight 版本）。
 
 ## 和其他方案的区别
 

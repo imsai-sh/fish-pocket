@@ -5,7 +5,7 @@ import SwiftUI
 /// regular width it is the split view's sidebar. With nothing selected — at
 /// launch, after archiving — a blank session in the current workspace opens.
 struct MainView: View {
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, fishPocket; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -33,6 +33,8 @@ struct MainView: View {
     @State private var onboarding: Onboarding?
     /// 「添加 API Key」 was chosen in the sign-in sheet: its key editor follows once that sheet is gone.
     @State private var keyEditorRef: String?
+    /// 「使用 Fish Pocket 额度」 was chosen in the sign-in sheet: its page follows once that sheet is gone.
+    @State private var fishPocketAfterOnboarding = false
     /// The ask for a Star or a share.
     @State private var supportDialog = false
 
@@ -186,6 +188,7 @@ struct MainView: View {
                 case .schedules: SheetStack { SchedulesView(openSession: open(session:)) }
                 case .signIn: SignInSheet()
                 case .cordis: CordisPanelView(currentSession: selection)
+                case .fishPocket: SheetStack { FishPocketPage() }
                 }
             }
             .sheetNotices()
@@ -193,7 +196,11 @@ struct MainView: View {
         .sheet(item: $onboarding, onDismiss: onboardingDismissed) { step in
             switch step {
             case .signIn(let ref, let autoStart):
-                SignInSheet(autoStart: autoStart, addAPIKey: { keyEditorRef = ref })
+                SignInSheet(
+                    autoStart: autoStart,
+                    addAPIKey: { keyEditorRef = ref },
+                    useFishPocket: fishPocketOption
+                )
             case .key(let ref):
                 OnboardingKeySheet(ref: ref) { onboarding = nil }
             }
@@ -221,6 +228,10 @@ struct MainView: View {
         } message: {
             Text("充值后才能开始新会话，也可稍后在「设置 → 账号与余额」充值。")
         }
+        // A live turn ran out of Fish Pocket credits: the packs, bought in the app.
+        .sheet(isPresented: Binding(get: { app.fishPocket.quotaPrompt }, set: { app.fishPocket.quotaPrompt = $0 })) {
+            FishPocketTopUpSheet().environment(app)
+        }
         .onChange(of: app.lastError) { _, error in if error != nil { Haptics.error() } }
         .alert("出错了", isPresented: Binding(get: { app.lastError != nil }, set: { if !$0 { app.lastError = nil } })) {
             Button("好", role: .cancel) {}
@@ -236,6 +247,7 @@ struct MainView: View {
     private func openCredentials(_ step: AppModel.CredentialStep) async {
         sheet = nil
         if case .settings = step { sheet = .settings; return }
+        if case .fishPocket = step { sheet = .fishPocket; return }
         guard let ref = await app.officialKeyRef() else {
             if case .officialKey = step { sheet = .settings } else { sheet = .signIn }
             return
@@ -245,13 +257,24 @@ struct MainView: View {
             if case .signIn = step { onboarding = .signIn(ref: ref, autoStart: true) } else { onboarding = .signIn(ref: ref) }
         case .officialKey:
             onboarding = .key(ref: ref)
-        case .settings:
+        case .settings, .fishPocket:
             break
         }
     }
 
+    /// The sign-in sheet's Fish Pocket way in, when this build has the service.
+    private var fishPocketOption: (() -> Void)? {
+        guard app.fishPocket.available else { return nil }
+        return { fishPocketAfterOnboarding = true }
+    }
+
     /// 「添加 API Key」 in the sign-in sheet hands over to the key editor once that sheet is gone.
     private func onboardingDismissed() {
+        if fishPocketAfterOnboarding {
+            fishPocketAfterOnboarding = false
+            sheet = .fishPocket
+            return
+        }
         guard let ref = keyEditorRef else { return }
         keyEditorRef = nil
         onboarding = .key(ref: ref)

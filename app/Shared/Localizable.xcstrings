@@ -471,6 +471,38 @@
         }
       }
     },
+    "%lld 秒后重发" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resend in %llds"
+          }
+        }
+      }
+    },
+    "%lld 积分" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld credit"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld credits"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld 运行中" : {
       "localizations" : {
         "en" : {
@@ -919,6 +951,26 @@
         }
       }
     },
+    "Apple 登录未完成，请重试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in with Apple did not finish. Please try again."
+          }
+        }
+      }
+    },
+    "Apple 账号" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Account"
+          }
+        }
+      }
+    },
     "Auto review 未授权此次操作" : {
       "localizations" : {
         "en" : {
@@ -1053,6 +1105,56 @@
     },
     "Fish Pocket" : {
       "shouldTranslate" : false
+    },
+    "Fish Pocket 登录已失效" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket sign-in expired"
+          }
+        }
+      }
+    },
+    "Fish Pocket 登录已失效，请重新登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Fish Pocket sign-in has expired. Please sign in again."
+          }
+        }
+      }
+    },
+    "Fish Pocket 连接已失效" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket connection lost"
+          }
+        }
+      }
+    },
+    "Fish Pocket 额度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket Credits"
+          }
+        }
+      }
+    },
+    "Fish Pocket 额度已用完" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Out of Fish Pocket Credits"
+          }
+        }
+      }
     },
     "Fish Pocket：在 iPhone 和 iPad 上本机运行 DeepSeek Harness，不连电脑，不连服务器。\n下载：%@\nGitHub：%@" : {
       "localizations" : {
@@ -1675,6 +1777,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Must be at least %@."
+          }
+        }
+      }
+    },
+    "不需要 DeepSeek 账号或 API Key，用 Fish Pocket 额度直接调用 DeepSeek 模型，在 App 内购买额度。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No DeepSeek account or API key needed: call DeepSeek models with Fish Pocket credits, bought in the app."
           }
         }
       }
@@ -3431,6 +3543,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Forward"
+          }
+        }
+      }
+    },
+    "剩余积分" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Credits Left"
           }
         }
       }
@@ -5585,6 +5707,16 @@
         }
       }
     },
+    "已到账 %lld 积分" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld credits added"
+          }
+        }
+      }
+    },
     "已协调子智能体" : {
       "localizations" : {
         "en" : {
@@ -6807,6 +6939,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No registry could be reached (tried: %@); check the network or proxy settings, or change the registry"
+          }
+        }
+      }
+    },
+    "手机号" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phone number"
+          }
+        }
+      }
+    },
+    "手机号登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in with Phone Number"
           }
         }
       }
@@ -8681,12 +8833,32 @@
         }
       }
     },
+    "暂时无法获取额度包，轻点重试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not load credit packs. Tap to retry."
+          }
+        }
+      }
+    },
     "暂时无法读取插件。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plugins are temporarily unavailable."
+          }
+        }
+      }
+    },
+    "暂时无法连接 Fish Pocket，请稍后再试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach Fish Pocket right now. Please try again later."
           }
         }
       }
@@ -10435,6 +10607,16 @@
         }
       }
     },
+    "没有 DeepSeek 账号？使用 Fish Pocket 额度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No DeepSeek account? Use Fish Pocket credits"
+          }
+        }
+      }
+    },
     "没有与当前 DSH %@ 兼容的版本" : {
       "localizations" : {
         "en" : {
@@ -10565,6 +10747,16 @@
         }
       }
     },
+    "没有拿到 Apple 登录凭证，请重试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in with Apple returned no credential. Please try again."
+          }
+        }
+      }
+    },
     "没有符合条件的插件" : {
       "localizations" : {
         "en" : {
@@ -10611,6 +10803,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Registry"
+          }
+        }
+      }
+    },
+    "注销" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "注销后账号无法恢复，剩余积分将作废。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A deleted account cannot be restored, and its remaining credits are forfeited."
+          }
+        }
+      }
+    },
+    "注销账号" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Account"
           }
         }
       }
@@ -10955,6 +11177,16 @@
         }
       }
     },
+    "用「Fish Pocket 额度」里的模型对话时，按实际用量扣除积分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chatting with a model under “Fish Pocket Credits” deducts credits for actual usage."
+          }
+        }
+      }
+    },
     "用对话定制 DSH：让 Agent 编写插件，添加新功能或界面；也能组合工具和提示词，创建自己的模式。" : {
       "localizations" : {
         "en" : {
@@ -11075,6 +11307,36 @@
         }
       }
     },
+    "登录 Fish Pocket" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to Fish Pocket"
+          }
+        }
+      }
+    },
+    "登录 Fish Pocket 账号后，就能用账号里的额度对话。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to your Fish Pocket account to chat using its credits."
+          }
+        }
+      }
+    },
+    "登录信息只发给 Fish Pocket 服务器，用来识别账号和记录额度。用额度对话时，消息经 Fish Pocket 服务器转发给 DeepSeek，服务器只记录用量，不保存对话内容。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign-in details go only to the Fish Pocket servers, to identify your account and keep track of credits. When you chat with credits, messages pass through the Fish Pocket servers to DeepSeek; the servers record usage only and do not store conversations."
+          }
+        }
+      }
+    },
     "登录信息已失效，请重新登录" : {
       "localizations" : {
         "en" : {
@@ -11105,6 +11367,16 @@
         }
       }
     },
+    "登录失败，请重试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign-in failed. Please try again."
+          }
+        }
+      }
+    },
     "登录已超时" : {
       "localizations" : {
         "en" : {
@@ -11131,6 +11403,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sign in or add an API key; either one lets you use DeepSeek models."
+          }
+        }
+      }
+    },
+    "目前只支持中国大陆手机号。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only mainland China phone numbers are supported for now."
           }
         }
       }
@@ -12019,6 +12301,16 @@
         }
       }
     },
+    "网络连接失败，请稍后再试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network connection failed. Please try again later."
+          }
+        }
+      }
+    },
     "网页工具" : {
       "localizations" : {
         "en" : {
@@ -12285,6 +12577,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fetch Available Models"
+          }
+        }
+      }
+    },
+    "获取验证码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Code"
           }
         }
       }
@@ -12739,6 +13041,16 @@
         }
       }
     },
+    "请求失败（HTTP %lld）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request failed (HTTP %lld)"
+          }
+        }
+      }
+    },
     "请求已取消或连接已断开，请重试。" : {
       "localizations" : {
         "en" : {
@@ -13085,6 +13397,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Account details are not available yet."
+          }
+        }
+      }
+    },
+    "购买后 %lld 天内有效" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valid for %lld days after purchase"
+          }
+        }
+      }
+    },
+    "购买待确认，确认后额度会自动到账" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase pending. Credits will be added once it's approved."
+          }
+        }
+      }
+    },
+    "购买未完成，请重试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase not completed. Please try again."
+          }
+        }
+      }
+    },
+    "购买额度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buy Credits"
+          }
+        }
+      }
+    },
+    "购买额度后，把刚才的消息重新发送一次。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After buying credits, send the message again."
           }
         }
       }
@@ -13919,6 +14281,16 @@
         }
       }
     },
+    "退出后剩余积分仍保留在账号里，重新登录即可继续使用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your remaining credits stay with the account. Sign in again to keep using them."
+          }
+        }
+      }
+    },
     "退出登录" : {
       "localizations" : {
         "en" : {
@@ -14239,6 +14611,16 @@
         }
       }
     },
+    "重新登录后再发送一次。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in again, then send the message again."
+          }
+        }
+      }
+    },
     "重新读取文件" : {
       "localizations" : {
         "en" : {
@@ -14275,6 +14657,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reconnecting"
+          }
+        }
+      }
+    },
+    "重新连接后再发送一次。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reconnect, then send the message again."
           }
         }
       }
@@ -14469,6 +14861,16 @@
         }
       }
     },
+    "需要登录 Fish Pocket" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to Fish Pocket"
+          }
+        }
+      }
+    },
     "需要迁移" : {
       "localizations" : {
         "en" : {
@@ -14555,12 +14957,32 @@
         }
       }
     },
+    "额度暂未到账，稍后会自动重试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Credits not added yet. They will be retried automatically."
+          }
+        }
+      }
+    },
     "首次记录" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Initial list"
+          }
+        }
+      }
+    },
+    "验证码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verification code"
           }
         }
       }

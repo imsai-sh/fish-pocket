@@ -99,12 +99,23 @@ final class ComposerContext {
     }
 
     static func providerName(_ id: String, _ name: String?) -> String {
-        id == "deepseek-account" ? String(localized: "DeepSeek 账号") : (name ?? id)
+        switch id {
+        case "deepseek-account": String(localized: "DeepSeek 账号")
+        case FishPocketAPI.provider: String(localized: "Fish Pocket 额度")
+        default: name ?? id
+        }
     }
 
-    /// The account and official providers first; the others keep their catalog order.
+    /// The account, Fish Pocket and official providers first; the others keep their catalog order.
     static func ordered(_ groups: [ModelGroup]) -> [ModelGroup] {
-        func rank(_ id: String) -> Int { id == "deepseek-account" ? 0 : id == "deepseek-official" ? 1 : 2 }
+        func rank(_ id: String) -> Int {
+            switch id {
+            case "deepseek-account": 0
+            case FishPocketAPI.provider: 1
+            case "deepseek-official": 2
+            default: 3
+            }
+        }
         return groups.enumerated().sorted { (rank($0.element.id), $0.offset) < (rank($1.element.id), $1.offset) }.map(\.element)
     }
 

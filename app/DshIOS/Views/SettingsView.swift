@@ -42,6 +42,13 @@ struct SettingsView: View {
                     NavigationLink { AccountPage() } label: {
                         valueRow("账号", app.account.signedIn ? (app.account.displayName ?? String(localized: "已登录")) : String(localized: "未登录"))
                     }
+                    if app.fishPocket.available {
+                        NavigationLink { FishPocketPage() } label: {
+                            valueRow("Fish Pocket 额度", app.fishPocket.signedIn
+                                ? (app.fishPocket.balance.map { String(localized: "\($0) 积分") } ?? String(localized: "已登录"))
+                                : String(localized: "未登录"))
+                        }
+                    }
                     NavigationLink { ModelProvidersPage() } label: { valueRow("模型", defaultModel ?? "") }
                     if mirror.serves("permission") { permissionPicker }
                     if let theme = mirror.namespace("ui-theme") {

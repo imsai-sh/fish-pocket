@@ -144,7 +144,14 @@ final class SessionModel {
             // Only a live turn end prompts for quota or support; history replays never do.
             if event["type"].string == "turn/end" {
                 if let failure = TurnFailure(reason: event["data"]["reason"]) {
-                    if failure.isQuota { app.account.reportQuota(code: failure.code ?? "QUOTA") }
+                    if failure.isQuota {
+                        // Fish Pocket credits are topped up in the app; DeepSeek balances on Platform.
+                        if modelCatalog?.selection(self)?.provider == FishPocketAPI.provider {
+                            app.fishPocket.reportQuota()
+                        } else {
+                            app.account.reportQuota(code: failure.code ?? "QUOTA")
+                        }
+                    }
                     // A key that stopped working is the conversation's card to explain; none at all is the first step.
                     if failure.credentialProblem == .missing { app.requestCredentials(.start) }
                 } else if event["data"]["reason"]["kind"].string == "completed", subagentAddress == nil, hasReply,

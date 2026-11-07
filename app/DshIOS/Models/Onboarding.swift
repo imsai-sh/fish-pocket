@@ -22,6 +22,8 @@ extension AppModel {
         case officialKey
         /// Another provider's key, kept in settings.
         case settings
+        /// Signing in to Fish Pocket (its credits pay for the `fish-pocket` route).
+        case fishPocket
     }
 
     func requestCredentials(_ step: CredentialStep) {
@@ -66,10 +68,14 @@ extension AppModel {
             rows.append(Row(provider: id, ns: "", path: [], active: true, keyRef: nil))
         }
 
-        var accountHasModels = false
-        if rows.contains(where: { $0.provider == "deepseek-account" }),
+        // Routes whose credential is a sign-in rather than a key count once they offer models:
+        // the DeepSeek account, and Fish Pocket (its runtime key arrives with signing in).
+        var signedInRoutes: Set<String> = []
+        if rows.contains(where: { $0.provider == "deepseek-account" || $0.provider == FishPocketAPI.provider }),
            let catalog = try? await client.call("session/modelCatalog") {
-            accountHasModels = catalog["groups"].array.contains { $0["id"].string == "deepseek-account" && !$0["models"].array.isEmpty }
+            for group in catalog["groups"].array where !group["models"].array.isEmpty {
+                if let id = group["id"].string { signedInRoutes.insert(id) }
+            }
         }
 
         let refs = Array(Set(rows.compactMap(\.keyRef)))
@@ -86,7 +92,7 @@ extension AppModel {
 
         let usable = rows.contains { row in
             guard row.active else { return false }
-            if row.provider == "deepseek-account" { return accountHasModels }
+            if row.provider == "deepseek-account" || row.provider == FishPocketAPI.provider { return signedInRoutes.contains(row.provider) }
             guard let ref = row.keyRef else { return true }
             return credentials[ref]?["configured"].bool == true
         }

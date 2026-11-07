@@ -103,6 +103,8 @@ final class AppModel {
     let client: EngineClient
     let mux: StreamMux
     let account: AccountModel
+    /// The Fish Pocket account and credits (the `fish-pocket` model route).
+    let fishPocket: FishPocketAccount
     let cordis = CordisModel()
 
     private(set) var workspaces: [Workspace] = []
@@ -173,6 +175,7 @@ final class AppModel {
         client = EngineClient(launchURL: launchURL)
         mux = StreamMux(client: client)
         account = AccountModel(client: client, mux: mux)
+        fishPocket = FishPocketAccount(engine: client)
         cordis.attach(self)
     }
 
@@ -187,6 +190,7 @@ final class AppModel {
             followRemoteEvents()
             followScheduleCatalog()
             account.follow()
+            Task { await fishPocket.start() }
             BackgroundKeeper.shared.attach { [weak self] in await self?.refreshSessions() }
             LiveActivityController.shared.attach(self)
         } catch {

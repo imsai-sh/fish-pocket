@@ -95,9 +95,14 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: com.wsw.dsh-ios
             CFBundleURLSchemes: [dsh]
+        # Fish Pocket credits (FishPocketAPI): the service's https origin; empty hides the feature.
+        FishPocketAPIURL: $(FISH_POCKET_API_URL)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wsw.dsh-ios
+        # The Fish Pocket API origin (https://…). Empty in source builds: forks and local
+        # builds run without the service; the release build sets it.
+        FISH_POCKET_API_URL: ""
         # Design tokens (docs/design/README.md §3) live in Assets.xcassets; the accent is the ink colour.
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ENABLE_USER_SCRIPT_SANDBOXING: NO
@@ -105,6 +110,11 @@ targets:
         GCC_PREPROCESSOR_DEFINITIONS: ["$(inherited)", "DSH_GIT_LINKED=1", "DSH_IMAGE_LINKED=1"]
         # __FILE__ in native/git must not carry the build machine's home directory into the binary.
         OTHER_CFLAGS: ["$(inherited)", "-fmacro-prefix-map=$(SRCROOT:dir:standardizepath)=."]
+      configs:
+        # Sign in with Apple (Fish Pocket accounts) needs a paid team: release builds only,
+        # so a personal team can still sign a debug build.
+        Release:
+          CODE_SIGN_ENTITLEMENTS: DshIOS/DshIOS.entitlements
   # The engine's filesystem view (native/root): libc's path functions, and libSystem re-exported.
   DshRoot:
     type: framework

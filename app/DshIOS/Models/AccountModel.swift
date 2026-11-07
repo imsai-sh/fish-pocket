@@ -315,8 +315,9 @@ struct TurnFailure {
         case "ACCOUNT_SIGNED_OUT": message = String(localized: "任务已因退出 DeepSeek 登录而停止。")
         case "INTERRUPTED": message = String(localized: "DSH 进程在本轮完成前退出（例如被强制结束、崩溃或关闭超时），重新启动后本轮已中止。未完成的工具调用结果未知。")
         case "ACCOUNT_SIGN_IN_REQUIRED": message = String(localized: "请先登录 DeepSeek，并确认请求地址支持账号认证。")
-        case "QUOTA", "ACCOUNT_QUOTA": message = String(localized: "当前请求的额度已用尽")
-        case "AUTH": message = String(localized: "API 密钥无效")
+        // The Fish Pocket gateway words its own refusals ("Fish Pocket 余额不足…", "…登录已失效…").
+        case "QUOTA", "ACCOUNT_QUOTA": message = raw.hasPrefix("Fish Pocket") ? raw : String(localized: "当前请求的额度已用尽")
+        case "AUTH": message = raw.hasPrefix("Fish Pocket") ? raw : String(localized: "API 密钥无效")
         default: message = raw.isEmpty ? String(localized: "本轮运行失败") : raw
         }
     }

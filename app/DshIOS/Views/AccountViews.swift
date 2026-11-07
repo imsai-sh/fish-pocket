@@ -27,6 +27,8 @@ struct SignInSheet: View {
     var autoStart = false
     /// The API Key alternative; nil hides it.
     var addAPIKey: (() -> Void)?
+    /// The Fish Pocket credits alternative; nil hides it.
+    var useFishPocket: (() -> Void)?
 
     @Environment(AppModel.self) private var app
     @Environment(\.dismiss) private var dismiss
@@ -49,6 +51,10 @@ struct SignInSheet: View {
             description
             SignInPrivacyNote()
             Spacer(minLength: 0)
+            if let useFishPocket, !account.attemptActive {
+                Button("没有 DeepSeek 账号？使用 Fish Pocket 额度") { dismiss(); useFishPocket() }
+                    .buttonStyle(.capsule(.secondary, height: 44))
+            }
             actions
         }
         .padding(.horizontal, 20)

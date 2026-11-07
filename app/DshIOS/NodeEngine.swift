@@ -52,6 +52,8 @@ final class NodeEngine: ObservableObject {
         setenv("DSH_IOS_HOME", EnginePaths.home, 1)
         setenv("DSH_IOS_DATA", EnginePaths.shared, 1)
         setenv("DSH_IOS_DOCUMENTS", EnginePaths.documents, 1)
+        // The gateway of the `fish-pocket` model route (engine/ios.patch.yml); unset hides the route.
+        if let url = FishPocketAPI.baseURL { setenv("FISH_POCKET_API_URL", url.absoluteString, 1) }
         #if DEBUG
         // Lets <data>/debug/*.mjs run inside the engine (engine/runtime/debug-inbox.mjs).
         setenv("DSH_IOS_DEBUG", "1", 1)

@@ -51,3 +51,11 @@
     # only applies at startup.
     - id: ios-host
       name: ./plugins/ios-host/index.mjs
+    # Third model route next to the DeepSeek account and API-key routes:
+    # DeepSeek models paid with Fish Pocket credits. The app passes the API
+    # origin as FISH_POCKET_API_URL and stores the runtime key after sign-in;
+    # without either the route offers no models.
+    - id: llm-fish-pocket
+      name: ./plugins/llm-fish-pocket/index.mjs
+      config:
+        baseURL: !!js 'process.env.FISH_POCKET_API_URL ? process.env.FISH_POCKET_API_URL.replace(/\/+$/, "") + "/anthropic" : ""'
