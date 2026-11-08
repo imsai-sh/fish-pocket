@@ -1106,6 +1106,16 @@
     "Fish Pocket" : {
       "shouldTranslate" : false
     },
+    "Fish Pocket 余额不足，请充值后继续。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Out of Fish Pocket credits. Top up to continue."
+          }
+        }
+      }
+    },
     "Fish Pocket 登录已失效" : {
       "localizations" : {
         "en" : {
@@ -1117,6 +1127,16 @@
       }
     },
     "Fish Pocket 登录已失效，请重新登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Fish Pocket sign-in has expired. Please sign in again."
+          }
+        }
+      }
+    },
+    "Fish Pocket 登录已失效，请重新登录。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11337,12 +11357,12 @@
         }
       }
     },
-    "登录信息只发给 Fish Pocket 服务器，用来识别账号和记录额度。用额度对话时，消息经 Fish Pocket 服务器转发给 DeepSeek，服务器只记录用量，不保存对话内容。" : {
+    "登录信息只发给 Fish Pocket 服务器，用来识别账号和记录额度。用额度对话时，消息经 Fish Pocket 服务器转发给 DeepSeek 模型的服务商，服务器只记录用量，不保存对话内容。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign-in details go only to the Fish Pocket servers, to identify your account and keep track of credits. When you chat with credits, messages pass through the Fish Pocket servers to DeepSeek; the servers record usage only and do not store conversations."
+            "value" : "Sign-in details go only to the Fish Pocket servers, to identify your account and keep track of credits. When you chat with credits, messages pass through the Fish Pocket servers to the provider serving the DeepSeek models; the servers record usage only and do not store conversations."
           }
         }
       }

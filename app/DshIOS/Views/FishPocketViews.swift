@@ -6,7 +6,7 @@ struct FishPocketPrivacyNote: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "lock.shield").font(.subheadline).foregroundStyle(Palette.secondary)
-            Text("登录信息只发给 Fish Pocket 服务器，用来识别账号和记录额度。用额度对话时，消息经 Fish Pocket 服务器转发给 DeepSeek，服务器只记录用量，不保存对话内容。")
+            Text("登录信息只发给 Fish Pocket 服务器，用来识别账号和记录额度。用额度对话时，消息经 Fish Pocket 服务器转发给 DeepSeek 模型的服务商，服务器只记录用量，不保存对话内容。")
                 .font(.footnote)
                 .foregroundStyle(Palette.secondary)
                 .fixedSize(horizontal: false, vertical: true)

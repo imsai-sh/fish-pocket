@@ -30,7 +30,7 @@ Fish Pocket 账号是可选功能，登录后可以用 App 内购买的额度调
 
 - **账号信息：** 用 Apple 登录时，Apple 提供的用户标识，以及你同意分享的姓名和邮箱；用手机号登录时，你的手机号和验证码。
 - **额度与购买：** 积分余额、App Store 的购买凭证，以及每次调用的模型名称、token 用量和扣除的积分。
-- **对话内容：** 选择「Fish Pocket 额度」里的模型时，你发送的内容经 Fish Pocket 服务器转发给 DeepSeek，并按 DeepSeek 的隐私政策处理。服务器只读取用量用于计费，不保存对话内容。
+- **对话内容：** 选择「Fish Pocket 额度」里的模型时，你发送的内容经 Fish Pocket 服务器转发给提供 DeepSeek 模型的服务商（DeepSeek 官方或其模型的托管服务商），由该服务商按其隐私政策处理。Fish Pocket 服务器只读取用量用于计费，不保存对话内容。
 
 登录凭证保存在本机的钥匙串里。你可以随时在「设置 → Fish Pocket 额度」退出登录，或注销账号；注销后账号无法恢复，剩余积分作废。
 
@@ -68,7 +68,7 @@ A Fish Pocket account is optional. Once signed in, you can use credits bought in
 
 - **Account details:** with Sign in with Apple, the user identifier Apple provides and the name and email you choose to share; with a phone number, your number and the verification code.
 - **Credits and purchases:** your credit balance, App Store purchase receipts, and for each request the model name, token usage and credits deducted.
-- **Conversations:** when you pick a model under "Fish Pocket credits", what you send is forwarded through the Fish Pocket servers to DeepSeek and handled under DeepSeek's privacy policy. The servers read usage for billing only and do not store conversation content.
+- **Conversations:** when you pick a model under "Fish Pocket credits", what you send is forwarded through the Fish Pocket servers to the provider serving the DeepSeek models (DeepSeek itself or a provider hosting its models) and handled under that provider's privacy policy. The Fish Pocket servers read usage for billing only and do not store conversation content.
 
 Sign-in tokens are kept in this device's Keychain. You can sign out or delete your account at any time in Settings → Fish Pocket credits; a deleted account cannot be restored and its remaining credits are forfeited.
 

@@ -20,7 +20,7 @@ enum FishPocketAPI {
 
     static var available: Bool { baseURL != nil }
 
-    /// The engine credential the `fish-pocket` route reads (engine/plugins/llm-fish-pocket).
+    /// The engine credential the `fish-pocket` route reads (`llm-pi-ai` profile in engine/ios.patch.yml).
     static let runtimeKeyRef = "FISH_POCKET_RUNTIME_KEY"
     /// The engine's model route id.
     static let provider = "fish-pocket"
