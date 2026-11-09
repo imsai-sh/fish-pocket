@@ -245,6 +245,14 @@ struct TurnTrigger: Hashable {
             case "reply": title = String(localized: "\(name)回复了"); symbol = "arrowshape.turn.up.left"
             case "report": title = String(localized: "\(name)汇报了进展"); symbol = "text.bubble"
             case "stopped": title = String(localized: "\(name)的工作已停止"); symbol = "stop.circle"
+            // A group goal's own steps (ds-bot's goals.js): drafted, resumed, or checked on.
+            case "goal":
+                switch source["goal"].string {
+                case "draft": title = String(localized: "设定了群目标")
+                case "resume": title = String(localized: "群目标继续推进")
+                default: title = String(localized: "检查群目标的进度")
+                }
+                symbol = "flag"
             default: title = source["handoff"].bool == true ? String(localized: "接着上一段对话继续") : String(localized: "收到团队消息"); symbol = "person.2"
             }
         default: title = String(localized: "收到执行请求"); symbol = "bell"

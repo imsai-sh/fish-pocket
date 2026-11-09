@@ -48,6 +48,16 @@ struct ComposerTray: View {
                     } else {
                         // DSH's commands set this session's model, mode and goal, which a Bot
                         // keeps as its own; what a Bot is given to do on a schedule is here.
+                        if case .bot(let id) = bot {
+                            // A quick question answered from the chat so far, kept out of it.
+                            Button {
+                                dismiss()
+                                app.botTeam.sideChatRequest = id
+                            } label: {
+                                Label("旁支提问", systemImage: "bubble.left.and.text.bubble.right")
+                            }
+                            .foregroundStyle(Palette.ink)
+                        }
                         Button {
                             dismiss()
                             app.botTeam.scheduleRequest = bot

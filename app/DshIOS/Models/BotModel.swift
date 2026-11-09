@@ -30,6 +30,10 @@ struct BotInfo: Identifiable, Hashable {
     var blocked: JSON? { json["blocked"].nonNull }
     var pinned: Bool { json["pinned"].bool ?? false }
     var hidden: Bool { json["hidden"].bool ?? false }
+    /// Capabilities given to it (names from the team's library).
+    var capabilities: [String] { json["capabilities"].array.compactMap(\.string) }
+    /// Its own working folder; nil: the team workspace.
+    var workDir: String? { json["workDir"].string }
 }
 
 /// One group chat.
@@ -85,6 +89,9 @@ final class BotModel {
     /// What changes without a revision: `activity` (per Bot) and `work`.
     private(set) var activity: [String: JSON] = [:]
     private(set) var work: JSON = .null
+    /// The other live fields: `connectors`, `capabilityStatuses`, `learning`, `memoryNews`, `imStatus`…
+    private(set) var live: [String: JSON] = [:]
+    private static let liveKeys = ["connectors", "capabilityStatuses", "learning", "learningSettled", "memoryNews", "memoryReviews", "imStatus", "imVia"]
     /// The route answered: the plugin is loaded in this engine.
     private(set) var reachable = false
     /// Replies being written, by Session: the text so far.
@@ -98,6 +105,8 @@ final class BotModel {
     private(set) var rounds: [JSON] = []
     /// Open the scheduled tasks of the Bot or group whose chat asked (its ＋ tray).
     var scheduleRequest: BotComposer?
+    /// Open a side question on the Bot whose chat asked (its ＋ tray).
+    var sideChatRequest: String?
     /// Show the Bot pages (the root view consumes it).
     var openRequest: BotOpenRequest?
 
@@ -160,6 +169,29 @@ final class BotModel {
         guard let value = value ?? defaultPermission else { return nil }
         return SettingsView.permissionName(permissionOptions.first { $0["value"].string == value } ?? ["value": .string(value)])
     }
+    // MARK: Capabilities, connectors, secrets
+
+    /// The team's library: `{name, kind:'mcp'|'skill'|'pack', description, transport?, url?, command?, approved?, items?, content?}`.
+    var capabilities: [JSON] { team["capabilities"].array }
+    /// A capability's state on a Bot: `ready`, `connecting`, `needs-approval` or `error` (with `error`).
+    func capabilityStatus(_ name: String, of bot: BotInfo) -> JSON { live["capabilityStatuses"]?[bot.id][name] ?? .null }
+    /// The connectors view: `{connectors:[Row], mail:{accounts, google, allowedRecipients, noDraftFor, pending?}}`.
+    var connectors: [JSON] { live["connectors"]?["connectors"].array ?? [] }
+    var mail: JSON { live["connectors"]?["mail"] ?? .null }
+    func connector(_ id: String) -> JSON? { connectors.first { $0["id"].string == id } }
+    /// `{name, purpose, scope:'all'|[botId], requestedBy, createdAt, updatedAt}`; values never leave the engine.
+    var secrets: [JSON] { team["secrets"].array }
+    /// A Bot's pending cards in its own chat.
+    func secretRequests(of bot: BotInfo) -> [JSON] { team["secretRequests"][bot.id].array.filter { $0["status"].string == "pending" } }
+    func connectorRequests(of bot: BotInfo) -> [JSON] { team["connectorRequests"][bot.id].array.filter { $0["status"].string == "pending" } }
+    func mailRequests(of bot: BotInfo) -> [JSON] { team["mailRequests"][bot.id].array.filter { $0["status"].string == "pending" } }
+
+    /// The connectors view comes back from every connector call; it is live data, so it is kept at once.
+    func applyConnectors(_ value: JSON) {
+        if value["connectors"].array.isEmpty && value["mail"].isNull { return }
+        if live["connectors"] != value { live["connectors"] = value }
+    }
+
     /// The plugin's colour names (`colors`).
     var colorKeys: [String] { team["colors"].array.compactMap(\.string) }
     func room(_ id: String) -> RoomInfo? { rooms.first { $0.id == id } }
@@ -291,6 +323,7 @@ final class BotModel {
             if value["unchanged"].bool != true, team != value { team = value }
             if !value["activity"].isNull, activity != value["activity"].object { activity = value["activity"].object }
             if !value["work"].isNull, work != value["work"] { work = value["work"] }
+            for key in Self.liveKeys where !value[key].isNull && live[key] != value[key] { live[key] = value[key] }
             revision = value["revision"].double
             liveKey = value["liveKey"].string
         } catch is Unreachable {
@@ -416,16 +449,20 @@ final class BotModel {
     func update(_ bot: BotInfo, _ patch: [String: JSON]) async -> Bool {
         var payload = patch
         payload["id"] = .string(bot.id)
-        let done = await app.perform { try await self.call("update-bot", .object(payload)) }
-        if done { await refreshState() }
-        return done
+        return await run("update-bot", payload)
     }
 
     @discardableResult
     func run(_ endpoint: String, _ payload: [String: JSON]) async -> Bool {
-        let done = await app.perform { try await self.call(endpoint, .object(payload)) }
-        if done { await refreshState() }
-        return done
+        do {
+            let value = try await call(endpoint, .object(payload))
+            if endpoint.hasPrefix("connector-") { applyConnectors(value) }
+            await refreshState()
+            return true
+        } catch {
+            app.showToast(BotErrorText.text(error.localizedDescription), tone: .warning)
+            return false
+        }
     }
 
     /// Copy a Bot (its role, instructions, look and model). The plugin names the copy in

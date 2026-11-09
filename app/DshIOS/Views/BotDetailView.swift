@@ -147,10 +147,15 @@ struct BotDetailView: View {
                     LabeledContent("权限", value: team.permissionName(bot.permission) ?? "")
                 }
             }
+            NavigationLink { BotFolderPage(target: .bot(bot.id)) } label: {
+                LabeledContent("工作文件夹", value: bot.workDir.map { ($0 as NSString).lastPathComponent } ?? String(localized: "团队工作区"))
+            }
         } header: {
             Text("工作方式")
         }
         .groupedRow()
+        capabilities(bot)
+        connectors(bot)
         Section {
             if team.isMain(bot) {
                 if team.mainBotIds.count > 1 {
@@ -198,6 +203,57 @@ struct BotDetailView: View {
         .listRowBackground(Color.clear)
     }
 
+    /// The team's capabilities this Bot may use, each switched on or off here.
+    @ViewBuilder
+    private func capabilities(_ bot: BotInfo) -> some View {
+        let team = app.botTeam
+        Section {
+            ForEach(team.capabilities, id: \.["name"]) { item in
+                let name = item["name"].string ?? ""
+                let status = team.capabilityStatus(name, of: bot)
+                Toggle(isOn: Binding(get: { bot.capabilities.contains(name) }, set: { on in
+                    Task { await team.run("bot-capability", ["botId": .string(bot.id), "name": .string(name), "attached": .bool(on)]) }
+                })) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(name)
+                        if let error = status["error"].string, status["state"].string == "error" {
+                            Text(error).font(.caption2).foregroundStyle(Palette.removed).lineLimit(2)
+                        } else if let detail = item["description"].string, !detail.isEmpty {
+                            Text(detail).font(.caption2).foregroundStyle(Palette.secondary).lineLimit(1)
+                        }
+                    }
+                }
+            }
+            NavigationLink { BotCapabilitiesPage() } label: { Text(team.capabilities.isEmpty ? "添加能力" : "管理能力库").foregroundStyle(Palette.secondary) }
+        } header: {
+            Text("能力")
+        } footer: {
+            Text("MCP 服务、技能说明或它们的组合，整个团队共用一个能力库。")
+        }
+        .groupedRow()
+    }
+
+    /// The connected services this Bot may use.
+    @ViewBuilder
+    private func connectors(_ bot: BotInfo) -> some View {
+        let team = app.botTeam
+        let connected = team.connectors.filter { $0["state"].string == "ready" || $0["state"].string == "connecting" }
+        Section {
+            ForEach(connected, id: \.["id"]) { row in
+                let off = Set(row["offFor"].array.compactMap(\.string))
+                Toggle(row["name"].string ?? "", isOn: Binding(get: { !off.contains(bot.id) }, set: { on in
+                    var next = off
+                    if on { next.remove(bot.id) } else { next.insert(bot.id) }
+                    Task { await team.run("connector-set", ["id": row["id"], "offFor": .array(next.sorted().map(JSON.string))]) }
+                }))
+            }
+            NavigationLink { BotConnectorsPage() } label: { Text(connected.isEmpty ? "连接服务" : "管理连接器").foregroundStyle(Palette.secondary) }
+        } header: {
+            Text("连接器")
+        }
+        .groupedRow()
+    }
+
     private func delete(_ bot: BotInfo) async {
         Haptics.firm()
         if await app.botTeam.run("delete-bot", ["id": .string(bot.id)]) {
@@ -209,6 +265,7 @@ struct BotDetailView: View {
     @ViewBuilder
     private func memorySection(_ bot: BotInfo) -> some View {
         let entries = memory["entries"].array
+        MemoryAskSection(target: ["botId": .string(bot.id)]) { if !$0.isNull { memory = $0 } }
         Section {
             if loadingMemory && memory.isNull {
                 ProgressView().frame(maxWidth: .infinity)
@@ -236,6 +293,8 @@ struct BotDetailView: View {
             if !entries.isEmpty { Text("左滑可以删除。") }
         }
         .groupedRow()
+        Section { NavigationLink("改动记录") { MemoryHistoryPage(target: ["botId": .string(bot.id)]) } }
+            .groupedRow()
     }
 
     private func origin(of entry: JSON) -> String {

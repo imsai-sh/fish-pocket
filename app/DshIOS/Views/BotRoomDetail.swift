@@ -9,6 +9,8 @@ struct RoomDetailView: View {
     @State private var confirmingDelete = false
     @State private var adding = false
     @State private var confirmingFullAccess = false
+    @State private var draftingGoal = false
+    @State private var confirmingGoalStop = false
     @State private var schedules: BotSchedules
 
     init(roomId: String) {
@@ -33,6 +35,14 @@ struct RoomDetailView: View {
                         about(room)
                         members(room)
                         speaking(room)
+                        RoomGoalSection(room: room, drafting: $draftingGoal, confirmingStop: $confirmingGoalStop)
+                        Section {
+                            NavigationLink { BotFolderPage(target: .room(room.id)) } label: {
+                                LabeledContent("工作文件夹", value: room.json["workDir"].string.map { ($0 as NSString).lastPathComponent } ?? String(localized: "各用自己的"))
+                            }
+                            NavigationLink("群记忆") { RoomMemoryPage(roomId: room.id) }
+                        }
+                        .groupedRow()
                         if !team.permissionOptions.isEmpty { permission(room) }
                         BotScheduleSection(schedules: schedules)
                         manage(room)
@@ -40,6 +50,16 @@ struct RoomDetailView: View {
                     .groupedList()
                     .sheet(isPresented: $adding) { RoomAddMembersSheet(roomId: room.id) }
                     .botSchedules(schedules, app: app)
+                    .sheet(isPresented: $draftingGoal) { GoalDraftSheet(roomId: room.id) }
+                    .alert("让群里的 Bot 都用完全权限？", isPresented: $confirmingFullAccess) {
+                        Button("取消", role: .cancel) {}
+                        Button("启用", role: .destructive) { Task { await team.update(room, ["permission": "danger-full-access"]) } }
+                    } message: {
+                        Text("它们在这个群里改文件、跑命令都不再先问你。只在信任要做的事时使用。")
+                    }
+                    .confirmationDialog("停止这个目标？", isPresented: $confirmingGoalStop, titleVisibility: .visible) {
+                        Button("停止", role: .destructive) { RoomGoalSection.control("stop", room: room, team: team) }
+                    } message: { Text("群里正在做的事也会一起停下。") }
                     .confirmationDialog("删除「\(team.name(of: room))」？", isPresented: $confirmingDelete, titleVisibility: .visible) {
                         Button("删除群聊", role: .destructive) { Task { await delete(room) } }
                     } message: {
@@ -165,12 +185,6 @@ struct RoomDetailView: View {
             Text("统一设了权限，群里的 Bot 在这个群里都按它工作。")
         }
         .groupedRow()
-        .alert("让群里的 Bot 都用完全权限？", isPresented: $confirmingFullAccess) {
-            Button("取消", role: .cancel) {}
-            Button("启用", role: .destructive) { Task { await team.update(room, ["permission": "danger-full-access"]) } }
-        } message: {
-            Text("它们在这个群里改文件、跑命令都不再先问你。只在信任要做的事时使用。")
-        }
     }
 
     @ViewBuilder

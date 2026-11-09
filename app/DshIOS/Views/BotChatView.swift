@@ -7,6 +7,7 @@ struct BotChatView: View {
     let botId: String
     @State private var detailOpen = false
     @State private var detailTab = BotDetailView.Tab.profile
+    @State private var sideChatOpen = false
     /// Held here, not `.constant`: a constant binding reads as changed on every pass, and the
     /// conversation view redraws without end. A session it picks (a reminder's) opens outside.
     @State private var selection: String?
@@ -25,6 +26,12 @@ struct BotChatView: View {
             .environment(\.botComposer, .bot(bot.id))
             .openingOtherSessions($selection, from: bot.sessionId)
             .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) { BotDetailView(botId: botId, tab: detailTab) }
+            .sheet(isPresented: $sideChatOpen) { BotSideChatSheet(botId: botId) }
+            .onChange(of: team.sideChatRequest) { _, request in
+                guard request == botId else { return }
+                team.sideChatRequest = nil
+                Task { try? await Task.sleep(for: .milliseconds(350)); sideChatOpen = true }
+            }
             .onChange(of: team.scheduleRequest) { _, request in
                 guard request == .bot(botId) else { return }
                 team.scheduleRequest = nil
@@ -72,6 +79,7 @@ private struct BotPending: View {
             if bot.waiting { BotModelPicker(bot: bot) }
             if let question = team.question(of: bot) { BotQuestionCard(bot: bot, question: question) }
             if let view = team.pendingView(of: bot) { BotViewCard(bot: bot, pending: view).id(view["id"].string) }
+            BotRequestCards(bot: bot)
             if let blocked = bot.blocked, !bot.waiting {
                 BotCard {
                     Text("\(bot.name)上一轮没能完成").font(.subheadline.weight(.semibold))

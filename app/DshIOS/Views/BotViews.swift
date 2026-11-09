@@ -327,6 +327,10 @@ struct BotHomeView: View {
             if let openDrawer { ToolbarItem(placement: .topBarLeading) { DrawerButton(action: openDrawer) } }
             if team.status == .ready {
                 ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink { BotTeamSettingsView() } label: { Image(systemName: "gearshape") }
+                        .accessibilityLabel("团队设置")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button { creating = .bot } label: { Label("新建 Bot", systemImage: "person.badge.plus") }
                         Button { creating = .room } label: { Label("新建群聊", systemImage: "person.2") }

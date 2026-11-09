@@ -32,6 +32,7 @@ struct TurnMenu: ViewModifier {
         if bot != nil, !closing.isEmpty {
             Button { actions.quote(closing) } label: { Label("引用回复", systemImage: "arrowshape.turn.up.left") }
             ShareLink(item: closing) { Label("分享", systemImage: "square.and.arrow.up") }
+            Button { ReadAloud.shared.toggle(closing) } label: { Label("朗读", systemImage: "speaker.wave.2") }
         }
         if let regeneratePrompt, bot == nil {
             Button { actions.regenerate(regeneratePrompt) } label: { Label("重新生成", systemImage: "arrow.clockwise") }

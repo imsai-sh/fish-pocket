@@ -201,6 +201,24 @@ private struct RoomMentions: View {
         let members = room.members.compactMap(team.bot)
         VStack(alignment: .leading, spacing: 8) {
             ForEach(team.approvals(inRoom: room.id), id: \.["id"]) { approval in RoomApprovalCard(approval: approval) }
+            if let goal = room.json["goal"].nonNull, goal["status"].string != "complete", goal["status"].string != "stopped" {
+                Button { team.scheduleRequest = .room(room.id) } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "flag").font(.caption)
+                        Text(goal["title"].string ?? goal["brief"].string ?? "").lineLimit(1)
+                        if let index = goal["current"].int, index >= 0, !goal["stages"].array.isEmpty {
+                            Text("\(min(index + 1, goal["stages"].array.count))/\(goal["stages"].array.count)").monospacedDigit()
+                        }
+                        Text(RoomGoalSection.status(goal)).foregroundStyle(Palette.secondary)
+                        Spacer(minLength: 0)
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(Palette.ink)
+                    .padding(.horizontal, 14).frame(minHeight: 34)
+                    .background(Palette.grouped, in: Capsule())
+                }
+                .buttonStyle(.plain)
+            }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     ForEach(members) { member in
