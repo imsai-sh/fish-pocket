@@ -218,11 +218,14 @@ struct TurnTrigger: Hashable {
     let title: String
     let symbol: String
     let body: String
+    /// ds-bot's handoff package that opens a new part of a Bot's chat (`source.handoff`).
+    var handoff = false
 
     init(seq: Int, time: Date, source: JSON, body: String) {
         self.seq = seq
         self.time = time
         self.body = body
+        handoff = source["kind"].string == "bot" && source["handoff"].bool == true
         switch source["kind"].string {
         case "goal": title = String(localized: "继续执行目标"); symbol = "flag"
         case "agent-message": title = String(localized: "收到任务消息"); symbol = "person"

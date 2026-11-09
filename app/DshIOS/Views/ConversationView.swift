@@ -285,6 +285,12 @@ struct ConversationView: View {
             fork: { turn in
                 Task { await app.fork(session: sessionId, atSeq: model.forkBoundary(turn: turn), from: .turn) }
             },
+            quote: { text in
+                let quoted = text.split(separator: "\n", omittingEmptySubsequences: false).prefix(12).map { "> \($0)" }.joined(separator: "\n")
+                let draft = model.composer.text.trimmingCharacters(in: .whitespacesAndNewlines)
+                model.composer.text = quoted + "\n\n" + draft
+                Haptics.tap()
+            },
             revealQuestion: { deferred.remove("q-\($0)") },
             present: { item in
                 // The timeline stays usable behind an approval: what is waiting steps aside, one tap away.
@@ -601,6 +607,8 @@ struct ConversationActions {
     var openChanges: () -> Void = {}
     var regenerate: (String) -> Void = { _ in }
     var fork: (Int) -> Void = { _ in }
+    /// Quote a reply into the composer, to answer that part of it.
+    var quote: (String) -> Void = { _ in }
     /// Bring a question swiped away back up, from its tool row.
     var revealQuestion: (String) -> Void = { _ in }
     /// Open what a row holds in the conversation's sheet.
@@ -659,7 +667,7 @@ private struct TimelineList: View {
 
     var body: some View {
         // A Bot's chat leaves out the turns that answered another Bot (ds-bot draws none of them).
-        let items = bot.map { bot in model.items.filter { item in Self.turn(of: item).map { !bot.hiddenTurns.contains($0) } ?? true } } ?? model.items
+        let items = bot.map { bot in model.items.filter { !bot.hides($0) } } ?? model.items
         let lastAssistant = items.last { if case .assistant = $0 { true } else { false } }?.id
         // The turn being worked on: the streamed attempt joins it, under one step line (as the web does).
         let activeTurn: String? = if model.running, case .assistant? = items.last { items.last?.id } else { nil }
@@ -668,6 +676,8 @@ private struct TimelineList: View {
         // after sending). The snapshot holds only the recent history and rows skip unchanged redraws.
         VStack(alignment: .leading, spacing: 20) {
             if model.hasMoreHistory { LoadOlderTrigger(model: model) }
+            // A Bot's chat moves to a fresh part when it grows long; the earlier parts come from ds-bot.
+            if !model.hasMoreHistory, model.loaded, let from = bot?.earlierFrom { BotEarlierParts(sessionId: from) }
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 if bot?.room == true, case .assistant(_, let blocks, _, _) = item, let relay = RoomRelay(blocks: blocks) {
                     // A group round: its members' replies, under their names.

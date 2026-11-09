@@ -21,7 +21,7 @@ struct BotChatView: View {
                 accessory: AnyView(BotPending(bot: bot))
             ))
             .id(bot.sessionId)
-            .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot)))
+            .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot), earlierFrom: bot.parts.isEmpty ? nil : bot.sessionId))
             .environment(\.botComposer, .bot(bot.id))
             .openingOtherSessions($selection, from: bot.sessionId)
             .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) { BotDetailView(botId: botId, tab: detailTab) }

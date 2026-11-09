@@ -37,7 +37,7 @@ struct ComposerTray: View {
                     NavigationLink {
                         CandidateList(model: model, context: context, trigger: "@", pick: pick)
                     } label: {
-                        Label("引用文件或对话", systemImage: "at")
+                        Label(bot == nil ? "引用文件或对话" : "提到 Bot、文件或对话", systemImage: "at")
                     }
                     if bot == nil {
                         NavigationLink {

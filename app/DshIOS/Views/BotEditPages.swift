@@ -237,6 +237,8 @@ struct BotAppearanceSheet: View {
     let botId: String
     @State private var photo: PhotosPickerItem?
     @State private var saving = false
+    /// Photos used before (ds-bot's avatar library): `{id, name, image}`, newest first.
+    @State private var library: [JSON] = []
 
     var body: some View {
         let team = app.botTeam
@@ -260,6 +262,27 @@ struct BotAppearanceSheet: View {
                         }
                     }
                     .groupedRow()
+                    if !library.isEmpty {
+                        Section("用过的照片") {
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 10) {
+                                ForEach(library, id: \.["id"]) { item in
+                                    if let url = item["image"].string, let image = BotPicture.image(url) {
+                                        Button { save(bot, avatar: ["image": .string(url)]) } label: {
+                                            Image(uiImage: image).resizable().scaledToFill()
+                                                .frame(width: 52, height: 52).clipShape(Circle())
+                                                .overlay(Circle().stroke(Palette.ink, lineWidth: bot.avatarImage == url ? 2.5 : 0).padding(-3))
+                                        }
+                                        .buttonStyle(.plain)
+                                        .contextMenu {
+                                            Button("从照片库移除", systemImage: "trash", role: .destructive) { Task { await remove(item) } }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 6)
+                        }
+                        .groupedRow()
+                    }
                     if !team.usesAppMark(bot) && bot.avatarImage == nil {
                         Section("颜色") {
                             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 6), spacing: 12) {
@@ -291,12 +314,25 @@ struct BotAppearanceSheet: View {
                             app.showToast(String(localized: "这张照片读不出来"), tone: .warning)
                             return
                         }
+                        // Kept in the library too, for the team's other Bots.
+                        _ = try? await team.call("avatar-import", ["items": [["name": "photo", "image": .string(url)]]])
                         save(bot, avatar: ["image": .string(url)])
+                        await loadLibrary()
                     }
                 }
+                .task { await loadLibrary() }
             }
         }
         .presentationDetents([.medium, .large])
+    }
+
+    private func loadLibrary() async {
+        if let value = try? await app.botTeam.call("avatar-library", ["limit": 48]) { library = value["items"].array }
+    }
+
+    private func remove(_ item: JSON) async {
+        _ = try? await app.botTeam.call("avatar-delete", ["id": item["id"]])
+        await loadLibrary()
     }
 
     private func colour(_ bot: BotInfo, _ key: String) {

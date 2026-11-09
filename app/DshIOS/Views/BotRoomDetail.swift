@@ -93,6 +93,15 @@ struct RoomDetailView: View {
                             .padding(.horizontal, 6).padding(.vertical, 2).background(Palette.control, in: Capsule())
                     }
                     Spacer()
+                    if team.isWorking(id) {
+                        StatusDot(state: .running, size: 6)
+                        Button("停下") {
+                            Haptics.firm()
+                            Task { await team.run("stop-member-work", ["roomId": .string(room.id), "botId": .string(id)]) }
+                        }
+                        .font(.footnote)
+                        .buttonStyle(.borderless)
+                    }
                 }
                 .swipeActions {
                     if room.members.count > 2 {

@@ -307,6 +307,7 @@ struct BotHomeView: View {
     @Environment(AppModel.self) private var app
     let openDrawer: (() -> Void)?
     @State private var creating: CreateKind?
+    @State private var showHidden = false
 
     enum CreateKind: String, Identifiable { case bot, room; var id: String { rawValue } }
 
@@ -344,38 +345,98 @@ struct BotHomeView: View {
         .refreshable { await team.refreshState() }
     }
 
+    /// Pinned first, then the main Bots in their order, then the most recently active.
+    private var bots: [BotInfo] {
+        let team = app.botTeam
+        let main = team.mainBotIds
+        return team.bots.filter { showHidden || !$0.hidden }.sorted { a, b in
+            if a.pinned != b.pinned { return a.pinned }
+            let ia = main.firstIndex(of: a.id) ?? .max, ib = main.firstIndex(of: b.id) ?? .max
+            if ia != ib { return ia < ib }
+            return (app.sessions[a.sessionId]?.updatedAt ?? .distantPast) > (app.sessions[b.sessionId]?.updatedAt ?? .distantPast)
+        }
+    }
+
+    private var rooms: [RoomInfo] {
+        app.botTeam.rooms.filter { showHidden || !$0.hidden }.sorted { a, b in
+            if a.pinned != b.pinned { return a.pinned }
+            return (app.sessions[a.sessionId]?.updatedAt ?? .distantPast) > (app.sessions[b.sessionId]?.updatedAt ?? .distantPast)
+        }
+    }
+
     private var list: some View {
         let team = app.botTeam
+        let hiddenCount = team.bots.filter(\.hidden).count + team.rooms.filter(\.hidden).count
         return List {
             Section {
-                ForEach(team.bots) { bot in
+                ForEach(bots) { bot in
                     NavigationLink(value: BotRoute.bot(bot.id)) {
                         HStack(spacing: 12) {
                             BotAvatar(bot: bot, size: 44)
-                            BotRowText(title: bot.name, line: team.rowLine(for: bot), tag: bot.id == team.mainBotId ? String(localized: "主 Bot") : nil)
+                            BotRowText(title: bot.name, line: team.rowLine(for: bot), tag: team.isMain(bot) ? String(localized: "主 Bot") : nil)
+                            if bot.pinned { Image(systemName: "pin.fill").font(.caption2).foregroundStyle(Palette.faint) }
                             trailing(sessionId: bot.sessionId)
                         }
                         .padding(.vertical, 4)
+                        .opacity(bot.hidden ? 0.5 : 1)
+                    }
+                    .swipeActions(edge: .leading) { pinButton(bot.id, pinned: bot.pinned) }
+                    .swipeActions(edge: .trailing) { if !team.isMain(bot) { hideButton(bot.id, hidden: bot.hidden) } }
+                    .contextMenu {
+                        pinButton(bot.id, pinned: bot.pinned)
+                        // A main Bot takes the user's work, so it stays in sight.
+                        if !team.isMain(bot) { hideButton(bot.id, hidden: bot.hidden) }
                     }
                 }
             } header: { Text("Bot") }
-            if !team.rooms.isEmpty {
+            if !rooms.isEmpty {
                 Section {
-                    ForEach(team.rooms) { room in
+                    ForEach(rooms) { room in
                         NavigationLink(value: BotRoute.room(room.id)) {
                             HStack(spacing: 12) {
                                 RoomAvatar(room: room, size: 44)
                                 BotRowText(title: team.name(of: room), line: room.preview.map { .text($0) } ?? .none)
+                                if room.pinned { Image(systemName: "pin.fill").font(.caption2).foregroundStyle(Palette.faint) }
                                 trailing(sessionId: room.sessionId)
                             }
                             .padding(.vertical, 4)
+                            .opacity(room.hidden ? 0.5 : 1)
+                        }
+                        .swipeActions(edge: .leading) { pinButton(room.id, pinned: room.pinned) }
+                        .swipeActions(edge: .trailing) { hideButton(room.id, hidden: room.hidden) }
+                        .contextMenu {
+                            pinButton(room.id, pinned: room.pinned)
+                            hideButton(room.id, hidden: room.hidden)
                         }
                     }
                 } header: { Text("群聊") }
             }
+            if hiddenCount > 0 {
+                Section {
+                    Button(showHidden ? String(localized: "收起已隐藏的") : String(localized: "显示 \(hiddenCount) 个已隐藏的")) {
+                        withAnimation(.snappy) { showHidden.toggle() }
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(Palette.secondary)
+                }
+            }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+    }
+
+    private func pinButton(_ id: String, pinned: Bool) -> some View {
+        Button { Task { await app.botTeam.setFlags(id, pinned: !pinned) } } label: {
+            Label(pinned ? "取消置顶" : "置顶", systemImage: pinned ? "pin.slash" : "pin")
+        }
+        .tint(Palette.ink)
+    }
+
+    private func hideButton(_ id: String, hidden: Bool) -> some View {
+        Button { Task { await app.botTeam.setFlags(id, hidden: !hidden) } } label: {
+            Label(hidden ? "取消隐藏" : "隐藏", systemImage: hidden ? "eye" : "eye.slash")
+        }
+        .tint(Palette.secondary)
     }
 
     private func trailing(sessionId: String) -> some View {

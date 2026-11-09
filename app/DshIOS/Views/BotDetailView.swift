@@ -154,11 +154,26 @@ struct BotDetailView: View {
         Section {
             if team.isMain(bot) {
                 if team.mainBotIds.count > 1 {
+                    if bot.id != team.mainBotId {
+                        // The first main Bot is the one the sidebar and new requests reach.
+                        Button("设为首要主 Bot") { Task { await team.run("set-main", ["id": .string(bot.id), "main": true, "primary": true]) } }
+                    }
                     Button("不再作为主 Bot") { Task { await team.run("set-main", ["id": .string(bot.id), "main": false]) } }
                 }
             } else {
                 Button("设为主 Bot") { Task { await team.run("set-main", ["id": .string(bot.id), "main": true]) } }
             }
+            // A fresh session for the chat, with a handoff note: the context starts small again,
+            // the memory and the earlier parts stay.
+            Button("开始新的一段对话") {
+                Task {
+                    if await team.run("bot-new-part", ["botId": .string(bot.id)]) {
+                        Haptics.success()
+                        app.showToast(String(localized: "已开始新的一段，之前的对话还能往上翻到"))
+                    }
+                }
+            }
+            .disabled(team.isWorking(bot.id))
             Button("复制一份") {
                 Task {
                     if await team.duplicate(bot) {

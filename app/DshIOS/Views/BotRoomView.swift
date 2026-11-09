@@ -13,6 +13,23 @@ struct BotChrome {
 struct BotTimeline: Equatable {
     var hiddenTurns: Set<Int> = []
     var room = false
+    /// The current part, when the chat has earlier ones: they are read with `earlier` from it.
+    var earlierFrom: String?
+
+    /// The Bot's fixed reply to the handoff package of a new part (ds-bot's constants.js).
+    static let handoffReply = "Noted. I have my handoff note and carry on from here."
+
+    /// The handoff package and its fixed reply are the plugin's bookkeeping, not the conversation.
+    func hides(_ item: TimelineItem) -> Bool {
+        switch item {
+        case .trigger(let trigger): return trigger.handoff
+        case .assistant(let turn, let blocks, _, _):
+            if hiddenTurns.contains(turn) { return true }
+            let texts = blocks.compactMap { if case .text(_, let text) = $0 { text } else { nil } }
+            return texts.count == 1 && texts[0].trimmingCharacters(in: .whitespacesAndNewlines) == Self.handoffReply
+        default: return false
+        }
+    }
 }
 
 private struct BotTimelineKey: EnvironmentKey {
@@ -35,7 +52,10 @@ extension EnvironmentValues {
 /// members each answer on their own.
 enum BotComposer: Equatable {
     case bot(String)
-    case room
+    case room(String)
+
+    /// DSH commands that set this session's model, modes, goal or context: a Bot keeps its own.
+    static let hiddenCommands: Set<String> = ["model", "goal", "plan", "compact", "permission"]
 }
 
 private struct BotComposerKey: EnvironmentKey {
@@ -151,14 +171,14 @@ struct BotRoomView: View {
                 .accessibilityHint("查看群聊设置")),
                 accessory: AnyView(RoomMentions(room: room))
             ))
-            .environment(\.botTimeline, BotTimeline(room: true))
-            .environment(\.botComposer, .room)
+            .environment(\.botTimeline, BotTimeline(room: true, earlierFrom: room.json["ownParts"].array.isEmpty ? nil : room.sessionId))
+            .environment(\.botComposer, .room(room.id))
             // The round's replies as each member speaks.
             .task(id: room.id) { await team.followRounds(of: room.id) }
             .openingOtherSessions($selection, from: room.sessionId)
             .sheet(isPresented: $detailOpen) { RoomDetailView(roomId: roomId) }
             .onChange(of: team.scheduleRequest) { _, request in
-                guard request == .room else { return }
+                guard request == .room(roomId) else { return }
                 team.scheduleRequest = nil
                 Task { try? await Task.sleep(for: .milliseconds(350)); detailOpen = true }
             }
@@ -180,6 +200,7 @@ private struct RoomMentions: View {
         let team = app.botTeam
         let members = room.members.compactMap(team.bot)
         VStack(alignment: .leading, spacing: 8) {
+            ForEach(team.approvals(inRoom: room.id), id: \.["id"]) { approval in RoomApprovalCard(approval: approval) }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     ForEach(members) { member in
@@ -198,6 +219,39 @@ private struct RoomMentions: View {
                 }
             }
         }
+    }
+}
+
+/// A member waits for the user to allow a tool in the group (only answerable here).
+private struct RoomApprovalCard: View {
+    @Environment(AppModel.self) private var app
+    let approval: JSON
+    @State private var sending = false
+
+    var body: some View {
+        let team = app.botTeam
+        let name = approval["botId"].string.flatMap(team.bot)?.name ?? ""
+        BotCard {
+            Text("\(name)想要使用「\(approval["tool"].string ?? "")」").font(.subheadline.weight(.semibold))
+            if let reason = approval["reason"].string, !reason.isEmpty {
+                Text(reason).font(.footnote).foregroundStyle(Palette.secondary).lineLimit(4)
+            }
+            if let detail = approval["detail"]["code"].string ?? approval["detail"]["text"].string, !detail.isEmpty {
+                Text(detail).font(.caption.monospaced()).foregroundStyle(Palette.ink).lineLimit(6)
+                    .padding(8).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Palette.background, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            }
+            HStack(spacing: 8) {
+                Button("允许一次") { answer(true) }.buttonStyle(.capsule(height: 36, fill: false))
+                Button("拒绝") { answer(false) }.buttonStyle(.capsule(.outline, height: 36, fill: false))
+            }
+            .disabled(sending)
+        }
+    }
+
+    private func answer(_ allow: Bool) {
+        sending = true
+        Task { await app.botTeam.answerApproval(approval, allow: allow); sending = false }
     }
 }
 

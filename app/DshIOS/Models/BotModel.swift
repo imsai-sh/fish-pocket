@@ -28,6 +28,8 @@ struct BotInfo: Identifiable, Hashable {
     var avatarImage: String? { json["avatar"]["image"].string }
     /// Its last turn failed for a reason the user can fix (`{code, …}`).
     var blocked: JSON? { json["blocked"].nonNull }
+    var pinned: Bool { json["pinned"].bool ?? false }
+    var hidden: Bool { json["hidden"].bool ?? false }
 }
 
 /// One group chat.
@@ -52,6 +54,8 @@ struct RoomInfo: Identifiable, Hashable {
     var notice: String { json["notice"].string ?? "" }
     /// A preset all members work with here, over their own.
     var permission: String? { json["permission"].string }
+    var pinned: Bool { json["pinned"].bool ?? false }
+    var hidden: Bool { json["hidden"].bool ?? false }
 }
 
 /// The Bot feature: ds-bot's team behind native pages. The plugin's HTTP route
@@ -391,6 +395,17 @@ final class BotModel {
         }
     }
 
+    /// What a group's members wait on the user to allow (`work.approvals`):
+    /// `{id, botId, tool, reason, detail:{text?, code?}, answerable}`.
+    func approvals(inRoom roomId: String) -> [JSON] {
+        work["approvals"].array.filter { $0["roomId"].string == roomId && $0["answerable"].bool != false }
+    }
+
+    func answerApproval(_ approval: JSON, allow: Bool) async {
+        Haptics.tap()
+        await run("approval-answer", ["id": approval["id"], "choice": .string(allow ? "allow" : "reject")])
+    }
+
     func round(_ callId: String) -> JSON? { rounds.first { $0["callId"].string == callId } }
     var speaking: [String] { rounds.flatMap { $0["speaking"].array.compactMap(\.string) } }
 
@@ -429,6 +444,15 @@ final class BotModel {
             app.showToast(error.localizedDescription, tone: .warning)
             return false
         }
+    }
+
+    /// Pin a Bot or group to the top of the list, or hide it from the list.
+    func setFlags(_ id: String, pinned: Bool? = nil, hidden: Bool? = nil) async {
+        Haptics.select()
+        var payload: [String: JSON] = ["id": .string(id)]
+        if let pinned { payload["pinned"] = .bool(pinned) }
+        if let hidden { payload["hidden"] = .bool(hidden) }
+        await run("set-flags", payload)
     }
 
     /// Change a group chat; the plugin answers with what changed.

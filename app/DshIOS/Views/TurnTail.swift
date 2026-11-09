@@ -29,6 +29,10 @@ struct TurnMenu: ViewModifier {
             Button { copyToPasteboard(closing) } label: { Label("复制", systemImage: "doc.on.doc") }
             Button { actions.present(.text(closing)) } label: { Label("选择文本", systemImage: "selection.pin.in.out") }
         }
+        if bot != nil, !closing.isEmpty {
+            Button { actions.quote(closing) } label: { Label("引用回复", systemImage: "arrowshape.turn.up.left") }
+            ShareLink(item: closing) { Label("分享", systemImage: "square.and.arrow.up") }
+        }
         if let regeneratePrompt, bot == nil {
             Button { actions.regenerate(regeneratePrompt) } label: { Label("重新生成", systemImage: "arrow.clockwise") }
         }
