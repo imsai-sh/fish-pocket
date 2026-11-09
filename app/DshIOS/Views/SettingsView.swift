@@ -358,6 +358,9 @@ private struct AboutPage: View {
                     .foregroundStyle(Palette.ink)
                 }
                 LabeledContent("App 版本", value: Self.appVersion)
+                if let release = WhatsNew.current {
+                    NavigationLink("新功能") { WhatsNewPage(release: release) }
+                }
                 UpdateRow()
                 LabeledContent("系统", value: ProcessInfo.processInfo.operatingSystemVersionString)
             } footer: {
