@@ -1,0 +1,369 @@
+import Foundation
+import Observation
+import SwiftUI
+
+/// One Bot of the team, as ds-bot's `state` lists it.
+struct BotInfo: Identifiable, Hashable {
+    let json: JSON
+    var id: String { json["id"].string ?? "" }
+    var name: String { json["name"].string ?? "" }
+    var role: String { json["role"].string ?? "" }
+    /// The Bot's own chat, current part.
+    var sessionId: String { json["sessionId"].string ?? "" }
+    /// Earlier parts of its own chat.
+    var parts: [String] { json["parts"].array.compactMap(\.string) }
+    var colorKey: String? { json["color"].string }
+    /// Holds its greeting until the user picks a model (web: the model picker).
+    var waiting: Bool { json["waiting"].bool ?? false }
+}
+
+/// One group chat.
+struct RoomInfo: Identifiable, Hashable {
+    let json: JSON
+    var id: String { json["id"].string ?? "" }
+    var name: String { json["name"].string ?? "" }
+    var members: [String] { json["members"].array.compactMap { $0.string ?? $0["id"].string } }
+    /// The group's own Session, current part.
+    var sessionId: String { json["sessionId"].string ?? "" }
+    /// Every Session the group runs: its own earlier parts and the members' hidden ones.
+    var sessions: [String] { json["parts"].array.compactMap(\.string) + json["ownParts"].array.compactMap(\.string) }
+    /// The last line, `名字：内容` (the user's own lines bare).
+    var preview: String? { json["preview"].string }
+}
+
+/// The Bot feature: ds-bot's team behind native pages. The plugin's HTTP route
+/// (`POST /api/bot` with `{endpoint, payload}`) answers `{ok, value}` or
+/// `{ok:false, error}`; `GET /api/bot/feed` is a Server-Sent Events stream that says when
+/// to read `state` again and carries each new entry of a Bot's own chat as it lands.
+/// The app pins the plugin's version (`PluginPins`): these endpoints carry no version.
+@MainActor
+@Observable
+final class BotModel {
+    static let package = "ds-bot"
+
+    enum Status: Equatable {
+        /// Not known yet (the engine or the plugin list is still loading).
+        case unknown
+        case notInstalled
+        /// Installed but switched off.
+        case disabled
+        /// Installed at a version the native pages were not built against.
+        case wrongVersion(String)
+        case ready
+    }
+
+    @ObservationIgnored private unowned let app: AppModel
+    /// The `state` view (bots, rooms, questions…), replaced on each new revision.
+    private(set) var team: JSON = .null
+    /// What changes without a revision: `activity` (per Bot) and `work`.
+    private(set) var activity: [String: JSON] = [:]
+    private(set) var work: JSON = .null
+    /// The route answered: the plugin is loaded in this engine.
+    private(set) var reachable = false
+    /// Replies being written, by Session: the text so far.
+    private(set) var writing: [String: String] = [:]
+    /// Bumped whenever the feed (re)connects: what it missed is read again.
+    private(set) var feedGeneration = 0
+    private(set) var installing = false
+    var installError: String?
+    /// Show the Bot pages (the root view consumes it).
+    var openRequest: BotOpenRequest?
+
+    @ObservationIgnored private var revision: Double?
+    @ObservationIgnored private var liveKey: String?
+    @ObservationIgnored private var followTask: Task<Void, Never>?
+    @ObservationIgnored private var refreshTask: Task<Void, Never>?
+    @ObservationIgnored private var listeners: [UUID: (String, JSON) -> Void] = [:]
+
+    init(app: AppModel) {
+        self.app = app
+    }
+
+    // MARK: Status
+
+    var installedPackage: PluginPackage? {
+        guard let package = app.plugins.package(Self.package), package.installed || package.availability != "missing" else { return nil }
+        return package
+    }
+
+    var status: Status {
+        if reachable {
+            if let version = installedPackage?.version, let pinned = PluginPins.version(of: Self.package), version != pinned { return .wrongVersion(version) }
+            return .ready
+        }
+        guard app.plugins.status == .ready else { return .unknown }
+        guard let package = installedPackage else { return .notInstalled }
+        if !package.enabled { return .disabled }
+        if let version = package.version, let pinned = PluginPins.version(of: Self.package), version != pinned { return .wrongVersion(version) }
+        // Enabled but not answering yet: loading, or restarting the engine.
+        return .unknown
+    }
+
+    // MARK: Team
+
+    var bots: [BotInfo] { team["bots"].array.map(BotInfo.init) }
+    var rooms: [RoomInfo] { team["rooms"].array.map(RoomInfo.init) }
+    var mainBotId: String? { team["mainBotId"].string }
+    var mainBot: BotInfo? { bots.first { $0.id == mainBotId } ?? bots.first }
+    func bot(_ id: String) -> BotInfo? { bots.first { $0.id == id } }
+    func room(_ id: String) -> RoomInfo? { rooms.first { $0.id == id } }
+
+    /// The team's workspace: its sessions are the Bots' and the groups', shown here, not in the drawer.
+    var teamWorkspaceId: String? { reachable ? team["workspaceId"].string : nil }
+
+    /// Every Session the team runs; the drawer leaves them out.
+    var teamSessionIds: Set<String> {
+        guard reachable else { return [] }
+        var ids = Set<String>()
+        for bot in bots { ids.insert(bot.sessionId); ids.formUnion(bot.parts) }
+        for room in rooms { ids.insert(room.sessionId); ids.formUnion(room.sessions) }
+        ids.remove("")
+        return ids
+    }
+
+    /// The Bot is working: in its own chat or in a group.
+    func isWorking(_ botId: String) -> Bool {
+        guard let value = activity[botId] else { return false }
+        return value.string != nil && value.string != "idle"
+    }
+
+    var workingCount: Int { bots.filter { isWorking($0.id) }.count }
+
+    /// The card a Bot is waiting on, in its own chat: `{id, question, detail?, options:[{label, description?}], multiSelect}`.
+    func question(of bot: BotInfo) -> JSON? { team["questions"][bot.sessionId].nonNull }
+
+    /// A form the Bot sent that waits for an answer (`show_view`); answered on the web for now.
+    func pendingView(of bot: BotInfo) -> JSON? { team["views"][bot.sessionId].nonNull }
+
+    /// The plugin's colour names and the ink its own window paints them in (light appearance).
+    private static let inks: [String: String] = [
+        "deepseek": "#4D6BFE", "charcoal": "#141416", "graphite": "#2D2D2D", "rose": "#EC2F6B", "sky": "#0AA8D6",
+        "tangerine": "#FF6900", "cobalt": "#082DFF", "black": "#000000", "brown": "#9A6B44", "red": "#FF3E51",
+        "orange": "#FF6B1A", "yellow": "#FFB020", "green": "#10B981", "cyan": "#06B6D4", "blue": "#2563EB",
+        "violet": "#8B5CF6", "magenta": "#F43F85", "gray": "#8A8F98", "aurora": "#00B8D4",
+    ]
+
+    /// The Bot's display colour: one of the plugin's colour names, or a hex.
+    func color(of bot: BotInfo) -> Color {
+        if let key = bot.colorKey, let color = Color(hex: Self.inks[key] ?? key) { return color }
+        let palette: [Color] = [Color(red: 0.18, green: 0.44, blue: 0.84), Color(red: 0.72, green: 0.38, blue: 0.04), Color(red: 0.48, green: 0.31, blue: 0.79), Color(red: 0.07, green: 0.55, blue: 0.40), Color(red: 0.80, green: 0.27, blue: 0.36)]
+        let hash = bot.id.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) & 0xffff }
+        return palette[hash % palette.count]
+    }
+
+    // MARK: Calls
+
+    struct Unreachable: LocalizedError {
+        var errorDescription: String? { String(localized: "Bot 插件没有响应") }
+    }
+
+    /// One endpoint call; returns `value`, throws the plugin's error.
+    @discardableResult
+    func call(_ endpoint: String, _ payload: JSON = [:]) async throws -> JSON {
+        let client = app.client
+        var request = client.request(client.origin.appendingPathComponent("api/bot"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        request.httpBody = try JSONEncoder().encode(["endpoint": .string(endpoint), "payload": payload] as JSON)
+        let (data, response) = try await client.session.data(for: request)
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard let reply = try? JSONDecoder().decode(JSON.self, from: data), reply["ok"].bool != nil else {
+            if status == 404 { throw Unreachable() }
+            throw EngineError(code: "HTTP_\(status)", message: String(localized: "Bot 插件返回了无法解析的响应（HTTP \(status)）"), detail: .null)
+        }
+        if reply["ok"].bool == true { return reply["value"] }
+        let error = reply["error"]
+        throw EngineError(code: error["code"].string, message: error["message"].string ?? String(localized: "Bot 操作失败"), detail: error)
+    }
+
+    // MARK: Following
+
+    /// Read the team and follow the feed for as long as the connection lives.
+    func start() {
+        guard followTask == nil else { return }
+        followTask = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                await self.app.plugins.refresh(revision: self.app.revision("plugin-manager/changed"))
+                await self.refreshState()
+                if self.reachable {
+                    do { try await self.followFeed() } catch {}
+                }
+                if Task.isCancelled { return }
+                try? await Task.sleep(for: .seconds(self.reachable ? 1 : 4))
+            }
+        }
+    }
+
+    /// Read `state` again now; calls in a burst share one read.
+    func refresh() {
+        guard refreshTask == nil else { return }
+        refreshTask = Task {
+            try? await Task.sleep(for: .milliseconds(120))
+            refreshTask = nil
+            await refreshState()
+        }
+    }
+
+    func refreshState() async {
+        var payload: [String: JSON] = ["locale": .string(AppLanguage.isChinese ? "zh-CN" : "en")]
+        if let revision { payload["since"] = .number(revision) }
+        if let liveKey { payload["live"] = .string(liveKey) }
+        do {
+            let value = try await call("state", .object(payload))
+            reachable = true
+            if value["unchanged"].bool != true { team = value }
+            if !value["activity"].isNull { activity = value["activity"].object }
+            if !value["work"].isNull { work = value["work"] }
+            revision = value["revision"].double
+            liveKey = value["liveKey"].string
+        } catch is Unreachable {
+            reachable = false
+            revision = nil
+            liveKey = nil
+        } catch {
+            // The engine is restarting or the connection dropped: the next pass reads again.
+        }
+    }
+
+    /// `event: …` / `data: {…}` pairs until the stream ends. The data line follows its event line.
+    private func followFeed() async throws {
+        let client = app.client
+        var request = client.request(client.origin.appendingPathComponent("api/bot/feed"))
+        request.timeoutInterval = 120
+        let (bytes, response) = try await client.session.bytes(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { return }
+        var event = ""
+        for try await line in bytes.lines {
+            if line.hasPrefix("event:") {
+                event = line.dropFirst(6).trimmingCharacters(in: .whitespaces)
+            } else if line.hasPrefix("data:") {
+                let data = Data(line.dropFirst(5).utf8)
+                let value = (try? JSONDecoder().decode(JSON.self, from: data)) ?? .null
+                handle(event, value)
+                event = ""
+            }
+        }
+    }
+
+    private func handle(_ event: String, _ value: JSON) {
+        switch event {
+        case "hello":
+            feedGeneration += 1
+            writing = [:]
+            refresh()
+        case "revision", "live":
+            refresh()
+        case "message":
+            guard let sessionId = value["sessionId"].string else { return }
+            let item = value["item"]
+            if item["kind"].string == "bot" { writing[sessionId] = nil }
+            for listener in listeners.values { listener(sessionId, item) }
+        case "stream":
+            guard let sessionId = value["sessionId"].string else { return }
+            switch value["phase"].string {
+            case "start": writing[sessionId] = ""
+            case "end": writing[sessionId] = nil
+            default: if let text = value["text"].string { writing[sessionId, default: ""] += text }
+            }
+        default:
+            break
+        }
+    }
+
+    /// New entries of the Bots' own chats as the feed delivers them: `(sessionId, item)`.
+    func addListener(_ handler: @escaping (String, JSON) -> Void) -> UUID {
+        let id = UUID()
+        listeners[id] = handler
+        return id
+    }
+
+    func removeListener(_ id: UUID) { listeners[id] = nil }
+
+    // MARK: Actions
+
+    /// Send a message to a Bot's own chat.
+    func send(_ text: String, to bot: BotInfo) async -> Bool {
+        await app.perform { try await self.call("send", ["sessionId": .string(bot.sessionId), "text": .string(text)]) }
+    }
+
+    /// Stop what the Bot does in its own chat.
+    func stop(_ bot: BotInfo) async {
+        Haptics.firm()
+        await app.perform { try await self.app.client.call("session/cancel", ["request": ["sessionId": .string(bot.sessionId)]]) }
+    }
+
+    func answer(_ question: JSON, of bot: BotInfo, selected: [String]) async -> Bool {
+        let done = await app.perform {
+            try await self.call("answer-question", [
+                "sessionId": .string(bot.sessionId),
+                "questionId": question["id"],
+                "answer": ["selected": .array(selected.map(JSON.string))],
+            ])
+        }
+        if done { refresh() }
+        return done
+    }
+
+    func dismiss(_ question: JSON, of bot: BotInfo) async {
+        await app.perform { try await self.call("dismiss-question", ["sessionId": .string(bot.sessionId)]) }
+        refresh()
+    }
+
+    /// Install the pinned plugin, switched on. The engine restarts itself when the change needs it.
+    func install() async {
+        guard !installing else { return }
+        installing = true
+        installError = nil
+        defer { installing = false }
+        do {
+            let result = try await app.client.call("pluginManager/installBundle", [
+                "spec": .string(Self.package),
+                "options": ["enabled": true, "saveExact": true, "requestId": .string(UUID().uuidString.lowercased())],
+            ])
+            if result["application"].string == "failed" || result["application"].string == "cancelled" {
+                let code = result["error"]["code"].string
+                installError = managementText(code: code, diagnostic: result["error"]["diagnostic"].string, incompatible: result["error"]["incompatible"].array, installing: true)
+                return
+            }
+        } catch {
+            installError = error.localizedDescription
+            return
+        }
+        await app.plugins.load()
+        // The plugin starts with the engine's next load: wait until it answers.
+        for _ in 0..<60 where !reachable {
+            await refreshState()
+            if reachable { break }
+            try? await Task.sleep(for: .seconds(2))
+        }
+    }
+
+    /// Switch an installed, switched-off plugin back on.
+    func enable() async {
+        guard let package = installedPackage else { return }
+        installing = true
+        defer { installing = false }
+        await app.perform { try await self.app.client.call("pluginManager/setBundleEnabled", ["name": .string(package.name), "enabled": true]) }
+        await app.plugins.load()
+        for _ in 0..<30 where !reachable {
+            await refreshState()
+            if reachable { break }
+            try? await Task.sleep(for: .seconds(2))
+        }
+    }
+}
+
+extension AppModel {
+    /// The Bot feature for this connection.
+    var botTeam: BotModel { sharedModel(&SharedModelKey.bots) { BotModel(app: self) } }
+}
+
+extension Color {
+    /// `#rrggbb`.
+    init?(hex: String) {
+        let digits = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
+        guard digits.count == 6, let value = UInt32(digits, radix: 16) else { return nil }
+        self.init(red: Double((value >> 16) & 0xff) / 255, green: Double((value >> 8) & 0xff) / 255, blue: Double(value & 0xff) / 255)
+    }
+}

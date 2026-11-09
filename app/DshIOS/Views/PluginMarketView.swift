@@ -570,6 +570,7 @@ private struct MarketInstallConfirm: View {
     var body: some View {
         let number = choice.version["version"].string ?? ""
         let source = choice.version["source"]
+        let pinned = PluginPins.note(package: choice.entry["name"].string ?? "", version: number)
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
                 PluginIcon(source: choice.entry["icon"].string)
@@ -586,8 +587,12 @@ private struct MarketInstallConfirm: View {
                     Text("此版本与当前 DSH 不兼容，但你已为它设置了兼容性豁免").font(.footnote).foregroundStyle(Palette.waiting)
                 }
             }
-            Label("插件在本机以你的权限运行。请确认你信任它的来源", systemImage: "exclamationmark.triangle")
-                .font(.footnote).foregroundStyle(Palette.secondary)
+            if let pinned {
+                Label(pinned, systemImage: "pin").font(.footnote).foregroundStyle(Palette.waiting)
+            } else {
+                Label("插件在本机以你的权限运行。请确认你信任它的来源", systemImage: "exclamationmark.triangle")
+                    .font(.footnote).foregroundStyle(Palette.secondary)
+            }
             Spacer(minLength: 0)
             HStack(spacing: 12) {
                 Button("取消") { dismiss() }.buttonStyle(.capsule(.outline))
@@ -601,6 +606,7 @@ private struct MarketInstallConfirm: View {
                     }
                 }
                 .buttonStyle(.capsule())
+                .disabled(pinned != nil)
             }
         }
         .padding(20)

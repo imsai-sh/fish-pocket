@@ -187,6 +187,7 @@ final class AppModel {
             followRemoteEvents()
             followScheduleCatalog()
             account.follow()
+            botTeam.start()
             BackgroundKeeper.shared.attach { [weak self] in await self?.refreshSessions() }
             LiveActivityController.shared.attach(self)
         } catch {
@@ -205,9 +206,12 @@ final class AppModel {
             let grouped = Set(workspaces.flatMap(\.sessionIds))
             members = sessions.values.filter { !grouped.contains($0.id) }
         }
+        // The Bot team's sessions (its Bots' chats, the groups and their members' hidden
+        // sessions) live on the Bot pages.
+        let team = botTeam.teamSessionIds
         return members
             .filter { includeArchived || !archived.contains($0.id) }
-            .filter { !$0.isSubagent && !$0.blank }
+            .filter { !$0.isSubagent && !$0.blank && !team.contains($0.id) }
             .sorted { lhs, rhs in
                 let lp = pinned.firstIndex(of: lhs.id), rp = pinned.firstIndex(of: rhs.id)
                 if (lp != nil) != (rp != nil) { return lp != nil }
@@ -222,6 +226,9 @@ final class AppModel {
     }
 
     func isPinned(_ id: String) -> Bool { pinned.contains(id) }
+
+    /// A completion reminder read elsewhere than the main view (the Bot pages).
+    func clearUnread(_ id: String) { completionUnread.remove(id) }
 
     /// Waiting on the user: a tool approval or an open question.
     func isWaiting(_ id: String) -> Bool {

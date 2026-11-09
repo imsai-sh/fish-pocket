@@ -727,6 +727,7 @@ final class PluginInstallTask {
         guard let inputError else { return nil }
         let reason = inputError["reason"].string ?? ""
         let asked = inputError["registries"].array
+        if let pinned = PluginPins.refusal(reason) { return pinned }
         switch inputError["problem"].string {
         case "invalid-spec": return String(localized: "无法识别这个包名或地址：\(reason)")
         case "already-installed": return String(localized: "该插件已安装。如需升级，请卸载后重新安装")

@@ -42,6 +42,18 @@
   config:
     documentsDirectory: !!js process.env.DSH_IOS_DOCUMENTS
 
+# DS Bot is pinned to the version the app is tested with (plugins/ios-host/
+# pins.json), so its own updater is off: no update button, no DSH update offer.
+# The main Bot the plugin creates on a team's first start is named for the app
+# (an existing team keeps its name). Applied after the profile layer, this
+# config replaces the profile's `bot` config. Without ds-bot installed, the
+# loader only warns that `bot` is absent.
+- id: bot
+  name: ds-bot
+  config:
+    updateCheck: false
+    mainName: 大肥鱼
+
 - insert:
     - id: subprocess-ios
       name: ./plugins/subprocess-ios/index.mjs

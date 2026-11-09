@@ -214,6 +214,70 @@
         }
       }
     },
+    "%@交来一件事" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ handed over a task"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ te pasó una tarea"
+          }
+        }
+      }
+    },
+    "%@发来一张卡片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sent a card"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ envió una tarjeta"
+          }
+        }
+      }
+    },
+    "%@发来一张表单" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sent a form"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ envió un formulario"
+          }
+        }
+      }
+    },
+    "%@回复了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ replied"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ respondió"
+          }
+        }
+      }
+    },
     "%@年%lld月%lld日" : {
       "localizations" : {
         "en" : {
@@ -258,6 +322,76 @@
         }
       }
     },
+    "%@想要使用「%@」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ wants to use “%2$@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ quiere usar «%2$@»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@想要使用「%2$@」"
+          }
+        }
+      }
+    },
+    "%@正在发言" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is speaking"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ está hablando"
+          }
+        }
+      }
+    },
+    "%@汇报了进展" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ reported progress"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ informó del progreso"
+          }
+        }
+      }
+    },
+    "%@的工作已停止" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@’s work was stopped"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se detuvo el trabajo de %@"
+          }
+        }
+      }
+    },
     "%@等" : {
       "localizations" : {
         "en" : {
@@ -270,6 +404,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, etc."
+          }
+        }
+      }
+    },
+    "%@记得的事" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What %@ remembers"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo que recuerda %@"
+          }
+        }
+      }
+    },
+    "%@还没有模型，选一个它就会开口" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ has no model yet. Pick one and it will speak up"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ aún no tiene modelo. Elige uno y empezará a hablar"
+          }
+        }
+      }
+    },
+    "%@还没有记住什么。跟它说「记住…」就会记下来。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ hasn’t remembered anything yet. Say “Remember…” and it will."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ aún no recuerda nada. Dile «Recuerda…» y lo guardará."
           }
         }
       }
@@ -385,6 +567,22 @@
         }
       }
     },
+    "%lld 个 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Bots"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Bots"
+          }
+        }
+      }
+    },
     "%lld 个会话进行中" : {
       "localizations" : {
         "en" : {
@@ -451,6 +649,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld 个后台任务：%2$@"
+          }
+        }
+      }
+    },
+    "%lld 个在干活" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld trabajando"
           }
         }
       }
@@ -1160,6 +1374,25 @@
     ":%@" : {
       "shouldTranslate" : false
     },
+    "@ 谁谁回答，几个 Bot 接力把事做完" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@ someone to answer; Bots take turns until it’s done"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menciona con @ a quien responda; los Bots se relevan hasta terminar"
+          }
+        }
+      }
+    },
+    "@%@" : {
+
+    },
     "API Key" : {
       "shouldTranslate" : false
     },
@@ -1355,6 +1588,89 @@
         }
       }
     },
+    "Bot" : {
+
+    },
+    "Bot 功能的后台是开源插件 DS Bot（Apache-2.0），由 Fei2411 和社区贡献者开发。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot runs on the open-source plugin DS Bot (Apache-2.0), made by Fei2411 and community contributors."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot funciona con el complemento de código abierto DS Bot (Apache-2.0), creado por Fei2411 y la comunidad."
+          }
+        }
+      }
+    },
+    "Bot 插件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot plugin"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complemento de Bot"
+          }
+        }
+      }
+    },
+    "Bot 插件没有响应" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Bot plugin isn’t responding"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El complemento de Bot no responde"
+          }
+        }
+      }
+    },
+    "Bot 插件返回了无法解析的响应（HTTP %lld）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Bot plugin returned a response that couldn’t be read (HTTP %lld)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El complemento de Bot devolvió una respuesta ilegible (HTTP %lld)"
+          }
+        }
+      }
+    },
+    "Bot 操作失败" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Bot action failed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La acción del Bot falló"
+          }
+        }
+      }
+    },
     "Client 待激活" : {
       "localizations" : {
         "en" : {
@@ -1545,6 +1861,28 @@
     },
     "Fish Pocket" : {
       "shouldTranslate" : false
+    },
+    "Fish Pocket 目前固定使用 %@ %@，不能安装 %@。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket keeps %1$@ at %2$@; %3$@ can't be installed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket mantiene %1$@ en la versión %2$@; no se puede instalar %3$@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket 目前固定使用 %1$@ %2$@，不能安装 %3$@。"
+          }
+        }
+      }
     },
     "Fish Pocket：在 iPhone 和 iPad 上本机运行 DeepSeek Harness，不连电脑，不连服务器。\n下载：%@\nGitHub：%@" : {
       "localizations" : {
@@ -1905,6 +2243,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "«%@» tiene una parte de interfaz web que no puede ejecutarse en iOS; se le informó al agente"
+          }
+        }
+      }
+    },
+    "一支替你常驻干活的 Bot 团队" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A team of Bots that keeps working for you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un equipo de Bots que trabaja para ti sin parar"
           }
         }
       }
@@ -2507,6 +2861,22 @@
         }
       }
     },
+    "不连电脑、不经服务器，记忆和文件都存在本机" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No computer, no server: memory and files stay on this device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin ordenador ni servidor: la memoria y los archivos se quedan en este dispositivo"
+          }
+        }
+      }
+    },
     "与上次清单相比" : {
       "localizations" : {
         "en" : {
@@ -2583,6 +2953,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Relés, servicios autoalojados y otras interfaces compatibles con los protocolos de OpenAI o Anthropic."
+          }
+        }
+      }
+    },
+    "主 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Main Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot principal"
+          }
+        }
+      }
+    },
+    "主 Bot，负责接活和分派" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Main Bot: takes tasks and hands them out"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot principal: recibe tareas y las reparte"
           }
         }
       }
@@ -3361,6 +3763,54 @@
         }
       }
     },
+    "你回答了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You answered"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respondiste"
+          }
+        }
+      }
+    },
+    "你回答了：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You answered: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respondiste: %@"
+          }
+        }
+      }
+    },
+    "你说的" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo dijiste tú"
+          }
+        }
+      }
+    },
     "使用提供商默认值" : {
       "localizations" : {
         "en" : {
@@ -3825,6 +4275,38 @@
         }
       }
     },
+    "先不回答" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
+        }
+      }
+    },
+    "全在你手机上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All on your phone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo en tu teléfono"
+          }
+        }
+      }
+    },
     "全局已停用，由 Agent 预设按会话提供" : {
       "localizations" : {
         "en" : {
@@ -4013,6 +4495,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Todas las opciones"
+          }
+        }
+      }
+    },
+    "全队共享" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shared with the team"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartido con el equipo"
           }
         }
       }
@@ -4221,6 +4719,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Desactivar el audio silencioso?"
+          }
+        }
+      }
+    },
+    "其他 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otro Bot"
           }
         }
       }
@@ -5457,6 +5971,22 @@
         }
       }
     },
+    "加载更早的消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load earlier messages"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargar mensajes anteriores"
+          }
+        }
+      }
+    },
     "勾选的预设用于新会话。" : {
       "localizations" : {
         "en" : {
@@ -5949,6 +6479,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mensaje"
+          }
+        }
+      }
+    },
+    "发消息给%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Message %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe a %@"
           }
         }
       }
@@ -6461,6 +7007,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Subagentes del mismo nivel"
+          }
+        }
+      }
+    },
+    "名字" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre"
+          }
+        }
+      }
+    },
+    "名字，比如：研究员" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name, e.g. Researcher"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre, p. ej., Investigador"
           }
         }
       }
@@ -7105,6 +7683,22 @@
         }
       }
     },
+    "在干活" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trabajando"
+          }
+        }
+      }
+    },
     "在新窗口中打开" : {
       "localizations" : {
         "en" : {
@@ -7149,6 +7743,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abrir en el navegador del sistema"
+          }
+        }
+      }
+    },
+    "在网页版管理定时任务、能力和连接器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage schedules, capabilities and connectors on the web"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestiona tareas programadas, capacidades y conectores en la web"
           }
         }
       }
@@ -7533,6 +8143,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tarea externa"
+          }
+        }
+      }
+    },
+    "大肥鱼接活，再分给研究员、程序员这些 Bot。它们记得你的偏好，到点自己开工。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大肥鱼 takes your tasks and hands them to Bots like a researcher or a programmer. They remember what you like and start on time by themselves."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大肥鱼 recibe tus tareas y las reparte entre Bots como un investigador o un programador. Recuerdan tus preferencias y empiezan solos a su hora."
           }
         }
       }
@@ -7985,6 +8611,22 @@
         }
       }
     },
+    "完整内容请在网页版查看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the web version to see all of it"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre la versión web para verlo completo"
+          }
+        }
+      }
+    },
     "完整名称" : {
       "localizations" : {
         "en" : {
@@ -7997,6 +8639,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nombre completo"
+          }
+        }
+      }
+    },
+    "定时自己开工" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start on schedule"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empiezan a su hora"
           }
         }
       }
@@ -8433,6 +9091,22 @@
         }
       }
     },
+    "工作说明" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instructions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instrucciones"
+          }
+        }
+      }
+    },
     "工具 %@ 请求越权执行" : {
       "localizations" : {
         "en" : {
@@ -8509,6 +9183,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Izquierda"
+          }
+        }
+      }
+    },
+    "左滑可以删除。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe left to delete."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desliza a la izquierda para eliminar."
           }
         }
       }
@@ -8871,6 +9561,22 @@
         }
       }
     },
+    "已处理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resuelto"
+          }
+        }
+      }
+    },
     "已复制" : {
       "localizations" : {
         "en" : {
@@ -8947,6 +9653,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Complementos instalados"
+          }
+        }
+      }
+    },
+    "已安装的 Bot 插件是 %@ 版，Fish Pocket 目前只支持 %@ 版。请先在插件页卸载它，再回来开启。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The installed Bot plugin is version %1$@; Fish Pocket currently supports only version %2$@. Uninstall it on the Plugins page, then come back to turn Bot on."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El complemento de Bot instalado es la versión %1$@; Fish Pocket solo admite la versión %2$@. Desinstálalo en Complementos y vuelve para activar Bot."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已安装的 Bot 插件是 %1$@ 版，Fish Pocket 目前只支持 %2$@ 版。请先在插件页卸载它，再回来开启。"
           }
         }
       }
@@ -9779,6 +10507,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Activar"
+          }
+        }
+      }
+    },
+    "开启 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn On Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar Bot"
+          }
+        }
+      }
+    },
+    "开启时会下载 Bot 插件。App 切到后台后，Bot 可能暂停，回到前台会接着做。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turning it on downloads the Bot plugin. Bots may pause while the app is in the background and pick up again when you return."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al activarlo se descarga el complemento de Bot. Los Bots pueden pausarse con la app en segundo plano y siguen al volver."
           }
         }
       }
@@ -10679,6 +11439,22 @@
         }
       }
     },
+    "成员" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Members"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miembros"
+          }
+        }
+      }
+    },
     "所有安装源都无法连接（已尝试：%@）。请检查网络或代理设置，或更换安装源后重试。" : {
       "localizations" : {
         "en" : {
@@ -10787,6 +11563,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abrir barra lateral"
+          }
+        }
+      }
+    },
+    "打开插件页" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Plugins"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Complementos"
           }
         }
       }
@@ -10947,6 +11739,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Envía tu último mensaje de nuevo."
+          }
+        }
+      }
+    },
+    "拉群一起商量" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talk it over in groups"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debaten en grupo"
           }
         }
       }
@@ -12135,6 +12943,22 @@
         }
       }
     },
+    "改名、换模型、定时任务这些设置暂时在网页版里。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renaming, changing the model and scheduling are on the web for now."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar el nombre, el modelo o las tareas programadas se hace en la web por ahora."
+          }
+        }
+      }
+    },
     "改用国内镜像" : {
       "localizations" : {
         "en" : {
@@ -12455,6 +13279,22 @@
         }
       }
     },
+    "新 Bot 会先打个招呼，之后可以私聊，也可以拉进群。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new Bot says hello first. Then chat with it, or add it to a group."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un Bot nuevo saluda primero. Luego puedes chatear con él o añadirlo a un grupo."
+          }
+        }
+      }
+    },
     "新会话" : {
       "localizations" : {
         "en" : {
@@ -12573,6 +13413,38 @@
         }
       }
     },
+    "新建 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo Bot"
+          }
+        }
+      }
+    },
+    "新建 Bot 或群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Bot or group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo Bot o grupo"
+          }
+        }
+      }
+    },
     "新建会话失败：%@" : {
       "localizations" : {
         "en" : {
@@ -12621,6 +13493,22 @@
         }
       }
     },
+    "新建群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo grupo"
+          }
+        }
+      }
+    },
     "新版 Web 搜索 API" : {
       "localizations" : {
         "en" : {
@@ -12633,6 +13521,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nueva API de búsqueda web"
+          }
+        }
+      }
+    },
+    "新的一段对话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New conversation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva conversación"
           }
         }
       }
@@ -14741,6 +15645,22 @@
         }
       }
     },
+    "查看 Bot 详情" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Bot details"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver detalles del Bot"
+          }
+        }
+      }
+    },
     "查看 README" : {
       "localizations" : {
         "en" : {
@@ -15729,6 +16649,22 @@
         }
       }
     },
+    "正在干活…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Working…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trabajando…"
+          }
+        }
+      }
+    },
     "正在应用配置，请稍候…" : {
       "localizations" : {
         "en" : {
@@ -15741,6 +16677,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aplicando configuración, espera..."
+          }
+        }
+      }
+    },
+    "正在开启…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turning on…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activando…"
           }
         }
       }
@@ -16425,6 +17377,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cada día"
+          }
+        }
+      }
+    },
+    "每天的简报、每周的周报，到点就做好" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily briefs and weekly reports, ready on time"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resúmenes diarios e informes semanales, listos a su hora"
           }
         }
       }
@@ -18137,6 +19105,38 @@
         }
       }
     },
+    "等你回答：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for you: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espera tu respuesta: %@"
+          }
+        }
+      }
+    },
+    "等你选模型" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for you to pick a model"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espera que elijas un modelo"
+          }
+        }
+      }
+    },
     "等待中的问题仍可在输入框中回答" : {
       "localizations" : {
         "en" : {
@@ -18773,6 +19773,22 @@
         }
       }
     },
+    "给%@布置一件事" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give %@ a task"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dale una tarea a %@"
+          }
+        }
+      }
+    },
     "给个 Star" : {
       "localizations" : {
         "en" : {
@@ -19125,6 +20141,38 @@
         }
       }
     },
+    "群名，比如：产品周会" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Group name, e.g. Product weekly"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre del grupo, p. ej., Reunión de producto"
+          }
+        }
+      }
+    },
+    "群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Groups"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupos"
+          }
+        }
+      }
+    },
     "自动化" : {
       "localizations" : {
         "en" : {
@@ -19301,6 +20349,22 @@
         }
       }
     },
+    "自己记的" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remembered by itself"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo recordó solo"
+          }
+        }
+      }
+    },
     "至少 %lld 个字符。" : {
       "localizations" : {
         "en" : {
@@ -19397,6 +20461,22 @@
         }
       }
     },
+    "至少选两个 Bot。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick at least two Bots."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige al menos dos Bots."
+          }
+        }
+      }
+    },
     "至少选择一个模型才能保存。" : {
       "localizations" : {
         "en" : {
@@ -19489,6 +20569,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Si te resulta útil, dale una estrella ⭐️ en la página del repositorio en GitHub. Es la mejor manera de apoyar el proyecto."
+          }
+        }
+      }
+    },
+    "角色" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Role"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rol"
           }
         }
       }
@@ -19617,6 +20713,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Registros actualizados."
+          }
+        }
+      }
+    },
+    "记忆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memoria"
           }
         }
       }
@@ -19937,6 +21049,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Instrucciones"
+          }
+        }
+      }
+    },
+    "说点什么，@ 指定谁来回答" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Say something; @ someone to answer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe algo; menciona con @ a quien deba responder"
           }
         }
       }
@@ -20661,6 +21789,22 @@
         }
       }
     },
+    "负责什么，比如：查资料、给出处" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What it does, e.g. research with sources"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué hace, p. ej., investigar con fuentes"
+          }
+        }
+      }
+    },
     "账号" : {
       "localizations" : {
         "en" : {
@@ -20705,6 +21849,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Los detalles de la cuenta aún no están disponibles."
+          }
+        }
+      }
+    },
+    "资料" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfil"
           }
         }
       }
@@ -20833,6 +21993,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Omitir scripts y continuar"
+          }
+        }
+      }
+    },
+    "身份" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puesto"
           }
         }
       }
@@ -21269,6 +22445,22 @@
         }
       }
     },
+    "还没有可用的模型。先在「设置 › 账号与余额」登录 DeepSeek 或填入 API Key。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No model is available yet. Sign in to DeepSeek or add an API key in Settings › Account & Balance."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay modelos. Inicia sesión en DeepSeek o añade una clave de API en Ajustes › Cuenta y saldo."
+          }
+        }
+      }
+    },
     "还没有安装任何插件" : {
       "localizations" : {
         "en" : {
@@ -21365,6 +22557,22 @@
         }
       }
     },
+    "还没有消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No messages yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay mensajes"
+          }
+        }
+      }
+    },
     "还没有自动化任务" : {
       "localizations" : {
         "en" : {
@@ -21457,6 +22665,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Esta clave API no es válida o ha caducado. Prueba con otra."
+          }
+        }
+      }
+    },
+    "这个 Bot 已不在团队里" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Bot is no longer on the team"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este Bot ya no está en el equipo"
           }
         }
       }
@@ -21685,6 +22909,22 @@
         }
       }
     },
+    "这个群聊已经不在了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This group no longer exists"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este grupo ya no existe"
+          }
+        }
+      }
+    },
     "这个问题已结束，无法再回答。" : {
       "localizations" : {
         "en" : {
@@ -21777,6 +23017,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Esta notificación activó esta respuesta."
+          }
+        }
+      }
+    },
+    "这类表单暂时要在网页版里填写。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forms like this are filled in on the web for now."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por ahora, estos formularios se rellenan en la web."
           }
         }
       }
@@ -23127,6 +24383,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Predeterminado"
+          }
+        }
+      }
+    },
+    "默认分支" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the default branch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "la rama predeterminada"
           }
         }
       }

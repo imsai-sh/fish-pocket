@@ -19,6 +19,9 @@ struct MainView: View {
     /// In regular width the plugin store takes the conversation's place beside the sidebar.
     @State private var storeOpen = false
     @State private var webOpen = false
+    /// The Bot pages take the conversation's place (the drawer's Bot card opens them).
+    @State private var botOpen = false
+    @State private var botPath: [BotRoute] = []
     /// The sidebar, in regular width.
     @State private var sidebar = NavigationSplitViewVisibility.all
     @State private var windowWidth: CGFloat = 0
@@ -88,6 +91,15 @@ struct MainView: View {
             app.webRequest = nil
             webOpen = true
         }
+        .onChange(of: app.botTeam.openRequest?.token) { _, token in
+            guard token != nil, let request = app.botTeam.openRequest else { return }
+            app.botTeam.openRequest = nil
+            sheet = nil
+            storeOpen = false
+            botOpen = true
+            botPath = request.route.map { [$0] } ?? []
+            setDrawer(false)
+        }
         .fullScreenCover(isPresented: $webOpen) { WebFallbackView() }
         // A window narrowed past the sidebar has no place beside it for the store.
         .onChange(of: sizeClass) { _, size in
@@ -125,6 +137,7 @@ struct MainView: View {
         .onChange(of: scenePhase) { _, phase in if phase == .active { app.currentSession = selection } }
         .onChange(of: selection) { _, id in
             app.currentSession = id
+            botOpen = false
             if let id {
                 if let owner = app.workspace(of: id) { workspaceId = owner.id }
             } else {
@@ -139,6 +152,7 @@ struct MainView: View {
         .onChange(of: app.openRequest?.token) { _, token in
             guard token != nil, scenePhase != .background, let id = app.openRequest?.id else { return }
             app.openRequest = nil
+            botOpen = false
             selection = id
             setDrawer(false)
         }
@@ -267,6 +281,8 @@ struct MainView: View {
         } detail: {
             if storeOpen {
                 NavigationStack { PluginStoreView(openSidebar: toggleSidebar) }
+            } else if botOpen {
+                botStack(openDrawer: toggleSidebar)
             } else {
                 NavigationStack { conversation(openDrawer: toggleSidebar) }
             }
@@ -312,8 +328,14 @@ struct MainView: View {
             let width = min(326, geometry.size.width - 64)
             let progress = min(1, max(0, (drawerOpen ? 1 : 0) + drag / width))
             ZStack(alignment: .leading) {
-                NavigationStack { conversation(openDrawer: { setDrawer(true) }) }
-                    .accessibilityHidden(drawerOpen)
+                Group {
+                    if botOpen {
+                        botStack(openDrawer: { setDrawer(true) })
+                    } else {
+                        NavigationStack { conversation(openDrawer: { setDrawer(true) }) }
+                    }
+                }
+                .accessibilityHidden(drawerOpen)
                 Palette.scrim
                     .opacity(progress)
                     .ignoresSafeArea()
@@ -379,6 +401,7 @@ struct MainView: View {
     /// Show `id` from wherever it was asked for: over a sheet it closes first.
     private func open(session id: String) {
         sheet = nil
+        botOpen = false
         selection = id
         setDrawer(false)
     }
@@ -400,8 +423,8 @@ struct MainView: View {
             workspace: workspace,
             rowFrames: rowFrames,
             pluginsSelected: storeOpen,
-            select: { id in storeOpen = false; selection = id; setDrawer(false) },
-            newConversation: { workspace in storeOpen = false; workspaceId = workspace.id; newConversation(in: workspace); setDrawer(false) },
+            select: { id in storeOpen = false; botOpen = false; selection = id; setDrawer(false) },
+            newConversation: { workspace in storeOpen = false; botOpen = false; workspaceId = workspace.id; newConversation(in: workspace); setDrawer(false) },
             openSettings: { sheet = .settings },
             openSchedules: { sheet = .schedules },
             openCordis: { sheet = .cordis },
@@ -409,6 +432,19 @@ struct MainView: View {
             searchRequest: searchRequest,
             openInWindow: supportsMultipleWindows ? { openWindow(id: DshIOSApp.window, value: SessionWindow(session: $0)) } : nil
         )
+    }
+
+    /// The Bot list, with a Bot's chat or a group pushed on it.
+    private func botStack(openDrawer: (() -> Void)?) -> some View {
+        NavigationStack(path: $botPath) {
+            BotHomeView(openDrawer: openDrawer)
+                .navigationDestination(for: BotRoute.self) { route in
+                    switch route {
+                    case .bot(let id): BotChatView(botId: id)
+                    case .room(let id): BotRoomView(roomId: id)
+                    }
+                }
+        }
     }
 
     @ViewBuilder

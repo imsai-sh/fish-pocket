@@ -66,6 +66,7 @@ struct DrawerView: View {
             VStack(spacing: 0) {
                 topBar
                 newConversationButton
+                BotDrawerCard()
                 pluginsRow
                 webRow
 
@@ -277,7 +278,9 @@ struct DrawerView: View {
 
     /// One group per workspace in host order, then 「未分组」 when it has members.
     private var groups: [SessionGroup] {
-        var result = app.workspaces.map { SessionGroup(id: $0.id, workspace: $0, rows: app.sessions(in: $0)) }
+        // The Bot team's workspace holds only its sessions, which the Bot card lists.
+        let team = app.botTeam.teamWorkspaceId
+        var result = app.workspaces.filter { $0.id != team }.map { SessionGroup(id: $0.id, workspace: $0, rows: app.sessions(in: $0)) }
         let loose = app.sessions(in: nil)
         if !loose.isEmpty { result.append(SessionGroup(id: Self.ungrouped, workspace: nil, rows: loose)) }
         return result
