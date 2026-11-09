@@ -92,6 +92,8 @@ final class BotModel {
     /// The running rounds of the open group chat (`room-progress`): `{callId, replies, speaking}`.
     /// A round's call settles only once every member has spoken; these carry the replies so far.
     private(set) var rounds: [JSON] = []
+    /// Open the scheduled tasks of the Bot or group whose chat asked (its ＋ tray).
+    var scheduleRequest: BotComposer?
     /// Show the Bot pages (the root view consumes it).
     var openRequest: BotOpenRequest?
 

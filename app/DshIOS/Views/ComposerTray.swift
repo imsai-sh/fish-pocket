@@ -12,9 +12,10 @@ struct ComposerTray: View {
     let files: () -> Void
     let pick: (Candidate) -> Void
     let setPermission: (String) -> Void
-    @Environment(AppModel.self) private var app
-    /// A Bot's chat or a group chat: the model and modes belong to the Bot, not to this session.
+    /// A Bot's chat or a group chat: the model and modes are not this session's to set.
     @Environment(\.botComposer) private var bot
+    @Environment(AppModel.self) private var app
+    @Environment(\.dismiss) private var dismiss
     @State private var confirmingPermission: String?
 
     private var composer: ComposerModel { model.composer }
@@ -38,13 +39,26 @@ struct ComposerTray: View {
                     } label: {
                         Label("引用文件或对话", systemImage: "at")
                     }
-                    NavigationLink {
-                        CandidateList(model: model, context: context, trigger: "/", leading: composer.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, pick: pick)
-                    } label: {
-                        Label("指令", systemImage: "command")
+                    if bot == nil {
+                        NavigationLink {
+                            CandidateList(model: model, context: context, trigger: "/", leading: composer.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, pick: pick)
+                        } label: {
+                            Label("指令", systemImage: "command")
+                        }
+                    } else {
+                        // DSH's commands set this session's model, mode and goal, which a Bot
+                        // keeps as its own; what a Bot is given to do on a schedule is here.
+                        Button {
+                            dismiss()
+                            app.botTeam.scheduleRequest = bot
+                        } label: {
+                            Label("定时任务", systemImage: "clock")
+                        }
+                        .foregroundStyle(Palette.ink)
                     }
-                    switch bot {
-                    case nil:
+                    // A Bot's model, thinking level and permission are its own, set on its page;
+                    // a group's members each answer on theirs.
+                    if bot == nil {
                         NavigationLink {
                             ModelSearchList(model: model, context: context)
                         } label: {
@@ -54,84 +68,19 @@ struct ComposerTray: View {
                                 Label("模型", systemImage: "cpu")
                             }
                         }
-                    case .bot(let id):
-                        // The Bot's own model: its every chat and group runs on it.
-                        NavigationLink {
-                            BotModelPage(botId: id)
-                        } label: {
-                            LabeledContent {
-                                Text(app.botTeam.modelName(app.botTeam.bot(id)?.model) ?? String(localized: "未选择")).lineLimit(1)
-                            } label: {
-                                Label("模型", systemImage: "cpu")
-                            }
-                        }
-                    case .room:
-                        // Each member answers on its own model: the group has none to pick.
-                        EmptyView()
                     }
                 }
                 .groupedRow()
-                switch bot {
-                case nil: sessionModes
-                case .bot(let id): botModes(id)
-                case .room: EmptyView()
-                }
+                if bot == nil { sessionModes }
             }
             .groupedList()
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(Palette.ink)
-        .permissionConfirmation($confirmingPermission, confirm: { value in
-            if case .bot(let id) = bot { setBotPermission(value, of: id) } else { setPermission(value) }
-        })
+        .permissionConfirmation($confirmingPermission, confirm: setPermission)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .sheetNotices()
-    }
-
-    /// A Bot's chat: its thinking level and permission, the same ones its page sets.
-    @ViewBuilder
-    private func botModes(_ id: String) -> some View {
-        let team = app.botTeam
-        if let bot = team.bot(id) {
-            Section {
-                if bot.model != nil {
-                    NavigationLink {
-                        BotEffortPage(botId: id)
-                    } label: {
-                        LabeledContent {
-                            Text(team.effortName(of: bot) ?? String(localized: "模型默认")).lineLimit(1)
-                        } label: {
-                            Label("思考强度", systemImage: "lightbulb")
-                        }
-                    }
-                }
-                if !team.permissionOptions.isEmpty {
-                    let current = bot.permission ?? team.defaultPermission ?? ""
-                    Picker(selection: Binding(get: { current }, set: { value in
-                        guard value != current else { return }
-                        Haptics.select()
-                        if ComposerView.needsConfirmation(value) { confirmingPermission = value } else { setBotPermission(value, of: id) }
-                    })) {
-                        ForEach(team.permissionOptions, id: \.["value"]) { option in
-                            let value = option["value"].string ?? ""
-                            Label(SettingsView.permissionName(option), systemImage: ComposerView.permissionIcon(value)).tag(value)
-                        }
-                    } label: {
-                        Label("访问模式", systemImage: ComposerView.permissionIcon(current))
-                    }
-                    .pickerStyle(.menu)
-                }
-            } footer: {
-                Text("改的是\(bot.name)自己的设置，它的私聊和群聊都按这个来。")
-            }
-            .groupedRow()
-        }
-    }
-
-    private func setBotPermission(_ value: String, of id: String) {
-        guard let bot = app.botTeam.bot(id) else { return }
-        Task { await app.botTeam.update(bot, ["permission": .string(value)]) }
     }
 
     /// An ordinary conversation: this session's modes.

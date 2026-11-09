@@ -271,7 +271,9 @@ struct ConversationView: View {
             }
             if !blank {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    SessionHeaderActions(sessionId: sessionId, jobs: jobs) { headerSheet = $0 }
+                    // A Bot runs no subagents or background jobs of DSH's, and its scheduled
+                    // tasks are on its own page.
+                    if bot == nil { SessionHeaderActions(sessionId: sessionId, jobs: jobs) { headerSheet = $0 } }
                     Button(action: toggleWorkbench) { Image(systemName: "apple.terminal") }
                         .accessibilityLabel("工作台")
                 }

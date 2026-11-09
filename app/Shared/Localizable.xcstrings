@@ -14288,22 +14288,6 @@
         }
       }
     },
-    "改的是%@自己的设置，它的私聊和群聊都按这个来。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "These are %@'s own settings, used in its chat and its group chats."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Son los ajustes de %@, que usa en su chat y en sus chats de grupo."
-          }
-        }
-      }
-    },
     "放弃" : {
       "localizations" : {
         "en" : {
@@ -21658,22 +21642,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Dar acceso completo a %@?"
-          }
-        }
-      }
-    },
-    "给%@布置一件事" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Give %@ a task"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dale una tarea a %@"
           }
         }
       }

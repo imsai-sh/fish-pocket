@@ -26,8 +26,9 @@ struct BotDetailView: View {
     @State private var schedules: BotSchedules
     @State private var confirmingDelete = false
 
-    init(botId: String) {
+    init(botId: String, tab: Tab = .profile) {
         self.botId = botId
+        _tab = State(initialValue: tab)
         _schedules = State(initialValue: BotSchedules(target: .bot(botId)))
     }
 

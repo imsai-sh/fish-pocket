@@ -6,6 +6,7 @@ struct BotChatView: View {
     @Environment(AppModel.self) private var app
     let botId: String
     @State private var detailOpen = false
+    @State private var detailTab = BotDetailView.Tab.profile
     /// Held here, not `.constant`: a constant binding reads as changed on every pass, and the
     /// conversation view redraws without end. A session it picks (a reminder's) opens outside.
     @State private var selection: String?
@@ -23,7 +24,14 @@ struct BotChatView: View {
             .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot)))
             .environment(\.botComposer, .bot(bot.id))
             .openingOtherSessions($selection, from: bot.sessionId)
-            .sheet(isPresented: $detailOpen) { BotDetailView(botId: botId) }
+            .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) { BotDetailView(botId: botId, tab: detailTab) }
+            .onChange(of: team.scheduleRequest) { _, request in
+                guard request == .bot(botId) else { return }
+                team.scheduleRequest = nil
+                detailTab = .schedules
+                // After the tray's sheet has gone.
+                Task { try? await Task.sleep(for: .milliseconds(350)); detailOpen = true }
+            }
             .onAppear { app.clearUnread(bot.sessionId) }
             .onDisappear { app.clearUnread(bot.sessionId) }
         } else {

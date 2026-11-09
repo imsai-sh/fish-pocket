@@ -157,6 +157,11 @@ struct BotRoomView: View {
             .task(id: room.id) { await team.followRounds(of: room.id) }
             .openingOtherSessions($selection, from: room.sessionId)
             .sheet(isPresented: $detailOpen) { RoomDetailView(roomId: roomId) }
+            .onChange(of: team.scheduleRequest) { _, request in
+                guard request == .room else { return }
+                team.scheduleRequest = nil
+                Task { try? await Task.sleep(for: .milliseconds(350)); detailOpen = true }
+            }
             .onAppear { app.clearUnread(room.sessionId) }
             .onDisappear { app.clearUnread(room.sessionId) }
         } else {

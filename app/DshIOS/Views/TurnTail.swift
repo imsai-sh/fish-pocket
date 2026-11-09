@@ -9,6 +9,8 @@ struct TurnMenu: ViewModifier {
     let fallbackText: String
     var regeneratePrompt: String?
     @Environment(\.conversationActions) private var actions
+    /// A Bot's chat or a group: a reply is the Bot's word, not a draft to redo or branch from.
+    @Environment(\.botComposer) private var bot
 
     private var closing: String { info?.closingText.isEmpty == false ? info?.closingText ?? "" : fallbackText }
     private var usage: TurnUsage? { info?.usageBroken == true ? nil : info?.usage }
@@ -27,10 +29,10 @@ struct TurnMenu: ViewModifier {
             Button { copyToPasteboard(closing) } label: { Label("复制", systemImage: "doc.on.doc") }
             Button { actions.present(.text(closing)) } label: { Label("选择文本", systemImage: "selection.pin.in.out") }
         }
-        if let regeneratePrompt {
+        if let regeneratePrompt, bot == nil {
             Button { actions.regenerate(regeneratePrompt) } label: { Label("重新生成", systemImage: "arrow.clockwise") }
         }
-        if let turn {
+        if let turn, bot == nil {
             Button { actions.fork(turn) } label: { Label("从这里分叉", systemImage: "arrow.triangle.branch") }
         }
         if let usage {
