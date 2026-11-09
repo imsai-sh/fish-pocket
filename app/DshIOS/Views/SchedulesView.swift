@@ -771,8 +771,19 @@ struct WebFallbackView: View {
 struct EngineWebView: UIViewRepresentable {
     let url: URL
 
+    /// The built-in Bot plugin's web client paints the whole page in its own Bot mode; the app
+    /// has native Bot pages, so every opening of the web version starts on DSH's own interface.
+    /// The plugin's own switch still works until the page is opened again.
+    private static let keepShellSurface = WKUserScript(
+        source: "try { localStorage.setItem('ds-bot:surface', 'agent') } catch (_) {}",
+        injectionTime: .atDocumentStart,
+        forMainFrameOnly: true
+    )
+
     func makeUIView(context: Context) -> WKWebView {
-        let view = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        let configuration = WKWebViewConfiguration()
+        configuration.userContentController.addUserScript(Self.keepShellSurface)
+        let view = WKWebView(frame: .zero, configuration: configuration)
         view.isInspectable = true
         view.load(URLRequest(url: url))
         return view

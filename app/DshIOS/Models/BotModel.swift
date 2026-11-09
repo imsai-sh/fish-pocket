@@ -129,6 +129,17 @@ final class BotModel {
 
     var workingCount: Int { bots.filter { isWorking($0.id) }.count }
 
+    /// The turns of the Bot's own chat that answered another Bot: ds-bot's window leaves them out.
+    func hiddenTurns(of bot: BotInfo) -> Set<Int> {
+        Set(team["exchangeTurns"][bot.sessionId].array.compactMap(\.int))
+    }
+
+    /// The main Bot keeps the app's mascot while it has the plugin's default look (the whale).
+    func usesAppMark(_ bot: BotInfo) -> Bool {
+        let shape = bot.json["avatar"]["shape"].string
+        return bot.id == mainBotId && (shape == nil || shape == "whale") && bot.json["avatar"]["image"].isNull
+    }
+
     /// The card a Bot is waiting on, in its own chat: `{id, question, detail?, options:[{label, description?}], multiSelect}`.
     func question(of bot: BotInfo) -> JSON? { team["questions"][bot.sessionId].nonNull }
 
@@ -211,14 +222,15 @@ final class BotModel {
         if let liveKey { payload["live"] = .string(liveKey) }
         do {
             let value = try await call("state", .object(payload))
-            reachable = true
-            if value["unchanged"].bool != true { team = value }
-            if !value["activity"].isNull { activity = value["activity"].object }
-            if !value["work"].isNull { work = value["work"] }
+            // Each write tells every view that reads it, so only a change is written.
+            if !reachable { reachable = true }
+            if value["unchanged"].bool != true, team != value { team = value }
+            if !value["activity"].isNull, activity != value["activity"].object { activity = value["activity"].object }
+            if !value["work"].isNull, work != value["work"] { work = value["work"] }
             revision = value["revision"].double
             liveKey = value["liveKey"].string
         } catch is Unreachable {
-            reachable = false
+            if reachable { reachable = false }
             revision = nil
             liveKey = nil
         } catch {

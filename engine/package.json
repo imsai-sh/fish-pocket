@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@deepseek-ai/dsh": "0.2.2-rc.1",
+    "ds-bot": "0.3.1",
     "iconv-lite": "0.7.3",
     "just-bash": "3.6.0",
     "node-addon-require-builtin-ios-arm64": "file:./shims/node-addon-require-builtin-ios-arm64",

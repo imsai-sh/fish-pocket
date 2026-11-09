@@ -230,22 +230,6 @@
         }
       }
     },
-    "%@发来一张卡片" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sent a card"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ envió una tarjeta"
-          }
-        }
-      }
-    },
     "%@发来一张表单" : {
       "localizations" : {
         "en" : {
@@ -318,28 +302,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@并%2$@"
-          }
-        }
-      }
-    },
-    "%@想要使用「%@」" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ wants to use “%2$@”"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ quiere usar «%2$@»"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@想要使用「%2$@」"
           }
         }
       }
@@ -579,6 +541,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld Bots"
+          }
+        }
+      }
+    },
+    "%lld 个 Bot · %lld 个群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld Bots · %2$lld group chats"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld bots · %2$lld chats de grupo"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld 个 Bot · %2$lld 个群聊"
           }
         }
       }
@@ -1438,6 +1422,22 @@
     ":%@" : {
       "shouldTranslate" : false
     },
+    "?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "?"
+          }
+        }
+      }
+    },
     "@ 谁谁回答，几个 Bot 接力把事做完" : {
       "localizations" : {
         "en" : {
@@ -1455,7 +1455,20 @@
       }
     },
     "@%@" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@%@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@%@"
+          }
+        }
+      }
     },
     "API Key" : {
       "shouldTranslate" : false
@@ -1653,7 +1666,20 @@
       }
     },
     "Bot" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot"
+          }
+        }
+      }
     },
     "Bot 功能的后台是开源插件 DS Bot（Apache-2.0），由 Fei2411 和社区贡献者开发。" : {
       "localizations" : {
@@ -1667,6 +1693,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bot funciona con el complemento de código abierto DS Bot (Apache-2.0), creado por Fei2411 y la comunidad."
+          }
+        }
+      }
+    },
+    "Bot 团队" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot team"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equipo de bots"
           }
         }
       }
@@ -3924,38 +3966,6 @@
         }
       }
     },
-    "你回答了" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You answered"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Respondiste"
-          }
-        }
-      }
-    },
-    "你回答了：%@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You answered: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Respondiste: %@"
-          }
-        }
-      }
-    },
     "你说的" : {
       "localizations" : {
         "en" : {
@@ -6196,22 +6206,6 @@
         }
       }
     },
-    "加载更早的消息" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Load earlier messages"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cargar mensajes anteriores"
-          }
-        }
-      }
-    },
     "勾选的预设用于新会话。" : {
       "localizations" : {
         "en" : {
@@ -6704,22 +6698,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mensaje"
-          }
-        }
-      }
-    },
-    "发消息给%@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Message %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Escribe a %@"
           }
         }
       }
@@ -8916,22 +8894,6 @@
         }
       }
     },
-    "完整内容请在网页版查看" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open the web version to see all of it"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre la versión web para verlo completo"
-          }
-        }
-      }
-    },
     "完整名称" : {
       "localizations" : {
         "en" : {
@@ -9914,22 +9876,6 @@
         }
       }
     },
-    "已处理" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Done"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Resuelto"
-          }
-        }
-      }
-    },
     "已复制" : {
       "localizations" : {
         "en" : {
@@ -10784,6 +10730,22 @@
         }
       }
     },
+    "常驻替你干活，到点自己开工" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always on for you, starting work right on schedule"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siempre activos para ti, empiezan a trabajar a su hora"
+          }
+        }
+      }
+    },
     "并行工具调用数" : {
       "localizations" : {
         "en" : {
@@ -10908,6 +10870,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Comenzar"
+          }
+        }
+      }
+    },
+    "开始工作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Started work"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezó a trabajar"
           }
         }
       }
@@ -11840,6 +11818,22 @@
         }
       }
     },
+    "成员正在发言…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Members are replying…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los miembros están respondiendo…"
+          }
+        }
+      }
+    },
     "所有安装源都无法连接（已尝试：%@）。请检查网络或代理设置，或更换安装源后重试。" : {
       "localizations" : {
         "en" : {
@@ -12160,6 +12154,22 @@
         }
       }
     },
+    "找%@和 Bot 团队" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask %@ and the Bot team"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habla con %@ y el equipo de bots"
+          }
+        }
+      }
+    },
     "找不到该插件" : {
       "localizations" : {
         "en" : {
@@ -12380,6 +12390,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hacia lo desconocido"
+          }
+        }
+      }
+    },
+    "接着上一段对话继续" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picks up from the previous conversation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retoma la conversación anterior"
           }
         }
       }
@@ -14002,22 +14028,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nueva API de búsqueda web"
-          }
-        }
-      }
-    },
-    "新的一段对话" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New conversation"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nueva conversación"
           }
         }
       }
@@ -21710,22 +21720,6 @@
         }
       }
     },
-    "说点什么，@ 指定谁来回答" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Say something; @ someone to answer"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Escribe algo; menciona con @ a quien deba responder"
-          }
-        }
-      }
-    },
     "请使用 http 或 https 地址，且不要包含用户名、密码或 # 片段" : {
       "localizations" : {
         "en" : {
@@ -23226,22 +23220,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aún no hay modelos."
-          }
-        }
-      }
-    },
-    "还没有消息" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No messages yet"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aún no hay mensajes"
           }
         }
       }

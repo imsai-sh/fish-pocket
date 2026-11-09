@@ -45,7 +45,9 @@
 # DS Bot is pinned to the version the app is tested with (plugins/ios-host/
 # pins.json), so its own updater is off: no update button, no DSH update offer.
 # The main Bot the plugin creates on a team's first start is named for the app
-# (an existing team keeps its name). Applied after the profile layer, this
+# and has no role: the plugin's default role is English text stored as the
+# Bot's own data, so it is left for the user to write (an existing team keeps
+# what it has). Applied after the profile layer, this
 # config replaces the profile's `bot` config. Without ds-bot installed, the
 # loader only warns that `bot` is absent.
 - id: bot
@@ -53,6 +55,7 @@
   config:
     updateCheck: false
     mainName: 大肥鱼
+    mainRole: ''
 
 - insert:
     - id: subprocess-ios

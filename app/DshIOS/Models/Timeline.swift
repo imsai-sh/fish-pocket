@@ -202,6 +202,17 @@ struct TurnTrigger: Hashable {
         case "schedule": title = String(localized: "自动化任务"); symbol = "clock"
         case "tool-jobs": title = String(localized: "后台任务状态更新"); symbol = "gearshape.2"
         case "cordis-host-runner": title = String(localized: "插件状态更新"); symbol = "puzzlepiece.extension"
+        // ds-bot's Bot team: another Bot's request or reply, the start of work, a handoff.
+        case "bot":
+            let name = source["senderName"].string.flatMap { $0 == "You" ? nil : $0 } ?? String(localized: "其他 Bot")
+            switch source["role"].string {
+            case "kickoff": title = String(localized: "开始工作"); symbol = "sparkles"
+            case "request": title = String(localized: "\(name)交来一件事"); symbol = "arrow.down.message"
+            case "reply": title = String(localized: "\(name)回复了"); symbol = "arrowshape.turn.up.left"
+            case "report": title = String(localized: "\(name)汇报了进展"); symbol = "text.bubble"
+            case "stopped": title = String(localized: "\(name)的工作已停止"); symbol = "stop.circle"
+            default: title = source["handoff"].bool == true ? String(localized: "接着上一段对话继续") : String(localized: "收到团队消息"); symbol = "person.2"
+            }
         default: title = String(localized: "收到执行请求"); symbol = "bell"
         }
     }

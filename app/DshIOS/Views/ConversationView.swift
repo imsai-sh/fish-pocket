@@ -13,6 +13,8 @@ struct ConversationView: View {
     var switchWorkspace: (Workspace) -> Void = { _ in }
     /// The workbench opened beside the conversation: a narrow window gives up its sidebar for it.
     var makeRoomForWorkbench: () -> Void = {}
+    /// A Bot's chat or a group chat: its own title in the bar and its cards above the composer.
+    var bot: BotChrome?
     /// The global automation page (the reminders sheet leads there).
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -105,7 +107,7 @@ struct ConversationView: View {
     }
 
     private func isBlank(_ model: SessionModel) -> Bool {
-        model.subagentAddress == nil && model.loaded && model.items.isEmpty && model.live.isEmpty && !model.running
+        bot == nil && model.subagentAddress == nil && model.loaded && model.items.isEmpty && model.live.isEmpty && !model.running
     }
 
     @ViewBuilder
@@ -176,7 +178,11 @@ struct ConversationView: View {
         .overlay { if blank { hero(model) } }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
-                if blank && !composerFocused && model.composer.isEmpty { suggestions(model).padding(.bottom, 10) }
+                if blank && !composerFocused && model.composer.isEmpty {
+                    BotHomeEntry().padding(.bottom, 10)
+                    suggestions(model).padding(.bottom, 10)
+                }
+                if let accessory = bot?.accessory { accessory.padding(.bottom, 8) }
                 ComposerStatusBar(
                     model: model, keyboardUp: keyboardUp,
                     waiting: waitingInteraction(model).map { $0.isApproval ? String(localized: "等你允许") : String(localized: "等你回答") },
@@ -227,9 +233,12 @@ struct ConversationView: View {
             if let openDrawer {
                 ToolbarItem(placement: .topBarLeading) { DrawerButton(action: openDrawer) }
             }
+            if let bot {
+                ToolbarItem(placement: .principal) { bot.title }
+            }
             // As the web keeps 新会话 in its sidebar, the bar keeps it one tap away: no drawer
             // first. A blank conversation is already a new one, so it only shows on a started one.
-            if started {
+            if started && bot == nil {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         Haptics.tap()
@@ -240,21 +249,24 @@ struct ConversationView: View {
                     .accessibilityLabel("新会话")
                 }
             }
-            if let parent = app.sessions[sessionId]?.parentId, model.subagentAddress != nil {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { app.open(session: parent) } label: { Image(systemName: "chevron.backward") }
-                        .accessibilityLabel("返回父会话")
-                }
-                ToolbarItem(placement: titlePlacement) { SubagentSwitcher(sessionId: sessionId) }
-            } else if blank || (!model.loaded && app.sessions[sessionId]?.blank == true) {
-                ToolbarItem(placement: .principal) { ModelPicker(model: model, context: context) }
-            } else {
-                ToolbarItem(placement: titlePlacement) {
-                    SessionTitleMenu(
-                        // 新会话 sits beside the drawer button on every started conversation,
-                        // so on a phone the title always makes room for it.
-                        sessionId: sessionId, streamTitle: model.title, catalog: presets, crowded: true
-                    ) { headerSheet = .logExport }
+            // A Bot's chat has the Bot's own title instead of the session's.
+            if bot == nil {
+                if let parent = app.sessions[sessionId]?.parentId, model.subagentAddress != nil {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button { app.open(session: parent) } label: { Image(systemName: "chevron.backward") }
+                            .accessibilityLabel("返回父会话")
+                    }
+                    ToolbarItem(placement: titlePlacement) { SubagentSwitcher(sessionId: sessionId) }
+                } else if blank || (!model.loaded && app.sessions[sessionId]?.blank == true) {
+                    ToolbarItem(placement: .principal) { ModelPicker(model: model, context: context) }
+                } else {
+                    ToolbarItem(placement: titlePlacement) {
+                        SessionTitleMenu(
+                            // 新会话 sits beside the drawer button on every started conversation,
+                            // so on a phone the title always makes room for it.
+                            sessionId: sessionId, streamTitle: model.title, catalog: presets, crowded: true
+                        ) { headerSheet = .logExport }
+                    }
                 }
             }
             if !blank {
@@ -641,18 +653,24 @@ extension SessionModel {
 /// redraw `ConversationView`, do not re-diff every row.
 private struct TimelineList: View {
     let model: SessionModel
+    @Environment(\.botTimeline) private var bot
 
     var body: some View {
-        let lastAssistant = model.items.last { if case .assistant = $0 { true } else { false } }?.id
+        // A Bot's chat leaves out the turns that answered another Bot (ds-bot draws none of them).
+        let items = bot.map { bot in model.items.filter { item in Self.turn(of: item).map { !bot.hiddenTurns.contains($0) } ?? true } } ?? model.items
+        let lastAssistant = items.last { if case .assistant = $0 { true } else { false } }?.id
         // The turn being worked on: the streamed attempt joins it, under one step line (as the web does).
-        let activeTurn: String? = if model.running, case .assistant? = model.items.last { model.items.last?.id } else { nil }
+        let activeTurn: String? = if model.running, case .assistant? = items.last { items.last?.id } else { nil }
         // Not lazy: a lazy stack estimates the heights of rows it has not laid out, and when a long
         // timeline grows the estimate leaves the bottom-anchored viewport past the real end (a blank page
         // after sending). The snapshot holds only the recent history and rows skip unchanged redraws.
         VStack(alignment: .leading, spacing: 20) {
             if model.hasMoreHistory { LoadOlderTrigger(model: model) }
-            ForEach(Array(model.items.enumerated()), id: \.element.id) { index, item in
-                if item.id == activeTurn, case .assistant(let turn, let blocks, let started, _) = item {
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                if bot?.room == true, case .assistant(_, let blocks, _, _) = item, let relay = RoomRelay(blocks: blocks) {
+                    // A group round: its members' replies, under their names.
+                    RoomRelayView(relay: relay, running: item.id == activeTurn).id(item.id)
+                } else if item.id == activeTurn, case .assistant(let turn, let blocks, let started, _) = item {
                     ActiveTurn(model: model, turn: turn, blocks: blocks, startedAt: started)
                 } else {
                     let isLast = item.id == lastAssistant
@@ -661,14 +679,14 @@ private struct TimelineList: View {
                         model: model,
                         isLast: isLast,
                         inProgress: false,
-                        prompt: isLast ? Self.prompt(before: index, in: model.items) : nil,
+                        prompt: isLast ? Self.prompt(before: index, in: items) : nil,
                         info: Self.turn(of: item).flatMap { model.turnInfo[$0] }
                     )
                     .equatable()
                     .id(item.id)
                 }
             }
-            if model.running && activeTurn == nil { LiveSection(model: model) }
+            if model.running && activeTurn == nil && bot?.room != true { LiveSection(model: model) }
             if model.running { RunningIndicator(since: model.runningSince) }
         }
         .padding(.horizontal, 20)

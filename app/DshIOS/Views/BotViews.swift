@@ -6,19 +6,45 @@ enum BotRoute: Hashable {
     case room(String)
 }
 
-/// A Bot's mark: its colour and the first character of its name.
+/// A Bot's mark: the app's own mascot for the main Bot while it keeps the plugin's default
+/// look, else its colour and the first character of its name.
 struct BotAvatar: View {
-    let name: String
-    let color: Color
-    var size: CGFloat = 40
+    @Environment(AppModel.self) private var app
+    private let bot: BotInfo?
+    private let name: String
+    private let color: Color?
+    private let size: CGFloat
+
+    init(name: String, color: Color, size: CGFloat = 40) {
+        bot = nil
+        self.name = name
+        self.color = color
+        self.size = size
+    }
+
+    init(bot: BotInfo?, name: String? = nil, size: CGFloat = 40) {
+        self.bot = bot
+        self.name = bot?.name ?? name ?? "?"
+        color = nil
+        self.size = size
+    }
 
     var body: some View {
-        Text(String(name.prefix(1)))
-            .font(.system(size: size * 0.42, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(width: size, height: size)
-            .background(color, in: Circle())
-            .accessibilityHidden(true)
+        let team = app.botTeam
+        Group {
+            if let bot, team.usesAppMark(bot) {
+                Image("LaunchMark").resizable().scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipShape(Circle())
+            } else {
+                Text(String(name.prefix(1)))
+                    .font(.system(size: size * 0.42, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: size, height: size)
+                    .background(color ?? bot.map(team.color(of:)) ?? Palette.secondary, in: Circle())
+            }
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -37,7 +63,7 @@ struct RoomAvatar: View {
                     .frame(width: size, height: size).background(Palette.control, in: Circle())
             } else {
                 ForEach(Array(members.enumerated()), id: \.offset) { index, bot in
-                    BotAvatar(name: bot.name, color: team.color(of: bot), size: size * 0.68)
+                    BotAvatar(bot: bot, size: size * 0.68)
                         .overlay(Circle().stroke(Palette.background, lineWidth: 2))
                         .offset(x: index == 0 ? 0 : size * 0.32, y: index == 0 ? 0 : size * 0.32)
                 }
@@ -110,7 +136,7 @@ struct BotDrawerCard: View {
                 switch route {
                 case .bot(let id):
                     if let bot = team.bot(id) {
-                        BotAvatar(name: bot.name, color: team.color(of: bot), size: 30)
+                        BotAvatar(bot: bot, size: 30)
                         BotRowText(title: bot.name, line: team.rowLine(for: bot), compact: true)
                         if app.completionUnread.contains(bot.sessionId) { Circle().fill(Palette.ink).frame(width: 7, height: 7) }
                     }
@@ -170,6 +196,46 @@ struct BotDrawerCard: View {
     private func open(_ route: BotRoute?) {
         Haptics.tap()
         app.botTeam.openRequest = BotOpenRequest(route: route)
+    }
+}
+
+/// The Bot entry on the new conversation page: the main Bot's mascot and the team at a glance.
+struct BotHomeEntry: View {
+    @Environment(AppModel.self) private var app
+
+    var body: some View {
+        let team = app.botTeam
+        Button {
+            Haptics.tap()
+            team.openRequest = BotOpenRequest(route: nil)
+        } label: {
+            HStack(spacing: 12) {
+                if let main = team.mainBot {
+                    BotAvatar(bot: main, size: 40)
+                } else {
+                    Image("LaunchMark").resizable().scaledToFill().frame(width: 40, height: 40).clipShape(Circle())
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(team.mainBot.map { String(localized: "找\($0.name)和 Bot 团队") } ?? String(localized: "Bot 团队"))
+                        .font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
+                    Text(summary).font(.caption).foregroundStyle(team.workingCount > 0 ? Palette.running : Palette.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
+            }
+            .padding(.horizontal, 14)
+            .frame(minHeight: 60)
+            .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var summary: String {
+        let team = app.botTeam
+        guard team.status == .ready else { return String(localized: "常驻替你干活，到点自己开工") }
+        if team.workingCount > 0 { return String(localized: "\(team.workingCount) 个在干活") }
+        return String(localized: "\(team.bots.count) 个 Bot · \(team.rooms.count) 个群聊")
     }
 }
 
@@ -277,7 +343,7 @@ struct BotHomeView: View {
                 ForEach(team.bots) { bot in
                     NavigationLink(value: BotRoute.bot(bot.id)) {
                         HStack(spacing: 12) {
-                            BotAvatar(name: bot.name, color: team.color(of: bot), size: 44)
+                            BotAvatar(bot: bot, size: 44)
                             BotRowText(title: bot.name, line: team.rowLine(for: bot), tag: bot.id == team.mainBotId ? String(localized: "主 Bot") : nil)
                             trailing(sessionId: bot.sessionId)
                         }
@@ -326,7 +392,8 @@ struct BotSetupView: View {
             VStack(spacing: 28) {
                 HStack(spacing: -14) {
                     BotAvatar(name: "研", color: Color(red: 0.18, green: 0.44, blue: 0.84), size: 64)
-                    BotAvatar(name: "鱼", color: Palette.ink, size: 80).overlay(Circle().stroke(Palette.background, lineWidth: 4)).zIndex(1)
+                    Image("LaunchMark").resizable().scaledToFill().frame(width: 80, height: 80).clipShape(Circle())
+                        .overlay(Circle().stroke(Palette.background, lineWidth: 4)).zIndex(1).accessibilityHidden(true)
                     BotAvatar(name: "码", color: Color(red: 0.72, green: 0.38, blue: 0.04), size: 64)
                 }
                 .padding(.top, 32)
@@ -444,7 +511,7 @@ struct RoomCreateSheet: View {
                             Haptics.select()
                         } label: {
                             HStack(spacing: 12) {
-                                BotAvatar(name: bot.name, color: team.color(of: bot), size: 32)
+                                BotAvatar(bot: bot, size: 32)
                                 Text(bot.name).foregroundStyle(Palette.ink)
                                 Spacer()
                                 Image(systemName: members.contains(bot.id) ? "checkmark.circle.fill" : "circle")

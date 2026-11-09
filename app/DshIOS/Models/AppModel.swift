@@ -231,7 +231,10 @@ final class AppModel {
     func isPinned(_ id: String) -> Bool { pinned.contains(id) }
 
     /// A completion reminder read elsewhere than the main view (the Bot pages).
-    func clearUnread(_ id: String) { completionUnread.remove(id) }
+    /// Only a real change is written: a write tells every reader of the set, changed or not.
+    func clearUnread(_ id: String) {
+        if completionUnread.contains(id) { completionUnread.remove(id) }
+    }
 
     /// Waiting on the user: a tool approval or an open question.
     func isWaiting(_ id: String) -> Bool {

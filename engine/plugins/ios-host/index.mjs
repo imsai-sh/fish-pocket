@@ -16,6 +16,7 @@ import { parentPort } from 'node:worker_threads';
 import { writeFileAtomic } from '@deepseek-ai/dsh-atomic-write';
 import { parseDocument } from 'yaml';
 import { pinFor, pinRefusal } from './pins.mjs';
+import { enableBuiltins } from './builtins.mjs';
 
 /**
  * Debounced restart request: waits `settleMs` so the change's RPC answer
@@ -115,6 +116,11 @@ export default class IosHost {
         const approvedBuilds = builds.filter((build) => !build.startsWith('!'));
         return refuseBuilds(this.profile.dir, refused).then(() => installBundle.call(this, spec, { ...options, approvedBuilds }));
       };
+      // The plugins the app ships (builtins.mjs) start switched on.
+      if (process.env.DSH_IOS_DATA) {
+        void enableBuiltins(manager, process.env.DSH_IOS_DATA, { warn: (message) => ctx.logger.warn(message) })
+          .then((names) => { if (names.length > 0) ctx.logger.info('switched on built-in plugins: %s', names.join(', ')); });
+      }
       return () => {
         manager.change = change;
         if (typeof inspect === 'function') manager.inspect = inspect;

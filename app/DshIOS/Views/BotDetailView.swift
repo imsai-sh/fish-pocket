@@ -29,7 +29,7 @@ struct BotDetailView: View {
                     List {
                         Section {
                             HStack(spacing: 14) {
-                                BotAvatar(name: bot.name, color: team.color(of: bot), size: 60)
+                                BotAvatar(bot: bot, size: 60)
                                 VStack(alignment: .leading, spacing: 4) {
                                     if !bot.role.isEmpty { Text(bot.role).font(.subheadline) }
                                     if team.isWorking(bot.id) {
