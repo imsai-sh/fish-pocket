@@ -66,7 +66,7 @@ struct DrawerView: View {
             VStack(spacing: 0) {
                 topBar
                 newConversationButton
-                BotDrawerCard()
+                BotDrawerEntry()
                 pluginsRow
                 webRow
 

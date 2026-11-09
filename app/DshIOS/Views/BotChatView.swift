@@ -21,6 +21,7 @@ struct BotChatView: View {
             ))
             .id(bot.sessionId)
             .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot)))
+            .environment(\.botComposer, .bot(bot.id))
             .openingOtherSessions($selection, from: bot.sessionId)
             .sheet(isPresented: $detailOpen) { BotDetailView(botId: botId) }
             .onAppear { app.clearUnread(bot.sessionId) }

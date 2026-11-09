@@ -687,7 +687,8 @@ private struct TimelineList: View {
                 }
             }
             if model.running && activeTurn == nil && bot?.room != true { LiveSection(model: model) }
-            if model.running { RunningIndicator(since: model.runningSince) }
+            // A group round says who is speaking in its own place.
+            if model.running && bot?.room != true { RunningIndicator(since: model.runningSince) }
         }
         .padding(.horizontal, 20)
         .padding(.top, 20)

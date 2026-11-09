@@ -24,6 +24,22 @@ extension EnvironmentValues {
         get { self[BotTimelineKey.self] }
         set { self[BotTimelineKey.self] = newValue }
     }
+    var botComposer: BotComposer? {
+        get { self[BotComposerKey.self] }
+        set { self[BotComposerKey.self] = newValue }
+    }
+}
+
+/// Whose settings the composer's ＋ tray shows in a Bot page: the Bot's own (its model,
+/// thinking level and permission, which all its chats run on), or none for a group, whose
+/// members each answer on their own.
+enum BotComposer: Equatable {
+    case bot(String)
+    case room
+}
+
+private struct BotComposerKey: EnvironmentKey {
+    static let defaultValue: BotComposer? = nil
 }
 
 /// One round of a group chat. The group's own Session runs no model of its own words: each
@@ -32,6 +48,7 @@ extension EnvironmentValues {
 struct RoomRelay: Hashable {
     let call: ToolCall
     var replies: [JSON] { call.result.map(Self.replies(in:)) ?? [] }
+    var settled: Bool { call.result != nil }
 
     init?(blocks: [AssistantBlock]) {
         for block in blocks {
@@ -80,8 +97,12 @@ struct RoomRelayView: View {
 
     var body: some View {
         let team = app.botTeam
+        // Until the round settles its replies come from its progress, one as each member speaks.
+        let live = relay.settled ? nil : team.round(relay.call.id)
+        let replies = live?["replies"].array ?? relay.replies
+        let speaking = (live?["speaking"].array ?? []).compactMap { $0.string.flatMap(team.bot) }
         VStack(alignment: .leading, spacing: 16) {
-            ForEach(Array(relay.replies.enumerated()), id: \.offset) { _, reply in
+            ForEach(Array(replies.enumerated()), id: \.offset) { _, reply in
                 if reply["kind"].isNull {
                     let bot = reply["botId"].string.flatMap(team.bot)
                     HStack(alignment: .top, spacing: 10) {
@@ -93,10 +114,14 @@ struct RoomRelayView: View {
                     }
                 }
             }
-            if running && relay.call.result == nil {
+            if running && !relay.settled {
                 HStack(spacing: 6) {
                     StatusDot(state: .running, size: 6)
-                    Text("成员正在发言…").font(.footnote).foregroundStyle(Palette.secondary)
+                    if speaking.isEmpty {
+                        Text("成员正在发言…").font(.footnote).foregroundStyle(Palette.secondary)
+                    } else {
+                        Text("\(speaking.map(\.name).joined(separator: "、"))正在发言").font(.footnote).foregroundStyle(Palette.secondary)
+                    }
                 }
             }
         }
@@ -127,6 +152,9 @@ struct BotRoomView: View {
                 accessory: AnyView(RoomMentions(room: room))
             ))
             .environment(\.botTimeline, BotTimeline(room: true))
+            .environment(\.botComposer, .room)
+            // The round's replies as each member speaks.
+            .task(id: room.id) { await team.followRounds(of: room.id) }
             .openingOtherSessions($selection, from: room.sessionId)
             .sheet(isPresented: $detailOpen) { RoomDetailView(roomId: roomId) }
             .onAppear { app.clearUnread(room.sessionId) }
@@ -142,19 +170,11 @@ private struct RoomMentions: View {
     @Environment(AppModel.self) private var app
     @Environment(\.sessionModel) private var session
     let room: RoomInfo
-    @State private var speaking: [String] = []
 
     var body: some View {
         let team = app.botTeam
         let members = room.members.compactMap(team.bot)
         VStack(alignment: .leading, spacing: 8) {
-            if !speaking.isEmpty {
-                HStack(spacing: 6) {
-                    StatusDot(state: .running, size: 6)
-                    Text("\(speaking.compactMap(team.bot).map(\.name).joined(separator: "、"))正在发言").font(.footnote).foregroundStyle(Palette.secondary)
-                }
-                .padding(.leading, 6)
-            }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     ForEach(members) { member in
@@ -171,15 +191,6 @@ private struct RoomMentions: View {
                         .buttonStyle(.plain)
                     }
                 }
-            }
-        }
-        // Who speaks in the round, while the group is open.
-        .task(id: room.id) {
-            while !Task.isCancelled {
-                if let rounds = try? await team.call("room-progress", ["roomId": .string(room.id)]) {
-                    speaking = rounds.array.flatMap { $0["speaking"].array.compactMap(\.string) }
-                }
-                try? await Task.sleep(for: .seconds(speaking.isEmpty ? 4 : 1.5))
             }
         }
     }

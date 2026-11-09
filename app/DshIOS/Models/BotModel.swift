@@ -89,6 +89,9 @@ final class BotModel {
     private(set) var feedGeneration = 0
     private(set) var installing = false
     var installError: String?
+    /// The running rounds of the open group chat (`room-progress`): `{callId, replies, speaking}`.
+    /// A round's call settles only once every member has spoken; these carry the replies so far.
+    private(set) var rounds: [JSON] = []
     /// Show the Bot pages (the root view consumes it).
     var openRequest: BotOpenRequest?
 
@@ -376,6 +379,18 @@ final class BotModel {
         await app.perform { try await self.call("dismiss-question", ["sessionId": .string(bot.sessionId)]) }
         refresh()
     }
+
+    /// Follow a group chat's rounds while it is open: every second while one runs.
+    func followRounds(of roomId: String) async {
+        defer { if !rounds.isEmpty { rounds = [] } }
+        while !Task.isCancelled {
+            if let value = try? await call("room-progress", ["roomId": .string(roomId)]), value.array != rounds { rounds = value.array }
+            try? await Task.sleep(for: .seconds(rounds.isEmpty ? 3 : 1))
+        }
+    }
+
+    func round(_ callId: String) -> JSON? { rounds.first { $0["callId"].string == callId } }
+    var speaking: [String] { rounds.flatMap { $0["speaking"].array.compactMap(\.string) } }
 
     // MARK: Managing
 

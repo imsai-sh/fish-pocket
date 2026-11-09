@@ -109,128 +109,101 @@ struct RoomAvatar: View {
     }
 }
 
-// MARK: - Drawer card
+// MARK: - Drawer entry
 
-/// The Bot entry, under 新会话: the team at a glance and a line to the main Bot.
-struct BotDrawerCard: View {
+/// The Bot entry, under 新会话: one row that opens the Bot pages and says the one thing
+/// that matters most right now — what waits on the user, then who is working, then news.
+struct BotDrawerEntry: View {
     @Environment(AppModel.self) private var app
-    @State private var draft = ""
-    @State private var sending = false
-    private static let rows = 3
 
     var body: some View {
         let team = app.botTeam
-        VStack(alignment: .leading, spacing: 2) {
-            Button { open(nil) } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "person.2.fill").font(.caption.weight(.semibold)).foregroundStyle(Palette.onInk)
-                        .frame(width: 24, height: 24).background(Palette.ink, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+        Button {
+            Haptics.tap()
+            team.openRequest = BotOpenRequest(route: nil)
+        } label: {
+            HStack(spacing: 12) {
+                faces
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Bot").font(.headline).foregroundStyle(Palette.ink)
-                    if team.status == .ready, team.workingCount > 0 {
-                        HStack(spacing: 4) {
-                            StatusDot(state: .running, size: 6)
-                            Text("\(team.workingCount) 个在干活").font(.caption).foregroundStyle(Palette.running)
-                        }
-                    }
-                    Spacer(minLength: 0)
-                    if team.status != .ready && team.status != .unknown { Text("开启").font(.footnote.weight(.medium)).foregroundStyle(Palette.secondary) }
-                    Image(systemName: "chevron.right").font(.caption2.weight(.semibold)).foregroundStyle(Palette.faint)
+                    status
                 }
-                .frame(minHeight: 36)
-                .contentShape(Rectangle())
+                Spacer(minLength: 0)
+                if team.status == .ready, unread { Circle().fill(Palette.ink).frame(width: 8, height: 8) }
+                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
             }
-            .buttonStyle(.plain)
-
-            if team.status == .ready {
-                ForEach(recent, id: \.self) { route in row(route) }
-                composer
-            }
+            .padding(.horizontal, 14)
+            .frame(minHeight: 64)
+            .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .buttonStyle(.plain)
         .padding(.horizontal, 12)
         .padding(.bottom, 6)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint("打开 Bot 列表")
     }
 
-    /// The main Bot first, then the most recently active Bots and groups.
-    private var recent: [BotRoute] {
+    /// The main Bot in front, up to two more behind it.
+    private var faces: some View {
         let team = app.botTeam
-        var entries: [(BotRoute, Date)] = team.bots.map { (.bot($0.id), app.sessions[$0.sessionId]?.updatedAt ?? .distantPast) }
-        entries += team.rooms.map { (.room($0.id), app.sessions[$0.sessionId]?.updatedAt ?? .distantPast) }
-        let main = team.mainBot.map { BotRoute.bot($0.id) }
-        let others = entries.filter { $0.0 != main }.sorted { $0.1 > $1.1 }.map(\.0)
-        return Array(([main].compactMap { $0 } + others).prefix(Self.rows))
+        let main = team.mainBot
+        let others = team.bots.filter { $0.id != main?.id }.prefix(2)
+        let shown = ([main].compactMap { $0 } + others)
+        return ZStack(alignment: .leading) {
+            if shown.isEmpty {
+                Image("LaunchMark").resizable().scaledToFill().frame(width: 40, height: 40).clipShape(Circle())
+            }
+            ForEach(Array(shown.enumerated().reversed()), id: \.element.id) { index, bot in
+                BotAvatar(bot: bot, size: index == 0 ? 40 : 30)
+                    .overlay(Circle().stroke(Palette.grouped, lineWidth: 2))
+                    .offset(x: index == 0 ? 0 : CGFloat(28 + (index - 1) * 18), y: index == 0 ? 0 : 7)
+            }
+        }
+        .frame(width: shown.count > 1 ? CGFloat(28 + (shown.count - 2) * 18 + 30) : 40, height: 44, alignment: .leading)
     }
 
     @ViewBuilder
-    private func row(_ route: BotRoute) -> some View {
+    private var status: some View {
         let team = app.botTeam
-        Button { open(route) } label: {
-            HStack(spacing: 10) {
-                switch route {
-                case .bot(let id):
-                    if let bot = team.bot(id) {
-                        BotAvatar(bot: bot, size: 30)
-                        BotRowText(title: bot.name, line: team.rowLine(for: bot), compact: true)
-                        if app.completionUnread.contains(bot.sessionId) { Circle().fill(Palette.ink).frame(width: 7, height: 7) }
-                    }
-                case .room(let id):
-                    if let room = team.room(id) {
-                        RoomAvatar(room: room, size: 30)
-                        BotRowText(title: team.name(of: room), line: room.preview.map { .text($0) } ?? .none, compact: true)
-                        if app.completionUnread.contains(room.sessionId) { Circle().fill(Palette.ink).frame(width: 7, height: 7) }
-                    }
-                }
+        let waiting = team.bots.filter { bot in
+            switch team.rowLine(for: bot) {
+            case .question, .needsModel: true
+            default: team.pendingView(of: bot) != nil
             }
-            .frame(minHeight: 46)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-    }
-
-    private var composer: some View {
-        let name = app.botTeam.mainBot?.name ?? "Bot"
-        return HStack(spacing: 6) {
-            TextField("给\(name)布置一件事", text: $draft)
-                .font(.subheadline)
-                .submitLabel(.send)
-                .onSubmit(send)
-            Button(action: send) {
-                Image(systemName: "arrow.up").font(.caption.weight(.bold)).foregroundStyle(Palette.onInk)
-                    .frame(width: 28, height: 28).background(draftReady ? Palette.ink : Palette.faint, in: Circle())
+        let working = team.bots.filter { team.isWorking($0.id) }
+        if team.status != .ready {
+            Text(team.status == .unknown ? String(localized: "正在准备…") : String(localized: "暂时用不了")).font(.caption).foregroundStyle(Palette.secondary)
+        } else if let first = waiting.first {
+            Text(waiting.count == 1 ? waitingLine(first) : String(localized: "\(waiting.count) 件事等你处理"))
+                .font(.caption).foregroundStyle(Palette.waiting).lineLimit(1)
+        } else if let first = working.first {
+            HStack(spacing: 5) {
+                StatusDot(state: .running, size: 6)
+                Text(working.count == 1 ? String(localized: "\(first.name)在干活") : String(localized: "\(working.count) 个 Bot 在干活"))
+                    .font(.caption).foregroundStyle(Palette.running).lineLimit(1)
             }
-            .disabled(!draftReady)
-            .accessibilityLabel("发送")
-        }
-        .padding(.leading, 12)
-        .padding(.trailing, 5)
-        .frame(minHeight: 38)
-        .background(Palette.background, in: Capsule())
-        .overlay(Capsule().strokeBorder(Palette.stroke))
-        .padding(.top, 4)
-    }
-
-    private var draftReady: Bool { !sending && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-
-    private func send() {
-        let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard draftReady, let bot = app.botTeam.mainBot else { return }
-        sending = true
-        Haptics.tap()
-        Task {
-            if await app.botTeam.send(text, to: bot) {
-                draft = ""
-                clearFocusedTextInput()
-                open(.bot(bot.id))
-            }
-            sending = false
+        } else if unread {
+            Text("有新消息").font(.caption).foregroundStyle(Palette.secondary)
+        } else {
+            Text("\(team.bots.count) 个 Bot · \(team.rooms.count) 个群聊").font(.caption).foregroundStyle(Palette.secondary)
         }
     }
 
-    private func open(_ route: BotRoute?) {
-        Haptics.tap()
-        app.botTeam.openRequest = BotOpenRequest(route: route)
+    private func waitingLine(_ bot: BotInfo) -> String {
+        switch app.botTeam.rowLine(for: bot) {
+        case .needsModel: String(localized: "\(bot.name)等你选模型")
+        case .question: String(localized: "\(bot.name)等你回答")
+        default: String(localized: "\(bot.name)等你填表")
+        }
+    }
+
+    /// A Bot's chat or a group finished a turn the user has not seen.
+    private var unread: Bool {
+        let team = app.botTeam
+        return team.bots.contains { app.completionUnread.contains($0.sessionId) }
+            || team.rooms.contains { app.completionUnread.contains($0.sessionId) }
     }
 }
 

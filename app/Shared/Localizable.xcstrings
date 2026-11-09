@@ -246,22 +246,6 @@
         }
       }
     },
-    "%@发来一张表单" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sent a form"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ envió un formulario"
-          }
-        }
-      }
-    },
     "%@回复了" : {
       "localizations" : {
         "en" : {
@@ -274,6 +258,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ respondió"
+          }
+        }
+      }
+    },
+    "%@在干活" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ está trabajando"
           }
         }
       }
@@ -420,6 +420,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, etc."
+          }
+        }
+      }
+    },
+    "%@等你回答" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is waiting for your answer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ espera tu respuesta"
+          }
+        }
+      }
+    },
+    "%@等你填表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is waiting for a form"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ espera que rellenes un formulario"
+          }
+        }
+      }
+    },
+    "%@等你选模型" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is waiting for a model"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ espera que elijas un modelo"
           }
         }
       }
@@ -617,6 +665,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld 个 Bot · %2$lld 个群聊"
+          }
+        }
+      }
+    },
+    "%lld 个 Bot 在干活" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Bots are working"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld bots están trabajando"
           }
         }
       }
@@ -869,6 +933,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld en curso"
+          }
+        }
+      }
+    },
+    "%lld 件事等你处理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld things are waiting for you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld cosas te esperan"
           }
         }
       }
@@ -8500,22 +8580,6 @@
         }
       }
     },
-    "在网页版管理定时任务、能力和连接器" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manage schedules, capabilities and connectors on the web"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestiona tareas programadas, capacidades y conectores en la web"
-          }
-        }
-      }
-    },
     "在设置里直接选择界面语言，新增西班牙语。" : {
       "localizations" : {
         "en" : {
@@ -12624,6 +12688,22 @@
         }
       }
     },
+    "打开 Bot 列表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the Bot list"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre la lista de bots"
+          }
+        }
+      }
+    },
     "打开 Fish Pocket，开始一个新对话。" : {
       "localizations" : {
         "en" : {
@@ -14192,22 +14272,6 @@
         }
       }
     },
-    "改名、换模型、定时任务这些设置暂时在网页版里。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Renaming, changing the model and scheduling are on the web for now."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cambiar el nombre, el modelo o las tareas programadas se hace en la web por ahora."
-          }
-        }
-      }
-    },
     "改用国内镜像" : {
       "localizations" : {
         "en" : {
@@ -14220,6 +14284,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usar mirror de China continental"
+          }
+        }
+      }
+    },
+    "改的是%@自己的设置，它的私聊和群聊都按这个来。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These are %@'s own settings, used in its chat and its group chats."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son los ajustes de %@, que usa en su chat y en sus chats de grupo."
           }
         }
       }
@@ -15902,6 +15982,22 @@
         }
       }
     },
+    "暂时用不了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unavailable for now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No disponible por ahora"
+          }
+        }
+      }
+    },
     "更多" : {
       "localizations" : {
         "en" : {
@@ -16346,6 +16442,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tiene tareas programadas"
+          }
+        }
+      }
+    },
+    "有新消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New messages"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensajes nuevos"
           }
         }
       }
@@ -17862,6 +17974,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Escribiendo archivos"
+          }
+        }
+      }
+    },
+    "正在准备…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting ready…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparando…"
           }
         }
       }
@@ -23998,22 +24126,6 @@
         }
       }
     },
-    "身份" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Position"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puesto"
-          }
-        }
-      }
-    },
     "软件包" : {
       "localizations" : {
         "en" : {
@@ -25066,22 +25178,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Esta notificación activó esta respuesta."
-          }
-        }
-      }
-    },
-    "这类表单暂时要在网页版里填写。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Forms like this are filled in on the web for now."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Por ahora, estos formularios se rellenan en la web."
           }
         }
       }
