@@ -62,13 +62,34 @@ private struct BotPending: View {
         VStack(spacing: 8) {
             if bot.waiting { BotModelPicker(bot: bot) }
             if let question = team.question(of: bot) { BotQuestionCard(bot: bot, question: question) }
-            if let view = team.pendingView(of: bot) {
+            if let view = team.pendingView(of: bot) { BotViewCard(bot: bot, pending: view).id(view["id"].string) }
+            if let blocked = bot.blocked, !bot.waiting {
                 BotCard {
-                    Text(view["view"]["title"].string ?? view["title"].string ?? String(localized: "\(bot.name)发来一张表单")).font(.subheadline.weight(.semibold))
-                    Text("这类表单暂时要在网页版里填写。").font(.footnote).foregroundStyle(Palette.secondary)
-                    Button("打开网页版") { app.webRequest = UUID() }.buttonStyle(.capsule(.outline, height: 36, fill: false))
+                    Text("\(bot.name)上一轮没能完成").font(.subheadline.weight(.semibold))
+                    Text(Self.reason(blocked["code"].string)).font(.footnote).foregroundStyle(Palette.secondary)
+                    Button("修好了，重试") {
+                        Haptics.tap()
+                        Task { await team.run("resume", ["botId": .string(bot.id)]) }
+                    }
+                    .buttonStyle(.capsule(height: 36, fill: false))
                 }
             }
+        }
+    }
+}
+
+extension BotPending {
+    /// Why the last turn failed, for the codes ds-bot reports as fixable.
+    static func reason(_ code: String?) -> String {
+        switch code {
+        case "MISSING_CREDENTIAL", "INVALID_CREDENTIAL", "AUTH":
+            String(localized: "模型的 API Key 缺失或无效。到设置 › 模型检查，或者在它的资料页换个模型。")
+        case "QUOTA", "ACCOUNT_QUOTA":
+            String(localized: "模型的额度用完了。充值或换个模型后再试。")
+        case "ACCOUNT_SIGN_IN_REQUIRED", "ACCOUNT_SIGNED_OUT", "ACCOUNT_TOKEN_INVALID":
+            String(localized: "DeepSeek 账号需要重新登录。到设置 › 账号登录后再试。")
+        default:
+            String(localized: "运行出错了（\(code ?? "?")）。")
         }
     }
 }

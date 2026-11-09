@@ -150,6 +150,10 @@ struct QuestionReply: Hashable {
         raw = text
         let value = (try? JSONDecoder().decode(JSON.self, from: Data(text.utf8))) ?? .null
         let answers = value["answers"].array
+        if value["kind"].string == "answer_to_pending_view" {
+            entries = Self.viewEntries(views: value["views"].array, answers: answers)
+            return
+        }
         entries = value["questions"].array.map { question in
             let answer = answers.first { $0["id"].string == question["id"].string } ?? .null
             let custom = answer["custom"].string?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -162,6 +166,33 @@ struct QuestionReply: Hashable {
                 },
                 values: answer["selected"].array.compactMap(\.string) + (custom.isEmpty ? [] : [custom])
             )
+        }
+    }
+
+    /// A Bot's card answered (ds-bot's `show_view`): what was chosen or filled in, under the card's title.
+    private static func viewEntries(views: [JSON], answers: [JSON]) -> [Entry] {
+        func find(_ id: String, in node: JSON) -> JSON? {
+            if node["id"].string == id { return node }
+            for child in node["children"].array { if let hit = find(id, in: child) { return hit } }
+            return nil
+        }
+        return answers.map { answer in
+            let view = views.first { $0["id"] == answer["id"] } ?? views.first ?? .null
+            let part = answer["action"].string.flatMap { find($0, in: view["view"]) } ?? .null
+            let values = answer["values"]
+            var shown: [String] = values["selected"].array.compactMap(\.string)
+            if let confirmed = values["confirmed"].bool {
+                shown.append(confirmed ? part["confirmLabel"].string ?? String(localized: "确认") : part["cancelLabel"].string ?? String(localized: "取消"))
+            }
+            if values["canceled"].bool == true { shown.append(part["cancelLabel"].string ?? String(localized: "取消")) }
+            let fields = values["fields"].object
+            for field in part["fields"].array {
+                guard let id = field["id"].string, let text = fields[id]?.string else { continue }
+                shown.append("\(field["label"].string ?? id)：\(text)")
+            }
+            if shown.isEmpty, part["type"].string == "submit" { shown.append(part["label"].string ?? String(localized: "提交")) }
+            let title = view["title"].string ?? ""
+            return Entry(header: nil, question: title.isEmpty ? String(localized: "表单") : title, detail: nil, options: [], values: shown)
         }
     }
 

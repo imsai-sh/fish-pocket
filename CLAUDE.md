@@ -52,3 +52,11 @@
 改完跑 `cd engine && node --test test/ios-environment.test.mjs`：它检查 frontmatter、description 不超过 500 字，以及「Commands that exist」里列的每个命令都真实存在。在没有 git 原生插件的机器上（比如 Linux），`git` 会被报成不存在，这一项可以忽略；macOS 上先跑 `scripts/build-git-addon.sh`。
 
 写法上保持现在的风格：英文、短句、先说能不能用再说替代办法；「Commands that exist」之外的命令都会被当成不存在，所以新增命令一定要列进去。
+
+## Bot：只用 DS Bot 的后端
+
+Bot 功能的后台是内置的 ds-bot 插件，版本锁定在 `engine/plugins/ios-host/pins.json`。
+
+- 只调用它的接口（`/api/bot`、`/api/bot/feed`），不使用、不移植它的前端代码（`client.js` 和它的界面组件）。
+- 它网页版的设计只作参考借鉴。原生界面要自己设计，交互做得比它更好，不照搬它的布局和流程。
+- ds-bot 网页版能做的事，都要用原生界面做。网页版入口可以保留，但只作为次要的备用入口，不能让用户依赖它完成主要操作。

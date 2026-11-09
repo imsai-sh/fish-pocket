@@ -102,6 +102,7 @@ The app has two interfaces onto the same engine and profile. The user normally w
 | Browser half: `dsh.client` in `package.json`, the `./client` export, slots such as `sidebar.panellist` and `main`, React pages and panels | **Never runs** | Works |
 
 - **A plugin that only adds interface is invisible in the native interface.** No sidebar entry, panel, or custom page appears there. Its card still shows under 插件 as installed and running, because the engine did load it.
+- **The built-in DS Bot plugin (`ds-bot`) is the exception.** The app ships it pinned to one version and draws its Bots, group chats, schedules and forms in native pages (the Bot card in the sidebar). Its own web page is not needed there, and it cannot be updated or replaced from the app.
 - **Say this before building it.** If the user asks for something they will see, tell them first that a browser half appears only under Settings → 网页版. If it must work in the native interface, put the feature in the Host half instead: a tool the agent can call.
 - **Report where it appears.** Being in the profile, loading in the engine, or working in a web page does not show that it appears in the native interface. Name the interface you checked, and do not say a plugin's interface is in the app without saying it is the web interface.
 - **`localStorage` belongs to the web interface.** Data a browser half keeps there never reaches the engine or the native interface.

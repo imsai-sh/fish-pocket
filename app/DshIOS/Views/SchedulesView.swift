@@ -209,7 +209,7 @@ struct SchedulesView: View {
 }
 
 /// One catalog row: title, then [已结束 ·] frequency, then the next run with its countdown.
-private struct ScheduleRow: View {
+struct ScheduleRow: View {
     let record: JSON
 
     var body: some View {

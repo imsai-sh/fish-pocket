@@ -110,19 +110,25 @@ struct BotRoomView: View {
     let roomId: String
     /// See `BotChatView.selection`.
     @State private var selection: String?
+    @State private var detailOpen = false
 
     var body: some View {
         let team = app.botTeam
         if let room = team.room(roomId) {
             ConversationView(sessionId: room.sessionId, selection: $selection, openDrawer: nil, bot: BotChrome(
-                title: AnyView(VStack(spacing: 1) {
-                    Text(room.name).font(.subheadline.weight(.semibold))
-                    Text("\(room.members.count) 个 Bot").font(.caption2).foregroundStyle(Palette.secondary)
-                }),
+                title: AnyView(Button { detailOpen = true } label: {
+                    VStack(spacing: 1) {
+                        Text(team.name(of: room)).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
+                        Text("\(room.members.count) 个 Bot").font(.caption2).foregroundStyle(Palette.secondary)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("查看群聊设置")),
                 accessory: AnyView(RoomMentions(room: room))
             ))
             .environment(\.botTimeline, BotTimeline(room: true))
             .openingOtherSessions($selection, from: room.sessionId)
+            .sheet(isPresented: $detailOpen) { RoomDetailView(roomId: roomId) }
             .onAppear { app.clearUnread(room.sessionId) }
             .onDisappear { app.clearUnread(room.sessionId) }
         } else {

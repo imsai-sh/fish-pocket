@@ -15,6 +15,19 @@ struct BotInfo: Identifiable, Hashable {
     var colorKey: String? { json["color"].string }
     /// Holds its greeting until the user picks a model (web: the model picker).
     var waiting: Bool { json["waiting"].bool ?? false }
+    var instructions: String { json["instructions"].string ?? "" }
+    /// The model it was given (`provider/model`); nil: none picked, it cannot run.
+    var model: String? { json["model"].string }
+    /// The model it last ran on, which differs while the chosen one is not served.
+    var runningModel: String? { json["appliedModel"].string ?? model }
+    /// Its thinking level; nil: the model's default.
+    var effort: String? { json["effort"].string }
+    /// Its permission preset; nil: DSH's default.
+    var permission: String? { json["permission"].string }
+    /// A picture of its own (a data URL), drawn instead of its initial.
+    var avatarImage: String? { json["avatar"]["image"].string }
+    /// Its last turn failed for a reason the user can fix (`{code, …}`).
+    var blocked: JSON? { json["blocked"].nonNull }
 }
 
 /// One group chat.
@@ -29,6 +42,16 @@ struct RoomInfo: Identifiable, Hashable {
     var sessions: [String] { json["parts"].array.compactMap(\.string) + json["ownParts"].array.compactMap(\.string) }
     /// The last line, `名字：内容` (the user's own lines bare).
     var preview: String? { json["preview"].string }
+    /// Its own name rather than one made from the members'.
+    var named: Bool { json["named"].bool ?? false }
+    /// The member who takes plain messages first; nil: none.
+    var admin: String? { json["admin"].string }
+    /// `admin`: plain messages go to the admin, who calls on others; `everyone`: every member replies in turn.
+    var mode: String { admin == nil ? "everyone" : json["mode"].string ?? "admin" }
+    /// What every member reads before it speaks.
+    var notice: String { json["notice"].string ?? "" }
+    /// A preset all members work with here, over their own.
+    var permission: String? { json["permission"].string }
 }
 
 /// The Bot feature: ds-bot's team behind native pages. The plugin's HTTP route
@@ -106,7 +129,39 @@ final class BotModel {
     var mainBotId: String? { team["mainBotId"].string }
     var mainBot: BotInfo? { bots.first { $0.id == mainBotId } ?? bots.first }
     func bot(_ id: String) -> BotInfo? { bots.first { $0.id == id } }
+    /// The Bots that take the user's work first; the first is `mainBotId`.
+    var mainBotIds: [String] { team["mainBotIds"].array.compactMap(\.string) }
+    func isMain(_ bot: BotInfo) -> Bool { mainBotIds.contains(bot.id) }
+    /// The models this DSH serves: `{ref, name, providerName, needsKey?}`.
+    var models: [JSON] { team["models"].array }
+    func modelName(_ ref: String?) -> String? {
+        guard let ref else { return nil }
+        return models.first { $0["ref"].string == ref }?["name"].string ?? ref
+    }
+    /// The name of the Bot's thinking level, from its model's levels when the team lists them.
+    func effortName(of bot: BotInfo) -> String? {
+        guard let effort = bot.effort else { return nil }
+        let model = models.first { $0["ref"].string == bot.runningModel }
+        return model?["reasoning"]["efforts"].array.first { $0["id"].string == effort }?["name"].string ?? effort
+    }
+    /// DSH's permission presets: `{value, name, description?}`; empty when this DSH has none.
+    var permissionOptions: [JSON] { team["permissions"]["options"].array }
+    var defaultPermission: String? { team["permissions"]["defaultPreset"].string }
+    func permissionName(_ value: String?) -> String? {
+        guard let value = value ?? defaultPermission else { return nil }
+        return SettingsView.permissionName(permissionOptions.first { $0["value"].string == value } ?? ["value": .string(value)])
+    }
+    /// The plugin's colour names (`colors`).
+    var colorKeys: [String] { team["colors"].array.compactMap(\.string) }
     func room(_ id: String) -> RoomInfo? { rooms.first { $0.id == id } }
+    /// A group's name. One the user never named is the plugin's list of who is in it, in
+    /// English (`You, A, B`); it is made here from the members instead.
+    func name(of room: RoomInfo) -> String {
+        guard !room.named else { return room.name }
+        let members = room.members.compactMap { bot($0)?.name }
+        guard !members.isEmpty else { return room.name }
+        return ([String(localized: "你")] + members).joined(separator: String(localized: "、"))
+    }
 
     /// The team's workspace: its sessions are the Bots' and the groups', shown here, not in the drawer.
     var teamWorkspaceId: String? { reachable ? team["workspaceId"].string : nil }
@@ -143,11 +198,11 @@ final class BotModel {
     /// The card a Bot is waiting on, in its own chat: `{id, question, detail?, options:[{label, description?}], multiSelect}`.
     func question(of bot: BotInfo) -> JSON? { team["questions"][bot.sessionId].nonNull }
 
-    /// A form the Bot sent that waits for an answer (`show_view`); answered on the web for now.
+    /// A form the Bot sent that waits for an answer (`show_view`): `{id, title, view}`.
     func pendingView(of bot: BotInfo) -> JSON? { team["views"][bot.sessionId].nonNull }
 
     /// The plugin's colour names and the ink its own window paints them in (light appearance).
-    private static let inks: [String: String] = [
+    static let inks: [String: String] = [
         "deepseek": "#4D6BFE", "charcoal": "#141416", "graphite": "#2D2D2D", "rose": "#EC2F6B", "sky": "#0AA8D6",
         "tangerine": "#FF6900", "cobalt": "#082DFF", "black": "#000000", "brown": "#9A6B44", "red": "#FF3E51",
         "orange": "#FF6B1A", "yellow": "#FFB020", "green": "#10B981", "cyan": "#06B6D4", "blue": "#2563EB",
@@ -319,6 +374,65 @@ final class BotModel {
 
     func dismiss(_ question: JSON, of bot: BotInfo) async {
         await app.perform { try await self.call("dismiss-question", ["sessionId": .string(bot.sessionId)]) }
+        refresh()
+    }
+
+    // MARK: Managing
+
+    /// Change a Bot: only the given fields. The feed brings the new team; this reads it at once.
+    @discardableResult
+    func update(_ bot: BotInfo, _ patch: [String: JSON]) async -> Bool {
+        var payload = patch
+        payload["id"] = .string(bot.id)
+        let done = await app.perform { try await self.call("update-bot", .object(payload)) }
+        if done { await refreshState() }
+        return done
+    }
+
+    @discardableResult
+    func run(_ endpoint: String, _ payload: [String: JSON]) async -> Bool {
+        let done = await app.perform { try await self.call(endpoint, .object(payload)) }
+        if done { await refreshState() }
+        return done
+    }
+
+    /// Copy a Bot (its role, instructions, look and model). The plugin names the copy in
+    /// English (`X copy`); it is renamed in the app's words, the next free one.
+    func duplicate(_ bot: BotInfo) async -> Bool {
+        do {
+            let copy = try await call("duplicate-bot", ["id": .string(bot.id)])
+            guard let id = copy["id"].string else { return true }
+            for index in 1...9 {
+                let name = index == 1 ? String(localized: "\(bot.name)的副本") : String(localized: "\(bot.name)的副本 \(index)")
+                if (try? await call("update-bot", ["id": .string(id), "name": .string(name)])) != nil { break }
+            }
+            await refreshState()
+            return true
+        } catch {
+            app.showToast(error.localizedDescription, tone: .warning)
+            return false
+        }
+    }
+
+    /// Change a group chat; the plugin answers with what changed.
+    @discardableResult
+    func update(_ room: RoomInfo, _ patch: [String: JSON]) async -> Bool {
+        var payload = patch
+        payload["id"] = .string(room.id)
+        return await run("update-room", payload)
+    }
+
+    /// Answer a form a Bot sent (`show_view`): `action` is the id of the part used.
+    func reply(to view: JSON, of bot: BotInfo, action: String, values: JSON) async -> Bool {
+        let done = await app.perform {
+            try await self.call("view-reply", ["sessionId": .string(bot.id), "viewId": view["id"], "action": .string(action), "values": values])
+        }
+        if done { refresh() }
+        return done
+    }
+
+    func dismissView(of bot: BotInfo) async {
+        await app.perform { try await self.call("dismiss-view", ["sessionId": .string(bot.sessionId)]) }
         refresh()
     }
 

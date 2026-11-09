@@ -1,13 +1,15 @@
 import SwiftUI
 
-/// A Bot's details: who it is, and what it remembers.
+/// A Bot's page: who it is and how it works (all editable here), its scheduled tasks,
+/// and what it remembers.
 struct BotDetailView: View {
     enum Tab: String, CaseIterable, Identifiable {
-        case profile, memory
+        case profile, schedules, memory
         var id: String { rawValue }
         var title: String {
             switch self {
             case .profile: String(localized: "资料")
+            case .schedules: String(localized: "定时任务")
             case .memory: String(localized: "记忆")
             }
         }
@@ -20,6 +22,14 @@ struct BotDetailView: View {
     @State private var memory: JSON = .null
     @State private var memoryError: String?
     @State private var loadingMemory = false
+    @State private var appearanceOpen = false
+    @State private var schedules: BotSchedules
+    @State private var confirmingDelete = false
+
+    init(botId: String) {
+        self.botId = botId
+        _schedules = State(initialValue: BotSchedules(target: .bot(botId)))
+    }
 
     var body: some View {
         let team = app.botTeam
@@ -28,34 +38,57 @@ struct BotDetailView: View {
                 if let bot = team.bot(botId) {
                     List {
                         Section {
-                            HStack(spacing: 14) {
-                                BotAvatar(bot: bot, size: 60)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    if !bot.role.isEmpty { Text(bot.role).font(.subheadline) }
-                                    if team.isWorking(bot.id) {
-                                        HStack(spacing: 5) { StatusDot(state: .running, size: 6); Text("在干活").font(.caption).foregroundStyle(Palette.running) }
-                                    }
-                                }
-                            }
-                            .listRowBackground(Color.clear)
+                            header(bot).listRowBackground(Color.clear)
                             tabs.listRowBackground(Color.clear)
                         }
                         .listRowSeparator(.hidden)
                         switch tab {
                         case .profile: profile(bot)
+                        case .schedules: BotScheduleSection(schedules: schedules)
                         case .memory: memorySection(bot)
                         }
                     }
                     .groupedList()
+                    .sheet(isPresented: $appearanceOpen) { BotAppearanceSheet(botId: bot.id) }
+                    .botSchedules(schedules, app: app)
+                    .confirmationDialog("删除\(bot.name)？", isPresented: $confirmingDelete, titleVisibility: .visible) {
+                        Button("删除", role: .destructive) { Task { await delete(bot) } }
+                    } message: {
+                        Text("它的私聊、记忆和定时任务都会删掉，它也会退出所有群聊。")
+                    }
                 } else {
                     ContentUnavailableView("这个 Bot 已不在团队里", systemImage: "person.slash")
                 }
             }
-            .navigationTitle(team.bot(botId)?.name ?? "Bot")
+            .navigationTitle(team.bot(botId)?.name ?? String(localized: "Bot"))
             .navigationBarTitleDisplayMode(.inline)
             .closeButton(dismiss)
         }
         .task(id: tab) { if tab == .memory { await loadMemory() } }
+    }
+
+    private func header(_ bot: BotInfo) -> some View {
+        let team = app.botTeam
+        return HStack(spacing: 14) {
+            Button { appearanceOpen = true } label: {
+                BotAvatar(bot: bot, size: 60)
+                    .overlay(alignment: .bottomTrailing) {
+                        Image(systemName: "pencil").font(.system(size: 10, weight: .bold)).foregroundStyle(Palette.ink)
+                            .frame(width: 22, height: 22).background(Palette.control, in: Circle())
+                            .overlay(Circle().stroke(Palette.background, lineWidth: 2))
+                    }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("更换头像")
+            VStack(alignment: .leading, spacing: 4) {
+                if !bot.role.isEmpty { Text(bot.role).font(.subheadline) }
+                if team.isWorking(bot.id) {
+                    HStack(spacing: 5) { StatusDot(state: .running, size: 6); Text("在干活").font(.caption).foregroundStyle(Palette.running) }
+                } else if team.isMain(bot) {
+                    Text("主 Bot，负责接活和分派").font(.caption).foregroundStyle(Palette.secondary)
+                }
+            }
+        }
     }
 
     private var tabs: some View {
@@ -79,25 +112,82 @@ struct BotDetailView: View {
     private func profile(_ bot: BotInfo) -> some View {
         let team = app.botTeam
         Section {
-            LabeledContent("名字", value: bot.name)
-            if !bot.role.isEmpty { LabeledContent("角色", value: bot.role) }
-            if let model = bot.json["appliedModel"].string ?? bot.json["model"].string {
-                let name = team.team["models"].array.first { $0["ref"].string == model }?["name"].string ?? model
-                LabeledContent("模型", value: name)
+            NavigationLink {
+                BotTextPage(title: "名字", value: bot.name, limit: 40, placeholder: "名字") { await team.update(bot, ["name": .string($0)]) }
+            } label: { LabeledContent("名字", value: bot.name) }
+            NavigationLink {
+                BotTextPage(title: "角色", value: bot.role, limit: 24, placeholder: "比如：研究员、文案", optional: true,
+                            note: "一句话说清它负责什么。改了之后它会收到通知，按新角色继续。") { await team.update(bot, ["role": .string($0)]) }
+            } label: { LabeledContent("角色", value: bot.role.isEmpty ? String(localized: "未填写") : bot.role) }
+            NavigationLink {
+                BotTextPage(title: "工作说明", value: bot.instructions, multiline: true, placeholder: "它做事时要遵守的要求、偏好和背景", optional: true,
+                            note: "每一轮工作都会先读这段说明。改了之后它会收到通知，按新说明继续。") { await team.update(bot, ["instructions": .string($0)]) }
+            } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("工作说明")
+                    if !bot.instructions.isEmpty {
+                        Text(bot.instructions).font(.footnote).foregroundStyle(Palette.secondary).lineLimit(3)
+                    }
+                }
             }
-            if bot.id == team.mainBotId { LabeledContent("身份", value: String(localized: "主 Bot，负责接活和分派")) }
         }
         .groupedRow()
-        if let instructions = bot.json["instructions"].string, !instructions.isEmpty {
-            Section("工作说明") { Text(instructions).font(.subheadline) }.groupedRow()
-        }
         Section {
-            Button("在网页版管理定时任务、能力和连接器") { dismiss(); app.webRequest = UUID() }
-                .font(.subheadline)
-        } footer: {
-            Text("改名、换模型、定时任务这些设置暂时在网页版里。")
+            NavigationLink { BotModelPage(botId: bot.id) } label: {
+                LabeledContent("模型", value: team.modelName(bot.model) ?? String(localized: "未选择"))
+            }
+            if bot.model != nil {
+                NavigationLink { BotEffortPage(botId: bot.id) } label: {
+                    LabeledContent("思考强度", value: team.effortName(of: bot) ?? String(localized: "模型默认"))
+                }
+            }
+            if !team.permissionOptions.isEmpty {
+                NavigationLink { BotPermissionPage(botId: bot.id) } label: {
+                    LabeledContent("权限", value: team.permissionName(bot.permission) ?? "")
+                }
+            }
+        } header: {
+            Text("工作方式")
         }
         .groupedRow()
+        Section {
+            if team.isMain(bot) {
+                if team.mainBotIds.count > 1 {
+                    Button("不再作为主 Bot") { Task { await team.run("set-main", ["id": .string(bot.id), "main": false]) } }
+                }
+            } else {
+                Button("设为主 Bot") { Task { await team.run("set-main", ["id": .string(bot.id), "main": true]) } }
+            }
+            Button("复制一份") {
+                Task {
+                    if await team.duplicate(bot) {
+                        Haptics.success()
+                        app.showToast(String(localized: "已复制\(bot.name)"))
+                    }
+                }
+            }
+            Button("删除", role: .destructive) { confirmingDelete = true }
+                .disabled(team.isMain(bot))
+        } footer: {
+            if team.isMain(bot) {
+                Text("主 Bot 接下你交代的事，再分给合适的 Bot。主 Bot 不能删除，要删先把别的 Bot 设为主 Bot。")
+            }
+        }
+        .groupedRow()
+        Section {
+            Button { dismiss(); app.webRequest = UUID() } label: {
+                Text("在网页版中打开").font(.footnote).foregroundStyle(Palette.secondary)
+            }
+        }
+        .listRowBackground(Color.clear)
+    }
+
+    private func delete(_ bot: BotInfo) async {
+        Haptics.firm()
+        if await app.botTeam.run("delete-bot", ["id": .string(bot.id)]) {
+            dismiss()
+            app.botTeam.openRequest = BotOpenRequest(route: nil)
+        }
     }
 
     @ViewBuilder

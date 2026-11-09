@@ -226,7 +226,8 @@ struct SettingsView: View {
             : String(localized: "离开 App 后播放无声音频，任务、自动化和开发服务器都不停。会多耗一些电。")
     }
 
-    private static func permissionName(_ option: JSON) -> String {
+    /// A permission preset in the words the app uses everywhere (`{value, name}`).
+    static func permissionName(_ option: JSON) -> String {
         switch option["value"].string {
         case "read-only": String(localized: "仅可查看")
         case "workspace-write": String(localized: "工作区内修改")

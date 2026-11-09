@@ -36,6 +36,10 @@ struct BotAvatar: View {
                 Image("LaunchMark").resizable().scaledToFill()
                     .frame(width: size, height: size)
                     .clipShape(Circle())
+            } else if let data = bot?.avatarImage, let image = BotPicture.image(data) {
+                Image(uiImage: image).resizable().scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipShape(Circle())
             } else {
                 Text(String(name.prefix(1)))
                     .font(.system(size: size * 0.42, weight: .semibold))
@@ -45,6 +49,37 @@ struct BotAvatar: View {
             }
         }
         .accessibilityHidden(true)
+    }
+}
+
+/// A Bot's own picture: a `data:image/…;base64,` URL, decoded once.
+enum BotPicture {
+    private static let cache = NSCache<NSString, UIImage>()
+
+    static func image(_ dataURL: String) -> UIImage? {
+        if let hit = cache.object(forKey: dataURL as NSString) { return hit }
+        guard let comma = dataURL.firstIndex(of: ","), dataURL.hasPrefix("data:image/"),
+              let data = Data(base64Encoded: String(dataURL[dataURL.index(after: comma)...])),
+              let image = UIImage(data: data) else { return nil }
+        cache.setObject(image, forKey: dataURL as NSString)
+        return image
+    }
+
+    /// A photo the user picked, as the plugin keeps it: a square JPEG of at most 256 points,
+    /// well under its size limit.
+    static func dataURL(from data: Data) -> String? {
+        guard let source = UIImage(data: data) else { return nil }
+        let side = min(source.size.width, source.size.height)
+        let crop = CGRect(x: (source.size.width - side) / 2, y: (source.size.height - side) / 2, width: side, height: side)
+        let target = CGSize(width: 256, height: 256)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let image = UIGraphicsImageRenderer(size: target, format: format).image { _ in
+            source.draw(in: CGRect(x: -crop.minX * target.width / side, y: -crop.minY * target.height / side,
+                                   width: source.size.width * target.width / side, height: source.size.height * target.height / side))
+        }
+        guard let jpeg = image.jpegData(compressionQuality: 0.82) else { return nil }
+        return "data:image/jpeg;base64," + jpeg.base64EncodedString()
     }
 }
 
@@ -143,7 +178,7 @@ struct BotDrawerCard: View {
                 case .room(let id):
                     if let room = team.room(id) {
                         RoomAvatar(room: room, size: 30)
-                        BotRowText(title: room.name, line: room.preview.map { .text($0) } ?? .none, compact: true)
+                        BotRowText(title: team.name(of: room), line: room.preview.map { .text($0) } ?? .none, compact: true)
                         if app.completionUnread.contains(room.sessionId) { Circle().fill(Palette.ink).frame(width: 7, height: 7) }
                     }
                 }
@@ -357,7 +392,7 @@ struct BotHomeView: View {
                         NavigationLink(value: BotRoute.room(room.id)) {
                             HStack(spacing: 12) {
                                 RoomAvatar(room: room, size: 44)
-                                BotRowText(title: room.name, line: room.preview.map { .text($0) } ?? .none)
+                                BotRowText(title: team.name(of: room), line: room.preview.map { .text($0) } ?? .none)
                                 trailing(sessionId: room.sessionId)
                             }
                             .padding(.vertical, 4)
