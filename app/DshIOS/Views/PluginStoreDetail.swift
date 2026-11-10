@@ -325,9 +325,13 @@ struct StoreInstallConfirm: View {
             if let pinned {
                 Label(pinned, systemImage: "pin").font(.footnote).foregroundStyle(Palette.waiting)
             } else {
-                Label("插件在本机以你的权限运行。请确认你信任它的来源。", systemImage: "exclamationmark.triangle")
-                    .font(.footnote)
-                    .foregroundStyle(Palette.secondary)
+                // 这是装插件的主入口，警告要说全：插件和智能体走同一条路，本机能力对它一样开放。
+                Label(
+                    "插件在本机以你的权限运行，也能用本机能力（\(NativeCapability.installWarningSummary)）。请确认你信任它的来源。",
+                    systemImage: "exclamationmark.triangle"
+                )
+                .font(.footnote)
+                .foregroundStyle(Palette.secondary)
             }
             HStack(spacing: 12) {
                 Button("取消") { dismiss() }.buttonStyle(.capsule(.outline))

@@ -6,7 +6,7 @@ import SwiftUI
 /// regular width it is the split view's sidebar. With nothing selected — at
 /// launch, after archiving — a blank session in the current workspace opens.
 struct MainView: View {
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -109,6 +109,12 @@ struct MainView: View {
             botOpen = true
             botPath = request.route.map { [$0] } ?? []
             setDrawer(false)
+        }
+        // The sidebar's own row; the page is also still under Settings.
+        .onChange(of: app.nativeCapabilitiesRequest) { _, token in
+            guard token != nil, scenePhase != .background else { return }
+            app.nativeCapabilitiesRequest = nil
+            sheet = .capabilities
         }
         .fullScreenCover(isPresented: $webOpen) { WebFallbackView() }
         // The Live Activity and the widgets; a cold launch keeps the link until this view is up.
@@ -222,6 +228,7 @@ struct MainView: View {
                 case .signIn: SignInSheet()
                 case .cordis: CordisPanelView(currentSession: selection)
                 case .share: SheetStack { ShareAppPage() }
+                case .capabilities: SheetStack { NativeCapabilitiesView() }
                 }
             }
             .sheetNotices()

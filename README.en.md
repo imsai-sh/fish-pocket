@@ -4,35 +4,45 @@
 
 <h3 align="center">Fish Pocket</h3>
 
-<h1 align="center">DeepSeek Harness running on your iPhone and iPad, with a fully native interface</h1>
+<h1 align="center">DSH (DeepSeek Harness) running on your iPhone and iPad, with a fully native interface</h1>
 
 <p align="center">
   <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI.</b>
 </p>
 
+<p align="center">
+  <b>The agent can also use what your iPhone already has: Calendar, Reminders, Health, Photos and Maps.</b>
+</p>
+
 <p align="center">Want an agent in your pocket too? <a href="https://testflight.apple.com/join/2SCftb2M"><b>Join the TestFlight beta</b></a> (recommended, available worldwide) or <a href="https://apps.apple.com/app/id6830703602">get it on the App Store</a> (outside mainland China), and a ⭐ helps.</p>
 
-<p align="center"><a href="README.md">中文</a></p>
+<p align="center"><a href="https://fish.deepseek1024.com/en/">Website</a> · <a href="README.md">中文</a></p>
 
 https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
 
-## iOS
+## See it work
+
+<table>
+<tr>
+<td align="center" width="33%"><img src="docs/assets/demo-market.gif" width="250" alt="Finding cc-safety-net in the plugin market, installing and enabling it; back in the chat, the agent tries to run git reset --hard and the plugin blocks it"><br/><b>Plugin market</b><br/><sub>Install a safety-net plugin on the phone, and a destructive command gets blocked</sub></td>
+<td align="center" width="33%"><img src="docs/assets/demo-native.gif" width="250" alt="One sentence makes the agent add a review meeting to the system Calendar and create a reminder; the event then shows in the Calendar app"><br/><b>Device capabilities</b><br/><sub>Say it once: the meeting is in Calendar and the reminder is set</sub></td>
+<td align="center" width="33%"><img src="docs/assets/demo-widget.gif" width="250" alt="Going to the Home Screen while a task runs: the widget and the Dynamic Island show the session in progress, and tapping the widget returns to it"><br/><b>Widgets and Dynamic Island</b><br/><sub>Tasks keep running in the background, with progress on the Home Screen</sub></td>
+</tr>
+</table>
 
 <p align="center">
-  <img src="docs/assets/tool.png" width="24%" alt="Tool details with the command and its real output">
-  <img src="docs/assets/terminal.png" width="24%" alt="Terminal on iPhone with node and git running locally">
-  <img src="docs/assets/plugins.png" width="24%" alt="Native plugin management">
-  <img src="docs/assets/island.png" width="24%" alt="Task progress in the Dynamic Island">
+  <img src="docs/assets/demo-ipad.gif" width="840" alt="Two Fish Pocket windows side by side on iPad, each running its own session: the left adds a leaderboard to a snake game, the right initializes a Git repository and commits">
+  <br/>
+  <b>Multiple windows on iPad</b>
+  <br/>
+  <sub>Two windows side by side, each with its own session: one edits a game, the other commits code</sub>
 </p>
 
-## iPad
-
-<p align="center">
-  <img src="docs/assets/ipad.png" width="98%" alt="iPad in landscape: sidebar, conversation and workbench side by side">
-</p>
+<p align="center"><sub>These are recordings of the app running, with waits cut or sped up. They show the Chinese interface; the app also comes in English and Spanish.</sub></p>
 
 ## What it does
 
+- **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
 - **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
 - **A complete agent.** Chat, tool calls, file editing, search, plan mode and approvals, matching the official Web UI's features.
 - **A terminal that works.** Built-in bash, `node`, `pnpm` and `git`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
@@ -46,6 +56,14 @@ https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
 
 Model calls still need a network connection. Use a DeepSeek account or an API key.
 
+## Device capabilities
+
+The engine runs on the phone, so the agent can use what your iPhone already has. Say "dentist at 3 pm tomorrow, put it in my calendar and remind me an hour before", and the event and the reminder show up in Apple's own apps.
+
+**Calendar · Reminders · Alarms · Contacts · Health · Photos · Files · Music · Location · Maps · Smart Home · Mail & Messages**, plus on-device recognition such as image reading and transcription.
+
+You turn on each one yourself under Device capabilities in the sidebar, and the agent cannot use what is off. Once on, plugins you install can use it too, and there is a record of what was used.
+
 ## Compared with other approaches
 
 Remote clients need a computer left running. Fish Pocket does not: the engine lives on your phone, ready anytime, anywhere. Among approaches that run right on the phone, it is also the fastest today: Node, Git and Python all run as native code, with no emulator in between.
@@ -56,6 +74,7 @@ Remote clients need a computer left running. Fish Pocket does not: the engine li
 | Interface | Fully native SwiftUI | Depends on the project | Official Web UI | Terminal or official Web UI |
 | Computer must stay on | No: your phone is enough, anytime, anywhere | Yes, it has to stay on and online | No | No |
 | Dynamic Island and Lock Screen status | Yes | Depends on the project | Depends on the project | No |
+| Calendar, Reminders, Health and other device capabilities | Yes, each one turned on by you | Depends on the project | Depends on the project | No |
 | Full Linux tools | No, only built-in commands and Node | Yes | Depends on the project | Yes |
 | Speed | Fastest of the on-phone approaches: Node, Git and Python run as native code | Depends on that computer | Depends on the project | Very slow: CPU instructions are interpreted one by one |
 
@@ -107,6 +126,42 @@ We took the 50 most-downloaded community DSH plugins as a sample and ran each on
 
 "Work" means the engine loads the plugin. We did not try each plugin's features. See [#18](https://github.com/imsai-sh/fish-pocket/issues/18) for per-plugin results.
 
+## FAQ
+
+### What is Fish Pocket?
+
+Fish Pocket is an open-source iOS app that puts the whole DeepSeek Harness (DSH) agent engine on your iPhone and iPad and runs it on the device. There is no computer to connect and no server to rent, and the interface is rebuilt natively in SwiftUI.
+
+### Do I need to keep a computer running?
+
+No. Remote clients need a computer that stays on and online. Fish Pocket runs the engine inside the app, so your phone is enough. Only model calls need a network connection.
+
+### Is Fish Pocket free?
+
+Yes. The app is free and the code is open source under the MIT license. Model calls use your own DeepSeek account or API key, and the model provider bills you directly, not Fish Pocket.
+
+### Where is it available?
+
+The TestFlight beta is available worldwide, including mainland China. The App Store version is available outside mainland China.
+
+### Are my conversations and code uploaded?
+
+Not to us: we run no servers. Sessions and workspaces stay on your device, and model requests go straight to the provider you choose. See the [privacy policy](PRIVACY.md).
+
+### Can the agent see my calendar, health data and photos?
+
+Only after you turn on that capability under Device capabilities. What is off it cannot use. When a capability is used, what it reads is sent with the conversation to the model provider you chose. Health, Contacts and Photos are read-only.
+
+### Does it only work with DeepSeek models?
+
+It uses DeepSeek by default, with either a DeepSeek account or an API key, and you can configure other model providers.
+
+### Is Fish Pocket made by DeepSeek?
+
+No. It is an independent open-source community project, not affiliated with, authorized by or endorsed by DeepSeek.
+
+More answers on the [website](https://fish.deepseek1024.com/en/#faq).
+
 ## Roadmap
 
 - [x] Sample-test compatibility of popular community plugins
@@ -114,6 +169,7 @@ We took the 50 most-downloaded community DSH plugins as a sample and ran each on
 - [x] Spanish UI ([#24](https://github.com/imsai-sh/fish-pocket/issues/24)), with the UI language switchable in Settings
 - [ ] Define plugin compatibility tiers and an adaptation guide ([#4](https://github.com/imsai-sh/fish-pocket/issues/4))
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
+- [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more
 - [ ] Move the bash interpreter off the engine thread
 - [ ] Bot mode: hand tasks to the agent in your pocket from a chat
 

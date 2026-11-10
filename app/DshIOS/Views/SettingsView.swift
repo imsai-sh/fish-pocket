@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Settings: only what people come here for (账号, 模型, 访问模式, 外观, 插件, 自动化,
 /// 后台运行: 静音音频, 任务续跑). Developer pages sit behind 高级, versions and engine status behind 关于.
-/// 分享 Fish Pocket opens the list; the star, rating, source, feedback and author links close it.
+/// 分享 Fish Pocket opens the list; the star, rating, website, source, feedback and author links close it.
 /// The engine card shows here only while the engine is not running. Every page reads the shared
 /// settings mirror, so a write anywhere shows everywhere.
 struct SettingsView: View {
@@ -26,6 +26,12 @@ struct SettingsView: View {
     @AppStorage(WidgetSnapshotWriter.showTitlesKey) private var widgetTitles = true
 
     private var mirror: SettingsMirror { app.settings }
+
+    /// 本机能力的数量，数的是 addon 的能力表本身（见 NativeCapability.all）。
+    private var nativeCapabilityCount: Int? {
+        let count = NativeCapability.all.count
+        return count > 0 ? count : nil
+    }
 
     private var engineRunning: Bool {
         if case .running = engine.phase { return true }
@@ -77,6 +83,9 @@ struct SettingsView: View {
                 Section {
                     NavigationLink { PluginsView() } label: { valueRow("插件", pluginCount.map { String(localized: "\($0) 个") } ?? "") }
                     NavigationLink { SchedulesView(openSession: openSession) } label: { valueRow("自动化", app.scheduleCount.map { String(localized: "\($0) 个") } ?? "") }
+                    NavigationLink { NativeCapabilitiesView() } label: {
+                        valueRow("本机能力", nativeCapabilityCount.map { String(localized: "\($0) 项") } ?? "")
+                    }
                 }
                 .groupedRow()
 
@@ -130,6 +139,7 @@ struct SettingsView: View {
                     if AppDistribution.channel == .appStore {
                         linkRow("给个评分", "App Store", AppLinks.writeReview)
                     }
+                    linkRow("官网", AppLinks.site.host() ?? "", AppLinks.site)
                     linkRow("开源仓库", UpdateChecker.repository, Self.repositoryURL)
                     linkRow("问题反馈", "GitHub Issues", Self.issuesURL)
                     linkRow("作者", "sai · imsai.cc", Self.authorURL)

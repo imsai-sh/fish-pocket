@@ -353,7 +353,7 @@ struct BotCapabilitiesPage: View {
             } else {
                 Section {
                     ForEach(team.capabilities, id: \.["name"]) { item in
-                        NavigationLink { BotCapabilityEditor(original: item) } label: { CapabilityRow(item: item) }
+                        NavigationLink { BotCapabilityEditor(original: item) } label: { BotCapabilityRow(item: item) }
                             .swipeActions {
                                 Button("删除", role: .destructive) { Task { await team.run("capability-delete", ["name": item["name"]]) } }
                             }
@@ -371,7 +371,7 @@ struct BotCapabilitiesPage: View {
     }
 }
 
-struct CapabilityRow: View {
+struct BotCapabilityRow: View {
     let item: JSON
 
     var body: some View {

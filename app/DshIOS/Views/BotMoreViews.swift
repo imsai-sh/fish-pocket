@@ -490,7 +490,7 @@ struct BotDiagnosticsPage: View {
                     app.showToast(String(localized: "已复制"))
                 }
                 .disabled(value["markdown"].string == nil)
-                Button("清空记录", role: .destructive) {
+                Button("清空问题记录", role: .destructive) {
                     Task { _ = try? await team.call("diagnostics-clear"); value = (try? await team.call("diagnostics")) ?? value }
                 }
             } footer: { Text("报告里已经去掉密钥和个人路径，可以直接贴到问题反馈里。") }

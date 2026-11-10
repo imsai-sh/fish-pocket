@@ -9,7 +9,7 @@
 `releases` 按从新到旧排列，新条目加在最前面。
 
 - **新版本**：加一条 `Release(version: "1.2.0", features: [...])`。`version` 要和 `app/project.yml` 里的 `MARKETING_VERSION` 一致。App 还没到这个版本时条目不会显示，所以可以提前写。
-- **同一版本的后续 build 又加了功能**（比如 TestFlight）：再加一条 `Release(version: "1.1.0", build: 20, features: [...])`。`build` 写第一个带这些内容、实际打包用的 build 号，`features` 里只写这次新增的。
+- **同一版本的后续 build 又加了功能**（比如 TestFlight）：再加一条 `Release(version: "1.1.0", build: 20, features: [...])`。`build` 写第一个带这些内容的 build 号，`features` 里只写这次新增的。build 号由 Xcode Cloud 分配，提交时还不知道确切是几，写「目前最大的 build 号 + 1」就行：App 的 build 号大于等于它时条目就会显示。
 - **只修 bug 的版本**：不加条目，也就不会弹。
 
 每条 `Feature` 由三部分组成：一个 SF Symbol、一句标题、一行说明。只写用户能感知到的亮点，一次 3～5 条，不要写成修复列表。
@@ -36,6 +36,14 @@
 - 已经发出去的条目，不要改它的 `version` 或 `build`，否则看过的人可能会再弹一次，或者有人会漏看。
 - 本地自测用 Debug 版的启动参数：`-dshVersion 1.1.0 -dshBuild 20` 让 App 当成这个版本和 build 运行；`-dshOpen whatsnew` 直接打开弹窗。这些参数只在 Debug 版里生效。
 
+## Xcode Cloud 构建
+
+推送到 `main` 且改到 `app`、`engine`、`native`、`scripts` 任一目录时，Xcode Cloud 会自动归档一次；只改文档不触发。影响打包的东西都放在这四个目录里，新增的也照此放。
+
+- 工程文件不进仓库。Xcode Cloud 克隆后跑 `app/ci_scripts/ci_post_clone.sh`：装工具、下载 nodejs-mobile 和 Python、编译 libgit2、组装引擎、生成工程。这个脚本在 Mac 上也能直接跑，改完先本地跑一遍。
+- build 号由 Xcode Cloud 分配，每次构建加 1，失败的也占号。脚本把它写进生成的工程，`app/project.yml` 里的 `CURRENT_PROJECT_VERSION` 只对本地构建有效。
+- 改了 `app/project.yml` 里 SwiftPM 依赖的版本后，本地构建一次，把 `app/DshIOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` 拷到 `app/ci_scripts/Package.resolved`。Xcode Cloud 不自己解析版本，两边对不上会构建失败。
+
 ## 内置 skill：iOS 环境说明
 
 `engine/skills/ios-environment/SKILL.md` 随 App 打包，App 里的 Agent 靠它判断这台「iOS 沙盒」里能做什么、不能做什么。它写错了，Agent 就会去试不存在的命令，或者放弃本来能做的事。
@@ -60,3 +68,10 @@ Bot 功能的后台是内置的 ds-bot 插件，版本锁定在 `engine/plugins/
 - 只调用它的接口（`/api/bot`、`/api/bot/feed`），不使用、不移植它的前端代码（`client.js` 和它的界面组件）。
 - 它网页版的设计只作参考借鉴。原生界面要自己设计，交互做得比它更好，不照搬它的布局和流程。
 - ds-bot 网页版能做的事，都要用原生界面做。网页版入口可以保留，但只作为次要的备用入口，不能让用户依赖它完成主要操作。
+
+## 微信交流群二维码
+
+群二维码只放在 README 和官网，App 里不放，设置页底部只有一个「官网」链接。二维码 7 天过期，有两份，换图时一起换：
+
+- 主仓库的 `docs/assets/wechat-group.png`：README 的「交流群」一节引用它。
+- 官网 `fish-pocket-site` 的 `web/public/wechat-group.png`：中文页页脚显示它，合进官网的 `main` 就自动部署。
