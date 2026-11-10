@@ -4,7 +4,7 @@
 
 <h3 align="center">Fish Pocket</h3>
 
-<h1 align="center">DeepSeek Harness running on your iPhone and iPad, with a fully native interface</h1>
+<h1 align="center">DSH (DeepSeek Harness) running on your iPhone and iPad, with a fully native interface</h1>
 
 <p align="center">
   <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI.</b>
