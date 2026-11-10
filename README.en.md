@@ -7,11 +7,11 @@
 <h1 align="center">DSH (DeepSeek Harness) running on your iPhone and iPad, with a fully native interface</h1>
 
 <p align="center">
-  <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI.</b>
+  <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI for a native experience on both iPhone and iPad.</b>
 </p>
 
 <p align="center">
-  <b>The agent can also use what your iPhone already has: Calendar, Reminders, Health, Photos and Maps.</b>
+  <b>It matches the official DSH Web UI feature for feature, and the agent can also use what your iPhone already has: Calendar, Reminders, Health, Photos and Maps.</b>
 </p>
 
 <p align="center">Want an agent in your pocket too? <a href="https://testflight.apple.com/join/2SCftb2M"><b>Join the TestFlight beta</b></a> (recommended, available worldwide) or <a href="https://apps.apple.com/app/id6830703602">get it on the App Store</a> (outside mainland China), and a ⭐ helps.</p>
@@ -43,8 +43,8 @@ https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
 ## What it does
 
 - **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
-- **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
-- **A complete agent.** Chat, tool calls, file editing, search, plan mode and approvals, matching the official Web UI's features.
+- **Everything the official Web UI does.** Chat, tool calls, file editing, search, plan mode, approvals, subagents, scheduled tasks and plugins: what the official DSH Web UI can do, this can do. See [Compared with the official DSH Web UI](#compared-with-the-official-dsh-web-ui).
+- **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings.
 - **A terminal that works.** Built-in bash, `node`, `pnpm` and `git`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
 - **Built-in Git.** Statically linked libgit2, no child processes. `clone`, `commit`, `branch`, `merge`, `stash`, `pull`, `push` and the rest of everyday git work, with output that matches real git so the agent reads it as usual. Private repositories authenticate over HTTPS with a token.
 - **A built-in DSH plugin store.** A DSH ecosystem plugin market comes preset: browse and search on the phone, install with one tap, and the plugin is ready to use, no computer involved. Add store sources you trust under Index Sources, or install pure JavaScript plugins straight from npm.
@@ -63,6 +63,27 @@ The engine runs on the phone, so the agent can use what your iPhone already has.
 **Calendar · Reminders · Alarms · Contacts · Health · Photos · Files · Music · Location · Maps · Smart Home · Mail & Messages**, plus on-device recognition such as image reading and transcription.
 
 You turn on each one yourself under Device capabilities in the sidebar, and the agent cannot use what is off. Once on, plugins you install can use it too, and there is a record of what was used.
+
+## Compared with the official DSH Web UI
+
+Fish Pocket aims to do no less than the official client: what the official DSH Web UI can do, you can do on iPhone and iPad, and what only a phone or tablet can do is added on top.
+
+|  | Official DSH Web UI | Fish Pocket |
+|---|---|---|
+| Chat, tool calls, file editing, search | Yes | Yes |
+| Plan mode, approvals, answering questions | Yes | Yes |
+| Subagents, background tasks, scheduled tasks | Yes | Yes |
+| Plugin install, plugin market, model provider setup | Yes | Yes, plus a preset third-party plugin store |
+| Terminal, file preview, built-in browser, change review | Yes | Yes |
+| Interface | A web page designed for desktop browsers | Native SwiftUI, adapted separately for iPhone and iPad |
+| Where the engine runs | A computer or server | On the phone or tablet itself |
+| Device capabilities: Calendar, Reminders, Health, Photos, Maps and more | No | Yes, each one turned on by you |
+| Dynamic Island, Lock Screen Live Activities, Home Screen and Lock Screen widgets | No | Yes |
+| Control Center button, Siri and Shortcuts | No | Yes |
+| Tasks that continue in the background | Not applicable | Yes |
+| Multiple windows, file drag and drop and keyboard shortcuts on iPad | Not applicable | Yes |
+
+The native interface ports capabilities, not the look of the web page: interactions that only suit a desktop, such as draggable split panes and hover cards, are replaced with their iOS equivalents, and features newly added upstream are ported as they land. Anything the native interface does not cover yet is available under Web UI in Settings, which opens the complete official Web UI. The item-by-item comparison is in [docs/webui/parity.md](docs/webui/parity.md) (in Chinese).
 
 ## Compared with other approaches
 
@@ -132,13 +153,17 @@ We took the 50 most-downloaded community DSH plugins as a sample and ran each on
 
 Fish Pocket is an open-source iOS app that puts the whole DeepSeek Harness (DSH) agent engine on your iPhone and iPad and runs it on the device. There is no computer to connect and no server to rent, and the interface is rebuilt natively in SwiftUI.
 
+### How is Fish Pocket different from the official DSH Web UI?
+
+The features match: what the official Web UI can do, Fish Pocket can do. The differences are that the engine runs on the phone or tablet itself, with no computer left on; the interface is rebuilt in SwiftUI for a native experience on iPhone and iPad; and it adds device capabilities, the Dynamic Island, widgets, Siri and multiple windows on iPad, none of which the official Web UI has. See the [comparison table](#compared-with-the-official-dsh-web-ui).
+
 ### Do I need to keep a computer running?
 
 No. Remote clients need a computer that stays on and online. Fish Pocket runs the engine inside the app, so your phone is enough. Only model calls need a network connection.
 
 ### Is Fish Pocket free?
 
-Yes. The app is free and the code is open source under the MIT license. Model calls use your own DeepSeek account or API key, and the model provider bills you directly, not Fish Pocket.
+Yes. The app is free and the source is public. Using it yourself, studying it and non-commercial derivative work cost nothing; commercial use needs authorization first, see [License](#license). Model calls use your own DeepSeek account or API key, and the model provider bills you directly, not Fish Pocket.
 
 ### Where is it available?
 
@@ -209,9 +234,23 @@ Other open source projects:
 
 ## License
 
-The code is [MIT](LICENSE).
+The code is published under the [Fish Pocket License](LICENSE): the MIT License plus a few conditions on commercial use and on publishing modified versions.
 
-The mascot images (app icon, launch image and README header) are not covered by MIT. They are based on other people's work and used under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), so **commercial use is not allowed**. If you use this code commercially, replace those images first. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+### What you may do, and redistribution
+
+You are welcome to fork the project to study it, use it yourself and build on it. Please respect the author and where the project came from.
+
+- **Personal use and study are unrestricted.** Download, build, read and privately modify the code without telling anyone. Doing your own work with the app, including coding at a company, is not commercial use. Pull requests to this repository are unrestricted too.
+- **Open an issue before publishing a modified version.** Before you publicly release a modified version or a derived product (an app store listing, a TestFlight beta, a downloadable build and so on), [open an issue](https://github.com/imsai-sh/fish-pocket/issues) saying what you changed, what it is for and how it will be distributed. If no commercial use is involved, the notice is enough and you do not need to wait for a reply.
+- **Credit the main repository and the author in forks.** When you publish a modified version, state in the repository description, in the app's About screen and on the release page that it is based on Fish Pocket, link to this repository, credit the author, and keep the copyright and license notices.
+- **Commercial use needs authorization.** Selling it or charging for copies, adding in-app purchases, subscriptions or advertising, or including it in a paid product or service all need written authorization from the author first. [Open an issue](https://github.com/imsai-sh/fish-pocket/issues) to ask.
+- **The name and artwork have their own limits.** The name "Fish Pocket", the app icon and the mascot are not licensed. A modified version should use its own name and icon, and must not pass itself off as the official version or as the author's work.
+
+The full terms are in [LICENSE](LICENSE), which prevails. Third-party components keep their own licenses and are not affected by these conditions.
+
+### Mascot
+
+The mascot images (app icon, launch image and README header) are based on other people's work and used under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), so **commercial use is not allowed**. Even with commercial authorization for the code, replace those images first. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ---
 
