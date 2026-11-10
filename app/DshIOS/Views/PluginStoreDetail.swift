@@ -20,20 +20,28 @@ struct StoreEntryDetail: View {
     }
     private var metadata: JSON { model.market.result?["metadata"] ?? .null }
 
-    /// 询问 AI, once there is something to ask about: the plugin is here, or its last install went wrong.
-    private var question: (caption: LocalizedStringKey, text: String)? {
+    /// 询问 AI, always there: what the plugin is before it is installed, why its last install
+    /// went wrong, or where it went once it is here.
+    private var question: (caption: LocalizedStringKey, text: String) {
         let specs = entry.json["versions"].array.compactMap { $0["install"]["spec"].string }
         let records = specs.compactMap { app.pluginInstall.records[$0] }
-        var links: [String] = []
-        if let repository = entry.json["repository"]["url"].string { links.append(String(localized: "源代码：\(repository)")) }
-        if let homepage = entry.json["homepage"].string { links.append(String(localized: "主页：\(homepage)")) }
+        var facts: [String] = []
+        if let summary = entry.summary { facts.append(String(localized: "简介：\(summary)")) }
+        if let author = entry.author { facts.append(String(localized: "作者：\(author)")) }
+        if let repository = entry.json["repository"]["url"].string { facts.append(String(localized: "源代码：\(repository)")) }
+        if let homepage = entry.json["homepage"].string { facts.append(String(localized: "主页：\(homepage)")) }
         if onDevice {
             let listed = app.plugins.package(listing.name)?.questionDetails ?? [String(localized: "插件：\(entry.name)")]
             let install = records.first { $0.outcome == .done }?.details.dropFirst() ?? []
-            return ("找不到它，或者用不了？开一个新会话问问", PluginQuestion.installed(entry.displayName, details: listed + links + install))
+            return ("找不到它，或者用不了？开一个新会话问问", PluginQuestion.installed(entry.displayName, details: listed + facts + install))
         }
-        guard let record = records.first(where: { $0.outcome != .done }) else { return nil }
-        return ("上次安装没有成功，带上安装记录开一个新会话排查", PluginQuestion.ask(record, more: links))
+        if let record = records.first(where: { $0.outcome != .done }) {
+            return ("上次安装没有成功，带上安装记录开一个新会话排查", PluginQuestion.ask(record, more: facts))
+        }
+        var listed = [String(localized: "插件：\([entry.name, entry.version?["version"].string].compactMap { $0 }.joined(separator: "@"))")]
+        listed.append(entry.installable ? String(localized: "状态：未安装") : String(localized: "状态：未安装，这个版本与当前 DSH 不兼容"))
+        if let spec = entry.version?["install"]["spec"].string { listed.append(String(localized: "安装来源：\(spec)")) }
+        return ("它是做什么的，装上能不能用？开一个新会话问问", PluginQuestion.introduce(entry.displayName, details: listed + facts))
     }
     /// The plugin list answers first after an install; the market's next read says the same.
     private var onDevice: Bool {
@@ -77,7 +85,7 @@ struct StoreEntryDetail: View {
                 }
             }
             primaryAction
-            if let question { PluginAskRow(caption: question.caption) { question.text } }
+            PluginAskRow(caption: question.caption) { question.text }
             if let summary = entry.summary {
                 Text(summary).font(.subheadline).foregroundStyle(Palette.secondary).lineSpacing(4)
             }

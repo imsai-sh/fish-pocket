@@ -3133,6 +3133,22 @@
         }
       }
     },
+    "介绍一下插件「%@」：它是做什么的、怎么用、装到这台设备上能不能正常用。需要的话去读它的说明文档和源代码。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell me about the plugin “%@”: what it does, how to use it, and whether it will work on this device. Read its documentation and source code if you need to."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Háblame del complemento «%@»: qué hace, cómo se usa y si funcionará en este dispositivo. Lee su documentación y su código fuente si hace falta."
+          }
+        }
+      }
+    },
     "从 npm、Git 仓库或本地文件夹安装" : {
       "localizations" : {
         "en" : {
@@ -8719,6 +8735,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Es un proyecto de código abierto. Darle una estrella o compartirlo con amigos ayuda a que más personas lo descubran."
+          }
+        }
+      }
+    },
+    "它是做什么的，装上能不能用？开一个新会话问问" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What does it do, and will it work here? Ask in a new session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué hace y funcionará aquí? Pregunta en una sesión nueva"
           }
         }
       }
@@ -20000,6 +20032,38 @@
         }
       }
     },
+    "状态：未安装" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status: not installed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado: no instalado"
+          }
+        }
+      }
+    },
+    "状态：未安装，这个版本与当前 DSH 不兼容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status: not installed. This version is not compatible with the current DSH"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado: no instalado. Esta versión no es compatible con el DSH actual"
+          }
+        }
+      }
+    },
     "用对应的 App 打开地图、邮件草稿、电话号码或网页" : {
       "localizations" : {
         "en" : {
@@ -21080,6 +21144,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filtrar componentes"
+          }
+        }
+      }
+    },
+    "简介：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summary: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumen: %@"
           }
         }
       }

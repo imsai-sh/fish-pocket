@@ -12,6 +12,11 @@ struct InstallRecord: Equatable {
 /// 询问 AI: the first message of a new conversation about a plugin. It carries what the app knows
 /// of the plugin and of its last install, so the agent starts from the record, not from a retelling.
 enum PluginQuestion {
+    /// Not installed yet: what it is, read from its own documents and code.
+    static func introduce(_ title: String, details: [String]) -> String {
+        compose(String(localized: "介绍一下插件「\(title)」：它是做什么的、怎么用、装到这台设备上能不能正常用。需要的话去读它的说明文档和源代码。"), details)
+    }
+
     static func failed(_ title: String, details: [String]) -> String {
         compose(String(localized: "我安装插件「\(title)」失败了。帮我找出原因，能修好就直接修，修不了就告诉我该怎么办。"), details)
     }
