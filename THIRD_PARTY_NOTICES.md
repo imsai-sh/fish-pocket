@@ -56,7 +56,7 @@ libgit2 的完整许可证见其仓库的 [COPYING](https://github.com/libgit2/l
 - `docs/design/brand/mascot-icon.png`
 - `app/DshIOS/Assets.xcassets/AppIcon.appiconset/`、`LaunchMark.imageset/` 和 `ShareMascot.imageset/` 里的 PNG
 - `docs/assets/icon.png`、`docs/assets/mascot.png`
-- `docs/assets/island.png`（画面含 App 图标）
+- `docs/assets/demo-widget.gif`、`docs/assets/demo-ipad.gif`（画面含 App 图标）
 - `docs/promo/` 里的宣传片（画面含吉祥物）
 
 本项目的修改：`mascot-icon.png` 以原始鲸鱼娘形象为基础，用 AI 重新生成了表情。其余文件由 `docs/design/brand/make-icons.py` 从它生成，只做了缩放、圆角和灰度处理；`ShareMascot.imageset/` 里的分享海报用图另外去掉了背景。这些修改同样按 CC BY-NC-SA 4.0 发布。
