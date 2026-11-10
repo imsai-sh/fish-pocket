@@ -332,9 +332,13 @@ final class ComposerModel {
     /// reused, so asking again replaces the last question if it is still there untouched;
     /// anything the reader typed stays, with the question after it.
     func place(prompt: String) {
-        if isTextEmpty || text == app.placedPrompts[sessionId] { text = prompt } else { text += "\n" + prompt }
-        app.placedPrompts[sessionId] = prompt
+        let defaults = UserDefaults.standard
+        if isTextEmpty || text == defaults.string(forKey: Self.placedKey) { text = prompt } else { text += "\n" + prompt }
+        defaults.set(prompt, forKey: Self.placedKey)
     }
+
+    /// The question last placed, kept across launches as the draft is: it is told from typed text by it.
+    private static let placedKey = "dsh.composer.placedPrompt"
 
     private var isTextEmpty: Bool { text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
