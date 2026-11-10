@@ -7,6 +7,8 @@ options:
   # The String Catalogs' source language: the UI is written in Chinese (Shared/Localizable.xcstrings).
   developmentLanguage: zh-Hans
 packages:
+  # Xcode Cloud builds with the pins in ci_scripts/Package.resolved: after changing a version
+  # here, build once and copy DshIOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved over it.
   SwiftTerm:
     url: https://github.com/migueldeicaza/SwiftTerm
     exactVersion: 1.10.0
@@ -29,6 +31,8 @@ targets:
   DshIOS:
     type: application
     platform: iOS
+    # A shared scheme in the generated project: Xcode Cloud builds only those.
+    scheme: {}
     sources:
       - path: DshIOS
       - path: Shared
