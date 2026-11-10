@@ -328,14 +328,15 @@ final class ComposerModel {
         sendMessage(text, steer: steer, running: running)
     }
 
-    /// Send `prompt` as it stands, around whatever draft and attachments the input holds (询问 AI).
-    func send(prompt: String) {
-        let draft = text, held = attachments
-        attachments = []
-        sendMessage(prompt, steer: false, running: session?.running ?? false)
-        attachments = held
-        text = draft
+    /// Put a written question in the input for the reader to send (询问 AI). The blank session is
+    /// reused, so asking again replaces the last question if it is still there untouched;
+    /// anything the reader typed stays, with the question after it.
+    func place(prompt: String) {
+        if isTextEmpty || text == app.placedPrompts[sessionId] { text = prompt } else { text += "\n" + prompt }
+        app.placedPrompts[sessionId] = prompt
     }
+
+    private var isTextEmpty: Bool { text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
     private func sendMessage(_ draft: String, steer: Bool, running: Bool) {
         let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
