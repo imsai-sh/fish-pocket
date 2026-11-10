@@ -79,7 +79,7 @@ struct PluginInstallSheet: View {
                     }
                 }
             }
-            .background(Palette.background)
+            .pageBackground()
         }
         .tint(Palette.ink)
         .overlay(alignment: .top) { ShellNotices() }
@@ -636,7 +636,19 @@ private struct InstallFailed: View {
                 .padding(12)
                 .background(Palette.waiting.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
+            InstallAsk()
             InstallDetails()
+        }
+    }
+}
+
+/// 询问 AI under an install that went wrong: the new conversation gets this screen's record.
+private struct InstallAsk: View {
+    @Environment(AppModel.self) private var app
+
+    var body: some View {
+        if let record = app.pluginInstall.record {
+            PluginAskRow(caption: "带上这次的安装记录，新开会话排查") { PluginQuestion.ask(record) }
         }
     }
 }
@@ -650,6 +662,7 @@ private struct InstallUnknown: View {
             VStack(alignment: .leading, spacing: 16) {
                 InstallSubject()
                 Text("后端当前没有此安装任务。请检查插件列表后再尝试安装。").font(.subheadline).foregroundStyle(Palette.secondary)
+                InstallAsk()
                 InstallDetails()
             }
         )) {
@@ -669,6 +682,7 @@ private struct InstallConfirmedRefused: View {
             VStack(alignment: .leading, spacing: 16) {
                 InstallSubject()
                 Text(task.inputProblemText ?? "").font(.subheadline).foregroundStyle(Palette.removed)
+                InstallAsk()
             }
         )) {
             Button("关闭") { task.close() }.buttonStyle(.capsule(.outline))

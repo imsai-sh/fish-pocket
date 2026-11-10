@@ -242,8 +242,7 @@ private struct OfficialForm<Content: View>: View {
             }
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .keyboardDoneButton()
@@ -576,8 +575,7 @@ private struct WebSearchSettingsPage: View {
             .groupedRow()
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .navigationTitle("高级")
         .navigationBarTitleDisplayMode(.inline)
         .keyboardDoneButton()

@@ -43,61 +43,68 @@ struct SettingsView: View {
             List {
                 if !engineRunning {
                     Section { EngineCard() }
-                        .listRowBackground(Palette.grouped)
-                        .listRowInsets(EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 18))
                 }
 
                 Section {
                     NavigationLink { ShareAppPage() } label: { ShareAppRow() }
                 }
-                .groupedRow()
 
                 Section {
                     NavigationLink { AccountPage() } label: {
-                        valueRow("账号", app.account.signedIn ? (app.account.displayName ?? String(localized: "已登录")) : String(localized: "未登录"))
+                        row("账号", "person.crop.circle", app.account.signedIn ? (app.account.displayName ?? String(localized: "已登录")) : String(localized: "未登录"))
                     }
-                    NavigationLink { ModelProvidersPage() } label: { valueRow("模型", defaultModel ?? "") }
+                    NavigationLink { ModelProvidersPage() } label: { row("模型", "cpu", defaultModel ?? "") }
                     if mirror.serves("permission") { permissionPicker }
                     if let theme = mirror.namespace("ui-theme") {
-                        Picker("外观", selection: Binding(get: { theme["value"]["preference"].string ?? "system" }, set: { value in
+                        Picker(selection: Binding(get: { theme["value"]["preference"].string ?? "system" }, set: { value in
                             Task { await write("ui-theme", ["preference"], .string(value)) }
                         })) {
                             Text("跟随系统").tag("system")
                             Text("浅色").tag("light")
                             Text("深色").tag("dark")
+                        } label: {
+                            Label("外观", systemImage: "circle.lefthalf.filled")
                         }
+                        .pickerValueTint()
                     }
                     // iOS shows the per-app language in its Settings only to readers with several system
                     // languages; this picker writes the same preference, applied at the next launch.
-                    Picker("语言", selection: $languageChoice) {
+                    Picker(selection: $languageChoice) {
                         Text("跟随系统").tag("system")
                         ForEach(AppLanguage.choices, id: \.code) { Text(verbatim: $0.name).tag($0.code) }
+                    } label: {
+                        Label("语言", systemImage: "globe")
                     }
+                    .pickerValueTint()
                     .onChange(of: languageChoice) { _, value in
                         AppLanguage.chosen = value == "system" ? nil : value
                         languageChanged = true
                     }
                 }
-                .groupedRow()
 
                 Section {
-                    NavigationLink { PluginsView() } label: { valueRow("插件", pluginCount.map { String(localized: "\($0) 个") } ?? "") }
-                    NavigationLink { SchedulesView(openSession: openSession) } label: { valueRow("自动化", app.scheduleCount.map { String(localized: "\($0) 个") } ?? "") }
+                    NavigationLink { PluginsView() } label: {
+                        row("插件", "puzzlepiece.extension", pluginCount.map { String(localized: "\($0) 个") } ?? "")
+                    }
+                    NavigationLink { SchedulesView(openSession: openSession) } label: {
+                        row("自动化", "clock.arrow.2.circlepath", app.scheduleCount.map { String(localized: "\($0) 个") } ?? "")
+                    }
                     NavigationLink { NativeCapabilitiesView() } label: {
-                        valueRow("本机能力", nativeCapabilityCount.map { String(localized: "\($0) 项") } ?? "")
+                        row("本机能力", "iphone", nativeCapabilityCount.map { String(localized: "\($0) 项") } ?? "")
                     }
                 }
-                .groupedRow()
 
                 Section {
                     // Turning it off asks first: without it the system may end the engine in the background.
-                    Toggle("静音音频", isOn: Binding(get: { keepAlive }, set: { on in
+                    Toggle(isOn: Binding(get: { keepAlive }, set: { on in
                         if on { keepAlive = true } else { confirmingKeepAliveOff = true }
-                    }))
+                    })) {
+                        Label("静音音频", systemImage: "speaker.slash")
+                    }
                     .toggleStyle(.mono)
                     // The system's continued-processing task exists from iOS 26 only.
                     if #available(iOS 26.0, *) {
-                        Toggle("任务续跑", isOn: $continuedProcessing)
+                        Toggle(isOn: $continuedProcessing) { Label("任务续跑", systemImage: "hourglass") }
                             .toggleStyle(.mono)
                     }
                 } header: {
@@ -105,7 +112,6 @@ struct SettingsView: View {
                 } footer: {
                     Text(backgroundFooter)
                 }
-                .groupedRow()
                 .onChange(of: keepAlive) { BackgroundKeeper.shared.settingsChanged() }
                 .onChange(of: continuedProcessing) { BackgroundKeeper.shared.settingsChanged() }
                 .alert("关闭静音音频？", isPresented: $confirmingKeepAliveOff) {
@@ -116,40 +122,35 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Toggle("显示会话标题", isOn: $widgetTitles)
+                    Toggle(isOn: $widgetTitles) { Label("显示会话标题", systemImage: "eye") }
                         .toggleStyle(.mono)
                 } header: {
                     Text("小组件")
                 } footer: {
                     Text("关掉后，主屏幕和锁屏小组件只显示数量和状态。设备锁定时，标题总会被打码。")
                 }
-                .groupedRow()
                 .onChange(of: widgetTitles) { WidgetSnapshotWriter.shared.refresh() }
 
                 Section {
-                    NavigationLink("高级") { AdvancedSettingsPage() }
-                    NavigationLink { AboutPage(engineVersion: engineVersion) } label: { valueRow("关于", aboutValue) }
+                    NavigationLink { AdvancedSettingsPage() } label: { row("高级", "wrench.and.screwdriver") }
+                    NavigationLink { AboutPage(engineVersion: engineVersion) } label: { row("关于", "info.circle", aboutValue) }
                 }
-                .groupedRow()
 
                 Section {
-                    linkRow("给个 Star", "GitHub", Self.repositoryURL)
+                    linkRow("给个 Star", "star", "GitHub", Self.repositoryURL)
                         .environment(\.openURL, OpenURLAction { _ in SupportPrompt.settle(); return .systemAction })
                     // Only an App Store install can be reviewed there.
                     if AppDistribution.channel == .appStore {
-                        linkRow("给个评分", "App Store", AppLinks.writeReview)
+                        linkRow("给个评分", "heart", "App Store", AppLinks.writeReview)
                     }
-                    linkRow("官网", AppLinks.site.host() ?? "", AppLinks.site)
-                    linkRow("开源仓库", UpdateChecker.repository, Self.repositoryURL)
-                    linkRow("问题反馈", "GitHub Issues", Self.issuesURL)
-                    linkRow("作者", "sai · imsai.cc", Self.authorURL)
+                    linkRow("官网", "safari", AppLinks.site.host() ?? "", AppLinks.site)
+                    linkRow("开源仓库", "chevron.left.forwardslash.chevron.right", UpdateChecker.repository, Self.repositoryURL)
+                    linkRow("问题反馈", "exclamationmark.bubble", "GitHub Issues", Self.issuesURL)
+                    linkRow("作者", "at", "sai · imsai.cc", Self.authorURL)
                 } footer: {
                     Text("觉得好用的话，去 GitHub 仓库页点一下 Star ⭐️，这是对项目最大的支持。")
                 }
-                .groupedRow()
             }
-            .groupedList()
-            .tint(Palette.ink)
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.large)
             .closeButton(dismiss)
@@ -169,6 +170,9 @@ struct SettingsView: View {
             .task(id: app.settingsRevision) { await loadDerived() }
             .task(id: app.revision("permission-presets/catalog-changed")) { await loadPermissions() }
         }
+        // 设置 and every page pushed or presented from it: the system's lists, not the monochrome ones.
+        .environment(\.systemLists, true)
+        .tint(Palette.ink)
     }
 
     private var aboutValue: String {
@@ -181,29 +185,32 @@ struct SettingsView: View {
     private static let authorURL = URL(string: "https://imsai.cc")!
 
     /// Opens in the browser; the arrow says it leaves the app.
-    private func linkRow(_ title: LocalizedStringKey, _ value: String, _ url: URL) -> some View {
+    private func linkRow(_ title: LocalizedStringKey, _ icon: String, _ value: String, _ url: URL) -> some View {
         Link(destination: url) {
-            HStack {
-                Text(title).foregroundStyle(Palette.ink)
-                Spacer()
-                Text(value).foregroundStyle(Palette.secondary).lineLimit(1)
-                Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(Palette.faint)
+            LabeledContent {
+                HStack(spacing: 6) {
+                    Text(value).lineLimit(1)
+                    Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
+                }
+                .foregroundStyle(.secondary)
+            } label: {
+                Label(title, systemImage: icon)
             }
         }
     }
 
-    private func valueRow(_ title: LocalizedStringKey, _ value: String) -> some View {
-        HStack {
-            Text(title).foregroundStyle(Palette.ink)
-            Spacer()
-            Text(value).foregroundStyle(Palette.secondary).lineLimit(1)
+    private func row(_ title: LocalizedStringKey, _ icon: String, _ value: String = "") -> some View {
+        LabeledContent {
+            Text(value).lineLimit(1)
+        } label: {
+            Label(title, systemImage: icon)
         }
     }
 
     /// G-01: the permission new sessions start with; full access asks first.
     private var permissionPicker: some View {
         let current = mirror.namespace("permission")?["value"]["defaultPreset"].string ?? catalogDefaultPermission
-        return Picker("默认访问模式", selection: Binding(get: { current }, set: { value in
+        return Picker(selection: Binding(get: { current }, set: { value in
             if value == "danger-full-access" { confirmingFullAccess = true }
             else { Task { await write("permission", ["defaultPreset"], .string(value)) } }
         })) {
@@ -213,7 +220,10 @@ struct SettingsView: View {
             if !permissionOptions.contains(where: { $0["value"].string == current }) {
                 Text(current).tag(current)
             }
+        } label: {
+            Label("默认访问模式", systemImage: "lock.shield")
         }
+        .pickerValueTint()
     }
 
     /// 任务续跑 is on and available (BackgroundKeeper's continued task needs iOS 26).
@@ -283,6 +293,12 @@ struct SettingsView: View {
     }
 }
 
+private extension View {
+    /// A picker's value in the grey of the other rows' values; the page's ink tint would paint it black.
+    /// Only the value: the row's icon keeps the ink.
+    func pickerValueTint() -> some View { tint(.secondary) }
+}
+
 /// 设置 → 高级: the pages for people who look under the hood.
 private struct AdvancedSettingsPage: View {
     @Environment(AppModel.self) private var app
@@ -295,25 +311,22 @@ private struct AdvancedSettingsPage: View {
             Section {
                 NavigationLink("内置插件") { PluginInventoryPage() }
                 if !app.cordis.rows.isEmpty {
-                    Button("Cordis 插件") { showCordis = true }.foregroundStyle(Palette.ink)
+                    Button("Cordis 插件") { showCordis = true }
                 }
                 NavigationLink("Agent 预设") { AgentPresetsPage() }
                 NavigationLink("全部设置") { AllSettingsPage() }
             }
-            .groupedRow()
 
             Section {
                 if app.settings.hasDocument {
                     NavigationLink("配置文件") { ConfigDocumentView() }
                 }
                 NavigationLink("引擎日志") { EngineLogView(file: engine.logFile) }
-                Button { showWeb = true } label: { Text("网页版").foregroundStyle(Palette.ink) }
+                Button("网页版") { showWeb = true }
             } footer: {
                 Text("网页版用于只有网页界面的插件，设置与这里共用同一份配置。")
             }
-            .groupedRow()
         }
-        .groupedList()
         .sheet(isPresented: $showCordis) { CordisPanelView(currentSession: nil) }
         .navigationTitle("高级")
         .navigationBarTitleDisplayMode(.inline)
@@ -358,7 +371,6 @@ private struct AboutPage: View {
     var body: some View {
         List {
             Section { EngineCard() }
-                .listRowBackground(Palette.grouped)
             Section {
                 LabeledContent("引擎", value: "DeepSeek Harness")
                 if let engineVersion { LabeledContent("引擎版本", value: engineVersion) }
@@ -379,14 +391,11 @@ private struct AboutPage: View {
                     Text("Bot 功能的后台是开源插件 DS Bot（Apache-2.0），由 Fei2411 和社区贡献者开发。")
                 }
             }
-            .groupedRow()
             Section {
                 LabeledContent("连接状态", value: app.connected ? String(localized: "已连接") : String(localized: "重新连接中"))
                 LabeledContent("存储", value: storage.map { ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) } ?? "…")
             }
-            .groupedRow()
         }
-        .groupedList()
         .navigationTitle("关于")
         .navigationBarTitleDisplayMode(.inline)
         .task { storage = await Self.storageSize() }
@@ -431,18 +440,14 @@ private struct AllSettingsPage: View {
                                     NavigationLink(title) { NamespaceFormView(title: title, ns: name) }
                                 }
                             }
-                            .groupedRow()
                         }
-                        .groupedList()
                         .navigationTitle(group.title)
                     }
                 }
             } footer: {
                 Text("这些设置和网页版、桌面版共用同一份配置。")
             }
-            .groupedRow()
         }
-        .groupedList()
         .navigationTitle("全部设置")
         .navigationBarTitleDisplayMode(.inline)
         // The plugin titles the rows of unnamed namespaces fall back to.
@@ -635,8 +640,8 @@ private struct ShareAppRow: View {
             .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
             .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text("分享 Fish Pocket").foregroundStyle(Palette.ink)
-                Text("海报、二维码或链接").font(.footnote).foregroundStyle(Palette.secondary)
+                Text("分享 Fish Pocket")
+                Text("海报、二维码或链接").font(.footnote).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
         }

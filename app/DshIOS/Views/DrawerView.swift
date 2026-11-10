@@ -92,6 +92,7 @@ struct DrawerView: View {
         .onChange(of: searchRequest) { searchFocused = true }
         .onChange(of: groupBy) { Haptics.select() }
         .onChange(of: selection) { revealSelection() }
+        .onChange(of: selectionRowGroupId) { revealSelection() }
         .confirmationDialog("删除「\(removingWorkspace?.displayTitle ?? "")」？", isPresented: Binding(get: { removingWorkspace != nil }, set: { if !$0 { removingWorkspace = nil } }), titleVisibility: .visible) {
             Button("删除工作区", role: .destructive) {
                 if let workspace = removingWorkspace {
@@ -420,10 +421,18 @@ struct DrawerView: View {
         expansion[group.id] ?? true
     }
 
-    /// Opens the group of a session just switched to, so it shows where it lives.
+    /// The group whose rows show the current session. A new conversation is blank and
+    /// in none until its first message, when it shows up here.
+    private var selectionRowGroupId: String? {
+        guard let selection else { return nil }
+        return groups.first { $0.rows.contains { $0.id == selection } }?.id
+    }
+
+    /// Opens the group of a session just switched to (a new conversation's is its
+    /// workspace's), or of one that just showed up in a group, so it shows where it lives.
     private func revealSelection() {
-        guard let selection, let group = groups.first(where: { $0.rows.contains { $0.id == selection } }),
-              !isExpanded(group) else { return }
+        guard let selection, let id = selectionRowGroupId ?? app.workspace(of: selection)?.id,
+              let group = groups.first(where: { $0.id == id }), !isExpanded(group) else { return }
         setExpanded(group, true)
     }
 

@@ -44,6 +44,15 @@
 - build 号由 Xcode Cloud 分配，每次构建加 1，失败的也占号。脚本把它写进生成的工程，`app/project.yml` 里的 `CURRENT_PROJECT_VERSION` 只对本地构建有效。
 - 改了 `app/project.yml` 里 SwiftPM 依赖的版本后，本地构建一次，把 `app/DshIOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` 拷到 `app/ci_scripts/Package.resolved`。Xcode Cloud 不自己解析版本，两边对不上会构建失败。
 
+### 注意
+
+- **升级 nodejs-mobile、Python、libgit2 的版本后**（`scripts/fetch-nodejs-mobile.sh`、`scripts/fetch-python.sh`、`scripts/build-libgit2.sh`），本地从零跑一遍 `app/ci_scripts/ci_post_clone.sh`。云端每次都重新下载和编译，下载地址或 sha256 写错会直接失败。
+- **改构建脚本或 `app/project.yml` 的工程结构时**，合并前先在分支上手动触发一次云端构建。本地能验证脚本和编译，验证不了云端的签名和上传。
+- **触发规则按提交看，不按净差异看。** 只改文档的 PR，如果分支在合并前同步过 `main`，那个同步提交带着别人的代码改动，照样会触发构建。不想触发，就从最新的 `main` 开分支，合并前不再同步。
+- **连续推送只跑最新一次**，前一次会被自动取消。但被取消的那次如果已经导出完，包照样会上传并占一个 build 号，所以 build 列表里的号不一定连续，也可能多出包。
+- **归档成功就自动上传**，不用另外操作。构建要等上传的包处理完才算结束，全程二三十分钟，其中真正在构建的只有几分钟；处理完之前包不会出现在 build 列表里，不是没传上去。
+- **云端构建失败不影响本地**：`scripts/run-sim.sh`、`scripts/run-device.sh` 和 GitHub 上的编译检查走的是各自的流程。
+
 ## 内置 skill：iOS 环境说明
 
 `engine/skills/ios-environment/SKILL.md` 随 App 打包，App 里的 Agent 靠它判断这台「iOS 沙盒」里能做什么、不能做什么。它写错了，Agent 就会去试不存在的命令，或者放弃本来能做的事。

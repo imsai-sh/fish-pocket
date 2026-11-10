@@ -34,7 +34,7 @@ struct PluginInventoryPage: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Palette.background)
+        .pageBackground()
         .navigationTitle("内置插件")
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }

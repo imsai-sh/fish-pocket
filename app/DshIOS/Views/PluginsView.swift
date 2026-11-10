@@ -202,7 +202,7 @@ struct PluginsView: View {
     private var content: some View {
         if manager.status == .unavailable {
             ContentUnavailableView("无法管理插件", systemImage: "puzzlepiece.extension", description: Text("当前无法安装或启停插件。"))
-                .background(Palette.background)
+                .pageBackground()
         } else if manager.marketEnabled {
             VStack(spacing: 0) {
                 Picker("插件视图", selection: $tab) {
@@ -214,7 +214,7 @@ struct PluginsView: View {
                 .padding(.vertical, 8)
                 if showingMarket { PluginMarketPage() } else { installedList }
             }
-            .background(Palette.background)
+            .pageBackground()
         } else {
             installedList
         }
@@ -393,6 +393,7 @@ private struct MoreExtensionsView: View {
 /// P-04: artwork, name, tags, one-liner and the state; the switch is on the detail page it opens.
 private struct PluginCard: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.systemLists) private var systemLists
     let package: PluginPackage
     @State private var confirmingUninstall = false
 
@@ -424,7 +425,8 @@ private struct PluginCard: View {
             }
             .padding(.vertical, 3)
         }
-        .listRowBackground(manager.highlight == package.name ? Palette.control : Palette.grouped)
+        // nil is the list's own row: the system's under 设置.
+        .listRowBackground(manager.highlight == package.name ? Palette.control : systemLists ? nil : Palette.grouped)
         .swipeActions {
             if package.removable && package.readOnlyReason == nil {
                 Button("卸载", role: .destructive) { confirmingUninstall = true }
@@ -487,9 +489,9 @@ private struct ConfirmUninstall: ViewModifier {
 /// generic form) and components (P-08); names and sources under 高级, 卸载 last.
 struct PluginDetailView: View {
     @Environment(AppModel.self) private var app
-    @Environment(\.dismiss) private var dismiss
     let name: String
     @State private var confirmingUninstall = false
+    @State private var uninstalled = false
     @State private var filter = ""
 
     private var manager: PluginManagerModel { app.plugins }
@@ -497,13 +499,14 @@ struct PluginDetailView: View {
     var body: some View {
         Group {
             if let package = manager.package(name) {
-                detail(package).confirmUninstall(package, isPresented: $confirmingUninstall) { dismiss() }
+                detail(package).confirmUninstall(package, isPresented: $confirmingUninstall) { uninstalled = true }
             } else {
                 ContentUnavailableView("插件已移除", systemImage: "puzzlepiece.extension")
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .followSettings()
+        .background { PopWhen(uninstalled) }
     }
 
     private func detail(_ package: PluginPackage) -> some View {
@@ -672,6 +675,20 @@ struct PluginDetailView: View {
             }
             .groupedRow()
         }
+    }
+}
+
+/// Pops the page once `done` turns true. `dismiss` is read here and not on the page: on iOS 17 the
+/// page's body and the navigation stack kept updating each other until the app was killed, and
+/// `dismiss` was the one input of that body that moves with the stack.
+private struct PopWhen: View {
+    @Environment(\.dismiss) private var dismiss
+    let done: Bool
+
+    init(_ done: Bool) { self.done = done }
+
+    var body: some View {
+        Color.clear.onChange(of: done) { _, done in if done { dismiss() } }
     }
 }
 

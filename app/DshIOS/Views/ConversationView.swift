@@ -43,6 +43,8 @@ struct ConversationView: View {
     @State private var composerFocused = false
     /// The new-conversation page's free height: a short one drops the headline.
     @State private var heroHeight: CGFloat = .infinity
+    /// iPhone Duo held partly open like a laptop: where the fold crosses that page.
+    @State private var heroFold: CGFloat?
     /// A status or composer sheet is up: approvals and questions present once it has gone
     /// (a second sheet can't stack on it, and one that failed to show would be lost).
     @State private var inputSheetUp = false
@@ -196,6 +198,8 @@ struct ConversationView: View {
                     ComposerView(
                         model: model, context: context, pendingDraft: app.pendingDrafts[sessionId],
                         consumeDraft: { app.pendingDrafts[sessionId] = nil },
+                        pendingPrompt: app.pendingPrompts[sessionId],
+                        consumePrompt: { app.pendingPrompts[sessionId] = nil },
                         focusOnAppear: app.pendingFocus.contains(sessionId),
                         consumeFocus: { app.pendingFocus.remove(sessionId) },
                         openLogExport: { headerSheet = .logExport },
@@ -334,6 +338,7 @@ struct ConversationView: View {
                             selection = id
                         }
                     }
+                    .environment(\.systemLists, true)
                 case .logExport: SessionLogExportSheet(sessionId: sessionId)
                 }
             }
@@ -384,7 +389,7 @@ struct ConversationView: View {
     // MARK: New conversation
 
     private func hero(_ model: SessionModel) -> some View {
-        let showsHeadline = !keyboardUp && heroHeight >= 220
+        let showsHeadline = !keyboardUp && min(heroHeight, heroFold ?? .infinity) >= 220
         return VStack(spacing: 14) {
             if showsHeadline {
                 // The web's headline (`conversation.hero.headline`), so both shells greet the same way.
@@ -420,10 +425,15 @@ struct ConversationView: View {
             .padding(.top, 6)
         }
         .padding(.horizontal, 24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Centred in what is above the fold, when there is one.
+        .frame(maxWidth: .infinity, maxHeight: heroFold ?? .infinity)
+        .frame(maxHeight: .infinity, alignment: .top)
         .contentShape(Rectangle())
         .onTapGesture { dismissKeyboard() }
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+        .onGeometryChange(for: CGFloat?.self) { proxy in
+            proxy.fold.flatMap { $0.width > $0.height ? $0.minY : nil }
+        } action: { heroFold = $0 }
         .animation(.snappy(duration: 0.2), value: showsHeadline)
     }
 
@@ -901,10 +911,17 @@ private struct UserBubble: View {
     /// The chat app the message came in over (a Bot reached from one), by name.
     var via: String?
     @State private var revealed = false
+    /// A long message (询问 AI sends an install log) folds to its first lines until asked for.
+    @State private var open = false
+    @State private var fullHeight: CGFloat = 0
+    @State private var foldedHeight: CGFloat = 0
     @Environment(\.conversationActions) private var actions
+
+    private static let foldedLines = 8
 
     var body: some View {
         let masked = SecretMask.masked(SessionMention.plain(text))
+        let more = fullHeight > foldedHeight + 1
         VStack(alignment: .trailing, spacing: 6) {
             ImageGroup(attachments: attachments.filter(\.isImage), alignment: .trailing)
             ForEach(Array(attachments.filter { !$0.isImage }.enumerated()), id: \.offset) { _, attachment in
@@ -918,6 +935,14 @@ private struct UserBubble: View {
                         Text(text)
                     }
                 }
+                .lineLimit(open ? nil : Self.foldedLines)
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { if !open { foldedHeight = $0 } }
+                .background(alignment: .topLeading) {
+                    Text(text)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .hidden()
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { fullHeight = $0 }
+                }
                 .font(.callout)
                 .lineSpacing(3)
                 .padding(.horizontal, 16)
@@ -929,6 +954,12 @@ private struct UserBubble: View {
                     if masked == nil || revealed {
                         Button { actions.present(.text(text)) } label: { Label("选择文本", systemImage: "selection.pin.in.out") }
                     }
+                }
+                if open || more {
+                    Button { withAnimation(.snappy) { open.toggle() } } label: {
+                        Text(open ? "收起" : "全文").font(.footnote.weight(.semibold)).foregroundStyle(Palette.ink).padding(.trailing, 6)
+                    }
+                    .buttonStyle(.plain)
                 }
                 if masked != nil {
                     Button { revealed.toggle() } label: {

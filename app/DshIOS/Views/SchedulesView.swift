@@ -299,7 +299,7 @@ struct ScheduleDetailView: View {
                     case .records: DeliveryHistoryView(task: task)
                     }
                 }
-                .background(Palette.background)
+                .pageBackground()
             } else if catalog.settled {
                 ContentUnavailableView("任务已不可用，可能已被删除", systemImage: "clock")
             } else {

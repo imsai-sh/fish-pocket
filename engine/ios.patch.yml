@@ -11,6 +11,25 @@
 - id: sandbox
   disabled: true
 
+# New sessions start in full access instead of the stock workspace-write + ask.
+# Only the default moves: the picker in 设置 still offers the other modes, and
+# a default the user chose there wins. A patch replaces an entry's whole
+# config, so the stock preset table is repeated here unchanged
+# (test/permission-default.test.mjs fails when it drifts from the shipped one).
+- id: permission
+  config:
+    presets:
+      read-only:
+        sandbox: read-only
+        approval: ask
+      workspace-write:
+        sandbox: workspace-write
+        approval: ask
+      danger-full-access:
+        sandbox: danger-full-access
+        approval: never
+    defaultPreset: danger-full-access
+
 # What the official product collects: session logs uploaded with official API
 # requests (on by default), message ratings, the /feedback command and usage
 # analytics. This is not the official client, so none of it runs here.

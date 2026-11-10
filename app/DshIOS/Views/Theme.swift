@@ -104,28 +104,63 @@ extension ButtonStyle where Self == CapsuleButtonStyle {
     }
 }
 
+extension EnvironmentValues {
+    /// 设置 and the pages under it wear the system's own list look: its background, separators
+    /// and switch. Set on the settings stack and on the sheets that open one of its pages directly;
+    /// every other screen keeps the monochrome look.
+    @Entry var systemLists = false
+}
+
 /// The monochrome switch: ink track with a page-coloured knob when on, so it
-/// reads in both appearances (the system knob is always white).
+/// reads in both appearances (the system knob is always white). Under 设置 it is the system's.
 struct MonoToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
-        HStack(spacing: 16) {
-            configuration.label
-            Spacer(minLength: 0)
-            MonoSwitch(isOn: configuration.$isOn)
+        Row(configuration: configuration)
+    }
+
+    private struct Row: View {
+        @Environment(\.systemLists) private var system
+        let configuration: Configuration
+
+        var body: some View {
+            if system {
+                // The ink tint of the page would paint the track black, and white in the dark.
+                Toggle(isOn: configuration.$isOn) { configuration.label }
+                    .toggleStyle(.switch)
+                    .tint(.green)
+            } else {
+                HStack(spacing: 16) {
+                    configuration.label
+                    Spacer(minLength: 0)
+                    MonoSwitch(isOn: configuration.$isOn)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isToggle)
+                .accessibilityValue(configuration.isOn ? Text("开") : Text("关"))
+                .accessibilityAction { configuration.isOn.toggle() }
+            }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isToggle)
-        .accessibilityValue(configuration.isOn ? Text("开") : Text("关"))
-        .accessibilityAction { configuration.isOn.toggle() }
     }
 }
 
 /// The switch alone, for rows that lay out their own label (plugins).
 struct MonoSwitch: View {
+    @Environment(\.systemLists) private var system
     @Binding var isOn: Bool
     var label: Text?
 
     var body: some View {
+        if system {
+            Toggle(isOn: $isOn) { label ?? Text("") }
+                .labelsHidden()
+                .toggleStyle(.switch)
+                .tint(.green)
+        } else {
+            mono
+        }
+    }
+
+    private var mono: some View {
         Capsule()
             .fill(isOn ? Palette.ink : Palette.control)
             .frame(width: 48, height: 28)
@@ -167,18 +202,49 @@ struct StatusDot: View {
     }
 }
 
-/// Grouped rows on the page background (settings, plugins, workbench lists).
+/// Grouped rows on the page background (plugins, workbench lists); under 设置, the system's grouped list.
 struct GroupedListStyle: ViewModifier {
+    @Environment(\.systemLists) private var system
+
     func body(content: Content) -> some View {
-        content
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
-            .background(Palette.background)
+        if system {
+            content.listStyle(.insetGrouped)
+        } else {
+            content
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .background(Palette.background)
+        }
+    }
+}
+
+/// What shows around a list's rows: the system's grouped background under 设置, the page colour elsewhere.
+private struct PageBackground: ViewModifier {
+    @Environment(\.systemLists) private var system
+
+    func body(content: Content) -> some View {
+        content.background(system ? Color(.systemGroupedBackground) : Palette.background)
+    }
+}
+
+/// The fill of rows in a `groupedList()`; the system's own rows and separators under 设置.
+private struct GroupedRowStyle: ViewModifier {
+    @Environment(\.systemLists) private var system
+
+    func body(content: Content) -> some View {
+        if system {
+            content
+        } else {
+            content.listRowBackground(Palette.grouped).listRowSeparator(.hidden)
+        }
     }
 }
 
 extension View {
     func groupedList() -> some View { modifier(GroupedListStyle()) }
+
+    /// The background of a page that puts something of its own (tabs, an empty state) around a `groupedList()`.
+    func pageBackground() -> some View { modifier(PageBackground()) }
 
     /// A small control keeps its look; the tappable area grows to the 44 pt a thumb needs.
     func hitTarget(_ size: CGFloat = 44) -> some View {
@@ -206,7 +272,7 @@ extension View {
 
     /// Row fill (and no separators: rows group by space) for lists styled with
     /// `groupedList()`; applies to every row of a `Section`.
-    func groupedRow() -> some View { listRowBackground(Palette.grouped).listRowSeparator(.hidden) }
+    func groupedRow() -> some View { modifier(GroupedRowStyle()) }
 
     /// A close button for a view presented as a sheet (it may also be pushed, where it has none).
     func closeButton(_ dismiss: DismissAction) -> some View {
@@ -221,6 +287,22 @@ extension View {
                     .accessibilityLabel("关闭")
             }
         }
+    }
+}
+
+extension GeometryProxy {
+    /// iPhone Duo's fold while the device is partly open: the strip it takes out of this view,
+    /// in the view's own coordinates. Nil when the device is flat or closed, when the fold
+    /// misses this view, and on everything that does not fold.
+    var fold: CGRect? {
+        // Reserved regions came with the iOS 27.1 SDK (SwiftUI 8.1): Xcode 26 still builds the app.
+        #if canImport(SwiftUI, _version: 8.1)
+        guard #available(iOS 27.1, *) else { return nil }
+        let bounds = CGRect(origin: .zero, size: size)
+        return reservedRegions(kind: .division).map(\.frame).first { $0.intersects(bounds) }
+        #else
+        return nil
+        #endif
     }
 }
 
