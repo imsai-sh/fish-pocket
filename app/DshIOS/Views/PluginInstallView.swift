@@ -79,7 +79,7 @@ struct PluginInstallSheet: View {
                     }
                 }
             }
-            .background(Palette.background)
+            .pageBackground()
         }
         .tint(Palette.ink)
         .overlay(alignment: .top) { ShellNotices() }

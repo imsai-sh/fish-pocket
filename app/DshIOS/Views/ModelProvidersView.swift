@@ -495,8 +495,7 @@ private struct ProviderEditor: View {
             }
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .scrollDismissesKeyboard(.interactively)
         .modifier(EditorChrome(adding: adding, dirty: dirty, canSave: canSave, canContinue: canContinue, busy: busy, next: { choosingModels = true }, save: { Task { await apply() } }))
         .navigationDestination(isPresented: $choosingModels) { modelsStep }
@@ -534,8 +533,7 @@ private struct ProviderEditor: View {
             modelProblemSection
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .navigationTitle("选择模型")
         .navigationBarTitleDisplayMode(.inline)
         .keyboardDoneButton()
@@ -649,8 +647,7 @@ private struct ProviderEditor: View {
             .groupedRow()
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .navigationTitle("高级")
         .navigationBarTitleDisplayMode(.inline)
         .keyboardDoneButton()
@@ -1016,8 +1013,7 @@ private struct ModelRowEditor: View {
             .groupedRow()
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .disabled(disabled)
         .navigationTitle(String(localized: "模型 \(position)"))
         .navigationBarTitleDisplayMode(.inline)
@@ -1365,8 +1361,7 @@ private struct CustomProviderForm: View {
             .groupedRow()
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .scrollDismissesKeyboard(.interactively)
         .interactiveDismissDisabled(dirty)
         .toolbar {
@@ -1395,8 +1390,7 @@ private struct CustomProviderForm: View {
             .groupedRow()
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .navigationTitle("高级")
         .navigationBarTitleDisplayMode(.inline)
         .keyboardDoneButton()
@@ -1433,8 +1427,7 @@ private struct CustomProviderForm: View {
             }
         }
         .tint(Palette.ink)
-        .scrollContentBackground(.hidden)
-        .background(Palette.background)
+        .groupedList()
         .navigationTitle("选择模型")
         .navigationBarTitleDisplayMode(.inline)
         .keyboardDoneButton()
