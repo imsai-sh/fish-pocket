@@ -911,7 +911,7 @@ private struct UserBubble: View {
     /// The chat app the message came in over (a Bot reached from one), by name.
     var via: String?
     @State private var revealed = false
-    /// A long message (询问 AI sends an install log) folds to its first lines until asked for.
+    /// A long message (询问 AI writes one with an install log) folds to its first lines until asked for.
     @State private var open = false
     @State private var fullHeight: CGFloat = 0
     @State private var foldedHeight: CGFloat = 0
