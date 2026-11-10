@@ -489,9 +489,9 @@ private struct ConfirmUninstall: ViewModifier {
 /// generic form) and components (P-08); names and sources under 高级, 卸载 last.
 struct PluginDetailView: View {
     @Environment(AppModel.self) private var app
-    @Environment(\.dismiss) private var dismiss
     let name: String
     @State private var confirmingUninstall = false
+    @State private var uninstalled = false
     @State private var filter = ""
 
     private var manager: PluginManagerModel { app.plugins }
@@ -499,13 +499,14 @@ struct PluginDetailView: View {
     var body: some View {
         Group {
             if let package = manager.package(name) {
-                detail(package).confirmUninstall(package, isPresented: $confirmingUninstall) { dismiss() }
+                detail(package).confirmUninstall(package, isPresented: $confirmingUninstall) { uninstalled = true }
             } else {
                 ContentUnavailableView("插件已移除", systemImage: "puzzlepiece.extension")
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .followSettings()
+        .background { PopWhen(uninstalled) }
     }
 
     private func detail(_ package: PluginPackage) -> some View {
@@ -674,6 +675,20 @@ struct PluginDetailView: View {
             }
             .groupedRow()
         }
+    }
+}
+
+/// Pops the page once `done` turns true. `dismiss` is read here and not on the page: on iOS 17 the
+/// page's body and the navigation stack kept updating each other until the app was killed, and
+/// `dismiss` was the one input of that body that moves with the stack.
+private struct PopWhen: View {
+    @Environment(\.dismiss) private var dismiss
+    let done: Bool
+
+    init(_ done: Bool) { self.done = done }
+
+    var body: some View {
+        Color.clear.onChange(of: done) { _, done in if done { dismiss() } }
     }
 }
 
