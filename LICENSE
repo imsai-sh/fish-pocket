@@ -24,6 +24,12 @@ SOFTWARE.
 
 Additional Terms
 
+Personal use is welcome and unrestricted. You may download, build, run, read
+and modify the Software for your own use however you like, without asking or
+telling anyone, and you may fork this repository to send a pull request back
+to it. The terms below apply only to commercial use and to publicly
+distributing a modified version.
+
 The following terms apply in addition to the MIT License above. Where they
 conflict with it, these terms prevail. "Author" means the copyright holder
 named above.
@@ -53,8 +59,5 @@ named above.
    people's work and is used under CC BY-NC-SA 4.0, see
    THIRD_PARTY_NOTICES.md.
 
-These terms do not restrict downloading, building, running, reading or
-privately modifying the Software for your own use, or forking this repository
-to send a pull request back to it. Third-party components listed in
-THIRD_PARTY_NOTICES.md keep their own licenses and are not covered by this
-file.
+Third-party components listed in THIRD_PARTY_NOTICES.md keep their own
+licenses and are not covered by this file.
