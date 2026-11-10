@@ -4,7 +4,7 @@
 
 <h3 align="center">Fish Pocket</h3>
 
-<h1 align="center">在 iPhone 和 iPad 上本机运行 DeepSeek Harness，界面完全原生</h1>
+<h1 align="center">在 iPhone 和 iPad 上本机运行 DSH（DeepSeek Harness），界面完全原生</h1>
 
 <p align="center">
   <b>不连电脑，不连服务器，不是网页套壳。引擎就跑在 App 里，每个页面都用 SwiftUI 重写。</b>
