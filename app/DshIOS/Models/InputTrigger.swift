@@ -1,8 +1,8 @@
 import Foundation
 
 /// A `/` or `@` token being typed (input-trigger `detectTrigger`, C-97). The
-/// caret is taken to be at the end of the draft: the phone composer has no
-/// caret API on iOS 17, and new text is almost always typed there.
+/// caret is taken to be at the end of the draft: the phone composer does not
+/// read the caret, and new text is almost always typed there.
 struct TriggerHit: Equatable {
     var trigger: Character
     /// Text after the trigger up to the caret (inside an open `@"…` quote for a quoted path).

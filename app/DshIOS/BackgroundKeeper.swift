@@ -38,7 +38,7 @@ final class BackgroundKeeper {
     private var refresh: (() async -> Void)?
     private var grace: UIBackgroundTaskIdentifier = .invalid
     private var pollTask: Task<Void, Never>?
-    /// The live `BGContinuedProcessingTask` (typed loosely: the deployment target is iOS 17).
+    /// The live `BGContinuedProcessingTask` (typed loosely: the type exists from iOS 26 only).
     private var continued: AnyObject?
     private var submitted: String?
     /// The scheduler refused this round, or the user stopped it: no new request

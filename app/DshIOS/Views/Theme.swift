@@ -177,8 +177,42 @@ struct GroupedListStyle: ViewModifier {
     }
 }
 
+/// Keeps a scroll view at its end while the reader is there: within `threshold` of the
+/// bottom counts as following, and growth then calls `follow`; scrolling up lets go.
+struct BottomFollow: ViewModifier {
+    let threshold: CGFloat
+    @Binding var atBottom: Bool
+    let follow: () -> Void
+
+    func body(content: Content) -> some View {
+        content.onScrollGeometryChange(for: Metrics.self) { geometry in
+            // `containerSize` already leaves the insets out; the visible rect runs under them.
+            Metrics(
+                contentHeight: geometry.contentSize.height,
+                distance: geometry.contentSize.height + geometry.contentInsets.bottom - geometry.visibleRect.maxY
+            )
+        } action: { old, new in
+            if new.contentHeight > old.contentHeight, old.distance <= threshold {
+                follow()
+            } else {
+                atBottom = new.distance <= threshold
+            }
+        }
+    }
+
+    private struct Metrics: Equatable {
+        var contentHeight: CGFloat
+        var distance: CGFloat
+    }
+}
+
 extension View {
     func groupedList() -> some View { modifier(GroupedListStyle()) }
+
+    /// `atBottom` hears whether the reader is at the end, for a page that offers a way back there.
+    func followsBottom(within threshold: CGFloat, atBottom: Binding<Bool> = .constant(true), follow: @escaping () -> Void) -> some View {
+        modifier(BottomFollow(threshold: threshold, atBottom: atBottom, follow: follow))
+    }
 
     /// A small control keeps its look; the tappable area grows to the 44 pt a thumb needs.
     func hitTarget(_ size: CGFloat = 44) -> some View {

@@ -149,7 +149,7 @@ static void geocode(NSDictionary *args, DshNativeReply reply) {
     return;
   }
   // CLGeocoder is deprecated from iOS 26 in favour of MKGeocodingRequest, but
-  // this app deploys to iOS 17, where MKGeocodingRequest does not exist. An
+  // this app deploys to iOS 18, where MKGeocodingRequest does not exist. An
   // availability split would double this for no difference in behaviour today.
   [[CLGeocoder new] geocodeAddressString:address
                                 inRegion:nil

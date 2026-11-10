@@ -2,7 +2,7 @@ name: DshIOS
 options:
   bundleIdPrefix: com.wsw
   deploymentTarget:
-    iOS: "17.0"
+    iOS: "18.0"
   createIntermediateGroups: true
   # The String Catalogs' source language: the UI is written in Chinese (Shared/Localizable.xcstrings).
   developmentLanguage: zh-Hans
@@ -84,8 +84,8 @@ targets:
       - sdk: HomeKit.framework
       # native/ios-native 的 photos：读相册元数据、导出一张给本机识别。不增不改不删。
       - sdk: Photos.framework
-      # native/ios-native 的 alarm：真闹钟。weak link 不能省——部署目标是 17.0，
-      # AlarmKit 要 26.0，强链接会让 17–25 的机器在 dyld 阶段就起不来，而不是
+      # native/ios-native 的 alarm：真闹钟。weak link 不能省——部署目标是 18.0，
+      # AlarmKit 要 26.0，强链接会让 18–25 的机器在 dyld 阶段就起不来，而不是
       # 用到这个能力才失败。
       - sdk: AlarmKit.framework
         weak: true
@@ -245,7 +245,7 @@ targets:
         DshAppGroup: $(DSH_APP_GROUP)
     dependencies:
       # 闹钟的锁屏呈现（AlarmActivity.swift）要它。和 App target 同理：部署目标
-      # 是 17.0，AlarmKit 要 26.0，必须 weak link。
+      # 是 18.0，AlarmKit 要 26.0，必须 weak link。
       - sdk: AlarmKit.framework
         weak: true
     entitlements:

@@ -61,7 +61,7 @@ Remote clients need a computer left running. Fish Pocket does not: the engine li
 
 ## Quick start
 
-To install it, you need iOS 17 or later:
+To install it, you need iOS 18 or later:
 
 - **TestFlight (recommended, available worldwide)**: open the [TestFlight beta link](https://testflight.apple.com/join/2SCftb2M) on your iPhone or iPad. New versions land here first and stay in step with this repository.
 - **App Store (outside mainland China)**: [download on the App Store](https://apps.apple.com/app/id6830703602). It is currently available outside mainland China only. Every App Store version has to wait for Apple's review, so it lags behind TestFlight and this repository.

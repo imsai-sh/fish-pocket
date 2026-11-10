@@ -3,8 +3,7 @@ import SwiftUI
 import WidgetKit
 
 /// 新对话 in Control Center, and in place of the lock screen's flashlight or camera
-/// button, or on the Action button (iOS 18). It opens the app on a new conversation.
-@available(iOS 18.0, *)
+/// button, or on the Action button. It opens the app on a new conversation.
 struct NewConversationControl: ControlWidget {
     static let kind = "DshNewConversationControl"
 

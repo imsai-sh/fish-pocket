@@ -128,7 +128,8 @@ struct ConversationView: View {
             }, top: timelineTop))
             .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { timelineTop = $0 }
             .modifier(TimelineAnchor())
-            .modifier(BottomFollow(atBottom: $atBottom) { scrollToBottom(proxy, animated: false) })
+            // C-12: the timeline stays at its end while the reader is there.
+            .followsBottom(within: 25, atBottom: $atBottom) { scrollToBottom(proxy, animated: false) }
             // Any drag on the timeline hides the keyboard (`.interactively` only does when the finger reaches it),
             // even when the timeline is too short to scroll; so does a tap outside the composer.
             .scrollDismissesKeyboard(.immediately)
@@ -521,53 +522,13 @@ struct ConversationView: View {
     }
 }
 
-/// Keeps the timeline at its end while the reader is there (C-12): within 25 pt of the
-/// bottom counts as following, and growth then scrolls along; scrolling up lets go.
-/// iOS 17 has no scroll geometry: the view stays where the anchor leaves it.
 /// A long timeline opens at its end and grows from there; a short one sits at the top.
-/// iOS 17 has only the one anchor, so a short timeline sits at the bottom there.
 private struct TimelineAnchor: ViewModifier {
     func body(content: Content) -> some View {
-        if #available(iOS 18.0, *) {
-            content
-                .defaultScrollAnchor(.bottom, for: .initialOffset)
-                .defaultScrollAnchor(.bottom, for: .sizeChanges)
-                .defaultScrollAnchor(.top, for: .alignment)
-        } else {
-            content.defaultScrollAnchor(.bottom)
-        }
-    }
-}
-
-private struct BottomFollow: ViewModifier {
-    @Binding var atBottom: Bool
-    let follow: () -> Void
-
-    func body(content: Content) -> some View {
-        if #available(iOS 18.0, *) {
-            content.onScrollGeometryChange(for: Metrics.self) { geometry in
-                // `containerSize` already leaves the insets out; the visible rect runs under them.
-                Metrics(
-                    contentHeight: geometry.contentSize.height,
-                    distance: geometry.contentSize.height + geometry.contentInsets.bottom - geometry.visibleRect.maxY
-                )
-            } action: { old, new in
-                if new.contentHeight > old.contentHeight, old.distance <= Self.threshold {
-                    follow()
-                } else {
-                    atBottom = new.distance <= Self.threshold
-                }
-            }
-        } else {
-            content
-        }
-    }
-
-    private static let threshold: CGFloat = 25
-
-    private struct Metrics: Equatable {
-        var contentHeight: CGFloat
-        var distance: CGFloat
+        content
+            .defaultScrollAnchor(.bottom, for: .initialOffset)
+            .defaultScrollAnchor(.bottom, for: .sizeChanges)
+            .defaultScrollAnchor(.top, for: .alignment)
     }
 }
 

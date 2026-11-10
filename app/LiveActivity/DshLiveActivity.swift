@@ -9,9 +9,7 @@ struct DshWidgets: WidgetBundle {
         DshLiveActivity()
         SessionsWidget()
         NewConversationWidget()
-        if #available(iOS 18.0, *) {
-            NewConversationControl()
-        }
+        NewConversationControl()
         // AlarmKit presents through ActivityKit, so an agent-set alarm has nowhere
         // to show up unless a widget here claims its attributes.
         if #available(iOS 26.0, *) {

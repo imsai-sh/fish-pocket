@@ -746,7 +746,7 @@ NSRemindersFullAccessUsageDescription
 
 （我们的文案要自己写，不照抄 OpenMinis 的——它是 GPL。）
 
-（`NSCalendarsUsageDescription` 这个旧 key 只有链接 iOS 10–16 的 App 才需要；本项目 deployment target 是 17.0，不用加。）
+（`NSCalendarsUsageDescription` 这个旧 key 只有链接 iOS 10–16 的 App 才需要；本项目 deployment target 是 18.0，不用加。）
 
 ---
 
@@ -893,7 +893,7 @@ NSRemindersFullAccessUsageDescription
 
 `preferredLocale` 留着，但理由变了：它不再是为了让比较成立，而是为了让中文用户拿到中文地名。选调用的参数是我们该做的，从答案里挑不是。
 
-一条顺带的取舍：`CLGeocoder` 在 iOS 26 已废弃（Apple 指向 `MKGeocodingRequest`），但本项目部署目标是 **iOS 17**，而 `MKGeocodingRequest` 是 26+ 才有。加可用性分支会让这段代码翻倍而今天行为毫无差别，所以继续用 `CLGeocoder`，等部署目标过 26 再换。
+一条顺带的取舍：`CLGeocoder` 在 iOS 26 已废弃（Apple 指向 `MKGeocodingRequest`），但本项目部署目标是 **iOS 18**，而 `MKGeocodingRequest` 是 26+ 才有。加可用性分支会让这段代码翻倍而今天行为毫无差别，所以继续用 `CLGeocoder`，等部署目标过 26 再换。
 
 **`vision` 的四个操作里，模拟器只跑得了一个。** 实测：
 

@@ -227,40 +227,31 @@ struct JobOutputView: View {
     @State private var failure: String?
     @State private var finished = false
     @State private var stopping: JobRow?
-    @State private var end = OutputEnd()
+    @State private var position = ScrollPosition(edge: .top)
 
     private var current: JobRow { jobs.rows.first { $0.id == job.id } ?? job }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    header
-                    if gap { Text("……较早的输出已丢弃……").font(.caption).foregroundStyle(Palette.secondary) }
-                    if let failure { Text("实时输出流中断：\(failure)").font(.caption).foregroundStyle(Palette.removed) }
-                    if text.isEmpty {
-                        // Some jobs only report when they end: the page says it is waiting.
-                        Text(finished ? "（无输出）" : "等待输出…").font(.footnote).foregroundStyle(Palette.secondary)
-                    } else {
-                        Text(text)
-                            .font(.footnote.monospaced())
-                            .foregroundStyle(Palette.ink)
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    Color.clear.frame(height: 1).id("bottom")
-                        // iOS 17 has no scroll geometry; this marker's place in the scroll view says the same.
-                        .onGeometryChange(for: OutputEnd.self) { geometry in
-                            OutputEnd(contentHeight: geometry.frame(in: .named("output")).maxY, distance: -(geometry.bounds(of: .scrollView)?.maxY ?? 0))
-                        } action: { new in
-                            if new.contentHeight > end.contentHeight, end.distance <= OutputEnd.threshold { proxy.scrollTo("bottom", anchor: .bottom) }
-                            end = new
-                        }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                header
+                if gap { Text("……较早的输出已丢弃……").font(.caption).foregroundStyle(Palette.secondary) }
+                if let failure { Text("实时输出流中断：\(failure)").font(.caption).foregroundStyle(Palette.removed) }
+                if text.isEmpty {
+                    // Some jobs only report when they end: the page says it is waiting.
+                    Text(finished ? "（无输出）" : "等待输出…").font(.footnote).foregroundStyle(Palette.secondary)
+                } else {
+                    Text(text)
+                        .font(.footnote.monospaced())
+                        .foregroundStyle(Palette.ink)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(16)
-                .coordinateSpace(name: "output")
             }
+            .padding(16)
         }
+        .scrollPosition($position)
+        .followsBottom(within: 40) { position.scrollTo(edge: .bottom) }
         .background(Palette.background)
         .navigationTitle("任务输出")
         .navigationBarTitleDisplayMode(.inline)
@@ -297,13 +288,6 @@ struct JobOutputView: View {
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Palette.field, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
-    /// Where the end of the output sits, relative to the bottom of the page.
-    private struct OutputEnd: Equatable {
-        static let threshold: CGFloat = 40
-        var contentHeight: CGFloat = 0
-        var distance: CGFloat = 0
     }
 
     /// Resume from the last offset after a dropped stream; a settled job ends with `status`.

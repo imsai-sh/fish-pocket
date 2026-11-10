@@ -41,7 +41,7 @@ slices=(
 for entry in "${slices[@]}"; do
   read -r slice sysroot system <<<"$entry"
   build="$dir/build/$slice"
-  deployment=$([ "$system" = iOS ] && echo 17.0 || echo 13.0)
+  deployment=$([ "$system" = iOS ] && echo 18.0 || echo 13.0)
   "${cmake[@]}" -S "$src" -B "$build" -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_SYSTEM_NAME="$system" -DCMAKE_OSX_SYSROOT="$sysroot" -DCMAKE_OSX_ARCHITECTURES=arm64 \
     -DCMAKE_OSX_DEPLOYMENT_TARGET="$deployment" -DCMAKE_INSTALL_PREFIX="$dir/$slice" \

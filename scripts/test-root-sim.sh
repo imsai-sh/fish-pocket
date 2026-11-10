@@ -12,7 +12,7 @@ device="${SIM_DEVICE:-$(xcrun simctl list devices booted | sed -nE 's/.*\(([0-9A
 out="$(cd "$(mktemp -d "${TMPDIR:-/tmp}/dsh-root-XXXXXX")" && pwd -P)"
 trap 'rm -rf "$out"' EXIT
 slice="$root/vendor/nodejs-mobile/rooted/NodeMobile.xcframework/ios-arm64-simulator"
-cc=(xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -arch arm64 -O1 -std=gnu11 -D_DARWIN_C_SOURCE)
+cc=(xcrun --sdk iphonesimulator clang -target arm64-apple-ios18.0-simulator -arch arm64 -O1 -std=gnu11 -D_DARWIN_C_SOURCE)
 mkdir -p "$out/fw/DshRoot.framework" "$out/app/App.app"
 cp -R "$slice/NodeMobile.framework" "$out/fw/"
 "${cc[@]}" -dynamiclib "$root/native/root/root.c" -o "$out/fw/DshRoot.framework/DshRoot" \

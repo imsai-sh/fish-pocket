@@ -266,11 +266,11 @@ enum CapabilityPermission {
     }
 
     static func ofContacts(_ status: CNAuthorizationStatus) -> CapabilityPermission {
-        // iOS 18 起可以只分享几位联系人。和照片的「仅选择」是一回事：查不到某个人
-        // 不等于通讯录里没有他，这一行不能写成「已开启」。
-        if #available(iOS 18.0, *), status == .limited { return .insufficient("仅限你分享的那几位") }
         switch status {
         case .authorized: return .allowed
+        // 可以只分享几位联系人。和照片的「仅选择」是一回事：查不到某个人
+        // 不等于通讯录里没有他，这一行不能写成「已开启」。
+        case .limited: return .insufficient("仅限你分享的那几位")
         case .denied, .restricted: return .denied
         default: return .notDetermined
         }
