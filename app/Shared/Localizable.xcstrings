@@ -2381,22 +2381,6 @@
         }
       }
     },
-    "上次安装没有成功，带上安装记录开一个新会话排查" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The last install didn't finish. Start a new session with its record to find out why"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La última instalación no terminó. Abre una sesión nueva con su registro para averiguar por qué"
-          }
-        }
-      }
-    },
     "上次打开" : {
       "localizations" : {
         "en" : {
@@ -8739,22 +8723,6 @@
         }
       }
     },
-    "它是做什么的，装上能不能用？开一个新会话问问" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What does it do, and will it work here? Ask in a new session"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Qué hace y funcionará aquí? Pregunta en una sesión nueva"
-          }
-        }
-      }
-    },
     "它的开关在「设置 → 插件 → 实验性插件」" : {
       "localizations" : {
         "en" : {
@@ -10906,22 +10874,6 @@
         }
       }
     },
-    "带上这次的安装记录，开一个新会话排查" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start a new session with this install's record to find out why"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre una sesión nueva con el registro de esta instalación para averiguar por qué"
-          }
-        }
-      }
-    },
     "并行工具调用数" : {
       "localizations" : {
         "en" : {
@@ -12456,22 +12408,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Escanea para saber más y descargar"
-          }
-        }
-      }
-    },
-    "找不到它，或者用不了？开一个新会话问问" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Can't find it or can't use it? Ask in a new session"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿No lo encuentras o no funciona? Pregunta en una sesión nueva"
           }
         }
       }
@@ -26820,6 +26756,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "; "
+          }
+        }
+      }
+    },
+    "新开会话，问它是做什么的、能不能用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What does it do, and will it work here? Ask in a new session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué hace y funcionará aquí? Pregunta en una sesión nueva"
+          }
+        }
+      }
+    },
+    "上次安装没成功，带上记录新开会话排查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last install didn't finish. Start a new session with its record to find out why"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La última instalación no terminó. Abre una sesión nueva con su registro para averiguar por qué"
+          }
+        }
+      }
+    },
+    "找不到或用不了？新开会话问问" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't find it or can't use it? Ask in a new session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿No lo encuentras o no funciona? Pregunta en una sesión nueva"
+          }
+        }
+      }
+    },
+    "带上这次的安装记录，新开会话排查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a new session with this install's record to find out why"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre una sesión nueva con el registro de esta instalación para averiguar por qué"
           }
         }
       }

@@ -33,15 +33,15 @@ struct StoreEntryDetail: View {
         if onDevice {
             let listed = app.plugins.package(listing.name)?.questionDetails ?? [String(localized: "插件：\(entry.name)")]
             let install = records.first { $0.outcome == .done }?.details.dropFirst() ?? []
-            return ("找不到它，或者用不了？开一个新会话问问", PluginQuestion.installed(entry.displayName, details: listed + facts + install))
+            return ("找不到或用不了？新开会话问问", PluginQuestion.installed(entry.displayName, details: listed + facts + install))
         }
         if let record = records.first(where: { $0.outcome != .done }) {
-            return ("上次安装没有成功，带上安装记录开一个新会话排查", PluginQuestion.ask(record, more: facts))
+            return ("上次安装没成功，带上记录新开会话排查", PluginQuestion.ask(record, more: facts))
         }
         var listed = [String(localized: "插件：\([entry.name, entry.version?["version"].string].compactMap { $0 }.joined(separator: "@"))")]
         listed.append(entry.installable ? String(localized: "状态：未安装") : String(localized: "状态：未安装，这个版本与当前 DSH 不兼容"))
         if let spec = entry.version?["install"]["spec"].string { listed.append(String(localized: "安装来源：\(spec)")) }
-        return ("它是做什么的，装上能不能用？开一个新会话问问", PluginQuestion.introduce(entry.displayName, details: listed + facts))
+        return ("新开会话，问它是做什么的、能不能用", PluginQuestion.introduce(entry.displayName, details: listed + facts))
     }
     /// The plugin list answers first after an install; the market's next read says the same.
     private var onDevice: Bool {

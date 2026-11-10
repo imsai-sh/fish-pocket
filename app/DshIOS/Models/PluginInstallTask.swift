@@ -757,7 +757,9 @@ final class PluginInstallTask {
             let reported = [("failedAt", failure?.failedAt), ("kind", failure?.kind), ("code", failure?.code ?? inputError?["problem"].string)]
                 .compactMap { key, value in value.map { "\(key)=\($0)" } }
             if !reported.isEmpty { lines.append(String(localized: "引擎报告：\(reported.joined(separator: ", "))")) }
-            if let reason = (failure?.reason ?? inputError?["reason"].string).flatMap({ $0.isEmpty ? nil : $0 }) {
+            // For a pnpm failure the diagnostic is the run's output, which the log below already carries.
+            let reason = (failure?.reason ?? inputError?["reason"].string ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if !reason.isEmpty, !runs.contains(where: { $0.output.contains(reason) }) {
                 lines.append(String(localized: "引擎的诊断：\(reason)"))
             }
             if let pending = failure?.pendingBuilds.nilIfEmpty {

@@ -648,7 +648,7 @@ private struct InstallAsk: View {
 
     var body: some View {
         if let record = app.pluginInstall.record {
-            PluginAskRow(caption: "带上这次的安装记录，开一个新会话排查") { PluginQuestion.ask(record) }
+            PluginAskRow(caption: "带上这次的安装记录，新开会话排查") { PluginQuestion.ask(record) }
         }
     }
 }
