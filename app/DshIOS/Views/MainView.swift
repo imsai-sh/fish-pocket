@@ -6,7 +6,7 @@ import SwiftUI
 /// regular width it is the split view's sidebar. With nothing selected — at
 /// launch, after archiving — a blank session in the current workspace opens.
 struct MainView: View {
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities, remote; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -41,6 +41,8 @@ struct MainView: View {
     @State private var whatsNew: WhatsNew.Release?
     /// It was shown: no update toast on top of it this time.
     @State private var newsShown = false
+    /// 「在电脑上新建会话」, once whatever sheet asked for it has gone.
+    @State private var remoteTarget: RemoteSessionTarget?
 
     /// A `dsh://` link this window received (`RootView`), until it is followed.
     @Binding private var link: LinkRequest?
@@ -103,6 +105,29 @@ struct MainView: View {
             guard token != nil, scenePhase != .background else { return }
             app.nativeCapabilitiesRequest = nil
             sheet = .capabilities
+        }
+        .onChange(of: app.remoteRequest) { _, token in
+            guard token != nil, scenePhase != .background else { return }
+            app.remoteRequest = nil
+            setDrawer(false)
+            sheet = .remote
+        }
+        // Asked for from the sidebar, a conversation or a page inside a sheet: that sheet goes first.
+        .onChange(of: app.remoteSessionRequest) { _, request in
+            guard let request, scenePhase != .background else { return }
+            app.remoteSessionRequest = nil
+            setDrawer(false)
+            let wait = sheet != nil
+            sheet = nil
+            Task {
+                if wait { try? await Task.sleep(for: .milliseconds(450)) }
+                remoteTarget = request
+            }
+        }
+        .sheet(item: $remoteTarget) { RemoteNewSessionSheet(target: $0).sheetNotices() }
+        // Signed out of remote control (or the server ended it): its conversation has nothing to show.
+        .onChange(of: app.remote.signedIn) { _, signedIn in
+            if !signedIn, RemoteStore.sessionId(of: selection) != nil { selection = nil }
         }
         .fullScreenCover(isPresented: $webOpen) { WebFallbackView() }
         // The Live Activity and the widgets; a cold launch keeps the link until this view is up.
@@ -200,6 +225,7 @@ struct MainView: View {
             case "support": supportDialog = true
             case "share": sheet = .share
             case "whatsnew": whatsNew = WhatsNew.current
+            case "remote": sheet = .remote
             default: break
             }
         }
@@ -216,6 +242,7 @@ struct MainView: View {
                 case .cordis: CordisPanelView(currentSession: selection)
                 case .share: SheetStack { ShareAppPage() }
                 case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
+                case .remote: SheetStack { RemoteControlPage() }.environment(\.systemLists, true)
                 }
             }
             .sheetNotices()
@@ -444,7 +471,10 @@ struct MainView: View {
 
     @ViewBuilder
     private func conversation(openDrawer: (() -> Void)?) -> some View {
-        if let selection {
+        if let selection, let remote = RemoteStore.sessionId(of: selection) {
+            RemoteConversationView(sessionId: remote, selection: $selection, openDrawer: openDrawer)
+                .id(selection)
+        } else if let selection {
             ConversationView(sessionId: selection, selection: $selection, openDrawer: openDrawer, switchWorkspace: { workspace in
                 workspaceId = workspace.id
                 newConversation(in: workspace)

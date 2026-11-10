@@ -527,7 +527,7 @@ struct ConversationView: View {
 /// iOS 17 has no scroll geometry: the view stays where the anchor leaves it.
 /// A long timeline opens at its end and grows from there; a short one sits at the top.
 /// iOS 17 has only the one anchor, so a short timeline sits at the bottom there.
-private struct TimelineAnchor: ViewModifier {
+struct TimelineAnchor: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 18.0, *) {
             content
@@ -540,7 +540,7 @@ private struct TimelineAnchor: ViewModifier {
     }
 }
 
-private struct BottomFollow: ViewModifier {
+struct BottomFollow: ViewModifier {
     @Binding var atBottom: Bool
     let follow: () -> Void
 
@@ -758,7 +758,7 @@ private struct TimelineRow: View, Equatable {
     }
 }
 
-private struct FloatingIcon: View {
+struct FloatingIcon: View {
     let systemName: String
     let label: LocalizedStringKey
     let action: () -> Void
@@ -1123,11 +1123,13 @@ private struct ReasoningView: View {
 struct ReasoningSheet: View {
     let id: String
     let text: String
-    let model: SessionModel
+    var model: SessionModel?
+    /// The text as it stands now, where no session model holds it (a remote session).
+    var current: ((String) -> String?)?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        let text = model.reasoningText(id) ?? text
+        let text = model?.reasoningText(id) ?? current?(id) ?? text
         NavigationStack {
             ScrollView {
                 MarkdownView(text: text, cached: false).padding(16).modifier(LinkOpening())

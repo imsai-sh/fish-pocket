@@ -5,7 +5,8 @@ import SwiftUI
 /// view menu, by workspace), 「已归档」 at the end of the list, and settings at the bottom
 /// (docs/design/README.md 4.2).
 struct DrawerView: View {
-    enum GroupBy: String { case time, workspace }
+    /// `device` joins once the user has signed in to remote control: this phone, then each computer.
+    enum GroupBy: String { case time, workspace, device }
 
     /// Where a session sits in the time view.
     enum Period: CaseIterable {
@@ -72,14 +73,18 @@ struct DrawerView: View {
 
                 List {
                     if search.trimmingCharacters(in: .whitespaces).isEmpty {
-                        if groupBy == .time { timeList } else { groupList }
+                        if app.remote.expired { remoteExpiredRow }
+                        if grouping == .time { timeList } else { groupList }
                         archivedEntry
                     } else {
                         searchResults
                     }
                 }
                 .sessionList()
-                .refreshable { await app.refreshSessions() }
+                .refreshable {
+                    await app.refreshSessions()
+                    await app.remote.refresh()
+                }
 
                 settingsRow
             }
@@ -209,16 +214,20 @@ struct DrawerView: View {
 
     private var viewMenu: some View {
         Menu {
-            Picker("分组方式", selection: $groupBy) {
+            Picker("分组方式", selection: Binding(get: { grouping }, set: { groupBy = $0 })) {
                 Label("按时间", systemImage: "clock").tag(GroupBy.time)
-                Label("按工作区", systemImage: "folder").tag(GroupBy.workspace)
+                Label(app.remote.signedIn ? "按项目" : "按工作区", systemImage: "folder").tag(GroupBy.workspace)
+                if app.remote.signedIn { Label("按设备", systemImage: "laptopcomputer.and.iphone").tag(GroupBy.device) }
             }
             .pickerStyle(.inline)
             Button { showNewWorkspace = true } label: { Label("添加工作区", systemImage: "folder.badge.plus") }
+            if app.remote.signedIn {
+                Button { app.remoteSessionRequest = RemoteSessionTarget() } label: { Label("在电脑上新建会话", systemImage: "laptopcomputer") }
+            }
         } label: {
             Image(systemName: "line.3.horizontal.decrease")
                 .font(.subheadline)
-                .foregroundStyle(groupBy == .time ? Palette.secondary : Palette.ink)
+                .foregroundStyle(grouping == .time ? Palette.secondary : Palette.ink)
                 .hitTarget()
         }
         .accessibilityLabel("视图选项")
@@ -245,6 +254,14 @@ struct DrawerView: View {
                     } else {
                         Label("Cordis 插件", systemImage: "shippingbox")
                     }
+                }
+            }
+            Button { app.remoteRequest = UUID() } label: {
+                let online = app.remote.devices.filter(\.online).count
+                if app.remote.signedIn, online > 0 {
+                    Label("远程控制（\(online) 台在线）", systemImage: "laptopcomputer.and.iphone")
+                } else {
+                    Label("远程控制", systemImage: "laptopcomputer.and.iphone")
                 }
             }
             if !app.account.signedIn {
@@ -293,18 +310,80 @@ struct DrawerView: View {
 
     // MARK: Groups
 
-    private struct SessionGroup: Identifiable {
-        let id: String
-        let workspace: Workspace?
-        let rows: [SessionSummary]
+    /// A row of the list: a session of this phone's engine, or one on a computer.
+    private enum Entry: Identifiable {
+        case local(SessionSummary)
+        case remote(RemoteSession)
+
+        /// What the shell selects it by.
+        var id: String {
+            switch self {
+            case .local(let session): session.id
+            case .remote(let session): RemoteStore.selection(session.id)
+            }
+        }
+
+        var date: Date {
+            switch self {
+            case .local(let session): session.updatedAt
+            case .remote(let session): session.sortAt
+            }
+        }
     }
 
-    /// One group per workspace in host order, then 「未分组」 when it has members.
-    private var groups: [SessionGroup] {
-        var result = app.workspaces.map { SessionGroup(id: $0.id, workspace: $0, rows: app.sessions(in: $0)) }
+    private struct SessionGroup: Identifiable {
+        let id: String
+        var workspace: Workspace?
+        /// A computer's own group, or the computer a project group is on.
+        var device: RemoteDevice?
+        var project: RemoteProject?
+        /// The group of this phone, in the device view.
+        var isPhone = false
+        let title: String
+        var symbol = "folder"
+        let rows: [Entry]
+    }
+
+    private var remote: RemoteStore { app.remote }
+
+    /// The stored choice, as far as it applies: 按设备 only means something while signed in.
+    private var grouping: GroupBy { groupBy == .device && !remote.signedIn ? .workspace : groupBy }
+
+    private var groups: [SessionGroup] { grouping == .device ? deviceGroups : placeGroups }
+
+    /// One group per workspace in host order, then 「未分组」 when it has members; then each
+    /// project on a computer, most recently used first. A project is a folder on one machine:
+    /// two machines' projects of the same name stay two groups, each saying whose it is.
+    private var placeGroups: [SessionGroup] {
+        var result = app.workspaces.map { SessionGroup(id: $0.id, workspace: $0, title: $0.displayTitle, rows: app.sessions(in: $0).map(Entry.local)) }
         let loose = app.sessions(in: nil)
-        if !loose.isEmpty { result.append(SessionGroup(id: Self.ungrouped, workspace: nil, rows: loose)) }
+        if !loose.isEmpty { result.append(SessionGroup(id: Self.ungrouped, title: String(localized: "未分组"), rows: loose.map(Entry.local))) }
+        guard remote.signedIn else { return result }
+        let known = Set(remote.projects.map(\.id))
+        let byProject = Dictionary(grouping: remote.listed()) { session in session.projectId.flatMap { known.contains($0) ? $0 : nil } ?? "" }
+        let projects = remote.projects.filter { byProject[$0.id] != nil }
+            .sorted { (byProject[$0.id]?.first?.sortAt ?? .distantPast) > (byProject[$1.id]?.first?.sortAt ?? .distantPast) }
+        for project in projects {
+            result.append(SessionGroup(id: "remote-project:\(project.id)", device: remote.device(project.deviceId), project: project,
+                                       title: project.name, rows: (byProject[project.id] ?? []).map(Entry.remote)))
+        }
+        for device in remote.devices {
+            let rows = (byProject[""] ?? []).filter { $0.deviceId == device.id }
+            if !rows.isEmpty {
+                result.append(SessionGroup(id: "remote-loose:\(device.id)", device: device, title: String(localized: "未分组"), rows: rows.map(Entry.remote)))
+            }
+        }
         return result
+    }
+
+    /// This phone, then each computer of the account.
+    private var deviceGroups: [SessionGroup] {
+        let listed = remote.listed()
+        return [SessionGroup(id: "device:", isPhone: true, title: String(localized: "本机"), symbol: "iphone", rows: timeRows.map(Entry.local))]
+            + remote.devices.map { device in
+                SessionGroup(id: "device:\(device.id)", device: device, title: device.name, symbol: device.symbol,
+                             rows: listed.filter { $0.deviceId == device.id }.map(Entry.remote))
+            }
     }
 
     @ViewBuilder
@@ -316,7 +395,7 @@ struct DrawerView: View {
             groupHeader(group, open: open)
             if open {
                 let shown = shownCount(group)
-                ForEach(group.rows.prefix(shown)) { session in row(session, indent: true) }
+                ForEach(group.rows.prefix(shown)) { entry in entryRow(entry, in: group) }
                 if group.rows.isEmpty {
                     Text("暂无会话")
                         .font(.footnote)
@@ -330,28 +409,49 @@ struct DrawerView: View {
         }
     }
 
+    /// A row inside a group. What the group already says is left out of the row: under a
+    /// project only the agent, under a computer the agent and the project.
+    @ViewBuilder
+    private func entryRow(_ entry: Entry, in group: SessionGroup) -> some View {
+        switch entry {
+        case .local(let session):
+            row(session, indent: true, subtitle: group.isPhone ? placeLine(of: session) : nil)
+        case .remote(let session):
+            remoteRow(session, indent: true, subtitle: group.project != nil || group.id.hasPrefix("remote-loose:")
+                ? session.agentTag : "\(session.agentTag) · \(remote.place(of: session))")
+        }
+    }
+
     /// A tap folds the group; holding it starts a session there or manages the workspace.
     private func groupHeader(_ group: SessionGroup, open: Bool) -> some View {
         let holdsCurrent = selection.map { id in group.rows.contains { $0.id == id } } ?? false
-        let title = group.workspace?.displayTitle ?? String(localized: "未分组")
+        let offline = group.device?.online == false
         return Button {
             Haptics.select()
             withAnimation(.snappy(duration: 0.2)) { setExpanded(group, !open) }
         } label: {
             HStack(spacing: 10) {
-                Image(systemName: open ? "folder" : "folder.fill")
+                Image(systemName: group.symbol == "folder" ? (open ? "folder" : "folder.fill") : group.symbol)
                     .font(.system(size: 15))
                     .foregroundStyle(holdsCurrent ? Palette.ink : Palette.secondary)
                     .frame(width: 22)
-                Text(title)
+                Text(group.title)
                     .font(.subheadline.weight(.medium))
-                    .foregroundStyle(Palette.ink)
+                    .foregroundStyle(offline ? Palette.secondary : Palette.ink)
                     .lineLimit(1)
                 Image(systemName: "chevron.right")
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(Palette.faint)
                     .rotationEffect(.degrees(open ? 90 : 0))
-                Spacer(minLength: 0)
+                Spacer(minLength: 4)
+                // A project says which computer it is on; a computer says when it is away.
+                if let device = group.device {
+                    Text(grouping == .device ? (offline ? String(localized: "离线") : "") : device.name)
+                        .font(.caption)
+                        .foregroundStyle(Palette.faint)
+                        .lineLimit(1)
+                        .padding(.trailing, 12)
+                }
             }
             .padding(.leading, 12)
             .padding(.trailing, 2)
@@ -359,7 +459,7 @@ struct DrawerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(Text(title))
+        .accessibilityLabel(Text(group.device.map { grouping == .device ? group.title : "\(group.title)，\($0.name)" } ?? group.title))
         .accessibilityValue(open ? Text("已展开") : Text("已收起"))
         .plainRow()
         .contextMenu {
@@ -368,6 +468,17 @@ struct DrawerView: View {
                 Button { app.renameRequest = RenameRequest(target: .workspace(workspace.id), initial: workspace.displayTitle) } label: { Label("重命名", systemImage: "pencil") }
                 Button { copyToPasteboard(workspace.path); app.showToast(String(localized: "已复制"), tone: .success) } label: { Label("复制路径", systemImage: "doc.on.doc") }
                 Button(role: .destructive) { removingWorkspace = workspace } label: { Label("删除工作区", systemImage: "trash") }
+            } else if let device = group.device {
+                Button { app.remoteSessionRequest = RemoteSessionTarget(deviceId: device.id, projectId: group.project?.id) } label: {
+                    Label("新会话", systemImage: "square.and.pencil")
+                }
+                .disabled(!device.online)
+                if let project = group.project {
+                    Button { copyToPasteboard(project.path); app.showToast(String(localized: "已复制"), tone: .success) } label: { Label("复制路径", systemImage: "doc.on.doc") }
+                }
+                Button { app.remoteRequest = UUID() } label: { Label("管理电脑", systemImage: "laptopcomputer.and.iphone") }
+            } else if group.isPhone, let target = workspace ?? app.workspaces.first {
+                Button { newConversation(target) } label: { Label("新会话", systemImage: "square.and.pencil") }
             }
         }
     }
@@ -399,8 +510,12 @@ struct DrawerView: View {
     private func shownCount(_ group: SessionGroup) -> Int {
         if let explicit = watermark[group.id] { return min(explicit, group.rows.count) }
         var count = min(Self.baseRows, group.rows.count)
-        for (index, session) in group.rows.enumerated() where index >= count && index < Self.autoMaxRows {
-            if session.id == selection || session.running || app.isWaiting(session.id) { count = index + 1 }
+        for (index, entry) in group.rows.enumerated() where index >= count && index < Self.autoMaxRows {
+            let active: Bool = switch entry {
+            case .local(let session): session.running || app.isWaiting(session.id)
+            case .remote(let session): session.deviceOnline && (session.working || session.waiting)
+            }
+            if entry.id == selection || active { count = index + 1 }
         }
         return count
     }
@@ -419,7 +534,7 @@ struct DrawerView: View {
 
     /// Opens the group of a session just switched to, so it shows where it lives.
     private func revealSelection() {
-        guard let selection, let group = groups.first(where: { $0.rows.contains { $0.id == selection } }),
+        guard grouping != .time, let selection, let group = groups.first(where: { $0.rows.contains { $0.id == selection } }),
               !isExpanded(group) else { return }
         setExpanded(group, true)
     }
@@ -435,7 +550,7 @@ struct DrawerView: View {
 
     @ViewBuilder
     private var timeList: some View {
-        let rows = timeRows
+        let rows = timeEntries
         if rows.isEmpty { emptyRow("暂无会话") }
         let periods = Dictionary(grouping: rows, by: period(of:))
         ForEach(Period.allCases, id: \.self) { period in
@@ -448,9 +563,42 @@ struct DrawerView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityAddTraits(.isHeader)
                     .plainRow()
-                ForEach(members) { session in row(session, subtitle: placeLine(of: session)) }
+                ForEach(members) { entry in flatRow(entry) }
             }
         }
+    }
+
+    /// A row outside any group says where it is: its place, and whose machine once there are several.
+    @ViewBuilder
+    private func flatRow(_ entry: Entry) -> some View {
+        switch entry {
+        case .local(let session):
+            row(session, subtitle: [placeLine(of: session), remote.signedIn ? String(localized: "本机") : nil].compactMap { $0 }.joined(separator: " · ").nonEmpty)
+        case .remote(let session):
+            remoteRow(session, subtitle: "\(session.agentTag) · \(remote.place(of: session)) · \(remote.deviceName(of: session))")
+        }
+    }
+
+    /// Every session, this phone's and the computers': pinned, then most recent.
+    private var timeEntries: [Entry] {
+        let local = timeRows.map(Entry.local)
+        guard remote.signedIn else { return local }
+        return (local + remote.listed().map(Entry.remote)).sorted { lhs, rhs in
+            let lp = isPinned(lhs), rp = isPinned(rhs)
+            if lp != rp { return lp }
+            return lhs.date > rhs.date
+        }
+    }
+
+    private func isPinned(_ entry: Entry) -> Bool {
+        switch entry {
+        case .local(let session): app.isPinned(session.id)
+        case .remote(let session): session.pinned
+        }
+    }
+
+    private func period(of entry: Entry) -> Period {
+        isPinned(entry) ? .pinned : Self.period(of: entry.date)
     }
 
     /// Every session of the list: pinned, then most recent.
@@ -468,10 +616,6 @@ struct DrawerView: View {
             + app.sessions(in: nil, includeArchived: includeArchived)
     }
 
-    private func period(of session: SessionSummary) -> Period {
-        app.isPinned(session.id) ? .pinned : Self.period(of: session.updatedAt)
-    }
-
     static func period(of date: Date, now: Date = .now, calendar: Calendar = .current) -> Period {
         if calendar.isDate(date, inSameDayAs: now) { return .today }
         return calendar.isDate(date, equalTo: now, toGranularity: .weekOfYear) ? .week : .earlier
@@ -484,7 +628,7 @@ struct DrawerView: View {
     /// The way to the archive, at the end of the list; nothing archived, nothing to see.
     @ViewBuilder
     private var archivedEntry: some View {
-        let count = archivedRows.count
+        let count = archivedRows.count + remote.listed(archived: true).count
         if count > 0 {
             NavigationLink(value: Route.archived) {
                 HStack(spacing: 10) {
@@ -503,8 +647,12 @@ struct DrawerView: View {
     private var archivedPage: some View {
         List {
             let rows = archivedRows
-            if rows.isEmpty { emptyRow("暂无已归档会话") }
+            let away = remote.listed(archived: true)
+            if rows.isEmpty, away.isEmpty { emptyRow("暂无已归档会话") }
             ForEach(rows) { session in row(session, subtitle: placeLine(of: session)) }
+            ForEach(away) { session in
+                remoteRow(session, subtitle: "\(session.agentTag) · \(remote.place(of: session)) · \(remote.deviceName(of: session))")
+            }
         }
         .sessionList()
         .background(Palette.background)
@@ -541,11 +689,26 @@ struct DrawerView: View {
         return Array(ordered.prefix(Self.searchLimit))
     }
 
+    /// Sessions on the computers whose title, project, machine or agent says the query; live ones first.
+    private var remoteMatches: [RemoteSession] {
+        let query = search.trimmingCharacters(in: .whitespaces)
+        guard remote.signedIn, !query.isEmpty else { return [] }
+        let hits = (remote.listed() + remote.listed(archived: true)).filter { session in
+            [session.displayTitle, remote.place(of: session), remote.deviceName(of: session), session.agentTag]
+                .contains { $0.localizedCaseInsensitiveContains(query) }
+        }
+        return Array(hits.prefix(Self.searchLimit))
+    }
+
     @ViewBuilder
     private var searchResults: some View {
+        let away = remoteMatches
         let matches = searchMatches
         ForEach(matches) { session in
             row(session, subtitle: place(of: session) + (remoteHits[session.id].map { " · \($0)" } ?? ""))
+        }
+        ForEach(away) { session in
+            remoteRow(session, subtitle: "\(session.agentTag) · \(remote.place(of: session)) · \(remote.deviceName(of: session))")
         }
         if searching {
             HStack(spacing: 8) {
@@ -554,7 +717,7 @@ struct DrawerView: View {
             }
             .padding(.horizontal, 12)
             .plainRow()
-        } else if matches.isEmpty {
+        } else if matches.isEmpty, away.isEmpty {
             emptyRow("无匹配会话")
         } else if remoteMore || matches.count >= Self.searchLimit {
             Text("仅显示前 \(Self.searchLimit) 条，请缩小范围").font(.footnote).foregroundStyle(Palette.faint).padding(.horizontal, 12).plainRow()
@@ -682,6 +845,135 @@ struct DrawerView: View {
         )
     }
 
+    // MARK: Sessions on a computer
+
+    /// The sign-in the server ended: one line at the top of the list, leading back to it.
+    private var remoteExpiredRow: some View {
+        Button { app.remoteRequest = UUID() } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.triangle").foregroundStyle(Palette.waiting)
+                Text("远程控制的登录已失效").foregroundStyle(Palette.ink)
+                Spacer(minLength: 4)
+                Text("重新登录").foregroundStyle(Palette.secondary)
+            }
+            .font(.footnote)
+            .padding(.horizontal, 12)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .plainRow()
+    }
+
+    /// A session on a computer, in the shape of a local row: the same marks, the agent on the
+    /// small line. One whose computer is away is dimmed: it opens, but only to its history.
+    private func remoteRow(_ session: RemoteSession, indent: Bool = false, subtitle: String) -> some View {
+        let id = RemoteStore.selection(session.id)
+        let current = id == selection
+        let live = session.deviceOnline && !session.archived
+        return Button {
+            if session.archived {
+                app.showToast(String(localized: "取消归档后才能查看"), tone: .warning, actions: [
+                    Toast.Action(label: String(localized: "取消归档")) { remoteChange { await remote.setArchived(session.id, false) } },
+                ])
+            } else {
+                search = ""
+                select(id)
+            }
+        } label: {
+            HStack(alignment: .top, spacing: 8) {
+                Group {
+                    if !live {
+                        Color.clear
+                    } else if session.waiting {
+                        StatusDot(state: .waiting)
+                    } else if session.working {
+                        StatusDot(state: .running)
+                    } else if session.hasUnread {
+                        Circle().fill(Palette.ink).frame(width: 7, height: 7).accessibilityLabel(Text("已完成"))
+                    } else {
+                        Color.clear
+                    }
+                }
+                .frame(width: 14, height: 20)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(session.displayTitle).font(.subheadline).foregroundStyle(Palette.ink).lineLimit(1)
+                    Text(subtitle).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 4)
+                if session.pinned, !session.archived {
+                    Image(systemName: "pin.fill").font(.caption2).foregroundStyle(Palette.faint)
+                }
+                if session.archived {
+                    Image(systemName: "archivebox").font(.caption).foregroundStyle(Palette.faint)
+                } else if live, session.waiting {
+                    Text("等你允许").font(.caption.weight(.medium)).foregroundStyle(Palette.waiting)
+                } else {
+                    Text(Self.relative(session.sortAt)).font(.caption).foregroundStyle(Palette.faint)
+                }
+            }
+            .padding(.leading, indent ? 22 : 4)
+            .padding(.trailing, 12)
+            .padding(.vertical, 3)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .opacity(live ? 1 : 0.55)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(current ? .isSelected : [])
+        .accessibilityValue(session.deviceOnline ? Text("") : Text("电脑离线"))
+        .swipeActions(edge: .leading) {
+            if !session.archived {
+                Button {
+                    Haptics.tap()
+                    remoteChange { await remote.setPinned(session.id, !session.pinned) }
+                } label: {
+                    Label(session.pinned ? "取消置顶" : "置顶", systemImage: session.pinned ? "pin.slash" : "pin")
+                }
+                .tint(Palette.secondary)
+            }
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button {
+                Haptics.tap()
+                remoteChange { await remote.setArchived(session.id, !session.archived) }
+            } label: {
+                Label(session.archived ? "取消归档" : "归档", systemImage: session.archived ? "tray.and.arrow.up" : "archivebox")
+            }
+            .tint(Palette.ink)
+        }
+        .contextMenu {
+            if let openInWindow, !session.archived {
+                Button { openInWindow(id) } label: { Label("在新窗口中打开", systemImage: "macwindow.badge.plus") }
+            }
+            if !session.archived {
+                Button { remoteChange { await remote.setPinned(session.id, !session.pinned) } } label: {
+                    Label(session.pinned ? "取消置顶" : "置顶会话", systemImage: session.pinned ? "pin.slash" : "pin")
+                }
+            }
+            Button { app.renameRequest = RenameRequest(target: .session(id), initial: session.title ?? "") } label: { Label("重命名", systemImage: "pencil") }
+            Button { remoteChange { await remote.setArchived(session.id, !session.archived) } } label: {
+                Label(session.archived ? "取消归档" : "归档会话", systemImage: session.archived ? "tray.and.arrow.up" : "archivebox")
+            }
+            Button { copyToPasteboard(session.id); app.showToast(String(localized: "已复制"), tone: .success) } label: { Label("复制会话 ID", systemImage: "doc.on.doc") }
+        }
+        .reportsFrame(id, to: rowFrames)
+        .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
+        .listRowSeparator(.hidden)
+        .listRowBackground(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(current ? Palette.bubble : .clear)
+                .padding(.horizontal, 8)
+        )
+    }
+
+    /// A change to a remote session; what the server refuses shows as a toast.
+    private func remoteChange(_ work: @escaping () async -> String?) {
+        Task {
+            if let failure = await work() { app.showToast(failure, tone: .warning) }
+        }
+    }
+
     /// 刚刚 / N分钟 / N小时 / N天 / N个月 / N年 (docs/webui/shell.md A §4.3).
     static func relative(_ date: Date, now: Date = .now) -> String {
         let seconds = max(0, now.timeIntervalSince(date))
@@ -734,6 +1026,10 @@ final class DrawerRowFrames {
     func hasRow(atY y: CGFloat) -> Bool {
         shown.contains { id in frames[id].map { $0.minY...$0.maxY ~= y } ?? false }
     }
+}
+
+private extension String {
+    var nonEmpty: String? { isEmpty ? nil : self }
 }
 
 private extension View {

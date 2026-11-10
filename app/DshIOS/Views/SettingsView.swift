@@ -33,6 +33,13 @@ struct SettingsView: View {
         return count > 0 ? count : nil
     }
 
+    /// How many of the account's computers are reachable; nothing before signing in.
+    private var remoteValue: String {
+        guard app.remote.signedIn else { return "" }
+        let online = app.remote.devices.filter(\.online).count
+        return online > 0 ? String(localized: "\(online) 台在线") : String(localized: "已登录")
+    }
+
     private var engineRunning: Bool {
         if case .running = engine.phase { return true }
         return false
@@ -91,6 +98,9 @@ struct SettingsView: View {
                     }
                     NavigationLink { NativeCapabilitiesView() } label: {
                         row("本机能力", "iphone", nativeCapabilityCount.map { String(localized: "\($0) 项") } ?? "")
+                    }
+                    NavigationLink { RemoteControlPage() } label: {
+                        row("远程控制", "laptopcomputer.and.iphone", remoteValue)
                     }
                 }
 

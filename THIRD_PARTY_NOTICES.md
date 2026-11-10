@@ -69,3 +69,4 @@ libgit2 的完整许可证见其仓库的 [COPYING](https://github.com/libgit2/l
 
 - **官方 Web UI：** `docs/webui/` 的功能清单和协议说明，以及原生界面的部分文案和行为，整理或移植自 `@deepseek-ai/*`（MIT，Copyright (c) 2026 DeepSeek）。
 - **DSH Go：** AGPL-3.0。本项目参考过它的方案和协议，没有使用它的代码。
+- **Agents Anywhere：** Apache-2.0，Copyright 2026 Agents Anywhere Contributors。远程控制（`app/DshIOS/Remote/`）对接它的服务器接口，事件合并、斜杠指令和交互表单的处理规则参照它公开的 iOS 客户端重新实现。App 不捆绑它的任何组件，电脑端和服务器由用户自己安装或部署。

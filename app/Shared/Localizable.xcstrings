@@ -45,6 +45,44 @@
       },
       "shouldTranslate" : false
     },
+    "%@ · %lld 个会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$lld sessions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$lld sesiones"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$lld 个会话"
+          }
+        }
+      }
+    },
+    "%@ · 离线" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Offline"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Sin conexión"
+          }
+        }
+      }
+    },
     "%@ 不可用，正在改用 %@ 重试（第 %lld 个源，共 %lld 个）" : {
       "localizations" : {
         "en" : {
@@ -324,6 +362,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ (simulador)"
+          }
+        }
+      }
+    },
+    "%@（离线）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (offline)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (sin conexión)"
+          }
+        }
+      }
+    },
+    "%@（第 %lld 次）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (attempt %2$lld)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (intento %2$lld)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@（第 %2$lld 次）"
+          }
+        }
+      }
+    },
+    "%@（第 %lld/%lld 次）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (attempt %2$lld of %3$lld)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (intento %2$lld de %3$lld)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@（第 %2$lld/%3$lld 次）"
           }
         }
       }
@@ -617,6 +715,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld en curso"
+          }
+        }
+      }
+    },
+    "%lld 台在线" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld online"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld en línea"
           }
         }
       }
@@ -1387,6 +1501,38 @@
         }
       }
     },
+    "Agents Anywhere 官网" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agents Anywhere website"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sitio web de Agents Anywhere"
+          }
+        }
+      }
+    },
+    "Agents Anywhere 的 iOS App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agents Anywhere for iOS"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agents Anywhere para iOS"
+          }
+        }
+      }
+    },
     "App 版本" : {
       "localizations" : {
         "en" : {
@@ -2055,6 +2201,22 @@
         }
       }
     },
+    "「%@」超过 20 MB，没有添加" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is over 20 MB and was not added"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» supera los 20 MB y no se añadió"
+          }
+        }
+      }
+    },
     "一条消息最多添加 %lld 张图片" : {
       "localizations" : {
         "en" : {
@@ -2115,6 +2277,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Registro de subagente de una sola vez"
+          }
+        }
+      }
+    },
+    "一次最多发送 %lld 个附件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up to %lld attachments per message"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasta %lld adjuntos por mensaje"
           }
         }
       }
@@ -2211,6 +2389,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Contexto"
+          }
+        }
+      }
+    },
+    "上下文压缩失败" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Context compaction failed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo compactar el contexto"
           }
         }
       }
@@ -2377,6 +2571,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Error al subir; toca para reintentar"
+          }
+        }
+      }
+    },
+    "上次回应没有完成，请重新选择。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last answer did not go through. Choose again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La última respuesta no se completó. Elige de nuevo."
           }
         }
       }
@@ -2557,6 +2767,38 @@
         }
       }
     },
+    "下载 Agents Anywhere" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download Agents Anywhere"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargar Agents Anywhere"
+          }
+        }
+      }
+    },
+    "下载 Agents Anywhere 桌面应用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download Agents Anywhere for desktop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargar Agents Anywhere para escritorio"
+          }
+        }
+      }
+    },
     "下载的安装包校验失败" : {
       "localizations" : {
         "en" : {
@@ -2653,6 +2895,22 @@
         }
       }
     },
+    "不回电脑也能回应审批和提问" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Answer approvals and questions away from your desk"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Responde aprobaciones y preguntas lejos del ordenador"
+          }
+        }
+      }
+    },
     "不打开 App 也能看到会话在进行、已完成还是在等你允许，轻点回到对话。" : {
       "localizations" : {
         "en" : {
@@ -2669,6 +2927,22 @@
         }
       }
     },
+    "不执行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don’t Run"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No ejecutar"
+          }
+        }
+      }
+    },
     "不是有效的正则表达式。" : {
       "localizations" : {
         "en" : {
@@ -2681,6 +2955,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No es una expresión regular válida."
+          }
+        }
+      }
+    },
+    "不确定会话是否已创建，请先看看会话列表，避免重复创建。%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The session may or may not have been created. Check the session list before trying again. %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se sabe si la sesión se creó. Revisa la lista de sesiones antes de volver a intentarlo. %@"
+          }
+        }
+      }
+    },
+    "不确定是否送达：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delivery not confirmed: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrega sin confirmar: %@"
+          }
+        }
+      }
+    },
+    "不能发送文件夹，请添加单个文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folders can’t be sent. Add individual files."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pueden enviar carpetas. Añade archivos sueltos."
           }
         }
       }
@@ -2761,6 +3083,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Error de conexión con el motor: %@"
+          }
+        }
+      }
+    },
+    "与服务器的连接中断" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The connection to the server was lost"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se perdió la conexión con el servidor"
           }
         }
       }
@@ -2877,6 +3215,22 @@
         }
       }
     },
+    "二维码已过期，请在电脑上刷新后重新扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The QR code expired. Refresh it on the computer and scan again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El código QR caducó. Actualízalo en el ordenador y escanéalo de nuevo."
+          }
+        }
+      }
+    },
     "二维码海报" : {
       "localizations" : {
         "en" : {
@@ -2921,6 +3275,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Presentar archivos"
+          }
+        }
+      }
+    },
+    "交还" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hand Back"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devolver"
+          }
+        }
+      }
+    },
+    "交还后这里只能查看，不能发消息。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After handing it back you can read the session here, but not send messages."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de devolverla podrás leer la sesión aquí, pero no enviar mensajes."
+          }
+        }
+      }
+    },
+    "交还给电脑" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hand Back to Computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devolver al ordenador"
+          }
+        }
+      }
+    },
+    "交还这个会话？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hand this session back?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Devolver esta sesión?"
           }
         }
       }
@@ -3587,6 +4005,22 @@
         }
       }
     },
+    "会话信息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session Info"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información de la sesión"
+          }
+        }
+      }
+    },
     "会话名称" : {
       "localizations" : {
         "en" : {
@@ -3599,6 +4033,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nombre de la sesión"
+          }
+        }
+      }
+    },
+    "会话打不开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The session can’t be opened"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede abrir la sesión"
           }
         }
       }
@@ -3663,6 +4113,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sesión: %@"
+          }
+        }
+      }
+    },
+    "会话：%@，%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session: %1$@, %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesión: %1$@, %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会话：%1$@，%2$@"
           }
         }
       }
@@ -3743,6 +4215,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Actividad"
+          }
+        }
+      }
+    },
+    "侧边栏可以按设备分组，每条会话标明是哪台电脑、哪个智能体。入口在「设置 → 远程控制」。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The sidebar can group by device, and each session says which computer and which agent it belongs to. Start in Settings → Remote Control."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La barra lateral puede agrupar por dispositivo, y cada sesión indica de qué ordenador y de qué agente es. Empieza en Ajustes → Control remoto."
           }
         }
       }
@@ -4019,6 +4507,22 @@
         }
       }
     },
+    "停止中" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopping"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deteniendo"
+          }
+        }
+      }
+    },
     "停止失败" : {
       "localizations" : {
         "en" : {
@@ -4079,6 +4583,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Detener generación"
+          }
+        }
+      }
+    },
+    "停止这一轮" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop This Turn"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detener este turno"
           }
         }
       }
@@ -4195,6 +4715,22 @@
         }
       }
     },
+    "允许修改这些文件？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow these file changes?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Permitir estos cambios en archivos?"
+          }
+        }
+      }
+    },
     "允许后，脚本以你的权限在本机运行，之后不再询问。" : {
       "localizations" : {
         "en" : {
@@ -4259,6 +4795,22 @@
         }
       }
     },
+    "允许额外的权限？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow the extra permissions?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Permitir los permisos adicionales?"
+          }
+        }
+      }
+    },
     "充值" : {
       "localizations" : {
         "en" : {
@@ -4303,6 +4855,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Agrega créditos para iniciar sesiones nuevas, o agrégalos más tarde en «Ajustes → Cuenta y saldo»."
+          }
+        }
+      }
+    },
+    "先回应智能体的请求" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Answer the agent’s request first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Responde primero a la solicitud del agente"
           }
         }
       }
@@ -4767,6 +5335,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Otras sesiones"
+          }
+        }
+      }
+    },
+    "其他文件夹…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another Folder…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otra carpeta…"
           }
         }
       }
@@ -5247,6 +5831,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nombre de credencial"
+          }
+        }
+      }
+    },
+    "出错" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
           }
         }
       }
@@ -6739,6 +7339,22 @@
         }
       }
     },
+    "发送修改意见" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send Feedback"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar comentarios"
+          }
+        }
+      }
+    },
     "发送消息" : {
       "localizations" : {
         "en" : {
@@ -7059,6 +7675,22 @@
         }
       }
     },
+    "只读，在电脑上进行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read-only; running on the computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo lectura; se ejecuta en el ordenador"
+          }
+        }
+      }
+    },
     "可交互内容 · 在网页版中操作" : {
       "localizations" : {
         "en" : {
@@ -7187,6 +7819,22 @@
         }
       }
     },
+    "同意并执行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approve and Run"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aprobar y ejecutar"
+          }
+        }
+      }
+    },
     "同意执行" : {
       "localizations" : {
         "en" : {
@@ -7215,6 +7863,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Subagentes del mismo nivel"
+          }
+        }
+      }
+    },
+    "名称" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre"
           }
         }
       }
@@ -7311,6 +7975,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hizo preguntas al usuario"
+          }
+        }
+      }
+    },
+    "启动中" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starting"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciando"
           }
         }
       }
@@ -7587,6 +8267,22 @@
         }
       }
     },
+    "回到这里扫码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come back here and scan it"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuelve aquí y escanéalo"
+          }
+        }
+      }
+    },
     "回复里带的图片会显示在对话中，不再只是一行链接。" : {
       "localizations" : {
         "en" : {
@@ -7811,6 +8507,22 @@
         }
       }
     },
+    "在 Agents Anywhere 网页版中查看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in Agents Anywhere on the Web"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir en Agents Anywhere en la web"
+          }
+        }
+      }
+    },
     "在 App 内切换语言" : {
       "localizations" : {
         "en" : {
@@ -7955,6 +8667,22 @@
         }
       }
     },
+    "在它的「设置 → 连接手机」里点「开始连接」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In its Settings → Connect Phone, choose Start Connection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En sus Ajustes → Conectar teléfono, elige Iniciar conexión"
+          }
+        }
+      }
+    },
     "在对话里让 DSH 安排，例如「每天早上 9 点总结提交」。" : {
       "localizations" : {
         "en" : {
@@ -7967,6 +8695,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pídele a DSH en una conversación que lo programe; por ejemplo: «Resume los commits todos los días a las 9:00»."
+          }
+        }
+      }
+    },
+    "在手机上管电脑里的智能体" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage the agents on your computer from your phone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestiona desde el teléfono los agentes de tu ordenador"
           }
         }
       }
@@ -8003,6 +8747,70 @@
         }
       }
     },
+    "在电脑上安装 Agents Anywhere 并登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install Agents Anywhere on your computer and sign in"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instala Agents Anywhere en tu ordenador e inicia sesión"
+          }
+        }
+      }
+    },
+    "在电脑上打开 Agents Anywhere 的「设置 → 连接手机」，点「开始连接」。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the computer, open Agents Anywhere’s Settings → Connect Phone and choose Start Connection."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En el ordenador, abre Ajustes → Conectar teléfono de Agents Anywhere y elige Iniciar conexión."
+          }
+        }
+      }
+    },
+    "在电脑上新建会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Session on a Computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva sesión en un ordenador"
+          }
+        }
+      }
+    },
+    "在电脑上确认后就连上了。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm on the computer and you’re connected."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirma en el ordenador y quedará conectado."
+          }
+        }
+      }
+    },
     "在第几分钟" : {
       "localizations" : {
         "en" : {
@@ -8035,6 +8843,22 @@
         }
       }
     },
+    "在线" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Online"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En línea"
+          }
+        }
+      }
+    },
     "在设置里直接选择界面语言，新增西班牙语。" : {
       "localizations" : {
         "en" : {
@@ -8047,6 +8871,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elige el idioma de la interfaz en Ajustes. Ahora también en español."
+          }
+        }
+      }
+    },
+    "在这台电脑上新建会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New session on this computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva sesión en este ordenador"
           }
         }
       }
@@ -8675,6 +9515,22 @@
         }
       }
     },
+    "它是开源的桌面应用，负责把电脑上的智能体接到你的账号。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An open-source desktop app that links the agents on your computer to your account."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una app de escritorio de código abierto que vincula los agentes de tu ordenador con tu cuenta."
+          }
+        }
+      }
+    },
     "它的开关在「设置 → 插件 → 实验性插件」" : {
       "localizations" : {
         "en" : {
@@ -9011,6 +9867,22 @@
         }
       }
     },
+    "密码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraseña"
+          }
+        }
+      }
+    },
     "密钥只保存在本机。" : {
       "localizations" : {
         "en" : {
@@ -9055,6 +9927,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clave guardada"
+          }
+        }
+      }
+    },
+    "对准电脑上的登录二维码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Point at the sign-in QR code on the computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apunta al código QR de inicio de sesión del ordenador"
           }
         }
       }
@@ -9850,6 +10738,22 @@
         }
       }
     },
+    "已取消模型请求重试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The model request retry was cancelled."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se canceló el reintento de la solicitud al modelo."
+          }
+        }
+      }
+    },
     "已启用" : {
       "localizations" : {
         "en" : {
@@ -10150,6 +11054,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rechazado"
+          }
+        }
+      }
+    },
+    "已接管，可以从这里发消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taken over; you can send messages from here"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tomada; puedes enviar mensajes desde aquí"
+          }
+        }
+      }
+    },
+    "已提交，等待智能体确认…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sent. Waiting for the agent to confirm…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviado. Esperando la confirmación del agente…"
           }
         }
       }
@@ -10855,6 +11791,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Una vez activada, tanto el agente como los plugins de terceros que instales pueden usarla, y la app no distingue quién la llama. Asegúrate de confiar en el origen de un plugin antes de instalarlo. Los cambios y eliminaciones se hacen directamente por omisión: pon la escritura de esa función en «Preguntar siempre» si prefieres que te consulte cada vez."
+          }
+        }
+      }
+    },
+    "开始" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezar"
           }
         }
       }
@@ -11676,6 +12628,22 @@
         }
       }
     },
+    "怎么连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to Connect"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo conectar"
+          }
+        }
+      }
+    },
     "思考" : {
       "localizations" : {
         "en" : {
@@ -11852,6 +12820,22 @@
         }
       }
     },
+    "打不开这个文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This file can’t be opened"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede abrir este archivo"
+          }
+        }
+      }
+    },
     "打开" : {
       "localizations" : {
         "en" : {
@@ -11864,6 +12848,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abrir"
+          }
+        }
+      }
+    },
+    "打开 Agents Anywhere" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Agents Anywhere"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Agents Anywhere"
           }
         }
       }
@@ -12188,6 +13188,22 @@
         }
       }
     },
+    "扫描电脑上的登录二维码要用到相机。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanning the sign-in QR code on your computer needs the camera."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para escanear el código QR de inicio de sesión del ordenador se necesita la cámara."
+          }
+        }
+      }
+    },
     "扫码了解和下载" : {
       "localizations" : {
         "en" : {
@@ -12200,6 +13216,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Escanea para saber más y descargar"
+          }
+        }
+      }
+    },
+    "扫码登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In with QR Code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión con código QR"
           }
         }
       }
@@ -12364,6 +13396,22 @@
         }
       }
     },
+    "指令没有执行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The command did not run"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El comando no se ejecutó"
+          }
+        }
+      }
+    },
     "按 App Store 审核要求，插件自带的界面不会出现在 App 的原生界面中，但插件本身可能仍在运行。要查看它的界面，请打开网页版（设置 → 高级 → 网页版）。" : {
       "localizations" : {
         "en" : {
@@ -12440,6 +13488,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Por fecha"
+          }
+        }
+      }
+    },
+    "按设备" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By Device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por dispositivo"
+          }
+        }
+      }
+    },
+    "按设备、项目或时间整理会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessions by device, project or time"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesiones por dispositivo, proyecto o fecha"
+          }
+        }
+      }
+    },
+    "按项目" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By Project"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por proyecto"
           }
         }
       }
@@ -12524,6 +13620,86 @@
         }
       }
     },
+    "接管" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take Over"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tomar"
+          }
+        }
+      }
+    },
+    "接管会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take Over Session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tomar la sesión"
+          }
+        }
+      }
+    },
+    "接管后可以从这里发消息。电脑上的客户端可能要重启才能看到新内容，请不要两边同时操作这个会话。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After taking over you can send messages from here. The client on the computer may need a restart to show what was added; avoid working on this session from both sides at once."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de tomarla podrás enviar mensajes desde aquí. Puede que el cliente del ordenador deba reiniciarse para mostrar lo nuevo; evita trabajar en esta sesión desde los dos lados a la vez."
+          }
+        }
+      }
+    },
+    "接管后可以从这里发消息，电脑上的对话会同步更新。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After taking over you can send messages from here, and the conversation on the computer stays in sync."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de tomarla podrás enviar mensajes desde aquí, y la conversación del ordenador se mantendrá sincronizada."
+          }
+        }
+      }
+    },
+    "接管后才能执行指令" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take the session over to run commands"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toma la sesión para ejecutar comandos"
+          }
+        }
+      }
+    },
     "接管输入" : {
       "localizations" : {
         "en" : {
@@ -12536,6 +13712,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tomar el control"
+          }
+        }
+      }
+    },
+    "接管这个会话？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take over this session?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Tomar esta sesión?"
           }
         }
       }
@@ -12568,6 +13760,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Centro de control, Siri y Atajos"
+          }
+        }
+      }
+    },
+    "推理档位" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reasoning Level"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nivel de razonamiento"
           }
         }
       }
@@ -13695,6 +14903,22 @@
         }
       }
     },
+    "改动的文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changed Files"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos modificados"
+          }
+        }
+      }
+    },
     "改用国内镜像" : {
       "localizations" : {
         "en" : {
@@ -13967,6 +15191,22 @@
         }
       }
     },
+    "文件较大，只显示开头的 1 MB。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is large; only the first 1 MB is shown."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo es grande; solo se muestra el primer MB."
+          }
+        }
+      }
+    },
     "文件还在上传，请等待上传完成后发送" : {
       "localizations" : {
         "en" : {
@@ -14193,6 +15433,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nuevo"
+          }
+        }
+      }
+    },
+    "新建会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva sesión"
           }
         }
       }
@@ -15263,6 +16519,70 @@
         }
       }
     },
+    "智能体正在处理回应…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The agent is handling your answer…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El agente está procesando tu respuesta…"
+          }
+        }
+      }
+    },
+    "智能体正忙，暂时不能执行这条指令" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The agent is busy and can’t run this command right now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El agente está ocupado y no puede ejecutar este comando ahora"
+          }
+        }
+      }
+    },
+    "智能体没有接受这个选项" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The agent did not accept this option"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El agente no aceptó esta opción"
+          }
+        }
+      }
+    },
+    "智能体没有接受这次操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The agent did not accept this action"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El agente no aceptó esta acción"
+          }
+        }
+      }
+    },
     "智能体能用 iPhone 自带的能力" : {
       "localizations" : {
         "en" : {
@@ -15983,6 +17303,86 @@
         }
       }
     },
+    "服务器地址" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server address"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección del servidor"
+          }
+        }
+      }
+    },
+    "服务器地址无效" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server address is not valid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La dirección del servidor no es válida"
+          }
+        }
+      }
+    },
+    "服务器没有正常回应" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server did not respond properly"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servidor no respondió correctamente"
+          }
+        }
+      }
+    },
+    "服务器返回了无法识别的内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server returned something unexpected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servidor devolvió algo inesperado"
+          }
+        }
+      }
+    },
+    "服务器返回的地址无效" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server returned an address that is not valid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servidor devolvió una dirección no válida"
+          }
+        }
+      }
+    },
     "朗读" : {
       "localizations" : {
         "en" : {
@@ -16011,6 +17411,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Desagrupados"
+          }
+        }
+      }
+    },
+    "未启动" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not started"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin iniciar"
           }
         }
       }
@@ -16175,6 +17591,22 @@
         }
       }
     },
+    "未知" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconocido"
+          }
+        }
+      }
+    },
     "未知或格式不对的指令：%@" : {
       "localizations" : {
         "en" : {
@@ -16219,6 +17651,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Origen desconocido"
+          }
+        }
+      }
+    },
+    "未知设备" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivo desconocido"
           }
         }
       }
@@ -16303,6 +17751,22 @@
         }
       }
     },
+    "未连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not connected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin conexión"
+          }
+        }
+      }
+    },
     "未选择" : {
       "localizations" : {
         "en" : {
@@ -16367,6 +17831,22 @@
         }
       }
     },
+    "本会话都允许" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow for This Session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir en esta sesión"
+          }
+        }
+      }
+    },
     "本周" : {
       "localizations" : {
         "en" : {
@@ -16379,6 +17859,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Esta semana"
+          }
+        }
+      }
+    },
+    "本机" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo"
           }
         }
       }
@@ -17042,6 +18538,38 @@
         }
       }
     },
+    "查看排版" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show formatted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver con formato"
+          }
+        }
+      }
+    },
+    "查看源文本" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show source"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver el texto fuente"
+          }
+        }
+      }
+    },
     "查看目标" : {
       "localizations" : {
         "en" : {
@@ -17384,6 +18912,22 @@
         }
       }
     },
+    "模型与权限" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model & Permissions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modelo y permisos"
+          }
+        }
+      }
+    },
     "模型列表" : {
       "localizations" : {
         "en" : {
@@ -17396,6 +18940,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lista de modelos"
+          }
+        }
+      }
+    },
+    "模型服务暂时不可用，正在重试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The model service is temporarily unavailable; retrying"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servicio del modelo no está disponible por ahora; reintentando"
+          }
+        }
+      }
+    },
+    "模型服务暂时繁忙，正在重试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The model service is busy; retrying"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servicio del modelo está ocupado; reintentando"
+          }
+        }
+      }
+    },
+    "模型请求重试后仍失败。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The model request still failed after retrying."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La solicitud al modelo siguió fallando tras reintentar."
           }
         }
       }
@@ -17758,6 +19350,22 @@
         }
       }
     },
+    "正在压缩上下文" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compacting context"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compactando el contexto"
+          }
+        }
+      }
+    },
     "正在发起登录…" : {
       "localizations" : {
         "en" : {
@@ -18030,6 +19638,22 @@
         }
       }
     },
+    "正在读取…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando…"
+          }
+        }
+      }
+    },
     "正在读取图片" : {
       "localizations" : {
         "en" : {
@@ -18074,6 +19698,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Leyendo archivos"
+          }
+        }
+      }
+    },
+    "正在读取电脑上的选项…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading options from the computer…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando las opciones del ordenador…"
           }
         }
       }
@@ -18186,6 +19826,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conectando…"
+          }
+        }
+      }
+    },
+    "正在连接电脑…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting to the computer…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectando con el ordenador…"
+          }
+        }
+      }
+    },
+    "正在重新连接…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reconnecting…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reconectando…"
           }
         }
       }
@@ -19050,6 +20722,22 @@
         }
       }
     },
+    "浏览项目文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse Project Files"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explorar archivos del proyecto"
+          }
+        }
+      }
+    },
     "海报、二维码或链接" : {
       "localizations" : {
         "en" : {
@@ -19258,6 +20946,22 @@
         }
       }
     },
+    "添加智能体、模型配置、终端等更完整的功能在 Agents Anywhere 自己的 App 里。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adding agents, model configuration, the terminal and more are in Agents Anywhere’s own app."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir agentes, configurar modelos, el terminal y más están en la app de Agents Anywhere."
+          }
+        }
+      }
+    },
     "添加条目" : {
       "localizations" : {
         "en" : {
@@ -19322,6 +21026,22 @@
         }
       }
     },
+    "添加电脑和智能体、模型配置、终端、账号资料等在 Agents Anywhere 里完成。远程会话的内容经它的服务器转发。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adding computers and agents, model configuration, the terminal and your account details are handled in Agents Anywhere. Remote sessions travel through its server."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir ordenadores y agentes, configurar modelos, el terminal y los datos de la cuenta se gestionan en Agents Anywhere. Las sesiones remotas pasan por su servidor."
+          }
+        }
+      }
+    },
     "添加索引源" : {
       "localizations" : {
         "en" : {
@@ -19334,6 +21054,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Agregar fuente de índice"
+          }
+        }
+      }
+    },
+    "添加附件、调用指令、切换模型" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add attachments, run commands, switch model"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir adjuntos, ejecutar comandos, cambiar de modelo"
           }
         }
       }
@@ -19658,6 +21394,22 @@
         }
       }
     },
+    "生成了文件 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Created the file %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se creó el archivo %@"
+          }
+        }
+      }
+    },
     "用对应的 App 打开地图、邮件草稿、电话号码或网页" : {
       "localizations" : {
         "en" : {
@@ -19706,6 +21458,22 @@
         }
       }
     },
+    "用邮箱和密码登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In with Email and Password"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión con correo y contraseña"
+          }
+        }
+      }
+    },
     "用量 %@" : {
       "localizations" : {
         "en" : {
@@ -19734,6 +21502,166 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Compuesto por sesión según los ajustes preestablecidos del agente"
+          }
+        }
+      }
+    },
+    "电脑" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Computers"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordenadores"
+          }
+        }
+      }
+    },
+    "电脑上会显示一个登录二维码。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The computer shows a sign-in QR code."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ordenador muestra un código QR de inicio de sesión."
+          }
+        }
+      }
+    },
+    "电脑上会显示这台设备的登录请求，点确认后这里自动完成。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The computer shows this device’s sign-in request. Confirm it there and this finishes by itself."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ordenador muestra la solicitud de inicio de sesión de este dispositivo. Confírmala allí y esto terminará solo."
+          }
+        }
+      }
+    },
+    "电脑上拒绝了这次登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The sign-in was declined on the computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El inicio de sesión se rechazó en el ordenador"
+          }
+        }
+      }
+    },
+    "电脑上的 Codex、Claude Code 和 DeepSeek Harness 在干什么，这里都能看到：跟进进度、接着聊、回应审批和提问、随时打断。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See what Codex, Claude Code and DeepSeek Harness are doing on your computer: follow their progress, keep the conversation going, answer approvals and questions, and stop a run at any time."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mira lo que hacen Codex, Claude Code y DeepSeek Harness en tu ordenador: sigue su progreso, continúa la conversación, responde aprobaciones y preguntas, y detén una ejecución cuando quieras."
+          }
+        }
+      }
+    },
+    "电脑上的会话不再显示在这里，电脑上的一切保持原样。本机的会话不受影响。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessions on your computers will no longer show here; nothing changes on the computers. Sessions on this device are not affected."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las sesiones de tus ordenadores dejarán de mostrarse aquí; en los ordenadores no cambia nada. Las sesiones de este dispositivo no se ven afectadas."
+          }
+        }
+      }
+    },
+    "电脑上的完整路径，如 /Users/me/project" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full path on the computer, e.g. /Users/me/project"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruta completa en el ordenador, p. ej. /Users/me/project"
+          }
+        }
+      }
+    },
+    "电脑没有返回这个文件夹" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The computer did not return this folder"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ordenador no devolvió esta carpeta"
+          }
+        }
+      }
+    },
+    "电脑离线" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Computer offline"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordenador sin conexión"
+          }
+        }
+      }
+    },
+    "电脑离线，只能查看历史" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The computer is offline; only the history can be read"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ordenador está sin conexión; solo se puede leer el historial"
           }
         }
       }
@@ -19798,6 +21726,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Iniciar sesión"
+          }
+        }
+      }
+    },
+    "登录 Agents Anywhere" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In to Agents Anywhere"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión en Agents Anywhere"
+          }
+        }
+      }
+    },
+    "登录 Agents Anywhere 后，电脑上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在侧边栏，和本机会话放在一起。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to Agents Anywhere and the Codex, Claude Code and DeepSeek Harness sessions on your computers appear in the sidebar, beside the ones on this device."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inicia sesión en Agents Anywhere y las sesiones de Codex, Claude Code y DeepSeek Harness de tus ordenadores aparecerán en la barra lateral, junto a las de este dispositivo."
           }
         }
       }
@@ -19914,6 +21874,38 @@
         }
       }
     },
+    "登录已失效，请重新登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your sign-in has expired. Sign in again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu sesión ha caducado. Inicia sesión de nuevo."
+          }
+        }
+      }
+    },
+    "登录已失效，请重新登录。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your sign-in has expired. Sign in again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu sesión ha caducado. Inicia sesión de nuevo."
+          }
+        }
+      }
+    },
     "登录已超时" : {
       "localizations" : {
         "en" : {
@@ -19942,6 +21934,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Iniciar sesión caducado. Intentar otra vez."
+          }
+        }
+      }
+    },
+    "登录没有完成，请重新扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The sign-in did not finish. Scan again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El inicio de sesión no se completó. Escanea de nuevo."
           }
         }
       }
@@ -20054,6 +22062,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acciones del objetivo"
+          }
+        }
+      }
+    },
+    "目标模式、终端和导出等功能在 Agents Anywhere 里。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goal mode, the terminal, export and more are in Agents Anywhere."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El modo objetivo, el terminal, la exportación y más están en Agents Anywhere."
           }
         }
       }
@@ -20282,6 +22306,38 @@
         }
       }
     },
+    "离线" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offline"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin conexión"
+          }
+        }
+      }
+    },
+    "离线 · 上次在线 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offline · last seen %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin conexión · visto por última vez %@"
+          }
+        }
+      }
+    },
     "秒" : {
       "localizations" : {
         "en" : {
@@ -20358,6 +22414,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Eliminar «%@»?"
+          }
+        }
+      }
+    },
+    "移除电脑" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitar ordenador"
           }
         }
       }
@@ -20722,6 +22794,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filtrar componentes"
+          }
+        }
+      }
+    },
+    "管理电脑" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage Computers"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestionar ordenadores"
           }
         }
       }
@@ -21411,6 +23499,22 @@
         }
       }
     },
+    "网络已断开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No network connection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin conexión de red"
+          }
+        }
+      }
+    },
     "网络连接失败" : {
       "localizations" : {
         "en" : {
@@ -21747,6 +23851,22 @@
         }
       }
     },
+    "自己部署的服务器填它的地址。这种登录没有续期，过期后要重新登录；扫码登录可以保持更久。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For a server you host, enter its address. This kind of sign-in is not renewed and has to be repeated when it expires; a QR sign-in lasts longer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si el servidor es tuyo, escribe su dirección. Este inicio de sesión no se renueva y hay que repetirlo cuando caduca; el de código QR dura más."
+          }
+        }
+      }
+    },
     "至少 %lld 个字符。" : {
       "localizations" : {
         "en" : {
@@ -21891,6 +24011,38 @@
         }
       }
     },
+    "要它做什么" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What should it do?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué debe hacer?"
+          }
+        }
+      }
+    },
+    "要改什么" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What should change?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué hay que cambiar?"
+          }
+        }
+      }
+    },
     "要求修改" : {
       "localizations" : {
         "en" : {
@@ -21903,6 +24055,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Solicitar cambios"
+          }
+        }
+      }
+    },
+    "要求修改…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request Changes…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pedir cambios…"
           }
         }
       }
@@ -22019,6 +24187,22 @@
         }
       }
     },
+    "计划待确认" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan awaiting approval"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan pendiente de aprobación"
+          }
+        }
+      }
+    },
     "计划模式" : {
       "localizations" : {
         "en" : {
@@ -22031,6 +24215,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Modo plan"
+          }
+        }
+      }
+    },
+    "计划的回应没有被确认，请刷新后再试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The answer to the plan was not confirmed. Resync and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La respuesta al plan no se confirmó. Vuelve a sincronizar e inténtalo de nuevo."
           }
         }
       }
@@ -22644,6 +24844,22 @@
         }
       }
     },
+    "请在电脑上确认登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm the sign-in on your computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirma el inicio de sesión en tu ordenador"
+          }
+        }
+      }
+    },
     "请在配置文件中编辑" : {
       "localizations" : {
         "en" : {
@@ -23124,6 +25340,22 @@
         }
       }
     },
+    "读不到这个文件夹" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This folder can’t be read"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede leer esta carpeta"
+          }
+        }
+      }
+    },
     "读你复制的内容。每次读取 iOS 都会提示你" : {
       "localizations" : {
         "en" : {
@@ -23440,6 +25672,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inicio"
+          }
+        }
+      }
+    },
+    "跟进进度、接着聊、允许或拒绝操作、随时打断，都在手机上完成。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow progress, keep the conversation going, allow or decline actions and stop a run, all from your phone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sigue el progreso, continúa la conversación, permite o rechaza acciones y detén una ejecución, todo desde el teléfono."
           }
         }
       }
@@ -23924,6 +26172,22 @@
         }
       }
     },
+    "返回" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atrás"
+          }
+        }
+      }
+    },
     "返回父会话" : {
       "localizations" : {
         "en" : {
@@ -24052,6 +26316,22 @@
         }
       }
     },
+    "还没有智能体。在电脑上的 Agents Anywhere 里添加。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No agents yet. Add them in Agents Anywhere on the computer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay agentes. Añádelos en Agents Anywhere en el ordenador."
+          }
+        }
+      }
+    },
     "还没有模型。" : {
       "localizations" : {
         "en" : {
@@ -24064,6 +26344,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aún no hay modelos."
+          }
+        }
+      }
+    },
+    "还没有消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No messages yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay mensajes"
           }
         }
       }
@@ -24116,6 +26412,22 @@
         }
       }
     },
+    "这不是 Agents Anywhere 的登录二维码。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is not an Agents Anywhere sign-in QR code."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este no es un código QR de inicio de sesión de Agents Anywhere."
+          }
+        }
+      }
+    },
     "这不是一个目录。" : {
       "localizations" : {
         "en" : {
@@ -24144,6 +26456,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No es un archivo ni un directorio, así que no se puede abrir."
+          }
+        }
+      }
+    },
+    "这不是文本文件，请在电脑上查看。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is not a text file. Open it on the computer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No es un archivo de texto. Ábrelo en el ordenador."
           }
         }
       }
@@ -24208,6 +26536,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este perfil se ejecuta sin HMR; deténlo y desinstala el paquete con el comando dsh plugin."
+          }
+        }
+      }
+    },
+    "这个二维码已经用过了，请在电脑上刷新后重新扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This QR code has already been used. Refresh it on the computer and scan again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este código QR ya se usó. Actualízalo en el ordenador y escanéalo de nuevo."
+          }
+        }
+      }
+    },
+    "这个会话在电脑上进行，接管后才能从这里发消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This session runs on the computer. Take it over to send messages from here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta sesión se ejecuta en el ordenador. Tómala para enviar mensajes desde aquí."
+          }
+        }
+      }
+    },
+    "这个会话暂时不能接收消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This session can’t take messages right now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta sesión no puede recibir mensajes ahora"
+          }
+        }
+      }
+    },
+    "这个会话暂时无法使用这条指令" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This command is not available in this session right now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este comando no está disponible en esta sesión ahora"
+          }
+        }
+      }
+    },
+    "这个会话的审批现在不能从这里回应，请在电脑上处理。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approvals for this session can’t be answered from here right now. Handle it on the computer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las aprobaciones de esta sesión no se pueden responder desde aquí ahora. Gestiónala en el ordenador."
           }
         }
       }
@@ -24372,6 +26780,38 @@
         }
       }
     },
+    "这个智能体没有可以在这里切换的选项。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This agent has nothing to switch here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este agente no tiene opciones que cambiar aquí."
+          }
+        }
+      }
+    },
+    "这个智能体还没有就绪。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This agent is not ready yet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este agente aún no está listo."
+          }
+        }
+      }
+    },
     "这个目录不在了。可能已被移动或删除。" : {
       "localizations" : {
         "en" : {
@@ -24400,6 +26840,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este directorio está fuera del espacio de trabajo y no se puede leer."
+          }
+        }
+      }
+    },
+    "这个请求已过期，等待智能体更新。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This request has expired. Waiting for the agent to update it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta solicitud ha caducado. Esperando a que el agente la actualice."
+          }
+        }
+      }
+    },
+    "这个账号下还没有电脑。在电脑上安装 Agents Anywhere 并登录同一个账号，它会自动出现在这里。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This account has no computers yet. Install Agents Anywhere on a computer and sign in with the same account; it will appear here by itself."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta cuenta aún no tiene ordenadores. Instala Agents Anywhere en un ordenador e inicia sesión con la misma cuenta; aparecerá aquí solo."
           }
         }
       }
@@ -24452,6 +26924,86 @@
         }
       }
     },
+    "这台电脑上还没有智能体，请在电脑上的 Agents Anywhere 里添加。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This computer has no agents yet. Add them in Agents Anywhere on the computer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este ordenador aún no tiene agentes. Añádelos en Agents Anywhere en el ordenador."
+          }
+        }
+      }
+    },
+    "这台电脑会从账号里移除，它的会话不再显示。电脑上的文件和智能体自己的记录不受影响；要再用得在电脑上重新登录。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This computer will be removed from the account and its sessions will no longer show. Files on the computer and the agents’ own records are not affected; to use it again, sign in on the computer again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este ordenador se quitará de la cuenta y sus sesiones dejarán de mostrarse. Los archivos del ordenador y los registros propios de los agentes no se ven afectados; para volver a usarlo, inicia sesión de nuevo en el ordenador."
+          }
+        }
+      }
+    },
+    "这台电脑离线，开机并打开 Agents Anywhere 后才能新建会话。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This computer is offline. Turn it on and open Agents Anywhere to start a session."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este ordenador está sin conexión. Enciéndelo y abre Agents Anywhere para empezar una sesión."
+          }
+        }
+      }
+    },
+    "这条指令不接受参数" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This command takes no arguments"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este comando no admite argumentos"
+          }
+        }
+      }
+    },
+    "这条指令不支持多行输入" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This command does not take multiple lines"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este comando no admite varias líneas"
+          }
+        }
+      }
+    },
     "这条消息发送时 API Key 无法使用。" : {
       "localizations" : {
         "en" : {
@@ -24496,6 +27048,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Esta notificación activó esta respuesta."
+          }
+        }
+      }
+    },
+    "这种智能体要先准备工作区，新会话请在 Agents Anywhere 里创建；创建后会出现在这里。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This kind of agent has to prepare its workspace first. Create the session in Agents Anywhere; it will appear here afterwards."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este tipo de agente tiene que preparar antes su espacio de trabajo. Crea la sesión en Agents Anywhere; después aparecerá aquí."
+          }
+        }
+      }
+    },
+    "这种请求要在 Agents Anywhere 里回应。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This kind of request has to be answered in Agents Anywhere."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este tipo de solicitud hay que responderla en Agents Anywhere."
           }
         }
       }
@@ -24660,6 +27244,70 @@
         }
       }
     },
+    "远程控制" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remote Control"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Control remoto"
+          }
+        }
+      }
+    },
+    "远程控制的登录已失效" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The remote control sign-in has expired"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sesión del control remoto ha caducado"
+          }
+        }
+      }
+    },
+    "远程控制通过开源项目 Agents Anywhere 实现。会话内容经它的服务器转发：官方云服务，或你自己部署的服务器。本机的会话不受影响，也不会上传。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remote control is built on the open-source project Agents Anywhere. Session content travels through its server: the cloud service, or a server you host. Sessions on this device are not affected and are not uploaded."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El control remoto se basa en el proyecto de código abierto Agents Anywhere. El contenido de las sesiones pasa por su servidor: el servicio en la nube o un servidor tuyo. Las sesiones de este dispositivo no se ven afectadas ni se suben."
+          }
+        }
+      }
+    },
+    "远程控制（%lld 台在线）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remote Control (%lld online)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Control remoto (%lld en línea)"
+          }
+        }
+      }
+    },
     "连接 GitHub 超时" : {
       "localizations" : {
         "en" : {
@@ -24672,6 +27320,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se agotó el tiempo de espera de la conexión GitHub"
+          }
+        }
+      }
+    },
+    "连接中" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectando"
+          }
+        }
+      }
+    },
+    "连接失败" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection failed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error de conexión"
           }
         }
       }
@@ -24832,6 +27512,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudo salir del modo plan"
+          }
+        }
+      }
+    },
+    "退出远程控制？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out of remote control?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cerrar la sesión del control remoto?"
           }
         }
       }
@@ -25061,6 +27757,22 @@
         }
       }
     },
+    "邮箱" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo electrónico"
+          }
+        }
+      }
+    },
     "部分模型提供商暂时无法加载；已保存的选择仍可移除。" : {
       "localizations" : {
         "en" : {
@@ -25253,6 +27965,22 @@
         }
       }
     },
+    "重命名电脑" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename Computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renombrar ordenador"
+          }
+        }
+      }
+    },
     "重复" : {
       "localizations" : {
         "en" : {
@@ -25313,6 +28041,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reenviar"
+          }
+        }
+      }
+    },
+    "重新同步" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resync"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a sincronizar"
+          }
+        }
+      }
+    },
+    "重新扫描" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear de nuevo"
           }
         }
       }
@@ -25457,6 +28217,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Retraso antes de reintentar: "
+          }
+        }
+      }
+    },
+    "重试结束，模型已恢复响应。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retrying is over; the model is responding again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El reintento terminó; el modelo vuelve a responder."
           }
         }
       }
@@ -25813,6 +28589,22 @@
         }
       }
     },
+    "需要相机权限" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera access needed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se necesita acceso a la cámara"
+          }
+        }
+      }
+    },
     "需要迁移" : {
       "localizations" : {
         "en" : {
@@ -25879,6 +28671,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "页面加载失败 (%1$lld): %2$@"
+          }
+        }
+      }
+    },
+    "项目" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Project"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proyecto"
           }
         }
       }
@@ -26200,6 +29008,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "(El registro sigue vacío)"
+          }
+        }
+      }
+    },
+    "（离线）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " (offline)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " (sin conexión)"
           }
         }
       }
