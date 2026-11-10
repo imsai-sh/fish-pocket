@@ -103,7 +103,7 @@ iOS 这些都是系统框架，和「控制其他 App」（做不到）不是一
 | **位置** | CoreLocation | `NSLocationWhenInUseUsageDescription` | 粗/精粒度两档。后台定位别碰 | 第二期 |
 | **通讯录读** | Contacts | `NSContactsUsageDescription` | 隐私敏感度高于日历（牵涉第三人），而且会被发给模型 | **已做，只读**（§3.2） |
 | **照片库** | PhotoKit | `NSPhotoLibraryUsageDescription` | 相机附件已有；照片库用系统 picker 比给智能体读权限更合适 | 用 picker，不要权限 |
-| **健康写** | HealthKit | `NSHealthUpdateUsageDescription` | 写健康数据责任太大，且"不得写入虚假数据"是硬条款 | **不做** |
+| **健康写** | HealthKit | `NSHealthUpdateUsageDescription`（已填，只声明不写） | 写健康数据责任太大，且"不得写入虚假数据"是硬条款 | **不做** |
 | **屏幕使用时间** | DeviceActivity | 需特批 entitlement | 家长控制专用，申请门槛高 | 不做 |
 
 ### 3.1 别漏了不需要隐私权限的那一批
