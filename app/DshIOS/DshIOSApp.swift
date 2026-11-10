@@ -93,9 +93,10 @@ struct RootView: View {
                 inbox.request = nil
                 link = request
             }
-            // A `dsh://` link goes to a window that is already open. Only that: `openWindow` asks
-            // through the same door, and a wider match would swallow every new window.
-            .handlesExternalEvents(preferring: ["dsh://"], allowing: ["dsh://"])
+            // A `dsh://` link goes to a window that is already open. Any window may also take a plain
+            // launch: unless one allows it, iPadOS opens another window on every tap of the app's icon.
+            // `preferring` stays narrow, so `openWindow` still gets its new window.
+            .handlesExternalEvents(preferring: ["dsh://"], allowing: ["*"])
     }
 
     @ViewBuilder
