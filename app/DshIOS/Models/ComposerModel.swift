@@ -328,6 +328,15 @@ final class ComposerModel {
         sendMessage(text, steer: steer, running: running)
     }
 
+    /// Send `prompt` as it stands, around whatever draft and attachments the input holds (询问 AI).
+    func send(prompt: String) {
+        let draft = text, held = attachments
+        attachments = []
+        sendMessage(prompt, steer: false, running: session?.running ?? false)
+        attachments = held
+        text = draft
+    }
+
     private func sendMessage(_ draft: String, steer: Bool, running: Bool) {
         let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         let sent = attachments

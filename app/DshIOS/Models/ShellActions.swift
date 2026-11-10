@@ -100,6 +100,17 @@ extension AppModel {
         openRequest = (id, UUID())
     }
 
+    /// 询问 AI: a new conversation in the main view with `prompt` already sent. The install
+    /// sheet leaves first: it sits over the sheet the request then closes.
+    func ask(_ prompt: String) {
+        let covered = pluginInstall.open
+        pluginInstall.close()
+        Task {
+            if covered { try? await Task.sleep(for: .milliseconds(400)) }
+            newSessionRequest = NewSessionRequest(prompt: prompt)
+        }
+    }
+
     // MARK: Session actions
 
     /// `session/rename`; throws so the dialog can show the engine's message.

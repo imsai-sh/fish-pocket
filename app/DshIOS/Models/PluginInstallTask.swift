@@ -100,6 +100,9 @@ final class PluginInstallTask {
     var detailsOpen = false
     /// The GitHub-mirror recovery cleared the spec; the guide says why.
     private(set) var mirrorRecovery = false
+    /// What each spec's last install came to. It outlives the sheet, so the plugin's page can
+    /// still ask about it (询问 AI).
+    private(set) var records: [String: InstallRecord] = [:]
 
     @ObservationIgnored private(set) var requestId: String?
     @ObservationIgnored private var acknowledged = false
@@ -389,6 +392,7 @@ final class PluginInstallTask {
                 if answer["status"].string == "refused" {
                     phase = .idle
                     inputError = answer
+                    keepRecord()
                     return
                 }
                 await startInstall(answer.setting(["spec"], .string(trimmed)))
@@ -449,6 +453,7 @@ final class PluginInstallTask {
             phase = .unknown
             failure = nil
             settleRuns(nil)
+            keepRecord()
             notifyHidden(String(localized: "未能获取安装结果，请检查插件列表。"))
             await app.plugins.load()
         } catch {
@@ -497,6 +502,7 @@ final class PluginInstallTask {
             }
             notifyHidden(String(localized: "插件安装已完成，可查看安装结果。"))
         }
+        keepRecord()
         Task { await app.plugins.load() }
     }
 
@@ -718,6 +724,73 @@ final class PluginInstallTask {
         hide()
         reset()
         await app.plugins.load()
+    }
+
+    // MARK: Asking the agent
+
+    /// The install on screen as 询问 AI tells it: the plugin, where it was asked for, how it
+    /// ended and the end of each pnpm run. Nil while it is still running.
+    var record: InstallRecord? {
+        let refused = phase == .idle && confirmed != nil && inputError != nil
+        let outcome: InstallRecord.Outcome
+        switch phase {
+        case .failed: outcome = .failed
+        case .idle where refused: outcome = .failed
+        case .unknown: outcome = .unknown
+        case .done: outcome = .done
+        default: return nil
+        }
+        let name = installed ?? subject?["name"].string
+        let version = installedVersion ?? confirmed?.version ?? subject?["version"].string
+        var lines: [String] = []
+        if let name { lines.append(String(localized: "插件：\([name, version].compactMap { $0 }.joined(separator: "@"))")) }
+        lines.append(String(localized: "安装来源：\(spec.trimmingCharacters(in: .whitespacesAndNewlines))"))
+        let asked = attempts?.registries ?? []
+        if asked.count > 1 {
+            lines.append(String(localized: "已尝试的安装源：\(asked.map(registryText).joined(separator: String(localized: "、")))"))
+        } else {
+            lines.append(String(localized: "安装源：\(registryText(asked.first ?? registry.registry))"))
+        }
+        switch outcome {
+        case .failed:
+            lines.append(String(localized: "结果：安装失败。\(refused ? inputProblemText ?? "" : failureText)"))
+            let reported = [("failedAt", failure?.failedAt), ("kind", failure?.kind), ("code", failure?.code ?? inputError?["problem"].string)]
+                .compactMap { key, value in value.map { "\(key)=\($0)" } }
+            if !reported.isEmpty { lines.append(String(localized: "引擎报告：\(reported.joined(separator: ", "))")) }
+            if let reason = (failure?.reason ?? inputError?["reason"].string).flatMap({ $0.isEmpty ? nil : $0 }) {
+                lines.append(String(localized: "引擎的诊断：\(reason)"))
+            }
+            if let pending = failure?.pendingBuilds.nilIfEmpty {
+                lines.append(String(localized: "等待允许的安装脚本：\(pending.joined(separator: ", "))"))
+            } else if let failed = skippableBuilds.nilIfEmpty {
+                lines.append(String(localized: "运行失败的安装脚本：\(failed.joined(separator: ", "))"))
+            }
+        case .unknown:
+            lines.append(String(localized: "结果：未知，引擎里已经没有这次安装任务。"))
+        case .done:
+            lines.append(String(localized: "结果：已安装。"))
+            if restartRequired { lines.append(String(localized: "要重启引擎才会加载。\(restartReasonText(restartReason))")) }
+            if !approvedBuilds.isEmpty { lines.append(String(localized: "已允许的安装脚本：\(approvedBuilds.joined(separator: ", "))")) }
+        }
+        let shown = runs.suffix(3)
+        if !shown.isEmpty { lines.append(String(localized: "安装日志：")) }
+        for run in shown {
+            let exit = run.exitCode.map { ", exit \($0)" } ?? ""
+            lines.append("$ \(run.command)  (cwd \(run.cwd)\(exit))")
+            if !run.output.isEmpty { lines.append(PluginQuestion.tail(run.output)) }
+        }
+        return InstallRecord(outcome: outcome, title: confirmed?.title ?? name ?? spec, details: lines)
+    }
+
+    private func registryText(_ registry: String?) -> String {
+        let name = Self.registryName(registry, resolved: resolved).name
+        guard let url = registry ?? resolved, url != name else { return name }
+        return "\(name) \(url)"
+    }
+
+    private func keepRecord() {
+        let key = spec.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !key.isEmpty, let record { records[key] = record }
     }
 
     // MARK: Copy

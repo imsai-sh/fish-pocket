@@ -19,6 +19,22 @@ struct StoreEntryDetail: View {
         return (String(localized: "已启用，正在运行。它的界面可在网页版中查看。"), false)
     }
     private var metadata: JSON { model.market.result?["metadata"] ?? .null }
+
+    /// 询问 AI, once there is something to ask about: the plugin is here, or its last install went wrong.
+    private var question: (caption: LocalizedStringKey, text: String)? {
+        let specs = entry.json["versions"].array.compactMap { $0["install"]["spec"].string }
+        let records = specs.compactMap { app.pluginInstall.records[$0] }
+        var links: [String] = []
+        if let repository = entry.json["repository"]["url"].string { links.append(String(localized: "源代码：\(repository)")) }
+        if let homepage = entry.json["homepage"].string { links.append(String(localized: "主页：\(homepage)")) }
+        if onDevice {
+            let listed = app.plugins.package(listing.name)?.questionDetails ?? [String(localized: "插件：\(entry.name)")]
+            let install = records.first { $0.outcome == .done }?.details.dropFirst() ?? []
+            return ("找不到它，或者用不了？开一个新会话问问", PluginQuestion.installed(entry.displayName, details: listed + links + install))
+        }
+        guard let record = records.first(where: { $0.outcome != .done }) else { return nil }
+        return ("上次安装没有成功，带上安装记录开一个新会话排查", PluginQuestion.ask(record, more: links))
+    }
     /// The plugin list answers first after an install; the market's next read says the same.
     private var onDevice: Bool {
         app.plugins.package(listing.name)?.installed == true || ["installed", "update-available", "provided"].contains(entry.status ?? "")
@@ -61,6 +77,7 @@ struct StoreEntryDetail: View {
                 }
             }
             primaryAction
+            if let question { PluginAskRow(caption: question.caption) { question.text } }
             if let summary = entry.summary {
                 Text(summary).font(.subheadline).foregroundStyle(Palette.secondary).lineSpacing(4)
             }
@@ -397,6 +414,35 @@ struct StoreWebUINote: View {
         .padding(.vertical, compact ? 10 : 14)
         .background(Palette.grouped, in: RoundedRectangle(cornerRadius: compact ? 16 : 20, style: .continuous))
         .fullScreenCover(isPresented: $showWeb) { WebFallbackView() }
+    }
+}
+
+/// 询问 AI: leaves for a new conversation that already holds the plugin and its install.
+struct PluginAskRow: View {
+    @Environment(AppModel.self) private var app
+    let caption: LocalizedStringKey
+    let question: () -> String
+
+    var body: some View {
+        Button {
+            Haptics.tap()
+            app.ask(question())
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "sparkles").font(.body).foregroundStyle(Palette.ink)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("询问 AI").font(.callout.weight(.medium)).foregroundStyle(Palette.ink)
+                    Text(caption).font(.footnote).foregroundStyle(Palette.secondary).multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
