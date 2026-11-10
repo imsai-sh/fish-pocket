@@ -32,7 +32,7 @@ struct RemoteComposer: View {
                 }
                 HStack(alignment: .bottom, spacing: 6) {
                     plusMenu
-                    TextField("发消息", text: $model.draft, axis: .vertical)
+                    TextField(model.busy && !model.canSend ? "智能体正在工作…" : "发消息", text: $model.draft, axis: .vertical)
                         .font(.callout)
                         .lineLimit(1...5)
                         .focused($focused)

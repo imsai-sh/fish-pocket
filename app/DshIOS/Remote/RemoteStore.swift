@@ -49,6 +49,12 @@ final class RemoteStore {
     private(set) var projects: [RemoteProject] = []
     private(set) var agents: [RemoteAgent] = []
     private(set) var sessions: [String: RemoteSession] = [:]
+    /// What the sidebar draws from, kept ready: sessions in list order (pinned, then most recent),
+    /// the archived ones apart, and devices and projects by id. A redraw then sorts and searches nothing.
+    private(set) var active: [RemoteSession] = []
+    private(set) var archivedSessions: [RemoteSession] = []
+    private var deviceIndex: [String: RemoteDevice] = [:]
+    private var projectIndex: [String: RemoteProject] = [:]
     /// The list has been read at least once since signing in.
     private(set) var loaded = false
     /// The list is being followed live.
@@ -89,13 +95,24 @@ final class RemoteStore {
 
     // MARK: Reading
 
-    func device(_ id: String?) -> RemoteDevice? { devices.first { $0.id == id } }
-    func project(_ id: String?) -> RemoteProject? { projects.first { $0.id == id } }
+    func device(_ id: String?) -> RemoteDevice? { id.flatMap { deviceIndex[$0] } }
+    func project(_ id: String?) -> RemoteProject? { id.flatMap { projectIndex[$0] } }
     func agents(on deviceId: String) -> [RemoteAgent] { agents.filter { $0.deviceId == deviceId && $0.configured } }
 
-    /// Pinned first, then working ones, then by the server's own order of recency.
-    func listed(archived: Bool = false) -> [RemoteSession] {
-        sessions.values.filter { $0.archived == archived }.sorted(by: Self.precedes)
+    /// Pinned first, then by the server's own order of recency.
+    func listed(archived: Bool = false) -> [RemoteSession] { archived ? archivedSessions : active }
+
+    /// After any change to devices, projects or sessions. Only what differs is assigned:
+    /// the server repeats the whole list on every push, and an unchanged one must not redraw anything.
+    private func reindex() {
+        let deviceIndex = Dictionary(devices.map { ($0.id, $0) }, uniquingKeysWith: { $1 })
+        if deviceIndex != self.deviceIndex { self.deviceIndex = deviceIndex }
+        let projectIndex = Dictionary(projects.map { ($0.id, $0) }, uniquingKeysWith: { $1 })
+        if projectIndex != self.projectIndex { self.projectIndex = projectIndex }
+        let active = sessions.values.filter { !$0.archived }.sorted(by: Self.precedes)
+        if active != self.active { self.active = active }
+        let archived = sessions.values.filter(\.archived).sorted(by: Self.precedes)
+        if archived != archivedSessions { archivedSessions = archived }
     }
 
     static func precedes(_ lhs: RemoteSession, _ rhs: RemoteSession) -> Bool {
@@ -206,6 +223,7 @@ final class RemoteStore {
         projects = []
         agents = []
         sessions = [:]
+        reindex()
         loaded = false
         connected = false
         problem = nil
@@ -237,7 +255,11 @@ final class RemoteStore {
                     self.problem = nil
                     attempt = 0
                     for try await frame in client.frames("/dashboard/ws", ticket: ticket) {
-                        if frame["type"].string == "dashboard.snapshot" { self.apply(frame) }
+                        guard frame["type"].string == "dashboard.snapshot" else { continue }
+                        // A push carries every session of the account: read it off the main thread.
+                        let parsed = await Task.detached(priority: .userInitiated) { Self.parse(frame) }.value
+                        guard self.client === client, !Task.isCancelled else { return }
+                        self.apply(parsed)
                     }
                 } catch {
                     guard let self, !Task.isCancelled else { return }
@@ -273,18 +295,39 @@ final class RemoteStore {
         async let projects = client.get("/projects")
         async let sessions = client.get("/sessions/list")
         let (connectorList, projectList, sessionList) = try await (connectors, projects, sessions)
+        let snapshot = JSON.object(["connectors": connectorList["connectors"], "projects": projectList["projects"], "sessions": sessionList["sessions"]])
+        let parsed = await Task.detached(priority: .userInitiated) { Self.parse(snapshot) }.value
         guard self.client === client else { return }
-        apply(.object(["connectors": connectorList["connectors"], "projects": projectList["projects"], "sessions": sessionList["sessions"]]))
+        apply(parsed)
     }
 
-    private func apply(_ snapshot: JSON) {
-        devices = snapshot["connectors"].array.compactMap(RemoteDevice.init).sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-        projects = snapshot["projects"].array.compactMap(RemoteProject.init)
-        if !snapshot["runtimes"].isNull { agents = snapshot["runtimes"].array.compactMap(RemoteAgent.init) }
+    private struct Parsed: Sendable {
+        var devices: [RemoteDevice]
+        var projects: [RemoteProject]
+        /// nil when the reading does not carry them (only the live channel does).
+        var agents: [RemoteAgent]?
+        var sessions: [RemoteSession]
+    }
+
+    nonisolated private static func parse(_ snapshot: JSON) -> Parsed {
+        Parsed(
+            devices: snapshot["connectors"].array.compactMap(RemoteDevice.init).sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending },
+            projects: snapshot["projects"].array.compactMap(RemoteProject.init),
+            agents: snapshot["runtimes"].isNull ? nil : snapshot["runtimes"].array.compactMap(RemoteAgent.init),
+            sessions: snapshot["sessions"].array.compactMap(RemoteSession.init)
+        )
+    }
+
+    private func apply(_ parsed: Parsed) {
+        if devices != parsed.devices { devices = parsed.devices }
+        if projects != parsed.projects { projects = parsed.projects }
+        if let agents = parsed.agents, agents != self.agents { self.agents = agents }
         var next: [String: RemoteSession] = [:]
-        for session in snapshot["sessions"].array.compactMap(RemoteSession.init) { next[session.id] = merged(sessions[session.id], session) }
-        sessions = next
-        loaded = true
+        next.reserveCapacity(parsed.sessions.count)
+        for session in parsed.sessions { next[session.id] = merged(sessions[session.id], session) }
+        if next != sessions { sessions = next }
+        if !loaded { loaded = true }
+        reindex()
         for (id, boxes) in open {
             guard let session = next[id] else { continue }
             for box in boxes { box.model?.apply(meta: session) }
@@ -302,7 +345,10 @@ final class RemoteStore {
     /// A session as a request or a session's own channel just reported it.
     func upsert(_ json: JSON) {
         guard let session = RemoteSession(json) else { return }
-        sessions[session.id] = merged(sessions[session.id], session)
+        let next = merged(sessions[session.id], session)
+        guard next != sessions[session.id] else { return }
+        sessions[session.id] = next
+        reindex()
     }
 
     /// The agents of a device, read from it (the live list only carries them once it has pushed).
@@ -361,6 +407,7 @@ final class RemoteStore {
         guard let session = sessions[id], session.unread, let client else { return }
         sessions[id]?.unread = false
         sessions[id]?.lastReadSeq = session.latestTurnEndSeq
+        reindex()
         Task {
             guard let value = try? await client.post("/sessions/read", [.string(id)]) else { return }
             for session in value["sessions"].array { upsert(session) }
@@ -371,6 +418,7 @@ final class RemoteStore {
         await change { client in
             let value = try await client.patch("/connectors/\(RemoteClient.encode(id))", ["name": .string(name)])
             if let device = RemoteDevice(value["connector"]), let index = devices.firstIndex(where: { $0.id == id }) { devices[index] = device }
+            reindex()
         }
     }
 
@@ -382,6 +430,7 @@ final class RemoteStore {
             projects.removeAll { $0.deviceId == id }
             agents.removeAll { $0.deviceId == id }
             sessions = sessions.filter { $0.value.deviceId != id }
+            reindex()
         }
     }
 
@@ -408,6 +457,7 @@ final class RemoteStore {
         }
         projects.removeAll { $0.id == project.id }
         projects.append(project)
+        reindex()
         return project
     }
 

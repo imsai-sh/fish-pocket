@@ -106,8 +106,10 @@ final class RemoteSessionModel: Identifiable {
     /// Notes the agent left that need no answer.
     var notifications: [RemoteNotice] { notices.filter { $0.type == "notification" && $0.visible } }
 
+    /// A message goes as a new turn, or into the running one where the agent only takes those.
+    private var steers: Bool { busy && !capabilities.allows("session.send_message") && capabilities.allows("session.steer") }
     var canSend: Bool {
-        current && capabilities.allows("session.send_message") && !interactions.contains(where: \.blocksSession)
+        current && (capabilities.allows("session.send_message") || steers) && !interactions.contains(where: \.blocksSession)
     }
     var canAttach: Bool { capabilities.allows("runtime.attachment") }
     /// Approvals can be answered from here (an agent that says nothing about it is taken to allow it).
@@ -124,13 +126,29 @@ final class RemoteSessionModel: Identifiable {
         if !online { return String(localized: "电脑离线，只能查看历史") }
         if !takeover { return String(localized: "这个会话在电脑上进行，接管后才能从这里发消息") }
         if link != .live || !fresh { return String(localized: "正在连接电脑…") }
+        // While the agent works the composer stays, whatever can be sent: stopping it is there.
+        if busy { return nil }
         if interactions.contains(where: \.blocksSession) { return String(localized: "先回应智能体的请求") }
-        if !capabilities.allows("session.send_message") {
-            // The agent's own sentence where it gave one; a bare code says nothing to a reader.
-            let reason = capabilities.reason("session.send_message") ?? ""
-            return reason.contains(" ") || reason.unicodeScalars.contains { $0.value > 0x2E80 } ? reason : String(localized: "这个会话暂时不能接收消息")
-        }
+        if !capabilities.allows("session.send_message") { return unavailableText }
         return nil
+    }
+
+    /// Why the agent takes no message, in words: its instance on the computer is not up, the
+    /// kind of agent cannot, or what it said itself. A bare code says nothing to a reader.
+    private var unavailableText: String {
+        if let meta, let agent = store?.agents.first(where: { $0.id == meta.agentId }), !agent.ready {
+            return String(localized: "电脑上的 \(agent.name) 还没就绪（\(agent.statusText)），请在电脑上的 Agents Anywhere 里看一下")
+        }
+        let reason = capabilities.reason("session.send_message") ?? ""
+        switch reason {
+        case "runtime_capability_unsupported": return String(localized: "这种智能体的会话不能从这里发消息")
+        case "runtime_capability_unavailable", "": return String(localized: "电脑上的智能体现在收不了消息，可能还在启动。稍后点右上角的「重新同步」再试")
+        case "connector_offline": return String(localized: "电脑离线，只能查看历史")
+        case "session_not_taken_over": return String(localized: "这个会话在电脑上进行，接管后才能从这里发消息")
+        default:
+            let readable = reason.contains(" ") || reason.unicodeScalars.contains { $0.value > 0x2E80 }
+            return readable ? reason : String(localized: "电脑上的智能体现在收不了消息，可能还在启动。稍后点右上角的「重新同步」再试")
+        }
     }
 
     /// The model and permission in force, as the option menu names them.
@@ -517,7 +535,7 @@ final class RemoteSessionModel: Identifiable {
                 fileIds = uploaded["attachments"].array.compactMap { $0["fileId"].string }.map { ["fileId": .string($0)] }
             }
             submitted = true
-            let value = try await client.post("\(path)/runtime/messages", [
+            let value = try await client.post(steers ? "\(path)/runtime/steer" : "\(path)/runtime/messages", [
                 "content": .string(text), "attachments": .array(fileIds), "clientMessageId": .string(message.id),
             ])
             try accepted(value)

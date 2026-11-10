@@ -31,11 +31,13 @@ struct RemoteError: LocalizedError, Hashable {
             case .cancelled: self.init(kind: .cancelled, message: String(localized: "已取消"))
             case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed, .internationalRoamingOff:
                 self.init(kind: .offline, message: String(localized: "网络已断开"))
-            default: self.init(kind: .server, message: error.localizedDescription)
+            default: self.init(kind: .server, message: String(localized: "与服务器的连接中断"))
             }
             return
         }
-        self.init(kind: .invalid, message: error.localizedDescription)
+        // A WebSocket that drops reports it as a POSIX or CFNetwork error ("Socket is not
+        // connected"), not a URLError. Whatever the transport says, it is worth another try.
+        self.init(kind: .server, message: String(localized: "与服务器的连接中断"))
     }
 
     /// `{detail: "…"}` or `{detail: {code, message}}`, as FastAPI writes it.

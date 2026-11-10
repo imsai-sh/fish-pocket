@@ -526,6 +526,7 @@ struct RemoteFileEntry: Identifiable, Hashable {
     var path: String
     var isDirectory: Bool
     var size: Int?
+    var modified: Date?
     var id: String { path }
 
     init?(_ json: JSON) {
@@ -534,6 +535,22 @@ struct RemoteFileEntry: Identifiable, Hashable {
         name = json["name"].string ?? (path as NSString).lastPathComponent
         isDirectory = json["type"].string == "directory"
         size = json["size"].int
+        modified = RemoteTime.date(json["modifiedAt"])
+    }
+
+    /// An SF Symbol for what the name says it is.
+    var symbol: String {
+        if isDirectory { return "folder.fill" }
+        switch (name as NSString).pathExtension.lowercased() {
+        case "md", "markdown", "txt", "rst", "log": return "doc.text"
+        case "png", "jpg", "jpeg", "gif", "webp", "heic", "svg", "ico": return "photo"
+        case "pdf": return "doc.richtext"
+        case "zip", "gz", "tar", "tgz", "xz", "7z", "rar": return "doc.zipper"
+        case "json", "yml", "yaml", "toml", "xml", "plist", "lock", "ini", "env": return "curlybraces"
+        case "swift", "js", "jsx", "ts", "tsx", "mjs", "cjs", "py", "rb", "go", "rs", "java", "kt", "c", "h", "cc", "cpp", "m", "mm", "cs", "php", "sh", "zsh", "bash", "css", "scss", "html", "vue", "sql":
+            return "chevron.left.forwardslash.chevron.right"
+        default: return "doc"
+        }
     }
 }
 

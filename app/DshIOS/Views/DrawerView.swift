@@ -70,6 +70,7 @@ struct DrawerView: View {
                 pluginsRow
                 capabilitiesRow
                 webRow
+                remoteControlRow
 
                 List {
                     if search.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -139,19 +140,54 @@ struct DrawerView: View {
     /// The one thing here that is not about finding a session, so it says its name and
     /// takes the full width, as the web sidebar's 新会话 button does — not an icon among icons.
     /// Outlined: the drawer is for finding sessions, and this must not outweigh them.
+    /// With computers connected it first asks where: this phone, or one of them.
     private var newConversationButton: some View {
-        Button { if let target = workspace ?? app.workspaces.first { newConversation(target) } } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "square.and.pencil").font(.callout.weight(.semibold))
-                Text("新会话")
+        Group {
+            if remote.signedIn, !remote.devices.isEmpty {
+                Menu {
+                    Button { startLocalConversation() } label: { Label("在本机", systemImage: "iphone") }
+                        .disabled(app.workspaces.isEmpty)
+                    Section("在电脑上") {
+                        ForEach(remote.devices) { device in
+                            Button { app.remoteSessionRequest = RemoteSessionTarget(deviceId: device.id) } label: {
+                                Label(device.online ? device.name : String(localized: "\(device.name)（离线）"), systemImage: device.symbol)
+                            }
+                            .disabled(!device.online)
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.pencil").font(.callout.weight(.semibold))
+                        Text("新会话")
+                        Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(Palette.secondary)
+                    }
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(Palette.ink)
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background { Capsule().strokeBorder(Palette.stroke) }
+                    .contentShape(Capsule())
+                }
+                .accessibilityLabel("新会话，选择在本机还是电脑上")
+            } else {
+                Button(action: startLocalConversation) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.pencil").font(.callout.weight(.semibold))
+                        Text("新会话")
+                    }
+                }
+                .buttonStyle(.capsule(.outline, height: 44))
+                .disabled(app.workspaces.isEmpty)
+                .opacity(app.workspaces.isEmpty ? 0.4 : 1)
             }
         }
-        .buttonStyle(.capsule(.outline, height: 44))
-        .disabled(app.workspaces.isEmpty)
-        .opacity(app.workspaces.isEmpty ? 0.4 : 1)
         .padding(.horizontal, 16)
         .padding(.top, 8)
         .padding(.bottom, 6)
+    }
+
+    private func startLocalConversation() {
+        if let target = workspace ?? app.workspaces.first { newConversation(target) }
     }
 
     /// Plugins are found here rather than three levels down in settings.
@@ -213,6 +249,32 @@ struct DrawerView: View {
         .padding(.bottom, 2)
     }
 
+    /// The computers of the user's Agents Anywhere account: signing in, then the machines themselves.
+    /// A row here, not a line in settings: until it is found, nothing of it shows anywhere else.
+    private var remoteControlRow: some View {
+        Button { Haptics.tap(); app.remoteRequest = UUID() } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "laptopcomputer.and.iphone").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
+                Text("远程控制").font(.subheadline).foregroundStyle(Palette.ink)
+                Spacer()
+                Text(remoteControlNote).font(.footnote).foregroundStyle(remote.expired ? Palette.waiting : Palette.secondary)
+            }
+            .padding(.horizontal, 12)
+            .frame(minHeight: 46)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 8)
+        .padding(.bottom, 2)
+    }
+
+    private var remoteControlNote: String {
+        if remote.expired { return String(localized: "重新登录") }
+        guard remote.signedIn else { return String(localized: "连接电脑") }
+        let online = remote.devices.filter(\.online).count
+        return online > 0 ? String(localized: "\(online) 台在线") : String(localized: "电脑离线")
+    }
+
     private var viewMenu: some View {
         Menu {
             Picker("分组方式", selection: Binding(get: { grouping }, set: { groupBy = $0 })) {
@@ -255,14 +317,6 @@ struct DrawerView: View {
                     } else {
                         Label("Cordis 插件", systemImage: "shippingbox")
                     }
-                }
-            }
-            Button { app.remoteRequest = UUID() } label: {
-                let online = app.remote.devices.filter(\.online).count
-                if app.remote.signedIn, online > 0 {
-                    Label("远程控制（\(online) 台在线）", systemImage: "laptopcomputer.and.iphone")
-                } else {
-                    Label("远程控制", systemImage: "laptopcomputer.and.iphone")
                 }
             }
             if !app.account.signedIn {
@@ -390,9 +444,10 @@ struct DrawerView: View {
     @ViewBuilder
     private var groupList: some View {
         let groups = groups
+        let expansion = expansion
         if groups.isEmpty { emptyRow("暂无会话") }
         ForEach(groups) { group in
-            let open = isExpanded(group)
+            let open = expansion[group.id] ?? true
             groupHeader(group, open: open)
             if open {
                 let shown = shownCount(group)
@@ -418,7 +473,7 @@ struct DrawerView: View {
         case .local(let session):
             row(session, indent: true, subtitle: group.isPhone ? placeLine(of: session) : nil)
         case .remote(let session):
-            remoteRow(session, indent: true, subtitle: group.project != nil || group.id.hasPrefix("remote-loose:")
+            remoteRow(session, indent: true, detail: group.project != nil || group.id.hasPrefix("remote-loose:")
                 ? session.agentTag : "\(session.agentTag) · \(remote.place(of: session))")
         }
     }
@@ -447,11 +502,14 @@ struct DrawerView: View {
                 Spacer(minLength: 4)
                 // A project says which computer it is on; a computer says when it is away.
                 if let device = group.device {
-                    Text(grouping == .device ? (offline ? String(localized: "离线") : "") : device.name)
-                        .font(.caption)
-                        .foregroundStyle(Palette.faint)
-                        .lineLimit(1)
-                        .padding(.trailing, 12)
+                    Group {
+                        if grouping == .device {
+                            if offline { Text("离线").font(.caption).foregroundStyle(Palette.faint) }
+                        } else {
+                            MachineTag(name: device.name, symbol: device.symbol, dimmed: offline)
+                        }
+                    }
+                    .padding(.trailing, 12)
                 }
             }
             .padding(.leading, 12)
@@ -584,9 +642,9 @@ struct DrawerView: View {
     private func flatRow(_ entry: Entry) -> some View {
         switch entry {
         case .local(let session):
-            row(session, subtitle: [placeLine(of: session), remote.signedIn ? String(localized: "本机") : nil].compactMap { $0 }.joined(separator: " · ").nonEmpty)
+            row(session, subtitle: placeLine(of: session), phoneTag: remote.signedIn)
         case .remote(let session):
-            remoteRow(session, subtitle: "\(session.agentTag) · \(remote.place(of: session)) · \(remote.deviceName(of: session))")
+            remoteRow(session, machine: true, detail: "\(session.agentTag) · \(remote.place(of: session))")
         }
     }
 
@@ -662,7 +720,7 @@ struct DrawerView: View {
             if rows.isEmpty, away.isEmpty { emptyRow("暂无已归档会话") }
             ForEach(rows) { session in row(session, subtitle: placeLine(of: session)) }
             ForEach(away) { session in
-                remoteRow(session, subtitle: "\(session.agentTag) · \(remote.place(of: session)) · \(remote.deviceName(of: session))")
+                remoteRow(session, machine: true, detail: "\(session.agentTag) · \(remote.place(of: session))")
             }
         }
         .sessionList()
@@ -719,7 +777,7 @@ struct DrawerView: View {
             row(session, subtitle: place(of: session) + (remoteHits[session.id].map { " · \($0)" } ?? ""))
         }
         ForEach(away) { session in
-            remoteRow(session, subtitle: "\(session.agentTag) · \(remote.place(of: session)) · \(remote.deviceName(of: session))")
+            remoteRow(session, machine: true, detail: "\(session.agentTag) · \(remote.place(of: session))")
         }
         if searching {
             HStack(spacing: 8) {
@@ -782,22 +840,26 @@ struct DrawerView: View {
 
     /// A session: status mark, title (and the small line under it), then a waiting label or the relative time.
     /// An archived row does not open, as on the web: it offers to come back instead.
-    private func row(_ session: SessionSummary, indent: Bool = false, subtitle: String? = nil) -> some View {
+    private func row(_ session: SessionSummary, indent: Bool = false, subtitle: String? = nil, phoneTag: Bool = false) -> some View {
         let current = session.id == selection
         let archived = app.isArchived(session.id)
+        let twoLine = subtitle != nil || phoneTag
         return Button {
             if archived { app.open(session: session.id) } else { search = ""; select(session.id) }
         } label: {
-            HStack(alignment: subtitle == nil ? .center : .top, spacing: 8) {
+            HStack(alignment: twoLine ? .top : .center, spacing: 8) {
                 leading(session)
-                .frame(width: 14, height: subtitle == nil ? nil : 20)
-                VStack(alignment: .leading, spacing: 1) {
+                .frame(width: 14, height: twoLine ? 20 : nil)
+                VStack(alignment: .leading, spacing: 4) {
                     Text(app.title(of: session.id))
                         .font(.subheadline)
                         .foregroundStyle(Palette.ink)
                         .lineLimit(1)
-                    if let subtitle {
-                        Text(subtitle).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1)
+                    if twoLine {
+                        HStack(spacing: 6) {
+                            if phoneTag { MachineTag(name: String(localized: "本机"), symbol: "iphone") }
+                            if let subtitle { Text(subtitle).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1) }
+                        }
                     }
                 }
                 Spacer(minLength: 4)
@@ -816,7 +878,7 @@ struct DrawerView: View {
             }
             .padding(.leading, indent ? 22 : 4)
             .padding(.trailing, 12)
-            .padding(.vertical, 3)
+            .padding(.vertical, twoLine ? 8 : 3)
             .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
             .opacity(archived ? 0.55 : 1)
             .contentShape(Rectangle())
@@ -877,11 +939,11 @@ struct DrawerView: View {
     }
 
     /// A session on a computer, in the shape of a local row: the same marks, the agent on the
-    /// small line. One whose computer is away is dimmed: it opens, but only to its history.
-    private func remoteRow(_ session: RemoteSession, indent: Bool = false, subtitle: String) -> some View {
+    /// small line and, where the list does not already say it, its machine as a tag. One whose
+    /// computer is away is dimmed: it opens, but only to its history.
+    private func remoteRow(_ session: RemoteSession, indent: Bool = false, machine: Bool = false, detail: String) -> some View {
         let id = RemoteStore.selection(session.id)
         let current = id == selection
-        let live = session.deviceOnline && !session.archived
         return Button {
             if session.archived {
                 app.showToast(String(localized: "取消归档后才能查看"), tone: .warning, actions: [
@@ -892,43 +954,7 @@ struct DrawerView: View {
                 select(id)
             }
         } label: {
-            HStack(alignment: .top, spacing: 8) {
-                Group {
-                    if !live {
-                        Color.clear
-                    } else if session.waiting {
-                        StatusDot(state: .waiting)
-                    } else if session.working {
-                        StatusDot(state: .running)
-                    } else if session.hasUnread {
-                        Circle().fill(Palette.ink).frame(width: 7, height: 7).accessibilityLabel(Text("已完成"))
-                    } else {
-                        Color.clear
-                    }
-                }
-                .frame(width: 14, height: 20)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(session.displayTitle).font(.subheadline).foregroundStyle(Palette.ink).lineLimit(1)
-                    Text(subtitle).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1)
-                }
-                Spacer(minLength: 4)
-                if session.pinned, !session.archived {
-                    Image(systemName: "pin.fill").font(.caption2).foregroundStyle(Palette.faint)
-                }
-                if session.archived {
-                    Image(systemName: "archivebox").font(.caption).foregroundStyle(Palette.faint)
-                } else if live, session.waiting {
-                    Text("等你允许").font(.caption.weight(.medium)).foregroundStyle(Palette.waiting)
-                } else {
-                    Text(Self.relative(session.sortAt)).font(.caption).foregroundStyle(Palette.faint)
-                }
-            }
-            .padding(.leading, indent ? 22 : 4)
-            .padding(.trailing, 12)
-            .padding(.vertical, 3)
-            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-            .opacity(live ? 1 : 0.55)
-            .contentShape(Rectangle())
+            RemoteRowLabel(session: session, machine: machine ? remote.device(session.deviceId) : nil, detail: detail, indent: indent).equatable()
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(current ? .isSelected : [])
@@ -1020,6 +1046,79 @@ struct DrawerView: View {
     }
 }
 
+/// Whose machine a session is on: a small tag, so it reads at a glance among rows of text.
+struct MachineTag: View {
+    let name: String
+    let symbol: String
+    var dimmed = false
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: symbol).font(.system(size: 9, weight: .semibold))
+            Text(name).font(.caption2.weight(.semibold)).lineLimit(1)
+        }
+        .foregroundStyle(dimmed ? Palette.secondary : Palette.ink)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(Palette.control, in: Capsule())
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// What a remote session's row shows. Compared by value: the list is told of every push from
+/// the server, and a row whose session did not change is not drawn again.
+private struct RemoteRowLabel: View, Equatable {
+    let session: RemoteSession
+    /// The machine to name on the row; nil where the group above already does.
+    let machine: RemoteDevice?
+    let detail: String
+    let indent: Bool
+
+    var body: some View {
+        let live = session.deviceOnline && !session.archived
+        HStack(alignment: .top, spacing: 8) {
+            Group {
+                if !live {
+                    Color.clear
+                } else if session.waiting {
+                    StatusDot(state: .waiting)
+                } else if session.working {
+                    StatusDot(state: .running)
+                } else if session.hasUnread {
+                    Circle().fill(Palette.ink).frame(width: 7, height: 7).accessibilityLabel(Text("已完成"))
+                } else {
+                    Color.clear
+                }
+            }
+            .frame(width: 14, height: 20)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(session.displayTitle).font(.subheadline).foregroundStyle(Palette.ink).lineLimit(1)
+                HStack(spacing: 6) {
+                    if let machine { MachineTag(name: machine.name, symbol: machine.symbol, dimmed: !machine.online) }
+                    Text(detail).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1)
+                }
+            }
+            Spacer(minLength: 4)
+            if session.pinned, !session.archived {
+                Image(systemName: "pin.fill").font(.caption2).foregroundStyle(Palette.faint)
+            }
+            if session.archived {
+                Image(systemName: "archivebox").font(.caption).foregroundStyle(Palette.faint)
+            } else if live, session.waiting {
+                Text("等你允许").font(.caption.weight(.medium)).foregroundStyle(Palette.waiting)
+            } else {
+                Text(DrawerView.relative(session.sortAt)).font(.caption).foregroundStyle(Palette.faint)
+            }
+        }
+        .padding(.leading, indent ? 22 : 4)
+        .padding(.trailing, 12)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .opacity(live ? 1 : 0.55)
+        .contentShape(Rectangle())
+    }
+}
+
 /// Where the drawer's session rows are on screen, in `space`: a horizontal swipe
 /// that starts on one belongs to the row, anywhere else in the drawer it closes it.
 /// Only heights count, since a list cell spans the drawer past the row's insets.
@@ -1037,10 +1136,6 @@ final class DrawerRowFrames {
     func hasRow(atY y: CGFloat) -> Bool {
         shown.contains { id in frames[id].map { $0.minY...$0.maxY ~= y } ?? false }
     }
-}
-
-private extension String {
-    var nonEmpty: String? { isEmpty ? nil : self }
 }
 
 private extension View {

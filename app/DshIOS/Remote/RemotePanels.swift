@@ -102,7 +102,8 @@ struct RemoteOptionsSheet: View {
     }
 }
 
-/// Where a remote session lives: its agent, its computer, its folder.
+/// Where a remote session lives: its agent, its computer, its folder. The system's own
+/// grouped list, as the pages of 设置 are.
 struct RemoteInfoSheet: View {
     let model: RemoteSessionModel
     @Environment(AppModel.self) private var app
@@ -113,31 +114,40 @@ struct RemoteInfoSheet: View {
             List {
                 if let meta = model.meta {
                     Section {
-                        line("智能体", meta.agentLabel)
-                        line("电脑", app.remote.deviceName(of: meta) + (meta.deviceOnline ? "" : String(localized: "（离线）")))
-                        line("项目", app.remote.place(of: meta))
-                        if let cwd = meta.cwd, !cwd.isEmpty { line("目录", cwd) }
-                        if let label = model.modelLabel { line("模型", label) }
-                        if let label = model.permissionLabel { line("权限", label) }
-                        line("模式", meta.takeover ? String(localized: "已接管，可以从这里发消息") : String(localized: "只读，在电脑上进行"))
+                        LabeledContent("智能体", value: meta.agentLabel)
+                        LabeledContent("电脑") {
+                            HStack(spacing: 6) {
+                                if meta.deviceOnline { StatusDot(state: .running) }
+                                Text(app.remote.deviceName(of: meta) + (meta.deviceOnline ? "" : String(localized: "（离线）")))
+                            }
+                        }
+                        LabeledContent("项目", value: app.remote.place(of: meta))
+                        if let label = model.modelLabel { LabeledContent("模型", value: label) }
+                        if let label = model.permissionLabel { LabeledContent("权限", value: label) }
+                        LabeledContent("模式", value: meta.takeover ? String(localized: "已接管") : String(localized: "只读"))
+                    } footer: {
+                        Text(meta.takeover ? "可以从这里发消息。" : "会话在电脑上进行，接管后才能从这里发消息。")
                     }
-                    .groupedRow()
+                    if let cwd = meta.cwd, !cwd.isEmpty {
+                        Section("目录") {
+                            Text(cwd).font(.footnote.monospaced()).textSelection(.enabled)
+                        }
+                    }
                     Section {
                         Button { copyToPasteboard(meta.id); app.showToast(String(localized: "已复制"), tone: .success) } label: {
-                            Label("复制会话 ID", systemImage: "doc.on.doc").foregroundStyle(Palette.ink)
+                            Label("复制会话 ID", systemImage: "doc.on.doc")
                         }
                         if let server = app.remote.account?.server {
                             Button { InAppSafari.open(server) } label: {
-                                Label("在 Agents Anywhere 网页版中查看", systemImage: "safari").foregroundStyle(Palette.ink)
+                                Label("在 Agents Anywhere 网页版中查看", systemImage: "safari")
                             }
                         }
                     } footer: {
                         Text("目标模式、终端和导出等功能在 Agents Anywhere 里。")
                     }
-                    .groupedRow()
                 }
             }
-            .groupedList()
+            .listStyle(.insetGrouped)
             .navigationTitle("会话信息")
             .navigationBarTitleDisplayMode(.inline)
             .closeButton(dismiss)
@@ -145,15 +155,6 @@ struct RemoteInfoSheet: View {
         .tint(Palette.ink)
         .presentationDetents([.medium, .large])
         .task { await model.loadCatalog() }
-    }
-
-    private func line(_ title: LocalizedStringKey, _ value: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text(title).foregroundStyle(Palette.secondary)
-            Spacer(minLength: 8)
-            Text(value).foregroundStyle(Palette.ink).multilineTextAlignment(.trailing).textSelection(.enabled)
-        }
-        .font(.subheadline)
     }
 }
 
@@ -208,7 +209,8 @@ struct RemoteChangesSheet: View {
 }
 
 /// The session's folder on the computer, read through the account's server: folders to walk
-/// and text files to read. Nothing is written, and nothing is kept on the phone.
+/// and text files to read, in a plain list like the Files app's. Nothing is written, and
+/// nothing is kept on the phone.
 struct RemoteFilesSheet: View {
     let deviceId: String
     let root: String
@@ -221,8 +223,10 @@ struct RemoteFilesSheet: View {
                 .navigationDestination(for: RemoteFileEntry.self) { entry in
                     if entry.isDirectory {
                         RemoteDirectoryPage(deviceId: deviceId, root: root, path: entry.path, title: entry.name)
+                            .closeButton(dismiss)
                     } else {
                         RemoteFilePage(deviceId: deviceId, root: root, entry: entry)
+                            .closeButton(dismiss)
                     }
                 }
         }
@@ -238,28 +242,48 @@ private struct RemoteDirectoryPage: View {
     @Environment(AppModel.self) private var app
     @State private var entries: [RemoteFileEntry]?
     @State private var failure: String?
+    @State private var query = ""
+
+    private var shown: [RemoteFileEntry] {
+        let needle = query.trimmingCharacters(in: .whitespaces)
+        guard let entries else { return [] }
+        return needle.isEmpty ? entries : entries.filter { $0.name.localizedCaseInsensitiveContains(needle) }
+    }
+
+    /// The folder as it reads from the project's root: `web-app/src/pages`.
+    private var location: String {
+        let base = (root as NSString).lastPathComponent
+        guard path.hasPrefix(root), path.count > root.count else { return base }
+        return base + path.dropFirst(root.count)
+    }
 
     var body: some View {
-        Group {
+        List {
+            if entries != nil {
+                Section {
+                    ForEach(shown) { entry in
+                        NavigationLink(value: entry) { row(entry) }
+                            .contextMenu {
+                                Button { copyToPasteboard(entry.path) } label: { Label("复制路径", systemImage: "doc.on.doc") }
+                            }
+                    }
+                } header: {
+                    Label(location, systemImage: "laptopcomputer")
+                        .font(.footnote)
+                        .textCase(nil)
+                        .lineLimit(1)
+                        .truncationMode(.head)
+                }
+            }
+        }
+        .listStyle(.plain)
+        .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "筛选此文件夹")
+        .overlay {
             if let entries {
                 if entries.isEmpty {
                     ContentUnavailableView("空文件夹", systemImage: "folder")
-                } else {
-                    List(entries) { entry in
-                        NavigationLink(value: entry) {
-                            HStack(spacing: 12) {
-                                Image(systemName: entry.isDirectory ? "folder" : "doc").foregroundStyle(Palette.secondary).frame(width: 22)
-                                Text(entry.name).font(.callout).foregroundStyle(Palette.ink).lineLimit(1).truncationMode(.middle)
-                                Spacer(minLength: 8)
-                                if let size = entry.size, !entry.isDirectory {
-                                    Text(Int64(size).formatted(.byteCount(style: .file))).font(.caption).foregroundStyle(Palette.faint)
-                                }
-                            }
-                            .frame(minHeight: 34)
-                        }
-                        .groupedRow()
-                    }
-                    .groupedList()
+                } else if shown.isEmpty {
+                    ContentUnavailableView.search(text: query)
                 }
             } else if let failure {
                 ContentUnavailableView {
@@ -273,12 +297,34 @@ private struct RemoteDirectoryPage: View {
                 ProgressView()
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Palette.background)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .task { if entries == nil { await load() } }
         .refreshable { await load() }
+    }
+
+    private func row(_ entry: RemoteFileEntry) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: entry.symbol)
+                .font(.title3)
+                .foregroundStyle(entry.isDirectory ? Palette.ink : Palette.secondary)
+                .frame(width: 30)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.name).font(.body).foregroundStyle(Palette.ink).lineLimit(1).truncationMode(.middle)
+                if let note = note(entry) {
+                    Text(note).font(.caption).foregroundStyle(Palette.secondary)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    /// 「12 KB · 3天前」 for a file, when it changed for a folder.
+    private func note(_ entry: RemoteFileEntry) -> String? {
+        let size = entry.isDirectory ? nil : entry.size.map { Int64($0).formatted(.byteCount(style: .file)) }
+        let changed = entry.modified.map { TimelineFormat.clock($0) }
+        let parts = [size, changed].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     private func load() async {
@@ -335,7 +381,7 @@ private struct RemoteFilePage: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Palette.background)
+        .background(Color(.systemBackground))
         .navigationTitle(entry.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

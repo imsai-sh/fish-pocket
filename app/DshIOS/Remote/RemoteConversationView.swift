@@ -153,6 +153,8 @@ struct RemoteConversationView: View {
                 case .files: RemoteFilesSheet(deviceId: model.meta?.deviceId ?? "", root: model.cwd ?? "")
                 }
             }
+            // These are pages to read and choose from, like 设置: the system's own lists.
+            .environment(\.systemLists, true)
             .sheetNotices()
         }
         .alert(takeoverAsk == true ? "接管这个会话？" : "交还这个会话？", isPresented: Binding(get: { takeoverAsk != nil }, set: { if !$0 { takeoverAsk = nil } }), presenting: takeoverAsk) { enable in
@@ -214,8 +216,10 @@ struct RemoteConversationView: View {
             }
             ForEach(model.notifications) { notice in RemoteNoticeLine(notice: notice, model: model) }
             if let block = model.sendBlock {
-                RemoteBlockBar(text: block, busy: model.loaded && model.online && model.takeover && !model.current,
-                               action: model.loaded && model.online && !model.takeover && model.canToggleTakeover ? ("接管", { takeoverAsk = true }) : nil)
+                let failed: Bool = if case .failed = model.link { true } else { false }
+                RemoteBlockBar(text: block, busy: !failed && model.loaded && model.online && model.takeover && !model.current,
+                               action: failed ? ("重试", { Task { await model.refresh() } })
+                                   : model.loaded && model.online && !model.takeover && model.canToggleTakeover ? ("接管", { takeoverAsk = true }) : nil)
             } else if model.loaded {
                 RemoteComposer(model: model, openOptions: { panel = .options })
                     .allowsHitTesting(presented(model) == nil)

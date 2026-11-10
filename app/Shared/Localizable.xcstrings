@@ -2575,22 +2575,6 @@
         }
       }
     },
-    "上次安装没成功，带上记录新开会话排查" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The last install didn't finish. Start a new session with its record to find out why"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La última instalación no terminó. Abre una sesión nueva con su registro para averiguar por qué"
-          }
-        }
-      }
-    },
     "上次回应没有完成，请重新选择。" : {
       "localizations" : {
         "en" : {
@@ -2603,6 +2587,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La última respuesta no se completó. Elige de nuevo."
+          }
+        }
+      }
+    },
+    "上次安装没成功，带上记录新开会话排查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last install didn't finish. Start a new session with its record to find out why"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La última instalación no terminó. Abre una sesión nueva con su registro para averiguar por qué"
           }
         }
       }
@@ -4097,6 +4097,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nombre de la sesión"
+          }
+        }
+      }
+    },
+    "会话在电脑上进行，接管后才能从这里发消息。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The session runs on the computer. Take it over to send messages from here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sesión se ejecuta en el ordenador. Tómala para enviar mensajes desde aquí."
           }
         }
       }
@@ -7739,18 +7755,18 @@
         }
       }
     },
-    "只读，在电脑上进行" : {
+    "只读" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Read-only; running on the computer"
+            "value" : "Read-only"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Solo lectura; se ejecuta en el ordenador"
+            "value" : "Solo lectura"
           }
         }
       }
@@ -7767,6 +7783,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Contenido interactivo · úsalo en la app web"
+          }
+        }
+      }
+    },
+    "可以从这里发消息。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can send messages from here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes enviar mensajes desde aquí."
           }
         }
       }
@@ -8779,6 +8811,22 @@
         }
       }
     },
+    "在插件详情页或安装失败时点一下，新会话会带上插件和安装记录帮你排查。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap once on a plugin's page or when an install fails. A new session opens with the plugin and its install record to help sort it out."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca una vez en la página de un complemento o cuando falle una instalación. Se abre una sesión nueva con el complemento y su registro de instalación para ayudarte a resolverlo."
+          }
+        }
+      }
+    },
     "在新窗口中打开" : {
       "localizations" : {
         "en" : {
@@ -8795,6 +8843,22 @@
         }
       }
     },
+    "在本机" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On This Device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En este dispositivo"
+          }
+        }
+      }
+    },
     "在浏览器打开，了解和下载" : {
       "localizations" : {
         "en" : {
@@ -8807,6 +8871,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ábrelo en el navegador para saber más y descargar"
+          }
+        }
+      }
+    },
+    "在电脑上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On a Computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En un ordenador"
           }
         }
       }
@@ -11202,18 +11282,18 @@
         }
       }
     },
-    "已接管，可以从这里发消息" : {
+    "已接管" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Taken over; you can send messages from here"
+            "value" : "Taken over"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tomada; puedes enviar mensajes desde aquí"
+            "value" : "Tomada"
           }
         }
       }
@@ -13460,22 +13540,6 @@
         }
       }
     },
-    "找不到或用不了？新开会话问问" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Can't find it or can't use it? Ask in a new session"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿No lo encuentras o no funciona? Pregunta en una sesión nueva"
-          }
-        }
-      }
-    },
     "扫码登录" : {
       "localizations" : {
         "en" : {
@@ -13488,6 +13552,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Iniciar sesión con código QR"
+          }
+        }
+      }
+    },
+    "找不到或用不了？新开会话问问" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't find it or can't use it? Ask in a new session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿No lo encuentras o no funciona? Pregunta en una sesión nueva"
           }
         }
       }
@@ -15645,6 +15725,22 @@
         }
       }
     },
+    "新会话，选择在本机还是电脑上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New session; choose this device or a computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva sesión; elige este dispositivo o un ordenador"
+          }
+        }
+      }
+    },
     "新功能" : {
       "localizations" : {
         "en" : {
@@ -16857,6 +16953,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El agente está procesando tu respuesta…"
+          }
+        }
+      }
+    },
+    "智能体正在工作…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The agent is working…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El agente está trabajando…"
           }
         }
       }
@@ -21992,6 +22104,28 @@
         }
       }
     },
+    "电脑上的 %@ 还没就绪（%@），请在电脑上的 Agents Anywhere 里看一下" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "电脑上的 %1$@ 还没就绪（%2$@），请在电脑上的 Agents Anywhere 里看一下"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ on the computer is not ready (%2$@). Check it in Agents Anywhere on the computer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ no está listo en el ordenador (%2$@). Revísalo en Agents Anywhere en el ordenador."
+          }
+        }
+      }
+    },
     "电脑上的 Codex、Claude Code 和 DeepSeek Harness 在干什么，这里都能看到：跟进进度、接着聊、回应审批和提问、随时打断。" : {
       "localizations" : {
         "en" : {
@@ -22036,6 +22170,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ruta completa en el ordenador, p. ej. /Users/me/project"
+          }
+        }
+      }
+    },
+    "电脑上的智能体现在收不了消息，可能还在启动。稍后点右上角的「重新同步」再试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The agent on the computer can’t take messages right now; it may still be starting. Try Resync from the menu at the top right in a moment."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El agente del ordenador no puede recibir mensajes ahora; puede que aún esté iniciándose. Prueba Volver a sincronizar en el menú de arriba a la derecha dentro de un momento."
           }
         }
       }
@@ -24583,22 +24733,6 @@
         }
       }
     },
-    "要重启引擎才会加载。%@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "It loads only after the engine restarts. %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solo se carga tras reiniciar el motor. %@"
-          }
-        }
-      }
-    },
     "要求修改…" : {
       "localizations" : {
         "en" : {
@@ -24611,6 +24745,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pedir cambios…"
+          }
+        }
+      }
+    },
+    "要重启引擎才会加载。%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It loads only after the engine restarts. %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se carga tras reiniciar el motor. %@"
           }
         }
       }
@@ -27624,6 +27774,22 @@
         }
       }
     },
+    "这种智能体的会话不能从这里发消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessions of this kind of agent can’t take messages from here"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las sesiones de este tipo de agente no admiten mensajes desde aquí"
+          }
+        }
+      }
+    },
     "这种智能体要先准备工作区，新会话请在 Agents Anywhere 里创建；创建后会出现在这里。" : {
       "localizations" : {
         "en" : {
@@ -27864,22 +28030,6 @@
         }
       }
     },
-    "远程控制（%lld 台在线）" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remote Control (%lld online)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Control remoto (%lld en línea)"
-          }
-        }
-      }
-    },
     "连接 GitHub 超时" : {
       "localizations" : {
         "en" : {
@@ -27972,6 +28122,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conexión"
+          }
+        }
+      }
+    },
+    "连接电脑" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect a computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectar un ordenador"
           }
         }
       }
@@ -29660,22 +29826,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "; "
-          }
-        }
-      }
-    },
-    "在插件详情页或安装失败时点一下，新会话会带上插件和安装记录帮你排查。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap once on a plugin's page or when an install fails. A new session opens with the plugin and its install record to help sort it out."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toca una vez en la página de un complemento o cuando falle una instalación. Se abre una sesión nueva con el complemento y su registro de instalación para ayudarte a resolverlo."
           }
         }
       }
