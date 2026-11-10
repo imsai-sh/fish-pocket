@@ -290,6 +290,22 @@ extension View {
     }
 }
 
+extension GeometryProxy {
+    /// iPhone Duo's fold while the device is partly open: the strip it takes out of this view,
+    /// in the view's own coordinates. Nil when the device is flat or closed, when the fold
+    /// misses this view, and on everything that does not fold.
+    var fold: CGRect? {
+        // Reserved regions came with the iOS 27.1 SDK (SwiftUI 8.1): Xcode 26 still builds the app.
+        #if canImport(SwiftUI, _version: 8.1)
+        guard #available(iOS 27.1, *) else { return nil }
+        let bounds = CGRect(origin: .zero, size: size)
+        return reservedRegions(kind: .division).map(\.frame).first { $0.intersects(bounds) }
+        #else
+        return nil
+        #endif
+    }
+}
+
 /// Lines past this are hard to follow, and a window can be far wider.
 let readableColumnWidth: CGFloat = 760
 

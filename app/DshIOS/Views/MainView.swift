@@ -202,9 +202,10 @@ struct MainView: View {
             guard token != nil, scenePhase != .background, let request = app.newSessionRequest else { return }
             app.newSessionRequest = nil
             sheet = nil
+            storeOpen = false
             let target = request.workspaceId.flatMap { id in app.workspaces.first { $0.id == id } } ?? workspace
             if let target { workspaceId = target.id }
-            newConversation(in: target, agentPreset: request.agentPreset, draft: request.draft)
+            newConversation(in: target, agentPreset: request.agentPreset, draft: request.draft, prompt: request.prompt)
             setDrawer(false)
         }
         .onChange(of: app.credentialRequest?.token) { _, token in
@@ -319,18 +320,32 @@ struct MainView: View {
 
     private var split: some View {
         NavigationSplitView(columnVisibility: $sidebar) {
+            // The system's sidebar button stays. Removed, a split view too narrow for both
+            // columns (iPhone Duo open and held upright) has no way to put the sidebar away,
+            // and its layout never settles: the app hangs there and on the next rotation.
+            // A width that follows the fold hangs it the same way, on the one layout pass
+            // where the window has turned and the width has not. These fit every pose.
             drawer.navigationSplitViewColumnWidth(min: 280, ideal: 320, max: 360)
                 .toolbar(.hidden, for: .navigationBar)
-                .toolbar(removing: .sidebarToggle)
         } detail: {
-            if storeOpen {
-                NavigationStack { PluginStoreView(openSidebar: toggleSidebar) }
-            } else {
-                NavigationStack { conversation(openDrawer: toggleSidebar) }
+            Group {
+                if storeOpen {
+                    NavigationStack { PluginStoreView(openSidebar: hideSidebar) }
+                } else {
+                    NavigationStack { conversation(openDrawer: hideSidebar) }
+                }
             }
+            .modifier(PastTheFold())
         }
-        // Side by side at any width: the sidebar never floats over the conversation.
+        // Side by side wherever both fit. Where they do not, the system keeps the sidebar
+        // away and its button slides it over the conversation.
         .navigationSplitViewStyle(.balanced)
+    }
+
+    /// Our button puts a shown sidebar away. A hidden one comes back with the system's
+    /// button, which takes the same place in the bar: one of the two at a time.
+    private var hideSidebar: (() -> Void)? {
+        sidebar == .detailOnly ? nil : toggleSidebar
     }
 
     private var windowCommands: WindowCommands {
@@ -368,6 +383,9 @@ struct MainView: View {
     private var drawerLayout: some View {
         GeometryReader { geometry in
             let width = min(326, geometry.size.width - 64)
+            // Closed, the drawer has to clear the leading safe area too: in landscape that strip
+            // (the camera's side) is on screen, and the drawer's edge would show in it.
+            let travel = width + geometry.safeAreaInsets.leading
             let progress = min(1, max(0, (drawerOpen ? 1 : 0) + drag / width))
             ZStack(alignment: .leading) {
                 NavigationStack { conversation(openDrawer: { setDrawer(true) }) }
@@ -382,7 +400,7 @@ struct MainView: View {
                     .accessibilityHidden(!drawerOpen)
                 drawer
                     .frame(width: width)
-                    .offset(x: (progress - 1) * width)
+                    .offset(x: (progress - 1) * travel)
                     .accessibilityHidden(!drawerOpen)
             }
             .coordinateSpace(.named(DrawerRowFrames.space))
@@ -509,7 +527,7 @@ struct MainView: View {
     }
 
     /// Open a blank conversation in `workspace` (the engine reuses a blank one there).
-    private func newConversation(in workspace: Workspace?, agentPreset: String? = nil, draft: String? = nil, focus: Bool = false) {
+    private func newConversation(in workspace: Workspace?, agentPreset: String? = nil, draft: String? = nil, prompt: String? = nil, focus: Bool = false) {
         guard let workspace, !creating else { return }
         creating = true
         Task {
@@ -517,11 +535,29 @@ struct MainView: View {
             do {
                 let id = try await app.createSession(in: workspace, agentPreset: agentPreset)
                 if let draft { app.pendingDrafts[id] = draft }
+                if let prompt { app.pendingPrompts[id] = prompt }
                 if focus { app.pendingFocus.insert(id) }
                 selection = id
             }
             catch { app.showToast(String(localized: "新建会话失败：\(error.localizedDescription)"), tone: .warning, duration: 6) }
         }
+    }
+}
+
+/// iPhone Duo held partly open like a book, the sidebar on the near page: the column beside
+/// it starts on the far page, so nothing in it is read across the fold. A column the fold
+/// cuts down the middle (the sidebar is away) stays whole: half a display would be left empty.
+private struct PastTheFold: ViewModifier {
+    @State private var inset: CGFloat = 0
+
+    func body(content: Content) -> some View {
+        content
+            .padding(.leading, inset)
+            .background(Palette.background)
+            .onGeometryChange(for: CGFloat.self) { proxy in
+                guard let fold = proxy.fold, fold.height > fold.width, fold.midX < proxy.size.width / 2 else { return 0 }
+                return max(0, fold.maxX)
+            } action: { inset = $0 }
     }
 }
 

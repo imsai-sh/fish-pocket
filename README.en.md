@@ -7,11 +7,11 @@
 <h1 align="center">DSH (DeepSeek Harness) running on your iPhone and iPad, with a fully native interface</h1>
 
 <p align="center">
-  <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI.</b>
+  <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI for a native experience on both iPhone and iPad.</b>
 </p>
 
 <p align="center">
-  <b>The agent can also use what your iPhone already has: Calendar, Reminders, Health, Photos and Maps.</b>
+  <b>It matches the official DSH Web UI feature for feature, and the agent can also use what your iPhone already has: Calendar, Reminders, Health, Photos and Maps.</b>
 </p>
 
 <p align="center">Want an agent in your pocket too? <a href="https://testflight.apple.com/join/2SCftb2M"><b>Join the TestFlight beta</b></a> (recommended, available worldwide) or <a href="https://apps.apple.com/app/id6830703602">get it on the App Store</a> (outside mainland China), and a ⭐ helps.</p>
@@ -43,9 +43,10 @@ https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
 ## What it does
 
 - **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
+- **Everything the official Web UI does.** Chat, tool calls, file editing, search, plan mode, approvals, subagents, scheduled tasks and plugins: what the official DSH Web UI can do, this can do.
 - **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
-- **A complete agent.** Chat, tool calls, file editing, search, plan mode and approvals, matching the official Web UI's features.
-- **A terminal that works.** Built-in bash, `node`, `pnpm` and `git`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
+- **A terminal that works.** Built-in bash, `node`, `pnpm`, `python3`, `pip` and `git`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
+- **Built-in Python.** Python 3.15 is embedded in the app with the full standard library. `pip install` works for pure-Python packages, and so does `venv`. Packages with compiled extensions (numpy, pandas and the like) do not install yet.
 - **Built-in Git.** Statically linked libgit2, no child processes. `clone`, `commit`, `branch`, `merge`, `stash`, `pull`, `push` and the rest of everyday git work, with output that matches real git so the agent reads it as usual. Private repositories authenticate over HTTPS with a token.
 - **A built-in DSH plugin store.** A DSH ecosystem plugin market comes preset: browse and search on the phone, install with one tap, and the plugin is ready to use, no computer involved. Add store sources you trust under Index Sources, or install pure JavaScript plugins straight from npm.
 - **A workbench.** Terminal, file preview, built-in browser and change review in one panel.
@@ -65,6 +66,10 @@ The engine runs on the phone, so the agent can use what your iPhone already has.
 
 You turn on each one yourself under Device capabilities in the sidebar, and the agent cannot use what is off. Once on, plugins you install can use it too, and there is a record of what was used.
 
+## Compared with the official DSH Web UI
+
+The features match the official DSH Web UI: what it can do, this can do, with the interface rebuilt from scratch in SwiftUI and adapted separately for iPhone and iPad. On top of that come things the official client does not have: device capabilities, the Dynamic Island and Lock Screen Live Activities, widgets, Siri and Shortcuts, tasks that continue in the background, and multiple windows on iPad.
+
 ## Compared with other approaches
 
 Remote clients need a computer left running. Fish Pocket does not: the engine lives on your phone, ready anytime, anywhere. Among approaches that run right on the phone, it is also the fastest today: Node, Git and Python all run as native code, with no emulator in between.
@@ -76,7 +81,7 @@ Remote clients need a computer left running. Fish Pocket does not: the engine li
 | Computer must stay on | No: your phone is enough, anytime, anywhere | Yes, it has to stay on and online | No | No |
 | Dynamic Island and Lock Screen status | Yes | Depends on the project | Depends on the project | No |
 | Calendar, Reminders, Health and other device capabilities | Yes, each one turned on by you | Depends on the project | Depends on the project | No |
-| Full Linux tools | No, only built-in commands and Node | Yes | Depends on the project | Yes |
+| Full Linux tools | No, only built-in commands, Node and Python | Yes | Depends on the project | Yes |
 | Speed | Fastest of the on-phone approaches: Node, Git and Python run as native code | Depends on that computer | Depends on the project | Very slow: CPU instructions are interpreted one by one |
 
 ## Quick start
@@ -86,7 +91,7 @@ To install it, you need iOS 17 or later:
 - **TestFlight (recommended, available worldwide)**: open the [TestFlight beta link](https://testflight.apple.com/join/2SCftb2M) on your iPhone or iPad. New versions land here first and stay in step with this repository.
 - **App Store (outside mainland China)**: [download on the App Store](https://apps.apple.com/app/id6830703602). It is currently available outside mainland China only. Every App Store version has to wait for Apple's review, so it lags behind TestFlight and this repository.
 
-To build it yourself, you need macOS, Xcode 26, Node 24 and `xcodegen`, plus `cmake` or `uv` to build libgit2.
+To build it yourself, you need macOS, Xcode 26 or later, Node 24 and `xcodegen`, plus `cmake` or `uv` to build libgit2. Filling the screen on iPhone Duo takes Xcode 27.1 or later: a build from an earlier Xcode runs there at the size of an ordinary iPhone.
 
 ```bash
 git clone https://github.com/imsai-sh/fish-pocket.git
@@ -96,7 +101,7 @@ git clone https://github.com/imsai-sh/fish-pocket.git
 cd fish-pocket && scripts/run-sim.sh
 ```
 
-The script downloads nodejs-mobile, builds libgit2, assembles the engine, then installs and runs the app on a simulator. The default device is `iPhone 17 Pro`; set `SIM_DEVICE` to choose another.
+The script downloads nodejs-mobile and Python, builds libgit2, assembles the engine, then installs and runs the app on a simulator. The default device is `iPhone 17 Pro`; set `SIM_DEVICE` to choose another.
 
 To run on a device, replace `com.wsw.dsh-ios` in `app/project.yml` and `scripts/run-device.sh` with your own bundle ID, then run:
 
@@ -106,7 +111,7 @@ DEVELOPMENT_TEAM=<your team id> scripts/run-device.sh
 
 ## How it works
 
-iOS does not let apps create child processes or run downloaded binaries. Instead of emulating a Linux machine, this project embeds Node in the app and swaps DSH's "execution world" through the engine's own service seams. Not a single engine file is modified.
+iOS does not let apps create child processes or run downloaded binaries. Instead of emulating a Linux machine, this project embeds Node and Python in the app and swaps DSH's "execution world" through the engine's own service seams. Not a single engine file is modified.
 
 <p align="center">
   <picture>
@@ -133,13 +138,17 @@ We took the 50 most-downloaded community DSH plugins as a sample and ran each on
 
 Fish Pocket is an open-source iOS app that puts the whole DeepSeek Harness (DSH) agent engine on your iPhone and iPad and runs it on the device. There is no computer to connect and no server to rent, and the interface is rebuilt natively in SwiftUI.
 
+### How is Fish Pocket different from the official DSH Web UI?
+
+The features match: what the official Web UI can do, Fish Pocket can do. The differences are that the engine runs on the phone or tablet itself, with no computer left on; the interface is rebuilt in SwiftUI for a native experience on iPhone and iPad; and it adds device capabilities, the Dynamic Island, widgets, Siri and multiple windows on iPad, none of which the official client has.
+
 ### Do I need to keep a computer running?
 
 No. Remote clients need a computer that stays on and online. Fish Pocket runs the engine inside the app, so your phone is enough. Only model calls need a network connection.
 
 ### Is Fish Pocket free?
 
-Yes. The app is free and the code is open source under the MIT license. Model calls use your own DeepSeek account or API key, and the model provider bills you directly, not Fish Pocket.
+Yes. The app is free and the code is open source under the MIT license; commercial use needs authorization first, see [License](#license). Model calls use your own DeepSeek account or API key, and the model provider bills you directly, not Fish Pocket.
 
 ### Where is it available?
 
@@ -173,6 +182,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [ ] Define plugin compatibility tiers and an adaptation guide ([#4](https://github.com/imsai-sh/fish-pocket/issues/4))
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
 - [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more
+- [x] Built-in Python 3.15, with pip and venv
 - [x] Remote control: manage the Codex, Claude Code and DSH sessions on your computers from the phone (through Agents Anywhere)
 - [ ] Move the bash interpreter off the engine thread
 - [ ] Bot mode: hand tasks to the agent in your pocket from a chat
@@ -191,6 +201,7 @@ Fish Pocket also stands on the shoulders of these projects.
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): the engine, and the reason any of this exists
 - [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) and its [digidem fork](https://github.com/digidem/nodejs-mobile): Node 24 on iOS
+- [CPython](https://github.com/python/cpython): the official python.org iOS build, Python inside the app
 - [just-bash](https://github.com/vercel-labs/just-bash): a bash interpreter written in TypeScript
 - [libgit2](https://github.com/libgit2/libgit2): git inside the app
 - [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm): the terminal view
@@ -200,6 +211,7 @@ Fish Pocket also stands on the shoulders of these projects.
 
 - [dsh-mobile](https://github.com/saya-ch/dsh-mobile): remote access for DSH
 - [a-Shell](https://github.com/holzschu/a-shell): proof that iOS can have a genuinely useful local terminal
+- [OpenMinis](https://github.com/OpenMinis/OpenMinis): an AI agent that runs on the phone; our device capability categories and permission levels follow its design
 
 Thanks also to the DSH community, whose fan works gave us the "big fat fish" nickname. The whale girl mascot comes from the original character by [上善无形](https://space.bilibili.com/4456176) and the maid redesign by [ZipZipPipe](https://www.pixiv.net/artworks/148186519). Third-party licenses are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
@@ -214,9 +226,17 @@ Other open source projects:
 
 ## License
 
-The code is [MIT](LICENSE).
+**Use it yourself however you like, with no restrictions.** Download, build, read and modify the code for your own use without telling anyone. The same goes for pull requests to this repository.
 
-The mascot images (app icon, launch image and README header) are not covered by MIT. They are based on other people's work and used under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), so **commercial use is not allowed**. If you use this code commercially, replace those images first. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The code is [MIT](LICENSE). Three additional terms apply only when you use it commercially or publicly release a modified version:
+
+1. **Get authorization before commercial use.** Selling Fish Pocket or a modified version of it, charging for copies, adding in-app purchases or advertising, or including it in a paid product or service needs written authorization from the author first. [Open an issue](https://github.com/imsai-sh/fish-pocket/issues) to ask. Doing your own work with the app is not commercial use.
+2. **Open an issue before publishing a modified version.** [Open an issue](https://github.com/imsai-sh/fish-pocket/issues) saying what you changed, what it is for and how you plan to distribute it.
+3. **Say where it came from, and use your own name.** A modified version must state that it is based on Fish Pocket and link to this repository, use its own name and icon, and not be released as the official version.
+
+The exact wording is at the end of [LICENSE](LICENSE).
+
+The mascot images (app icon, launch image and README header) are not covered by MIT. They are based on other people's work and used under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), so **commercial use is not allowed**. Even with commercial authorization, replace those images first. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ---
 

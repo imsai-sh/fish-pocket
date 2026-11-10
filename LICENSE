@@ -19,3 +19,45 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+--------------------------------------------------------------------------------
+
+Additional Terms
+
+Personal use is welcome and unrestricted. You may download, build, run, read
+and modify the Software for your own use however you like, without asking or
+telling anyone, and you may fork this repository to send a pull request back
+to it. The terms below apply only to commercial use and to publicly
+distributing a modified version.
+
+The following terms apply in addition to the MIT License above. Where they
+conflict with it, these terms prevail. "Author" means the copyright holder
+named above.
+
+1. Commercial use requires authorization.
+   Making money from the Software itself, modified or not, requires prior
+   written authorization from the Author. This covers selling it or charging
+   for copies, builds or access; distributing it with paid features,
+   subscriptions, in-app purchases or advertising; and including it in a paid
+   product or service. Using the app to do your own work, including paid work
+   and work at a company, is not commercial use. To ask for authorization,
+   open an issue at https://github.com/imsai-sh/fish-pocket/issues.
+
+2. Open an issue before publishing a modified version.
+   Before you publicly distribute a modified version of the Software or a
+   work derived from it (for example on an app store, through TestFlight or
+   as a downloadable build), open an issue at
+   https://github.com/imsai-sh/fish-pocket/issues that says what you are
+   changing, what it is for and how it will be distributed.
+
+3. Say where it came from, and use your own name.
+   A published modified version must state clearly that it is based on Fish
+   Pocket, with a link to https://github.com/imsai-sh/fish-pocket. It must use
+   its own name and icon, and must not present itself as the official version
+   or as the Author's work. No rights are granted in the name "Fish Pocket",
+   the app icon or the mascot artwork; the mascot artwork is based on other
+   people's work and is used under CC BY-NC-SA 4.0, see
+   THIRD_PARTY_NOTICES.md.
+
+Third-party components listed in THIRD_PARTY_NOTICES.md keep their own
+licenses and are not covered by this file.

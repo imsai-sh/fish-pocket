@@ -2575,6 +2575,22 @@
         }
       }
     },
+    "上次安装没成功，带上记录新开会话排查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last install didn't finish. Start a new session with its record to find out why"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La última instalación no terminó. Abre una sesión nueva con su registro para averiguar por qué"
+          }
+        }
+      }
+    },
     "上次回应没有完成，请重新选择。" : {
       "localizations" : {
         "en" : {
@@ -2811,6 +2827,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El paquete descargado no pasó la verificación de integridad"
+          }
+        }
+      }
+    },
+    "下面是 App 记录的插件和安装信息：" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Here is what the app recorded about the plugin and its install:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto es lo que la app registró sobre el complemento y su instalación:"
           }
         }
       }
@@ -3183,6 +3215,22 @@
         }
       }
     },
+    "主页：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homepage: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Página principal: %@"
+          }
+        }
+      }
+    },
     "了解更多" : {
       "localizations" : {
         "en" : {
@@ -3499,6 +3547,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acerca de"
+          }
+        }
+      }
+    },
+    "介绍一下插件「%@」：它是做什么的、怎么用、装到这台设备上能不能正常用。需要的话去读它的说明文档和源代码。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell me about the plugin “%@”: what it does, how to use it, and whether it will work on this device. Read its documentation and source code if you need to."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Háblame del complemento «%@»: qué hace, cómo se usa y si funcionará en este dispositivo. Lee su documentación y su código fuente si hace falta."
           }
         }
       }
@@ -9643,6 +9707,38 @@
         }
       }
     },
+    "安装日志：" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install log:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registro de instalación:"
+          }
+        }
+      }
+    },
+    "安装来源：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed from: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalado desde: %@"
+          }
+        }
+      }
+    },
     "安装源" : {
       "localizations" : {
         "en" : {
@@ -9655,6 +9751,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Registro"
+          }
+        }
+      }
+    },
+    "安装源：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registry: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registro: %@"
           }
         }
       }
@@ -10604,6 +10716,22 @@
         }
       }
     },
+    "已允许的安装脚本：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install scripts allowed: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts de instalación permitidos: %@"
+          }
+        }
+      }
+    },
     "已允许运行安装脚本：%@" : {
       "localizations" : {
         "en" : {
@@ -10958,6 +11086,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Completado en "
+          }
+        }
+      }
+    },
+    "已尝试的安装源：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registries tried: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros probados: %@"
           }
         }
       }
@@ -11682,6 +11826,22 @@
         }
       }
     },
+    "带上这次的安装记录，新开会话排查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a new session with this install's record to find out why"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre una sesión nueva con el registro de esta instalación para averiguar por qué"
+          }
+        }
+      }
+    },
     "并行工具调用数" : {
       "localizations" : {
         "en" : {
@@ -11988,6 +12148,22 @@
         }
       }
     },
+    "引擎报告：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engine report: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informe del motor: %@"
+          }
+        }
+      }
+    },
     "引擎拒绝了登录令牌" : {
       "localizations" : {
         "en" : {
@@ -12064,6 +12240,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Versión del motor"
+          }
+        }
+      }
+    },
+    "引擎的诊断：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engine diagnostic: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnóstico del motor: %@"
           }
         }
       }
@@ -12788,6 +12980,54 @@
         }
       }
     },
+    "我安装插件「%@」后没有拿到结果。帮我确认它装上了没有，没装上就找出原因。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I installed the plugin “%@” but never got a result. Check whether it is installed, and if it isn't, find out why."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalé el complemento «%@» pero no recibí ningún resultado. Comprueba si está instalado y, si no lo está, averigua por qué."
+          }
+        }
+      }
+    },
+    "我安装插件「%@」失败了。帮我找出原因，能修好就直接修，修不了就告诉我该怎么办。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installing the plugin “%@” failed. Find out why. Fix it if you can; if you can't, tell me what to do."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La instalación del complemento «%@» ha fallado. Averigua por qué. Arréglalo si puedes; si no, dime qué hacer."
+          }
+        }
+      }
+    },
+    "我装了插件「%@」，但找不到它，也不知道怎么用。告诉我它在哪里、怎么用；如果它没有生效，帮我查出原因。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I installed the plugin “%@” but can't find it and don't know how to use it. Tell me where it is and how to use it. If it isn't working, find out why."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalé el complemento «%@» pero no lo encuentro ni sé cómo usarlo. Dime dónde está y cómo se usa. Si no funciona, averigua por qué."
+          }
+        }
+      }
+    },
     "所有安装源都无法连接（已尝试：%@）。请检查网络或代理设置，或更换安装源后重试。" : {
       "localizations" : {
         "en" : {
@@ -13216,6 +13456,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Escanea para saber más y descargar"
+          }
+        }
+      }
+    },
+    "找不到或用不了？新开会话问问" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't find it or can't use it? Ask in a new session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿No lo encuentras o no funciona? Pregunta en una sesión nueva"
           }
         }
       }
@@ -13973,6 +14229,28 @@
         }
       }
     },
+    "插件列表报告的错误：%@%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error reported by the plugin list: %1$@%2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error indicado por la lista de complementos: %1$@%2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "插件列表报告的错误：%1$@%2$@"
+          }
+        }
+      }
+    },
     "插件和终端都能直接运行 Python 脚本，不用另外安装。" : {
       "localizations" : {
         "en" : {
@@ -14231,6 +14509,22 @@
         }
       }
     },
+    "插件的事，一键询问 AI" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask AI about any plugin"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pregunta a la IA sobre cualquier complemento"
+          }
+        }
+      }
+    },
     "插件管理所需，不能停用或卸载" : {
       "localizations" : {
         "en" : {
@@ -14291,6 +14585,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Configuración de complementos"
+          }
+        }
+      }
+    },
+    "插件：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plugin: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complemento: %@"
           }
         }
       }
@@ -15561,6 +15871,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Añadir este evento?"
+          }
+        }
+      }
+    },
+    "新开会话，问它是做什么的、能不能用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What does it do, and will it work here? Ask in a new session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué hace y funcionará aquí? Pregunta en una sesión nueva"
           }
         }
       }
@@ -21282,6 +21608,22 @@
         }
       }
     },
+    "源代码：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Source code: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Código fuente: %@"
+          }
+        }
+      }
+    },
     "点一下就开始新对话。" : {
       "localizations" : {
         "en" : {
@@ -21390,6 +21732,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Estado desconocido"
+          }
+        }
+      }
+    },
+    "状态：已停用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status: disabled"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado: desactivado"
+          }
+        }
+      }
+    },
+    "状态：已启用，但没有在运行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status: enabled, but not running"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado: activado, pero no se está ejecutando"
+          }
+        }
+      }
+    },
+    "状态：已启用，正在运行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status: enabled and running"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado: activado y en ejecución"
+          }
+        }
+      }
+    },
+    "状态：未安装" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status: not installed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado: no instalado"
+          }
+        }
+      }
+    },
+    "状态：未安装，这个版本与当前 DSH 不兼容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status: not installed. This version is not compatible with the current DSH"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado: no instalado. Esta versión no es compatible con el DSH actual"
           }
         }
       }
@@ -22670,6 +23092,22 @@
         }
       }
     },
+    "等待允许的安装脚本：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install scripts waiting to be allowed: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts de instalación pendientes de permiso: %@"
+          }
+        }
+      }
+    },
     "等待回答" : {
       "localizations" : {
         "en" : {
@@ -22794,6 +23232,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filtrar componentes"
+          }
+        }
+      }
+    },
+    "简介：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summary: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumen: %@"
           }
         }
       }
@@ -23083,6 +23537,28 @@
         }
       }
     },
+    "组件 %@：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Component %1$@: %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Componente %1$@: %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "组件 %1$@：%2$@"
+          }
+        }
+      }
+    },
     "组件停用失败：%@" : {
       "localizations" : {
         "en" : {
@@ -23271,6 +23747,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Resultado"
+          }
+        }
+      }
+    },
+    "结果：安装失败。%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Result: install failed. %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultado: la instalación ha fallado. %@"
+          }
+        }
+      }
+    },
+    "结果：已安装。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Result: installed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultado: instalado."
+          }
+        }
+      }
+    },
+    "结果：未知，引擎里已经没有这次安装任务。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Result: unknown. The engine no longer has this install task."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultado: desconocido. El motor ya no tiene esta tarea de instalación."
           }
         }
       }
@@ -24059,6 +24583,22 @@
         }
       }
     },
+    "要重启引擎才会加载。%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It loads only after the engine restarts. %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se carga tras reiniciar el motor. %@"
+          }
+        }
+      }
+    },
     "要求修改…" : {
       "localizations" : {
         "en" : {
@@ -24552,6 +25092,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Probar otra forma"
+          }
+        }
+      }
+    },
+    "询问 AI" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask AI"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preguntar a la IA"
           }
         }
       }
@@ -26072,6 +26628,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La ejecución falló"
+          }
+        }
+      }
+    },
+    "运行失败的安装脚本：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install scripts that failed: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts de instalación que han fallado: %@"
           }
         }
       }
@@ -29088,6 +29660,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "; "
+          }
+        }
+      }
+    },
+    "在插件详情页或安装失败时点一下，新会话会带上插件和安装记录帮你排查。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap once on a plugin's page or when an install fails. A new session opens with the plugin and its install record to help sort it out."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca una vez en la página de un complemento o cuando falle una instalación. Se abre una sesión nueva con el complemento y su registro de instalación para ayudarte a resolverlo."
           }
         }
       }

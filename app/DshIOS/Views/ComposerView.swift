@@ -213,6 +213,9 @@ struct ComposerView: View {
     /// Text the shell put here (创建你的插件…): added to the draft, not sent.
     var pendingDraft: String?
     var consumeDraft: () -> Void = {}
+    /// A question the shell wrote for the reader (询问 AI): put in the input, not sent.
+    var pendingPrompt: String?
+    var consumePrompt: () -> Void = {}
     /// Take the keyboard once shown (`dsh://new` from a widget).
     var focusOnAppear = false
     var consumeFocus: () -> Void = {}
@@ -260,6 +263,11 @@ struct ComposerView: View {
             guard let pendingDraft else { return }
             composer.text = composer.text.isEmpty ? pendingDraft : composer.text + "\n" + pendingDraft
             consumeDraft()
+        }
+        .task(id: pendingPrompt) {
+            guard let pendingPrompt else { return }
+            consumePrompt()
+            composer.place(prompt: pendingPrompt)
         }
         .task(id: focusOnAppear) {
             guard focusOnAppear else { return }

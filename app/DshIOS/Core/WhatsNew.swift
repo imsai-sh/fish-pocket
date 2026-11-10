@@ -36,7 +36,7 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
-        Release(version: "1.1.0", build: 26, features: [
+        Release(version: "1.1.0", build: 30, features: [
             Feature(symbol: "laptopcomputer.and.iphone",
                     title: "在手机上管电脑里的智能体",
                     detail: "登录 Agents Anywhere 后，电脑上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在侧边栏，和本机会话放在一起。"),
@@ -46,6 +46,11 @@ enum WhatsNew {
             Feature(symbol: "rectangle.stack",
                     title: "按设备、项目或时间整理会话",
                     detail: "侧边栏可以按设备分组，每条会话标明是哪台电脑、哪个智能体。入口在「设置 → 远程控制」。"),
+        ]),
+        Release(version: "1.1.0", build: 25, features: [
+            Feature(symbol: "sparkles",
+                    title: "插件的事，一键询问 AI",
+                    detail: "在插件详情页或安装失败时点一下，新会话会带上插件和安装记录帮你排查。"),
         ]),
         Release(version: "1.1.0", build: 17, features: [
             Feature(symbol: "iphone",
