@@ -85,7 +85,8 @@ struct NewSessionRequest: Equatable {
     var agentPreset: String?
     /// Placed in the composer, not sent.
     var draft: String?
-    /// Sent as the conversation's first message (询问 AI).
+    /// A question written for the reader (询问 AI): placed in the composer for them to send,
+    /// in place of the last one left there unsent.
     var prompt: String?
 }
 
@@ -132,7 +133,7 @@ final class AppModel {
     var composerHeight: CGFloat = 0
     /// Composer text waiting for a session to show it (appended to any draft there).
     var pendingDrafts: [String: String] = [:]
-    /// A message waiting for a session to send it, around any draft there (询问 AI).
+    /// A written question waiting for a session's composer to show it (询问 AI).
     var pendingPrompts: [String: String] = [:]
     /// Sessions whose composer takes the keyboard when it appears (`dsh://new`).
     var pendingFocus: Set<String> = []
