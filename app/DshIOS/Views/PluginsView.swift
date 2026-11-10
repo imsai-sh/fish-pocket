@@ -202,7 +202,7 @@ struct PluginsView: View {
     private var content: some View {
         if manager.status == .unavailable {
             ContentUnavailableView("无法管理插件", systemImage: "puzzlepiece.extension", description: Text("当前无法安装或启停插件。"))
-                .background(Palette.background)
+                .pageBackground()
         } else if manager.marketEnabled {
             VStack(spacing: 0) {
                 Picker("插件视图", selection: $tab) {
@@ -214,7 +214,7 @@ struct PluginsView: View {
                 .padding(.vertical, 8)
                 if showingMarket { PluginMarketPage() } else { installedList }
             }
-            .background(Palette.background)
+            .pageBackground()
         } else {
             installedList
         }
@@ -393,6 +393,7 @@ private struct MoreExtensionsView: View {
 /// P-04: artwork, name, tags, one-liner and the state; the switch is on the detail page it opens.
 private struct PluginCard: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.systemLists) private var systemLists
     let package: PluginPackage
     @State private var confirmingUninstall = false
 
@@ -424,7 +425,8 @@ private struct PluginCard: View {
             }
             .padding(.vertical, 3)
         }
-        .listRowBackground(manager.highlight == package.name ? Palette.control : Palette.grouped)
+        // nil is the list's own row: the system's under 设置.
+        .listRowBackground(manager.highlight == package.name ? Palette.control : systemLists ? nil : Palette.grouped)
         .swipeActions {
             if package.removable && package.readOnlyReason == nil {
                 Button("卸载", role: .destructive) { confirmingUninstall = true }
