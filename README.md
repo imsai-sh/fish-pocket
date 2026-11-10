@@ -20,20 +20,25 @@
 
 https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
 
-## iOS
+## 看它干活
+
+<table>
+<tr>
+<td align="center" width="33%"><img src="docs/assets/demo-market.gif" width="250" alt="在插件市场里找到 cc-safety-net，安装并启用；回到对话后，智能体要执行 git reset --hard，被这个插件拦下"><br/><b>插件市场</b><br/><sub>在手机上装一个安全网插件，危险命令当场被拦下</sub></td>
+<td align="center" width="33%"><img src="docs/assets/demo-native.gif" width="250" alt="一句话让智能体把评审会加进系统日历，再建一条提醒，随后在日历 App 里看到这条日程"><br/><b>本机能力</b><br/><sub>说一句话，日程就进了系统日历，提醒也建好了</sub></td>
+<td align="center" width="33%"><img src="docs/assets/demo-widget.gif" width="250" alt="任务运行时回到主屏幕，小组件和灵动岛显示这个会话正在进行，点小组件回到会话"><br/><b>小组件和灵动岛</b><br/><sub>切到后台任务照样跑，进度在主屏幕上看</sub></td>
+</tr>
+</table>
 
 <p align="center">
-  <img src="docs/assets/tool.png" width="24%" alt="工具详情：命令和真实输出">
-  <img src="docs/assets/terminal.png" width="24%" alt="iPhone 上的终端：node 和 git 都在本机运行">
-  <img src="docs/assets/plugins.png" width="24%" alt="原生插件管理">
-  <img src="docs/assets/island.png" width="24%" alt="灵动岛显示任务进度">
+  <img src="docs/assets/demo-ipad.gif" width="840" alt="iPad 上两个 Fish Pocket 窗口并排，各自运行一个会话：左边给贪吃蛇加排行榜，右边初始化 Git 仓库并提交">
+  <br/>
+  <b>iPad 多窗口</b>
+  <br/>
+  <sub>两个窗口并排，各跑各的会话：左边改游戏，右边提交代码</sub>
 </p>
 
-## iPad
-
-<p align="center">
-  <img src="docs/assets/ipad.png" width="98%" alt="iPad 横屏：侧栏、对话和右侧工作台同屏">
-</p>
+<p align="center"><sub>以上都是实际运行的录屏，等待的部分剪掉或加了速。</sub></p>
 
 ## 能做什么
 

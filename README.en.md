@@ -20,20 +20,25 @@
 
 https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
 
-## iOS
+## See it work
+
+<table>
+<tr>
+<td align="center" width="33%"><img src="docs/assets/demo-market.gif" width="250" alt="Finding cc-safety-net in the plugin market, installing and enabling it; back in the chat, the agent tries to run git reset --hard and the plugin blocks it"><br/><b>Plugin market</b><br/><sub>Install a safety-net plugin on the phone, and a destructive command gets blocked</sub></td>
+<td align="center" width="33%"><img src="docs/assets/demo-native.gif" width="250" alt="One sentence makes the agent add a review meeting to the system Calendar and create a reminder; the event then shows in the Calendar app"><br/><b>Device capabilities</b><br/><sub>Say it once: the meeting is in Calendar and the reminder is set</sub></td>
+<td align="center" width="33%"><img src="docs/assets/demo-widget.gif" width="250" alt="Going to the Home Screen while a task runs: the widget and the Dynamic Island show the session in progress, and tapping the widget returns to it"><br/><b>Widgets and Dynamic Island</b><br/><sub>Tasks keep running in the background, with progress on the Home Screen</sub></td>
+</tr>
+</table>
 
 <p align="center">
-  <img src="docs/assets/tool.png" width="24%" alt="Tool details with the command and its real output">
-  <img src="docs/assets/terminal.png" width="24%" alt="Terminal on iPhone with node and git running locally">
-  <img src="docs/assets/plugins.png" width="24%" alt="Native plugin management">
-  <img src="docs/assets/island.png" width="24%" alt="Task progress in the Dynamic Island">
+  <img src="docs/assets/demo-ipad.gif" width="840" alt="Two Fish Pocket windows side by side on iPad, each running its own session: the left adds a leaderboard to a snake game, the right initializes a Git repository and commits">
+  <br/>
+  <b>Multiple windows on iPad</b>
+  <br/>
+  <sub>Two windows side by side, each with its own session: one edits a game, the other commits code</sub>
 </p>
 
-## iPad
-
-<p align="center">
-  <img src="docs/assets/ipad.png" width="98%" alt="iPad in landscape: sidebar, conversation and workbench side by side">
-</p>
+<p align="center"><sub>These are recordings of the app running, with waits cut or sped up. They show the Chinese interface; the app also comes in English and Spanish.</sub></p>
 
 ## What it does
 

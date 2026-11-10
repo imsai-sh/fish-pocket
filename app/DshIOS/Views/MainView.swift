@@ -208,13 +208,14 @@ struct MainView: View {
             Group {
                 switch sheet {
                 case .settings: SettingsView()
-                case .plugins: SheetStack { PluginsView() }
+                // Pages 设置 also holds look the same opened from here: the system's lists.
+                case .plugins: SheetStack { PluginsView() }.environment(\.systemLists, true)
                 case .store: SheetStack { PluginStoreView() }
-                case .schedules: SheetStack { SchedulesView(openSession: open(session:)) }
+                case .schedules: SheetStack { SchedulesView(openSession: open(session:)) }.environment(\.systemLists, true)
                 case .signIn: SignInSheet()
                 case .cordis: CordisPanelView(currentSession: selection)
                 case .share: SheetStack { ShareAppPage() }
-                case .capabilities: SheetStack { NativeCapabilitiesView() }
+                case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
                 }
             }
             .sheetNotices()
