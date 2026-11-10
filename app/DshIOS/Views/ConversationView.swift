@@ -41,6 +41,8 @@ struct ConversationView: View {
     @State private var composerFocused = false
     /// The new-conversation page's free height: a short one drops the headline.
     @State private var heroHeight: CGFloat = .infinity
+    /// iPhone Duo held partly open like a laptop: where the fold crosses that page.
+    @State private var heroFold: CGFloat?
     /// A status or composer sheet is up: approvals and questions present once it has gone
     /// (a second sheet can't stack on it, and one that failed to show would be lost).
     @State private var inputSheetUp = false
@@ -366,7 +368,7 @@ struct ConversationView: View {
     // MARK: New conversation
 
     private func hero(_ model: SessionModel) -> some View {
-        let showsHeadline = !keyboardUp && heroHeight >= 220
+        let showsHeadline = !keyboardUp && min(heroHeight, heroFold ?? .infinity) >= 220
         return VStack(spacing: 14) {
             if showsHeadline {
                 // The web's headline (`conversation.hero.headline`), so both shells greet the same way.
@@ -402,10 +404,15 @@ struct ConversationView: View {
             .padding(.top, 6)
         }
         .padding(.horizontal, 24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Centred in what is above the fold, when there is one.
+        .frame(maxWidth: .infinity, maxHeight: heroFold ?? .infinity)
+        .frame(maxHeight: .infinity, alignment: .top)
         .contentShape(Rectangle())
         .onTapGesture { dismissKeyboard() }
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+        .onGeometryChange(for: CGFloat?.self) { proxy in
+            proxy.fold.flatMap { $0.width > $0.height ? $0.minY : nil }
+        } action: { heroFold = $0 }
         .animation(.snappy(duration: 0.2), value: showsHeadline)
     }
 
