@@ -315,6 +315,7 @@ struct ConversationView: View {
                             selection = id
                         }
                     }
+                    .environment(\.systemLists, true)
                 case .logExport: SessionLogExportSheet(sessionId: sessionId)
                 }
             }
