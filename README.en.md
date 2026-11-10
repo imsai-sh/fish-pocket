@@ -18,8 +18,6 @@
 
 <p align="center"><a href="https://fish.deepseek1024.com/en/">Website</a> · <a href="README.md">中文</a></p>
 
-https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
-
 ## See it work
 
 <table>

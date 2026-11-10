@@ -18,8 +18,6 @@
 
 <p align="center"><a href="https://fish.deepseek1024.com">官网</a> · <a href="README.en.md">English</a></p>
 
-https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
-
 ## 看它干活
 
 <table>
