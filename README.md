@@ -4,10 +4,14 @@
 
 <h3 align="center">Fish Pocket</h3>
 
-<h1 align="center">在 iPhone 和 iPad 上本机运行 DeepSeek Harness，界面完全原生</h1>
+<h1 align="center">在 iPhone 和 iPad 上本机运行 DSH（DeepSeek Harness），界面完全原生</h1>
 
 <p align="center">
   <b>不连电脑，不连服务器，不是网页套壳。引擎就跑在 App 里，每个页面都用 SwiftUI 重写。</b>
+</p>
+
+<p align="center">
+  <b>智能体还能直接用 iPhone 自带的日历、提醒事项、健康、照片和地图。</b>
 </p>
 
 <p align="center">如果你也想把大肥鱼装进口袋，<a href="https://testflight.apple.com/join/2SCftb2M"><b>加入 TestFlight 公测</b></a>（推荐，全球可用）或<a href="https://apps.apple.com/app/id6830703602">从 App Store 下载</a>（非中国大陆），再点个 ⭐ 支持一下吧。</p>
@@ -33,6 +37,7 @@ https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
 
 ## 能做什么
 
+- **能用 iPhone 自带的能力：** 智能体直接查日历、建提醒、读健康数据、找联系人、搜地图，每一项都由你自己开启。见[本机能力](#本机能力)。
 - **完全原生的界面：** 对话、审批、工作台、插件和设置都用 SwiftUI 重写，交互按 iOS 习惯设计，不是把网页塞进 WebView。支持深色模式，可以跟随系统，也可以在设置里手动切换。官方 Web UI 也保留着，需要时可以在设置里打开。
 - **完整的 Agent：** 对话、工具调用、文件编辑、搜索、计划模式和审批，功能对齐官方 Web UI。
 - **真能用的终端：** 内置 bash、`node`、`pnpm`、`git`，还有 `rg`、`jq`、`curl`、`sed`、`awk` 等常用命令。
@@ -46,6 +51,14 @@ https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
 
 模型调用仍然需要联网，用 DeepSeek 账号或 API Key 都可以。
 
+## 本机能力
+
+引擎就跑在手机里，所以智能体能直接用 iPhone 自带的能力。说一句「明天下午 3 点约了牙医，记进日历，提前一小时提醒我」，日程和提醒就出现在系统自带的 App 里。
+
+**日历 · 提醒事项 · 闹钟 · 通讯录 · 健康 · 照片 · 文件 · 音乐 · 位置 · 地图 · 智能家居 · 邮件和短信**，还有图像识别、语音转写等本机识别。
+
+每一项都要你自己在侧边栏的「本机能力」里开启，没开的智能体用不了。开启后你装的插件也能用，用过哪些有记录可查。
+
 ## 和其他方案的区别
 
 远程客户端要电脑一直开着，Fish Pocket 不用：引擎就在手机里，掏出来随时随地都能用。在手机上直接运行的方案里，它也是目前最快的：Node、Git 和 Python 都是原生代码，不经过模拟器。
@@ -56,6 +69,7 @@ https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
 | 界面 | 完全原生 SwiftUI | 看具体项目 | 官方 Web UI | 终端或官方 Web UI |
 | 电脑要开着吗 | 不用，有手机就行，随时随地 | 要，电脑得一直开着联网 | 不用 | 不用 |
 | 灵动岛和锁屏状态 | 有 | 看具体项目 | 看具体项目 | 没有 |
+| 调用日历、提醒事项、健康等本机能力 | 能，逐项由你开启 | 看具体项目 | 看具体项目 | 不能 |
 | 完整的 Linux 工具 | 没有，只有内置命令和 Node | 有 | 看具体项目 | 有 |
 | 运行速度 | 手机上直接运行的方案里最快：Node、Git、Python 都是原生代码 | 取决于那台电脑 | 看具体项目 | 特别慢，CPU 指令要逐条解释执行 |
 
@@ -129,6 +143,10 @@ App 免费，代码以 MIT 协议开源。模型调用用你自己的 DeepSeek �
 
 不会传给我们：我们不运营任何服务器。会话和工作区留在你的设备上，模型请求直接发给你选择的服务商，详见[隐私政策](PRIVACY.md)。
 
+### 智能体能看到我的日历、健康数据和照片吗？
+
+只有你在「本机能力」里开启对应的那一项之后才能，没开的它用不了。用到时，读到的内容会随对话发给你选择的模型服务商。健康、通讯录和照片只读不写。
+
 ### 只能用 DeepSeek 的模型吗？
 
 默认使用 DeepSeek，用账号登录或者填 API Key 都可以，也可以配置其他模型服务商。
@@ -146,6 +164,7 @@ App 免费，代码以 MIT 协议开源。模型调用用你自己的 DeepSeek �
 - [x] 界面支持西班牙语（[#24](https://github.com/imsai-sh/fish-pocket/issues/24)），设置里可以直接切换界面语言
 - [ ] 确定插件兼容分级和适配规范（[#4](https://github.com/imsai-sh/fish-pocket/issues/4)）
 - [x] 预置第三方插件商店（[#5](https://github.com/imsai-sh/fish-pocket/issues/5)）
+- [x] 智能体可以使用 iPhone 的本机能力：日历、提醒事项、健康、照片、地图等
 - [ ] bash 解释器移出引擎线程
 - [ ] Bot 模式：在聊天里给口袋里的 Agent 派任务
 

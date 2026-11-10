@@ -1822,6 +1822,7 @@
       "shouldTranslate" : false
     },
     "iOS 不告诉 App 你允许了哪几项健康数据，所以这里只能说问过了。去「健康」App 的「共享」里可以逐项查看和更改。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3742,6 +3743,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Actividad"
+          }
+        }
+      }
+    },
+    "侧边栏新增「本机能力」，逐项开关，也能看到哪些能力被用过。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new Device capabilities page in the sidebar lets you switch each one on or off and see which ones were used."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La nueva página Funciones del dispositivo, en la barra lateral, te permite activar o desactivar cada una y ver cuáles se han usado."
           }
         }
       }
@@ -7570,6 +7587,22 @@
         }
       }
     },
+    "回复里带的图片会显示在对话中，不再只是一行链接。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Images in a reply now appear in the conversation instead of as a line of link text."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las imágenes de una respuesta ahora aparecen en la conversación, no como una línea de enlace."
+          }
+        }
+      }
+    },
     "回答" : {
       "localizations" : {
         "en" : {
@@ -10891,6 +10924,7 @@
       }
     },
     "开过之后要改或者收回，都在「设置」里。iOS 的授权框每个 App 一生只出现一次，拒绝之后也只能回那里打开。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15229,6 +15263,22 @@
         }
       }
     },
+    "智能体能用 iPhone 自带的能力" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The agent can use what your iPhone already has"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El agente puede usar lo que ya trae tu iPhone"
+          }
+        }
+      }
+    },
     "智能家居" : {
       "localizations" : {
         "en" : {
@@ -16601,6 +16651,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Buscar archivos"
+          }
+        }
+      }
+    },
+    "查日历、建提醒、定闹钟、找联系人、读健康数据，在对话里直接说就行。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your calendar, create reminders, set alarms, look up contacts, read health data. Just ask in the chat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consulta tu calendario, crea recordatorios, pon alarmas, busca contactos y lee datos de salud. Solo pídelo en el chat."
           }
         }
       }
@@ -18532,6 +18598,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Preguntar siempre"
+          }
+        }
+      }
+    },
+    "每项能力由你自己打开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You turn on each capability yourself"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tú activas cada función"
           }
         }
       }
@@ -21469,6 +21551,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudo fijar. Inténtalo de nuevo más tarde."
+          }
+        }
+      }
+    },
+    "聊天里直接显示图片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Images show up right in the chat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las imágenes se ven en el chat"
           }
         }
       }
