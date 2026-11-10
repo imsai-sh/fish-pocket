@@ -2381,6 +2381,22 @@
         }
       }
     },
+    "上次安装没成功，带上记录新开会话排查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last install didn't finish. Start a new session with its record to find out why"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La última instalación no terminó. Abre una sesión nueva con su registro para averiguar por qué"
+          }
+        }
+      }
+    },
     "上次打开" : {
       "localizations" : {
         "en" : {
@@ -10874,6 +10890,22 @@
         }
       }
     },
+    "带上这次的安装记录，新开会话排查" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a new session with this install's record to find out why"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre una sesión nueva con el registro de esta instalación para averiguar por qué"
+          }
+        }
+      }
+    },
     "并行工具调用数" : {
       "localizations" : {
         "en" : {
@@ -12412,6 +12444,22 @@
         }
       }
     },
+    "找不到或用不了？新开会话问问" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't find it or can't use it? Ask in a new session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿No lo encuentras o no funciona? Pregunta en una sesión nueva"
+          }
+        }
+      }
+    },
     "找不到该插件" : {
       "localizations" : {
         "en" : {
@@ -13249,6 +13297,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La interfaz del complemento no se muestra en la app"
+          }
+        }
+      }
+    },
+    "插件的事，一键询问 AI" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask AI about any plugin"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pregunta a la IA sobre cualquier complemento"
           }
         }
       }
@@ -14551,6 +14615,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Añadir este evento?"
+          }
+        }
+      }
+    },
+    "新开会话，问它是做什么的、能不能用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What does it do, and will it work here? Ask in a new session"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué hace y funcionará aquí? Pregunta en una sesión nueva"
           }
         }
       }
@@ -26760,66 +26840,18 @@
         }
       }
     },
-    "新开会话，问它是做什么的、能不能用" : {
+    "在插件详情页或安装失败时点一下，新会话会带上插件和安装记录帮你排查。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "What does it do, and will it work here? Ask in a new session"
+            "value" : "Tap once on a plugin's page or when an install fails. A new session opens with the plugin and its install record to help sort it out."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "¿Qué hace y funcionará aquí? Pregunta en una sesión nueva"
-          }
-        }
-      }
-    },
-    "上次安装没成功，带上记录新开会话排查" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The last install didn't finish. Start a new session with its record to find out why"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La última instalación no terminó. Abre una sesión nueva con su registro para averiguar por qué"
-          }
-        }
-      }
-    },
-    "找不到或用不了？新开会话问问" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Can't find it or can't use it? Ask in a new session"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿No lo encuentras o no funciona? Pregunta en una sesión nueva"
-          }
-        }
-      }
-    },
-    "带上这次的安装记录，新开会话排查" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start a new session with this install's record to find out why"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre una sesión nueva con el registro de esta instalación para averiguar por qué"
+            "value" : "Toca una vez en la página de un complemento o cuando falle una instalación. Se abre una sesión nueva con el complemento y su registro de instalación para ayudarte a resolverlo."
           }
         }
       }
