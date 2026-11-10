@@ -4,10 +4,14 @@
 
 <h3 align="center">Fish Pocket</h3>
 
-<h1 align="center">DeepSeek Harness running on your iPhone and iPad, with a fully native interface</h1>
+<h1 align="center">DSH (DeepSeek Harness) running on your iPhone and iPad, with a fully native interface</h1>
 
 <p align="center">
   <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI.</b>
+</p>
+
+<p align="center">
+  <b>The agent can also use what your iPhone already has: Calendar, Reminders, Health, Photos and Maps.</b>
 </p>
 
 <p align="center">Want an agent in your pocket too? <a href="https://testflight.apple.com/join/2SCftb2M"><b>Join the TestFlight beta</b></a> (recommended, available worldwide) or <a href="https://apps.apple.com/app/id6830703602">get it on the App Store</a> (outside mainland China), and a ⭐ helps.</p>
@@ -38,6 +42,7 @@ https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
 
 ## What it does
 
+- **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
 - **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
 - **A complete agent.** Chat, tool calls, file editing, search, plan mode and approvals, matching the official Web UI's features.
 - **A terminal that works.** Built-in bash, `node`, `pnpm` and `git`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
@@ -51,6 +56,14 @@ https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
 
 Model calls still need a network connection. Use a DeepSeek account or an API key.
 
+## Device capabilities
+
+The engine runs on the phone, so the agent can use what your iPhone already has. Say "dentist at 3 pm tomorrow, put it in my calendar and remind me an hour before", and the event and the reminder show up in Apple's own apps.
+
+**Calendar · Reminders · Alarms · Contacts · Health · Photos · Files · Music · Location · Maps · Smart Home · Mail & Messages**, plus on-device recognition such as image reading and transcription.
+
+You turn on each one yourself under Device capabilities in the sidebar, and the agent cannot use what is off. Once on, plugins you install can use it too, and there is a record of what was used.
+
 ## Compared with other approaches
 
 Remote clients need a computer left running. Fish Pocket does not: the engine lives on your phone, ready anytime, anywhere. Among approaches that run right on the phone, it is also the fastest today: Node, Git and Python all run as native code, with no emulator in between.
@@ -61,6 +74,7 @@ Remote clients need a computer left running. Fish Pocket does not: the engine li
 | Interface | Fully native SwiftUI | Depends on the project | Official Web UI | Terminal or official Web UI |
 | Computer must stay on | No: your phone is enough, anytime, anywhere | Yes, it has to stay on and online | No | No |
 | Dynamic Island and Lock Screen status | Yes | Depends on the project | Depends on the project | No |
+| Calendar, Reminders, Health and other device capabilities | Yes, each one turned on by you | Depends on the project | Depends on the project | No |
 | Full Linux tools | No, only built-in commands and Node | Yes | Depends on the project | Yes |
 | Speed | Fastest of the on-phone approaches: Node, Git and Python run as native code | Depends on that computer | Depends on the project | Very slow: CPU instructions are interpreted one by one |
 
@@ -134,6 +148,10 @@ The TestFlight beta is available worldwide, including mainland China. The App St
 
 Not to us: we run no servers. Sessions and workspaces stay on your device, and model requests go straight to the provider you choose. See the [privacy policy](PRIVACY.md).
 
+### Can the agent see my calendar, health data and photos?
+
+Only after you turn on that capability under Device capabilities. What is off it cannot use. When a capability is used, what it reads is sent with the conversation to the model provider you chose. Health, Contacts and Photos are read-only.
+
 ### Does it only work with DeepSeek models?
 
 It uses DeepSeek by default, with either a DeepSeek account or an API key, and you can configure other model providers.
@@ -151,6 +169,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Spanish UI ([#24](https://github.com/imsai-sh/fish-pocket/issues/24)), with the UI language switchable in Settings
 - [ ] Define plugin compatibility tiers and an adaptation guide ([#4](https://github.com/imsai-sh/fish-pocket/issues/4))
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
+- [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more
 - [ ] Move the bash interpreter off the engine thread
 - [ ] Bot mode: hand tasks to the agent in your pocket from a chat
 
