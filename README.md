@@ -18,8 +18,6 @@
 
 <p align="center"><a href="https://fish.deepseek1024.com">官网</a> · <a href="README.en.md">English</a></p>
 
-https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
-
 ## 看它干活
 
 <table>
@@ -36,6 +34,14 @@ https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
   <b>iPad 多窗口</b>
   <br/>
   <sub>两个窗口并排，各跑各的会话：左边改游戏，右边提交代码</sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/demo-duo.gif" width="840" alt="iPhone Duo 合上时在外屏让智能体用 Python 生成本月的日历，展开后同一个会话在内屏接着跑，左边多出会话侧栏，最后给出标好周末的日历">
+  <br/>
+  <b>iPhone Duo</b>
+  <br/>
+  <sub>合上时在外屏发起任务，展开后同一个会话接着跑，侧栏和对话并排</sub>
 </p>
 
 <p align="center"><sub>以上都是实际运行的录屏，等待的部分剪掉或加了速。</sub></p>
