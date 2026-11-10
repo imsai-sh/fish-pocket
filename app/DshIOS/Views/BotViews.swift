@@ -167,23 +167,22 @@ struct BotDrawerEntry: View {
         .accessibilityHint("打开 Bot 列表")
     }
 
-    /// The main Bot in front, up to two more behind it.
+    /// The main Bot in front, up to two more tucked behind it: one size, centres on one line.
     private var faces: some View {
         let team = app.botTeam
         let main = team.mainBot
         let others = team.bots.filter { $0.id != main?.id }.prefix(2)
         let shown = ([main].compactMap { $0 } + others)
-        return ZStack(alignment: .leading) {
+        return HStack(spacing: -12) {
             if shown.isEmpty {
-                Image("LaunchMark").resizable().scaledToFill().frame(width: 40, height: 40).clipShape(Circle())
+                Image("LaunchMark").resizable().scaledToFill().frame(width: 38, height: 38).clipShape(Circle())
             }
-            ForEach(Array(shown.enumerated().reversed()), id: \.element.id) { index, bot in
-                BotAvatar(bot: bot, size: index == 0 ? 40 : 30)
+            ForEach(Array(shown.enumerated()), id: \.element.id) { index, bot in
+                BotAvatar(bot: bot, size: 38)
                     .overlay(Circle().stroke(Palette.grouped, lineWidth: 2))
-                    .offset(x: index == 0 ? 0 : CGFloat(28 + (index - 1) * 18), y: index == 0 ? 0 : 7)
+                    .zIndex(Double(shown.count - index))
             }
         }
-        .frame(width: shown.count > 1 ? CGFloat(28 + (shown.count - 2) * 18 + 30) : 40, height: 44, alignment: .leading)
     }
 
     @ViewBuilder
@@ -344,6 +343,7 @@ struct BotHomeView: View {
     @Environment(AppModel.self) private var app
     let openDrawer: (() -> Void)?
     @State private var creating: CreateKind?
+    @State private var settingsOpen = false
     @State private var showHidden = false
     @State private var query = ""
     /// What was said in the Bots' own chats that holds the search words, newest first.
@@ -377,7 +377,7 @@ struct BotHomeView: View {
             if let openDrawer { ToolbarItem(placement: .topBarLeading) { DrawerButton(action: openDrawer) } }
             if team.status == .ready {
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink { BotTeamSettingsView() } label: { Image(systemName: "gearshape") }
+                    Button { settingsOpen = true } label: { Image(systemName: "gearshape") }
                         .accessibilityLabel("团队设置")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -391,11 +391,16 @@ struct BotHomeView: View {
             }
         }
         .sheet(item: $creating) { kind in
-            switch kind {
-            case .bot: BotCreateSheet()
-            case .room: RoomCreateSheet()
+            Group {
+                switch kind {
+                case .bot: BotCreateSheet()
+                case .room: RoomCreateSheet()
+                }
             }
+            .settingsStyle()
         }
+        // Its own sheet, as 设置 is: the pages inside are the system's lists.
+        .sheet(isPresented: $settingsOpen) { SheetStack { BotTeamSettingsView() }.settingsStyle() }
         .refreshable { await team.refreshState() }
         .task(id: query) { await searchMessages() }
         // A key or a provider set in 设置 changes the models a Bot can run on; nothing on the
@@ -749,7 +754,8 @@ struct BotCreateSheet: View {
                     TextField("名字，比如：研究员", text: $name)
                     TextField("负责什么，比如：查资料、给出处", text: $role)
                 }
-                Section("形象") { BotLookPicker(shape: $shape, color: $color, name: name) }
+                Section("形象") { BotLookPicker(shape: $shape, color: $color, name: name)
+                .pickerValueTint() }
                 Section {
                     Picker("模型", selection: $model) {
                         Text(fallback.flatMap(team.modelName).map { String(localized: "默认（\($0)）") } ?? String(localized: "稍后再选")).tag("")
@@ -757,6 +763,7 @@ struct BotCreateSheet: View {
                             Text(item.name).tag(item.ref)
                         }
                     }
+                    .pickerValueTint()
                 }
                 Section {
                     TextField("它做事时要遵守的要求、偏好和背景", text: $instructions, axis: .vertical).lineLimit(3...8)
@@ -839,6 +846,7 @@ struct RoomCreateSheet: View {
                             Text("自动选择").tag("")
                             ForEach(members, id: \.self) { id in Text(team.bot(id)?.name ?? id).tag(id) }
                         }
+                        .pickerValueTint()
                     } footer: { Text("你发的消息先交给群主，群主再点名需要的成员。建好后还能改。") }
                     Section {
                         TextField("比如：大家一起把下周的发布计划过一遍", text: $first, axis: .vertical).lineLimit(2...6)

@@ -174,19 +174,24 @@ struct BotScheduleCreateSheet: View {
                     Picker("重复", selection: $repeatKind) {
                         ForEach(Repeat.allCases) { Text($0.title).tag($0) }
                     }
+                    .pickerValueTint()
                     switch repeatKind {
                     case .once:
                         DatePicker("时间", selection: $at, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
+                        .pickerValueTint()
                     case .daily:
                         DatePicker("时间", selection: $time, displayedComponents: .hourAndMinute)
+                        .pickerValueTint()
                     case .weekly:
                         DatePicker("时间", selection: $time, displayedComponents: .hourAndMinute)
+                        .pickerValueTint()
                         weekdayPicker
                     case .every:
                         Stepper(value: $amount, in: 1...maxAmount) { Text("每 \(amount)") }
                         Picker("单位", selection: $unit) {
                             ForEach(Unit.allCases) { Text($0.title).tag($0) }
                         }
+                        .pickerValueTint()
                     }
                 } footer: {
                     Text("按这台设备的时区（\(TimeZone.current.identifier)）。")

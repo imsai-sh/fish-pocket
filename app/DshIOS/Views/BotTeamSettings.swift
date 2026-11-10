@@ -43,6 +43,7 @@ struct BotTeamSettingsView: View {
                         Text(item.name).tag(item.ref)
                     }
                 } label: { Label("新 Bot 的默认模型", systemImage: "cpu") }
+                .pickerValueTint()
             } header: {
                 Text("偏好")
             } footer: {
@@ -73,7 +74,7 @@ struct BotTeamSettingsView: View {
         }
         .groupedList()
         .navigationTitle("团队设置")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .task { await team.refreshState() }
         .confirmationDialog("解除对\(releasing?["name"].string ?? "")的封存？", isPresented: Binding(get: { releasing != nil }, set: { if !$0 { releasing = nil } }), titleVisibility: .visible) {
             Button("解除", role: .destructive) {
@@ -463,6 +464,7 @@ struct BotCapabilityEditor: View {
                         Text("技能").tag(Kind.skill)
                         Text("组合").tag(Kind.pack)
                     }
+                    .pickerValueTint()
                 }
                 TextField("一句话说明它做什么", text: $detail, axis: .vertical)
             } footer: {

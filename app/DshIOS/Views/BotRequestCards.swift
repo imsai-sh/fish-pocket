@@ -84,7 +84,7 @@ private struct ConnectorRequestCard: View {
             }
         }
         .sheet(isPresented: $open) {
-            NavigationStack { BotConnectorPage(id: id).closeButton { open = false } }
+            NavigationStack { BotConnectorPage(id: id).closeButton { open = false } }.settingsStyle()
         }
     }
 }

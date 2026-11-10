@@ -293,12 +293,6 @@ struct SettingsView: View {
     }
 }
 
-private extension View {
-    /// A picker's value in the grey of the other rows' values; the page's ink tint would paint it black.
-    /// Only the value: the row's icon keeps the ink.
-    func pickerValueTint() -> some View { tint(.secondary) }
-}
-
 /// 设置 → 高级: the pages for people who look under the hood.
 private struct AdvancedSettingsPage: View {
     @Environment(AppModel.self) private var app

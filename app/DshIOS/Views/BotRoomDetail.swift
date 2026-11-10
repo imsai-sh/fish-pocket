@@ -25,22 +25,28 @@ struct RoomDetailView: View {
                 if let room = team.room(roomId) {
                     List {
                         Section {
-                            HStack(spacing: 14) {
-                                RoomAvatar(room: room, size: 60)
-                                Text("\(room.members.count) 个 Bot").font(.subheadline).foregroundStyle(Palette.secondary)
+                            VStack(spacing: 8) {
+                                RoomAvatar(room: room, size: 88)
+                                Text("\(room.members.count) 个 Bot").font(.subheadline).foregroundStyle(.secondary)
                             }
-                            .listRowBackground(Color.clear)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 4)
                         }
-                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
                         about(room)
                         members(room)
                         speaking(room)
                         RoomGoalSection(room: room, drafting: $draftingGoal, confirmingStop: $confirmingGoalStop)
                         Section {
                             NavigationLink { BotFolderPage(target: .room(room.id)) } label: {
-                                LabeledContent("工作文件夹", value: room.json["workDir"].string.map { ($0 as NSString).lastPathComponent } ?? String(localized: "各用自己的"))
+                                LabeledContent {
+                                    Text(room.json["workDir"].string.map { ($0 as NSString).lastPathComponent } ?? String(localized: "各用自己的")).lineLimit(1)
+                                } label: { Label("工作文件夹", systemImage: "folder") }
                             }
-                            NavigationLink("群记忆") { RoomMemoryPage(roomId: room.id) }
+                            if team.team["memory"].bool != false {
+                                NavigationLink { RoomMemoryPage(roomId: room.id) } label: { Label("群记忆", systemImage: "brain.head.profile") }
+                            }
                         }
                         .groupedRow()
                         if !team.permissionOptions.isEmpty { permission(room) }
@@ -73,6 +79,7 @@ struct RoomDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .closeButton(dismiss)
         }
+        .settingsStyle()
     }
 
     @ViewBuilder
@@ -83,17 +90,17 @@ struct RoomDetailView: View {
                 BotTextPage(title: "群名", value: room.named ? room.name : "", limit: 60, placeholder: "不填就用成员的名字", optional: true) {
                     await team.update(room, ["name": .string($0)])
                 }
-            } label: { LabeledContent("群名", value: team.name(of: room)) }
+            } label: {
+                LabeledContent { Text(team.name(of: room)).lineLimit(1) } label: { Label("群名", systemImage: "tag") }
+            }
             NavigationLink {
                 BotTextPage(title: "群公告", value: room.notice, limit: 2000, multiline: true, placeholder: "群里每个 Bot 发言前都会先读", optional: true) {
                     await team.update(room, ["notice": .string($0)])
                 }
             } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("群公告")
-                    Text(room.notice.isEmpty ? String(localized: "未填写") : room.notice)
-                        .font(.footnote).foregroundStyle(Palette.secondary).lineLimit(3)
-                }
+                LabeledContent {
+                    Text(room.notice.isEmpty ? String(localized: "未填写") : ToolCall.firstLine(room.notice)).lineLimit(1)
+                } label: { Label("群公告", systemImage: "megaphone") }
             }
         }
         .groupedRow()
@@ -107,11 +114,8 @@ struct RoomDetailView: View {
                 let bot = team.bot(id)
                 HStack(spacing: 12) {
                     BotAvatar(bot: bot, name: id, size: 32)
-                    Text(bot?.name ?? id).foregroundStyle(Palette.ink)
-                    if room.admin == id {
-                        Text("群主").font(.caption2).foregroundStyle(Palette.secondary)
-                            .padding(.horizontal, 6).padding(.vertical, 2).background(Palette.control, in: Capsule())
-                    }
+                    Text(bot?.name ?? id)
+                    if room.admin == id { Text("群主").font(.footnote).foregroundStyle(.secondary) }
                     Spacer()
                     if team.isWorking(id) {
                         StatusDot(state: .running, size: 6)
@@ -144,19 +148,21 @@ struct RoomDetailView: View {
     private func speaking(_ room: RoomInfo) -> some View {
         let team = app.botTeam
         Section {
-            Picker("群主", selection: Binding(get: { room.admin ?? "" }, set: { id in
+            Picker(selection: Binding(get: { room.admin ?? "" }, set: { id in
                 Task { await team.update(room, ["admin": id.isEmpty ? .null : .string(id)]) }
             })) {
                 Text("不设群主").tag("")
                 ForEach(room.members, id: \.self) { id in Text(team.bot(id)?.name ?? id).tag(id) }
-            }
+            } label: { Label("群主", systemImage: "crown") }
+            .pickerValueTint()
             if room.admin != nil {
-                Picker("谁先回复", selection: Binding(get: { room.mode }, set: { mode in
+                Picker(selection: Binding(get: { room.mode }, set: { mode in
                     Task { await team.update(room, ["mode": .string(mode)]) }
                 })) {
                     Text("群主先接，再点名").tag("admin")
                     Text("每个 Bot 轮流回复").tag("everyone")
-                }
+                } label: { Label("谁先回复", systemImage: "arrow.triangle.branch") }
+                .pickerValueTint()
             }
         } header: {
             Text("发言")
@@ -172,7 +178,7 @@ struct RoomDetailView: View {
     private func permission(_ room: RoomInfo) -> some View {
         let team = app.botTeam
         Section {
-            Picker("权限", selection: Binding(get: { room.permission ?? "" }, set: { value in
+            Picker(selection: Binding(get: { room.permission ?? "" }, set: { value in
                 if value == "danger-full-access" { confirmingFullAccess = true; return }
                 Task { await team.update(room, ["permission": value.isEmpty ? .null : .string(value)]) }
             })) {
@@ -180,7 +186,8 @@ struct RoomDetailView: View {
                 ForEach(team.permissionOptions, id: \.["value"]) { option in
                     Text(SettingsView.permissionName(option)).tag(option["value"].string ?? "")
                 }
-            }
+            } label: { Label("权限", systemImage: "lock.shield") }
+            .pickerValueTint()
         } footer: {
             Text("统一设了权限，群里的 Bot 在这个群里都按它工作。")
         }

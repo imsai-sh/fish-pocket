@@ -119,6 +119,7 @@ private struct IMConnectionPage: View {
                 })) {
                     ForEach(team.bots) { Text($0.name).tag($0.id) }
                 }
+                .pickerValueTint()
                 Toggle("开启", isOn: Binding(get: { connection["enabled"].bool ?? true }, set: { on in
                     Task { await team.run("im-update", ["id": .string(id), "enabled": .bool(on)]) }
                 }))
@@ -171,6 +172,7 @@ private struct IMConnectionPage: View {
                                 Text(chat["kind"].string == "group" ? String(localized: "群") : String(localized: "私聊")).font(.caption).foregroundStyle(Palette.secondary)
                             }
                         }
+                        .pickerValueTint()
                         .swipeActions {
                             Button("移除", role: .destructive) { Task { await team.run("im-chat", ["id": .string(id), "chatKey": .string(key), "remove": true]) } }
                         }
@@ -221,6 +223,7 @@ private struct IMAddSheet: View {
                     Picker("交给", selection: $botId) {
                         ForEach(team.bots) { Text($0.name).tag($0.id) }
                     }
+                    .pickerValueTint()
                 } footer: { Text("在\(platform.name)里收到的消息交给这个 Bot 回复。") }
                 if platform.qr {
                     Section {
@@ -241,6 +244,7 @@ private struct IMAddSheet: View {
                                 Picker(field.label, selection: Binding(get: { values[field.key] ?? field.options[0].0 }, set: { values[field.key] = $0 })) {
                                     ForEach(field.options, id: \.0) { Text($0.1).tag($0.0) }
                                 }
+                                .pickerValueTint()
                             } else if field.secret {
                                 SecureField(field.label, text: Binding(get: { values[field.key] ?? "" }, set: { values[field.key] = $0 }))
                             } else {

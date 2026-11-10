@@ -1,27 +1,18 @@
 import SwiftUI
 
-/// A Bot's page: who it is and how it works (all editable here), its scheduled tasks,
-/// and what it remembers.
+/// A Bot's page, drawn as 设置 is: who it is and how it works (all editable here), with its
+/// scheduled tasks and what it remembers one tap further in.
 struct BotDetailView: View {
-    enum Tab: String, CaseIterable, Identifiable {
+    /// The page to open on: the Bot's own page, or straight into one of the two under it.
+    enum Tab: String, Hashable {
         case profile, schedules, memory
-        var id: String { rawValue }
-        var title: String {
-            switch self {
-            case .profile: String(localized: "资料")
-            case .schedules: String(localized: "定时任务")
-            case .memory: String(localized: "记忆")
-            }
-        }
     }
 
     @Environment(AppModel.self) private var app
     @Environment(\.dismiss) private var dismiss
     let botId: String
-    @State private var tab = Tab.profile
-    @State private var memory: JSON = .null
-    @State private var memoryError: String?
-    @State private var loadingMemory = false
+    /// The pages pushed on the Bot's own.
+    @State private var path: [Tab]
     @State private var appearanceOpen = false
     @State private var schedules: BotSchedules
     @State private var confirmingDelete = false
@@ -29,31 +20,24 @@ struct BotDetailView: View {
 
     init(botId: String, tab: Tab = .profile) {
         self.botId = botId
-        _tab = State(initialValue: tab)
+        _path = State(initialValue: tab == .profile ? [] : [tab])
         _schedules = State(initialValue: BotSchedules(target: .bot(botId)))
     }
 
     var body: some View {
         let team = app.botTeam
-        NavigationStack {
+        NavigationStack(path: $path) {
             Group {
                 if let bot = team.bot(botId) {
                     List {
-                        Section {
-                            header(bot).listRowBackground(Color.clear)
-                            tabs.listRowBackground(Color.clear)
-                        }
-                        .listRowSeparator(.hidden)
-                        switch tab {
-                        case .profile: profile(bot)
-                        case .schedules: BotScheduleSection(schedules: schedules)
-                        case .memory: memorySection(bot)
-                        }
+                        Section { header(bot) }
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())
+                        profile(bot)
                     }
                     .groupedList()
                     .sheet(isPresented: $appearanceOpen) { BotAppearanceSheet(botId: bot.id) }
                     .sheet(item: $exchange) { BotExchangeSheet(pair: $0) }
-                    .botSchedules(schedules, app: app)
                     .confirmationDialog("删除\(bot.name)？", isPresented: $confirmingDelete, titleVisibility: .visible) {
                         Button("删除", role: .destructive) { Task { await delete(bot) } }
                     } message: {
@@ -66,51 +50,52 @@ struct BotDetailView: View {
             .navigationTitle(team.bot(botId)?.name ?? String(localized: "Bot"))
             .navigationBarTitleDisplayMode(.inline)
             .closeButton(dismiss)
+            .navigationDestination(for: Tab.self) { page in
+                switch page {
+                case .schedules: BotSchedulesPage(schedules: schedules)
+                case .memory: BotMemoryPage(botId: botId)
+                case .profile: EmptyView()
+                }
+            }
+            // Inside the stack: the new-task sheet is one of this page's, drawn as it is.
+            .botSchedules(schedules, app: app)
         }
-        .task(id: tab) { if tab == .memory { await loadMemory() } }
+        .settingsStyle()
     }
 
+    /// The Bot's face, what it is for, and what it is up to. A tap on the face changes it.
     private func header(_ bot: BotInfo) -> some View {
         let team = app.botTeam
-        return HStack(spacing: 14) {
+        return VStack(spacing: 8) {
             Button { appearanceOpen = true } label: {
-                BotAvatar(bot: bot, size: 60)
+                BotAvatar(bot: bot, size: 88)
                     .overlay(alignment: .bottomTrailing) {
-                        Image(systemName: "pencil").font(.system(size: 10, weight: .bold)).foregroundStyle(Palette.ink)
-                            .frame(width: 22, height: 22).background(Palette.control, in: Circle())
-                            .overlay(Circle().stroke(Palette.background, lineWidth: 2))
+                        Image(systemName: "pencil").font(.system(size: 12, weight: .bold)).foregroundStyle(.primary)
+                            .frame(width: 28, height: 28).background(Color(.secondarySystemGroupedBackground), in: Circle())
+                            .overlay(Circle().stroke(Color(.systemGroupedBackground), lineWidth: 2))
                     }
             }
             .buttonStyle(.plain)
             .accessibilityLabel("更换头像")
-            VStack(alignment: .leading, spacing: 4) {
-                if !bot.role.isEmpty { Text(bot.role).font(.subheadline) }
-                if let doing = team.doingText(bot.id) {
-                    HStack(spacing: 5) {
-                        if team.isWorking(bot.id) { StatusDot(state: .running, size: 6) }
-                        Text(doing).font(.caption).foregroundStyle(team.isWorking(bot.id) ? Palette.running : Palette.waiting).lineLimit(2)
-                    }
-                } else if team.isMain(bot) {
-                    Text("主 Bot，负责接活和分派").font(.caption).foregroundStyle(Palette.secondary)
+            if !bot.role.isEmpty { Text(bot.role).font(.subheadline).foregroundStyle(.secondary) }
+            if let doing = team.doingText(bot.id) {
+                HStack(spacing: 5) {
+                    if team.isWorking(bot.id) { StatusDot(state: .running, size: 6) }
+                    Text(doing).font(.footnote).foregroundStyle(team.isWorking(bot.id) ? Palette.running : Palette.waiting).lineLimit(2)
                 }
+            } else if team.isMain(bot) {
+                Text("主 Bot，负责接活和分派").font(.footnote).foregroundStyle(.secondary)
             }
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 4)
     }
 
-    private var tabs: some View {
-        HStack(spacing: 8) {
-            ForEach(Tab.allCases) { item in
-                Button { Haptics.select(); tab = item } label: {
-                    Text(item.title)
-                        .font(.subheadline.weight(tab == item ? .semibold : .regular))
-                        .foregroundStyle(tab == item ? Palette.onInk : Palette.ink)
-                        .padding(.horizontal, 16)
-                        .frame(minHeight: 34)
-                        .background(tab == item ? Palette.ink : Palette.control, in: Capsule())
-                }
-                .buttonStyle(.plain)
-            }
-            Spacer(minLength: 0)
+    private func row(_ title: LocalizedStringKey, _ icon: String, _ value: String = "") -> some View {
+        LabeledContent {
+            Text(value).lineLimit(1)
+        } label: {
+            Label(title, systemImage: icon)
         }
     }
 
@@ -120,61 +105,61 @@ struct BotDetailView: View {
         Section {
             NavigationLink {
                 BotTextPage(title: "名字", value: bot.name, limit: 40, placeholder: "名字") { await team.update(bot, ["name": .string($0)]) }
-            } label: { LabeledContent("名字", value: bot.name) }
+            } label: { row("名字", "person.text.rectangle", bot.name) }
             NavigationLink {
                 BotTextPage(title: "角色", value: bot.role, limit: 24, placeholder: "比如：研究员、文案", optional: true,
                             note: "一句话说清它负责什么。改了之后它会收到通知，按新角色继续。") { await team.update(bot, ["role": .string($0)]) }
-            } label: { LabeledContent("角色", value: bot.role.isEmpty ? String(localized: "未填写") : bot.role) }
+            } label: { row("角色", "briefcase", bot.role.isEmpty ? String(localized: "未填写") : bot.role) }
             NavigationLink {
                 BotTextPage(title: "工作说明", value: bot.instructions, multiline: true, placeholder: "它做事时要遵守的要求、偏好和背景", optional: true,
                             note: "每一轮工作都会先读这段说明。改了之后它会收到通知，按新说明继续。") { await team.update(bot, ["instructions": .string($0)]) }
             } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("工作说明")
-                    if !bot.instructions.isEmpty {
-                        Text(bot.instructions).font(.footnote).foregroundStyle(Palette.secondary).lineLimit(3)
-                    }
-                }
+                row("工作说明", "doc.text", bot.instructions.isEmpty ? String(localized: "未填写") : ToolCall.firstLine(bot.instructions))
             }
         }
-        .groupedRow()
         Section {
             NavigationLink { BotModelPage(botId: bot.id) } label: {
-                LabeledContent("模型", value: team.modelName(bot.model) ?? String(localized: "未选择"))
+                row("模型", "cpu", team.modelName(bot.model) ?? String(localized: "未选择"))
             }
             if bot.model != nil {
                 NavigationLink { BotEffortPage(botId: bot.id) } label: {
-                    LabeledContent("思考强度", value: team.effortName(of: bot) ?? String(localized: "模型默认"))
+                    row("思考强度", "brain", team.effortName(of: bot) ?? String(localized: "模型默认"))
                 }
             }
             if !team.permissionOptions.isEmpty {
                 NavigationLink { BotPermissionPage(botId: bot.id) } label: {
-                    LabeledContent("权限", value: team.permissionName(bot.permission) ?? "")
+                    row("权限", "lock.shield", team.permissionName(bot.permission) ?? "")
                 }
             }
             NavigationLink { BotFolderPage(target: .bot(bot.id)) } label: {
-                LabeledContent("工作文件夹", value: bot.workDir.map { ($0 as NSString).lastPathComponent } ?? String(localized: "团队工作区"))
+                row("工作文件夹", "folder", bot.workDir.map { ($0 as NSString).lastPathComponent } ?? String(localized: "团队工作区"))
             }
         } header: {
             Text("工作方式")
         }
-        .groupedRow()
+        Section {
+            NavigationLink(value: Tab.schedules) {
+                row("定时任务", "clock", schedules.loaded && !schedules.tasks.isEmpty ? String(localized: "\(schedules.tasks.count) 个") : "")
+            }
+            if team.team["memory"].bool != false {
+                NavigationLink(value: Tab.memory) { row("记忆", "brain.head.profile") }
+            }
+        }
         capabilities(bot)
         connectors(bot)
         if team.bots.count > 1 {
             Section {
                 ForEach(team.bots.filter { $0.id != bot.id }) { other in
                     Button { exchange = BotExchangePair(a: bot.id, b: other.id) } label: {
-                        HStack(spacing: 10) {
-                            BotAvatar(bot: other, size: 26)
-                            Text(other.name).foregroundStyle(Palette.ink)
+                        HStack(spacing: 12) {
+                            BotAvatar(bot: other, size: 28)
+                            Text(other.name).foregroundStyle(.primary)
                             Spacer()
-                            Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
+                            Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
                         }
                     }
                 }
             } header: { Text("和别的 Bot 的往来") } footer: { Text("Bot 之间交代、回复的话不出现在它和你的聊天里，在这里看。") }
-            .groupedRow()
         }
         Section {
             if team.isMain(bot) {
@@ -207,17 +192,18 @@ struct BotDetailView: View {
                     }
                 }
             }
-            Button("删除", role: .destructive) { confirmingDelete = true }
-                .disabled(team.isMain(bot))
         } footer: {
             if team.isMain(bot) {
                 Text("主 Bot 接下你交代的事，再分给合适的 Bot。主 Bot 不能删除，要删先把别的 Bot 设为主 Bot。")
             }
         }
-        .groupedRow()
+        Section {
+            Button("删除这个 Bot", role: .destructive) { confirmingDelete = true }
+                .disabled(team.isMain(bot))
+        }
         Section {
             Button { dismiss(); app.webRequest = UUID() } label: {
-                Text("在网页版中打开").font(.footnote).foregroundStyle(Palette.secondary)
+                Text("在网页版中打开").font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
             }
         }
         .listRowBackground(Color.clear)
@@ -237,20 +223,21 @@ struct BotDetailView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(name)
                         if let error = status["error"].string, status["state"].string == "error" {
-                            Text(error).font(.caption2).foregroundStyle(Palette.removed).lineLimit(2)
+                            Text(error).font(.caption).foregroundStyle(.red).lineLimit(2)
                         } else if let detail = item["description"].string, !detail.isEmpty {
-                            Text(detail).font(.caption2).foregroundStyle(Palette.secondary).lineLimit(1)
+                            Text(detail).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                         }
                     }
                 }
             }
-            NavigationLink { BotCapabilitiesPage() } label: { Text(team.capabilities.isEmpty ? "添加能力" : "管理能力库").foregroundStyle(Palette.secondary) }
+            NavigationLink { BotCapabilitiesPage() } label: {
+                Label(team.capabilities.isEmpty ? "添加能力" : "管理能力库", systemImage: "puzzlepiece")
+            }
         } header: {
             Text("能力")
         } footer: {
             Text("MCP 服务、技能说明或它们的组合，整个团队共用一个能力库。")
         }
-        .groupedRow()
     }
 
     /// The connected services this Bot may use.
@@ -267,11 +254,12 @@ struct BotDetailView: View {
                     Task { await team.run("connector-set", ["id": row["id"], "offFor": .array(next.sorted().map(JSON.string))]) }
                 }))
             }
-            NavigationLink { BotConnectorsPage() } label: { Text(connected.isEmpty ? "连接服务" : "管理连接器").foregroundStyle(Palette.secondary) }
+            NavigationLink { BotConnectorsPage() } label: {
+                Label(connected.isEmpty ? "连接服务" : "管理连接器", systemImage: "point.3.connected.trianglepath.dotted")
+            }
         } header: {
             Text("连接器")
         }
-        .groupedRow()
     }
 
     private func delete(_ bot: BotInfo) async {
@@ -281,41 +269,71 @@ struct BotDetailView: View {
             app.botTeam.openRequest = BotOpenRequest(route: nil)
         }
     }
+}
 
-    @ViewBuilder
-    private func memorySection(_ bot: BotInfo) -> some View {
+/// A Bot's scheduled tasks, on a page of their own under the Bot's.
+struct BotSchedulesPage: View {
+    let schedules: BotSchedules
+
+    var body: some View {
+        List { BotScheduleSection(schedules: schedules) }
+            .groupedList()
+            .navigationTitle("定时任务")
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// What a Bot remembers: a summary, a way to ask or change it in plain words, the entries
+/// themselves, and every change made to them.
+struct BotMemoryPage: View {
+    @Environment(AppModel.self) private var app
+    let botId: String
+    @State private var memory: JSON = .null
+    @State private var memoryError: String?
+    @State private var loading = false
+
+    var body: some View {
+        let bot = app.botTeam.bot(botId)
         let entries = memory["entries"].array
-        MemorySummarySection(target: ["botId": .string(bot.id)], memory: $memory)
-        MemoryAskSection(target: ["botId": .string(bot.id)]) { if !$0.isNull { memory = $0 } }
-        Section {
-            if loadingMemory && memory.isNull {
-                ProgressView().frame(maxWidth: .infinity)
-            } else if let memoryError {
-                Text(memoryError).font(.footnote).foregroundStyle(Palette.removed)
-            } else if entries.isEmpty {
-                Text("\(bot.name)还没有记住什么。跟它说「记住…」就会记下来。").font(.footnote).foregroundStyle(Palette.secondary)
-            } else {
-                ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(entry["text"].string ?? "").font(.subheadline)
-                        Text(origin(of: entry)).font(.caption2).foregroundStyle(Palette.faint)
-                    }
-                    .swipeActions {
-                        Button("删除", role: .destructive) { Task { await forget(entry, of: bot) } }
-                    }
-                    .contextMenu {
-                        Button("删除", systemImage: "trash", role: .destructive) { Task { await forget(entry, of: bot) } }
+        List {
+            MemorySummarySection(target: ["botId": .string(botId)], memory: $memory)
+            MemoryAskSection(target: ["botId": .string(botId)]) { if !$0.isNull { memory = $0 } }
+            Section {
+                if loading && memory.isNull {
+                    ProgressView().frame(maxWidth: .infinity)
+                } else if let memoryError {
+                    Text(memoryError).font(.footnote).foregroundStyle(.red)
+                } else if entries.isEmpty {
+                    Text("\(bot?.name ?? "")还没有记住什么。跟它说「记住…」就会记下来。").font(.footnote).foregroundStyle(.secondary)
+                } else {
+                    ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(entry["text"].string ?? "")
+                            Text(origin(of: entry)).font(.caption).foregroundStyle(.secondary)
+                        }
+                        .swipeActions {
+                            Button("删除", role: .destructive) { Task { await forget(entry) } }
+                        }
+                        .contextMenu {
+                            Button("删除", systemImage: "trash", role: .destructive) { Task { await forget(entry) } }
+                        }
                     }
                 }
+            } header: {
+                Text("\(bot?.name ?? "")记得的事")
+            } footer: {
+                if !entries.isEmpty { Text("左滑可以删除。") }
             }
-        } header: {
-            Text("\(bot.name)记得的事")
-        } footer: {
-            if !entries.isEmpty { Text("左滑可以删除。") }
+            Section {
+                NavigationLink { MemoryHistoryPage(target: ["botId": .string(botId)]) } label: {
+                    Label("改动记录", systemImage: "clock.arrow.circlepath")
+                }
+            }
         }
-        .groupedRow()
-        Section { NavigationLink("改动记录") { MemoryHistoryPage(target: ["botId": .string(bot.id)]) } }
-            .groupedRow()
+        .groupedList()
+        .navigationTitle("记忆")
+        .navigationBarTitleDisplayMode(.inline)
+        .task { await load() }
     }
 
     private func origin(of entry: JSON) -> String {
@@ -326,9 +344,9 @@ struct BotDetailView: View {
         return parts.joined(separator: " · ")
     }
 
-    private func loadMemory() async {
-        loadingMemory = true
-        defer { loadingMemory = false }
+    private func load() async {
+        loading = true
+        defer { loading = false }
         do {
             memory = try await app.botTeam.call("memory-view", ["botId": .string(botId), "summarize": true])
             memoryError = nil
@@ -337,9 +355,9 @@ struct BotDetailView: View {
         }
     }
 
-    private func forget(_ entry: JSON, of bot: BotInfo) async {
+    private func forget(_ entry: JSON) async {
         Haptics.firm()
-        var payload: [String: JSON] = ["botId": .string(bot.id), "scope": entry["scope"], "text": entry["text"]]
+        var payload: [String: JSON] = ["botId": .string(botId), "scope": entry["scope"], "text": entry["text"]]
         if let topic = entry["topic"].string { payload["topic"] = .string(topic) }
         do {
             memory = try await app.botTeam.call("memory-forget", .object(payload))

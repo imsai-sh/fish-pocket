@@ -8693,6 +8693,22 @@
         }
       }
     },
+    "删除这个 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete This Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar este Bot"
+          }
+        }
+      }
+    },
     "删除这个提醒？" : {
       "localizations" : {
         "en" : {
@@ -33337,22 +33353,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Los detalles de la cuenta aún no están disponibles."
-          }
-        }
-      }
-    },
-    "资料" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profile"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Perfil"
           }
         }
       }
