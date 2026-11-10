@@ -1,6 +1,6 @@
 # 第三方声明
 
-本项目的代码以 [Fish Pocket License](LICENSE) 发布：以 MIT 为基础，商用需要授权，发布改造版前要先提 issue。下面的组件不属于本项目，保留各自的许可证和版权声明。**吉祥物图片不适用本项目的许可证**，见[吉祥物](#吉祥物不适用本项目的许可证)一节。
+本项目的代码以 [MIT](LICENSE) 协议发布，另有几条附加限制（商用需要授权，发布改造版前要先提 issue），见 LICENSE 末尾。下面的组件不属于本项目，保留各自的许可证和版权声明。**吉祥物图片不适用 MIT**，见[吉祥物](#吉祥物不适用-mit)一节。
 
 本仓库不包含这些组件的源码。它们在构建时下载或安装，版本钉死在 `engine/package-lock.json`、`app/project.yml` 和 `scripts/` 里。编译出的 App 会包含它们，分发 App 时要一并遵守这些许可证。
 
@@ -41,9 +41,9 @@ libgit2 的完整许可证见其仓库的 [COPYING](https://github.com/libgit2/l
 - **`@deepseek-ai/libreoffice-kit`（MPL-2.0）：** 只保留了很小的 JS 外壳，平台二进制和 wasm 在打包时已删除，`office-to-pdf` 也已禁用。
 - **`just-bash` 自带的 CPython（Python 许可证）：** 位于 `just-bash/vendor/cpython-emscripten`，随 just-bash 一起打包，但 iOS 上没有启用 `python` 命令。
 
-## 吉祥物（不适用本项目的许可证）
+## 吉祥物（不适用 MIT）
 
-吉祥物图片不是本项目的原创，**不按本项目的许可证授权**。它们基于社区二创形象“鲸鱼娘·大肥鱼”，版权归原作者，按 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)（署名、非商业使用、相同方式共享）使用，完整协议见 [docs/design/brand/LICENSE](docs/design/brand/LICENSE)。
+吉祥物图片不是本项目的原创，**不按 MIT 授权**。它们基于社区二创形象“鲸鱼娘·大肥鱼”，版权归原作者，按 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)（署名、非商业使用、相同方式共享）使用，完整协议见 [docs/design/brand/LICENSE](docs/design/brand/LICENSE)。
 
 | 贡献 | 作者 | 来源 |
 |---|---|---|
@@ -61,7 +61,7 @@ libgit2 的完整许可证见其仓库的 [COPYING](https://github.com/libgit2/l
 
 本项目的修改：`mascot-icon.png` 以原始鲸鱼娘形象为基础，用 AI 重新生成了表情。其余文件由 `docs/design/brand/make-icons.py` 从它生成，只做了缩放、圆角和灰度处理；`ShareMascot.imageset/` 里的分享海报用图另外去掉了背景。这些修改同样按 CC BY-NC-SA 4.0 发布。
 
-**如果你要商用这份代码：** 先按 [LICENSE](LICENSE) 取得作者的授权。这份授权只覆盖代码，不覆盖这些图片，请换掉上面的文件，或者自行取得原作者的许可。
+**如果你要商用这份代码：** 先按 [LICENSE](LICENSE) 的附加条款取得作者的授权。授权只覆盖代码，不覆盖这些图片，请换掉上面的文件，或者自行取得原作者的许可。
 
 本项目没有使用 DeepSeek 的 Logo，也和上述作者没有隶属或背书关系。
 

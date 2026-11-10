@@ -43,8 +43,8 @@ https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
 ## 能做什么
 
 - **能用 iPhone 自带的能力：** 智能体直接查日历、建提醒、读健康数据、找联系人、搜地图，每一项都由你自己开启。见[本机能力](#本机能力)。
-- **功能对齐官方 Web UI：** 对话、工具调用、文件编辑、搜索、计划模式、审批、子智能体、定时任务和插件，DSH 官方 Web UI 能做的这里都能做。见[和 DSH 官方 Web UI 的对比](#和-dsh-官方-web-ui-的对比)。
-- **完全原生的界面：** 对话、审批、工作台、插件和设置都用 SwiftUI 重写，交互按 iOS 习惯设计，不是把网页塞进 WebView。支持深色模式，可以跟随系统，也可以在设置里手动切换。
+- **功能对齐官方 Web UI：** 对话、工具调用、文件编辑、搜索、计划模式、审批、子智能体、定时任务和插件，DSH 官方 Web UI 能做的这里都能做。
+- **完全原生的界面：** 对话、审批、工作台、插件和设置都用 SwiftUI 重写，交互按 iOS 习惯设计，不是把网页塞进 WebView。支持深色模式，可以跟随系统，也可以在设置里手动切换。官方 Web UI 也保留着，需要时可以在设置里打开。
 - **真能用的终端：** 内置 bash、`node`、`pnpm`、`git`，还有 `rg`、`jq`、`curl`、`sed`、`awk` 等常用命令。
 - **内置 Git：** 基于静态链接的 libgit2，不靠子进程。`clone`、`commit`、`branch`、`merge`、`stash`、`pull`、`push` 等日常操作都能用，输出和真 git 一致，Agent 照常读懂。私有仓库用 HTTPS 加 Token 认证。
 - **内置 DSH 插件商店：** 预置 DSH 生态插件市场，在手机上浏览、搜索，一键安装，装完就能用，不用回到电脑前。也可以在「索引源」里添加自己信任的商店源，或者直接从 npm 安装纯 JavaScript 插件。
@@ -66,24 +66,7 @@ https://github.com/user-attachments/assets/d149b48d-ef15-4ba7-9fc3-2c627ea66ec0
 
 ## 和 DSH 官方 Web UI 的对比
 
-Fish Pocket 的目标是不比官方少：DSH 官方 Web UI 能做的，在 iPhone 和 iPad 上都能做；手机和平板才有的，再往上加。
-
-|  | DSH 官方 Web UI | Fish Pocket |
-|---|---|---|
-| 对话、工具调用、文件编辑、搜索 | 有 | 有 |
-| 计划模式、审批、提问作答 | 有 | 有 |
-| 子智能体、后台任务、定时任务 | 有 | 有 |
-| 插件安装、插件市场、模型服务商配置 | 有 | 有，另外预置了第三方插件商店 |
-| 终端、文件预览、内置浏览器、改动查看 | 有 | 有 |
-| 界面 | 网页，按桌面浏览器设计 | SwiftUI 原生，iPhone 和 iPad 分别适配 |
-| 引擎在哪里 | 电脑或服务器 | 手机和平板本机 |
-| 日历、提醒事项、健康、照片、地图等本机能力 | 没有 | 有，逐项由你开启 |
-| 灵动岛、锁屏 Live Activity、主屏幕和锁屏小组件 | 没有 | 有 |
-| 控制中心按钮、Siri 和快捷指令 | 没有 | 有 |
-| 切到后台任务继续跑 | 不适用 | 有 |
-| iPad 多窗口、拖放文件、外接键盘快捷键 | 不适用 | 有 |
-
-原生界面移植的是能力，不是网页的样子：拖拽分栏、悬停卡片这类只适合桌面的交互，换成了 iOS 的做法；上游新加的功能会陆续跟进。原生界面还没覆盖到的，在设置里打开「网页版」就能用，那就是完整的官方 Web UI。逐项对照见 [docs/webui/parity.md](docs/webui/parity.md)。
+功能和 DSH 官方 Web UI 对齐，官方能做的这里都能做，界面则用 SwiftUI 完全重写，iPhone 和 iPad 各按自己的习惯适配。在这之上还有官方没有的：本机能力、灵动岛和锁屏 Live Activity、小组件、Siri 和快捷指令、切到后台继续跑、iPad 多窗口。
 
 ## 和其他方案的区别
 
@@ -155,7 +138,7 @@ Fish Pocket 是一款开源的 iOS App，把 DeepSeek Harness（简称 DSH）的
 
 ### Fish Pocket 和 DSH 官方 Web UI 有什么区别？
 
-功能上对齐，官方 Web UI 能做的 Fish Pocket 都能做。区别在于引擎跑在手机和平板本机，不用开电脑；界面用 SwiftUI 重写，iPhone 和 iPad 都是原生体验；另外多了本机能力、灵动岛、小组件、Siri 和 iPad 多窗口这些官方 Web UI 没有的功能。详见[对比表](#和-dsh-官方-web-ui-的对比)。
+功能对齐，官方 Web UI 能做的 Fish Pocket 都能做。区别是引擎跑在手机和平板本机，不用开电脑；界面用 SwiftUI 重写，是 iPhone 和 iPad 的原生体验；还多了本机能力、灵动岛、小组件、Siri 和 iPad 多窗口这些官方没有的功能。
 
 ### 用 Fish Pocket 要开着电脑吗？
 
@@ -163,7 +146,7 @@ Fish Pocket 是一款开源的 iOS App，把 DeepSeek Harness（简称 DSH）的
 
 ### Fish Pocket 收费吗？
 
-App 免费，代码公开。自己用、学习和非商业的二次开发都不收费，商用需要先取得授权，见[许可证](#许可证)。模型调用用你自己的 DeepSeek 账号或 API Key，费用由模型服务商收取，不经过 Fish Pocket。
+App 免费，代码以 MIT 协议开源，商用需要先取得授权，见[许可证](#许可证)。模型调用用你自己的 DeepSeek 账号或 API Key，费用由模型服务商收取，不经过 Fish Pocket。
 
 ### 中国大陆能用吗？
 
@@ -242,23 +225,15 @@ Fish Pocket 还站在这些优秀项目的肩膀上。
 
 ## 许可证
 
-代码按 [Fish Pocket License](LICENSE) 公开：以 MIT 为基础，对商用和发布改造版加了几条限制。
+代码使用 [MIT](LICENSE) 许可证，另外附加三条限制：
 
-### 授权范围与再发布
+1. **商用先拿授权。** 把 Fish Pocket 或它的改造版拿去卖、收费分发、加内购或广告、打包进收费的产品或服务之前，要先取得作者的书面授权，请[提 issue](https://github.com/imsai-sh/fish-pocket/issues) 联系。自己用它干活不算商用。
+2. **改造先提 issue。** 公开发布改造版之前，先[提 issue](https://github.com/imsai-sh/fish-pocket/issues) 说明改了什么、做什么用、打算怎么发。
+3. **写明出处，换掉名字。** 改造版要写明基于 Fish Pocket 并附上本仓库链接，同时换成自己的名称和图标，不能当作官方版本发布。
 
-欢迎 fork 学习、自用和二次开发，也请尊重作者和项目来源。
+下载、编译、阅读、私下修改和给本仓库提 PR，不受这三条限制。条款原文在 [LICENSE](LICENSE) 末尾。
 
-- **自己用和学习不受限。** 下载、编译、读代码、私下修改，都不需要打招呼。用它干活（包括在公司里用它写代码）不算商用。给本仓库提 PR 也不受限。
-- **发布改造版前请先提 issue。** 准备公开发布改造版或衍生产品（上架应用商店、发 TestFlight、放出安装包等）之前，请先[提 issue](https://github.com/imsai-sh/fish-pocket/issues) 说明改了什么、做什么用、怎么分发。不涉及商用的，说明一下就行，不用等回复。
-- **fork 请标注主仓库与作者。** 发布改造版时，请在仓库简介、App 的「关于」页和发布页写明基于 Fish Pocket，附上本仓库链接和作者，并保留版权和许可声明。
-- **商用需要授权。** 出售或付费分发、加内购、订阅或广告、打包进收费的产品或服务，都要先取得作者的书面授权，请[提 issue](https://github.com/imsai-sh/fish-pocket/issues) 联系。
-- **名称与素材另有限制。** 「Fish Pocket」这个名称、App 图标和吉祥物不在授权范围内。改造版请用自己的名称和图标，不要冒充官方版本或作者本人。
-
-完整条款以 [LICENSE](LICENSE) 为准。第三方组件保留各自的许可证，不受上面这些条款影响。
-
-### 吉祥物
-
-吉祥物图片（App 图标、启动图和 README 头图）基于他人作品，按 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 使用，**不可商用**。即使拿到了代码的商用授权，也要先换掉这些图片，详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+吉祥物图片（App 图标、启动图和 README 头图）不适用 MIT，它们基于他人作品，按 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 使用，**不可商用**。拿到商用授权后也要先换掉这些图片，详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 ---
 
