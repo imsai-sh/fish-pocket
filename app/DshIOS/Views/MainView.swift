@@ -177,9 +177,10 @@ struct MainView: View {
             guard token != nil, scenePhase != .background, let request = app.newSessionRequest else { return }
             app.newSessionRequest = nil
             sheet = nil
+            storeOpen = false
             let target = request.workspaceId.flatMap { id in app.workspaces.first { $0.id == id } } ?? workspace
             if let target { workspaceId = target.id }
-            newConversation(in: target, agentPreset: request.agentPreset, draft: request.draft)
+            newConversation(in: target, agentPreset: request.agentPreset, draft: request.draft, prompt: request.prompt)
             setDrawer(false)
         }
         .onChange(of: app.credentialRequest?.token) { _, token in
@@ -479,7 +480,7 @@ struct MainView: View {
     }
 
     /// Open a blank conversation in `workspace` (the engine reuses a blank one there).
-    private func newConversation(in workspace: Workspace?, agentPreset: String? = nil, draft: String? = nil, focus: Bool = false) {
+    private func newConversation(in workspace: Workspace?, agentPreset: String? = nil, draft: String? = nil, prompt: String? = nil, focus: Bool = false) {
         guard let workspace, !creating else { return }
         creating = true
         Task {
@@ -487,6 +488,7 @@ struct MainView: View {
             do {
                 let id = try await app.createSession(in: workspace, agentPreset: agentPreset)
                 if let draft { app.pendingDrafts[id] = draft }
+                if let prompt { app.pendingPrompts[id] = prompt }
                 if focus { app.pendingFocus.insert(id) }
                 selection = id
             }

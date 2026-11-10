@@ -190,6 +190,8 @@ struct ConversationView: View {
                     ComposerView(
                         model: model, context: context, pendingDraft: app.pendingDrafts[sessionId],
                         consumeDraft: { app.pendingDrafts[sessionId] = nil },
+                        pendingPrompt: app.pendingPrompts[sessionId],
+                        consumePrompt: { app.pendingPrompts[sessionId] = nil },
                         focusOnAppear: app.pendingFocus.contains(sessionId),
                         consumeFocus: { app.pendingFocus.remove(sessionId) },
                         openLogExport: { headerSheet = .logExport },
@@ -865,10 +867,17 @@ private struct UserBubble: View {
     let attachments: [Attachment]
     let model: SessionModel
     @State private var revealed = false
+    /// A long message (询问 AI sends an install log) folds to its first lines until asked for.
+    @State private var open = false
+    @State private var fullHeight: CGFloat = 0
+    @State private var foldedHeight: CGFloat = 0
     @Environment(\.conversationActions) private var actions
+
+    private static let foldedLines = 8
 
     var body: some View {
         let masked = SecretMask.masked(SessionMention.plain(text))
+        let more = fullHeight > foldedHeight + 1
         VStack(alignment: .trailing, spacing: 6) {
             ImageGroup(attachments: attachments.filter(\.isImage), alignment: .trailing)
             ForEach(Array(attachments.filter { !$0.isImage }.enumerated()), id: \.offset) { _, attachment in
@@ -882,6 +891,14 @@ private struct UserBubble: View {
                         Text(text)
                     }
                 }
+                .lineLimit(open ? nil : Self.foldedLines)
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { if !open { foldedHeight = $0 } }
+                .background(alignment: .topLeading) {
+                    Text(text)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .hidden()
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { fullHeight = $0 }
+                }
                 .font(.callout)
                 .lineSpacing(3)
                 .padding(.horizontal, 16)
@@ -893,6 +910,12 @@ private struct UserBubble: View {
                     if masked == nil || revealed {
                         Button { actions.present(.text(text)) } label: { Label("选择文本", systemImage: "selection.pin.in.out") }
                     }
+                }
+                if open || more {
+                    Button { withAnimation(.snappy) { open.toggle() } } label: {
+                        Text(open ? "收起" : "全文").font(.footnote.weight(.semibold)).foregroundStyle(Palette.ink).padding(.trailing, 6)
+                    }
+                    .buttonStyle(.plain)
                 }
                 if masked != nil {
                     Button { revealed.toggle() } label: {
