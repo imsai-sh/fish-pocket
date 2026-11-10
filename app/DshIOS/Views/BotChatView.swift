@@ -19,14 +19,21 @@ struct BotChatView: View {
                 title: AnyView(Button { detailOpen = true } label: { BotTitle(bot: bot) }
                     .buttonStyle(.plain)
                     .accessibilityHint("查看 Bot 详情")),
-                accessory: AnyView(BotPending(bot: bot))
+                accessory: AnyView(BotPending(bot: bot)),
+                menu: { model in AnyView(BotChatMenu(target: .bot(bot.id), model: model)) }
             ))
             .id(bot.sessionId)
-            .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot), earlierFrom: bot.parts.isEmpty ? nil : bot.sessionId))
+            .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot), earlierFrom: bot.parts.isEmpty ? nil : bot.sessionId, showsThinking: team.showsThinking, sessionId: bot.sessionId))
             .environment(\.botComposer, .bot(bot.id))
             .openingOtherSessions($selection, from: bot.sessionId)
             .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) { BotDetailView(botId: botId, tab: detailTab) }
             .sheet(isPresented: $sideChatOpen) { BotSideChatSheet(botId: botId) }
+            .onChange(of: team.memoryRequest) { _, request in
+                guard request == botId else { return }
+                team.memoryRequest = nil
+                detailTab = .memory
+                detailOpen = true
+            }
             .onChange(of: team.sideChatRequest) { _, request in
                 guard request == botId else { return }
                 team.sideChatRequest = nil
@@ -39,8 +46,8 @@ struct BotChatView: View {
                 // After the tray's sheet has gone.
                 Task { try? await Task.sleep(for: .milliseconds(350)); detailOpen = true }
             }
-            .onAppear { app.clearUnread(bot.sessionId) }
-            .onDisappear { app.clearUnread(bot.sessionId) }
+            .onAppear { app.clearUnread(bot.sessionId); team.visibleChat = bot.id }
+            .onDisappear { app.clearUnread(bot.sessionId); if team.visibleChat == bot.id { team.visibleChat = nil } }
         } else {
             ContentUnavailableView("这个 Bot 已不在团队里", systemImage: "person.slash")
         }
@@ -58,8 +65,8 @@ private struct BotTitle: View {
             BotAvatar(bot: bot, size: 28)
             VStack(alignment: .leading, spacing: 0) {
                 Text(bot.name).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
-                if team.isWorking(bot.id) {
-                    Text("在干活").font(.caption2).foregroundStyle(Palette.running)
+                if let doing = team.doingText(bot.id) {
+                    Text(doing).font(.caption2).foregroundStyle(team.isWorking(bot.id) ? Palette.running : Palette.waiting).lineLimit(1)
                 } else if !bot.role.isEmpty {
                     Text(bot.role).font(.caption2).foregroundStyle(Palette.secondary).lineLimit(1)
                 }
@@ -76,6 +83,7 @@ private struct BotPending: View {
     var body: some View {
         let team = app.botTeam
         VStack(spacing: 8) {
+            BotMemoryNotice(id: bot.id)
             if bot.waiting { BotModelPicker(bot: bot) }
             if let question = team.question(of: bot) { BotQuestionCard(bot: bot, question: question) }
             if let view = team.pendingView(of: bot) { BotViewCard(bot: bot, pending: view).id(view["id"].string) }
@@ -129,10 +137,13 @@ private struct BotQuestionCard: View {
     let bot: BotInfo
     let question: JSON
     @State private var picked: Set<String> = []
+    @State private var custom = ""
     @State private var sending = false
 
     var body: some View {
         let multi = question["multiSelect"].bool ?? false
+        let allowsCustom = question["allowCustom"].bool == true
+        let typed = custom.trimmingCharacters(in: .whitespacesAndNewlines)
         BotCard {
             Text(question["question"].string ?? "").font(.subheadline.weight(.semibold))
             if let detail = question["detail"].string, !detail.isEmpty {
@@ -164,11 +175,18 @@ private struct BotQuestionCard: View {
                     .disabled(sending)
                 }
             }
+            if allowsCustom {
+                TextField("也可以自己写", text: $custom, axis: .vertical).lineLimit(1...4)
+                    .font(.subheadline)
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Palette.background, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Palette.stroke))
+            }
             HStack(spacing: 8) {
-                if multi {
-                    Button("提交") { answer(Array(picked)) }
+                if multi || allowsCustom {
+                    Button("提交") { answer(multi ? Array(picked) : []) }
                         .buttonStyle(.capsule(height: 36, fill: false))
-                        .disabled(picked.isEmpty || sending)
+                        .disabled((picked.isEmpty && typed.isEmpty) || (!multi && typed.isEmpty) || sending)
                 }
                 Button("先不回答") { Task { await app.botTeam.dismiss(question, of: bot) } }
                     .buttonStyle(.capsule(.outline, height: 36, fill: false))
@@ -180,7 +198,7 @@ private struct BotQuestionCard: View {
         sending = true
         Haptics.tap()
         Task {
-            _ = await app.botTeam.answer(question, of: bot, selected: selected)
+            _ = await app.botTeam.answer(question, of: bot, selected: selected, custom: custom.trimmingCharacters(in: .whitespacesAndNewlines))
             sending = false
         }
     }
@@ -226,5 +244,87 @@ private struct BotModelPicker: View {
                 .disabled(saving)
             }
         }
+    }
+}
+
+/// The memory of this Bot or group just changed (the Bot remembered something on its own):
+/// one line above the composer until it is read or closed.
+struct BotMemoryNotice: View {
+    @Environment(AppModel.self) private var app
+    /// A Bot's id or a group's.
+    let id: String
+
+    var body: some View {
+        let team = app.botTeam
+        if let news = team.memoryNews(id) {
+            HStack(spacing: 8) {
+                Image(systemName: "brain").font(.footnote).foregroundStyle(Palette.secondary)
+                Text(Self.line(news)).font(.footnote).foregroundStyle(Palette.ink).lineLimit(2)
+                Spacer(minLength: 0)
+                if team.bot(id) != nil {
+                    Button("看看") { team.dismissMemoryNews(id); team.memoryRequest = id }.font(.footnote.weight(.semibold))
+                }
+                Button { team.dismissMemoryNews(id) } label: {
+                    Image(systemName: "xmark").font(.caption2.weight(.semibold)).foregroundStyle(Palette.secondary).hitTarget(30)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("知道了")
+            }
+            .padding(.leading, 14).padding(.trailing, 6)
+            .frame(minHeight: 38)
+            .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .transition(.opacity)
+        }
+    }
+
+    private static func line(_ news: JSON) -> String {
+        let text = news["text"].string ?? ""
+        return switch news["op"].string {
+        case "remove", "forget": String(localized: "忘掉了：\(text)")
+        case "replace", "update": String(localized: "改了一条记忆：\(text)")
+        default: String(localized: "记住了：\(text)")
+        }
+    }
+}
+
+/// The chat's menu in the bar: what the chat can do beyond sending a message.
+struct BotChatMenu: View {
+    @Environment(AppModel.self) private var app
+    let target: BotComposer
+    let model: SessionModel
+
+    var body: some View {
+        let team = app.botTeam
+        Menu {
+            switch target {
+            case .bot(let id):
+                if let bot = team.bot(id) {
+                    Button { team.sideChatRequest = id } label: { Label("旁支提问", systemImage: "arrow.triangle.branch") }
+                    Button { BotAutoRead.shared.toggle(bot.sessionId, team: team) } label: {
+                        Label(BotAutoRead.shared.isOn(bot.sessionId) ? "停止自动朗读" : "自动朗读回复", systemImage: BotAutoRead.shared.isOn(bot.sessionId) ? "speaker.slash" : "speaker.wave.2")
+                    }
+                    let text = model.markdown(title: bot.name, team: team, botName: bot.name, hidden: team.hiddenTurns(of: bot))
+                    ShareLink(item: MarkdownFile(name: bot.name, text: text), preview: SharePreview(bot.name)) {
+                        Label("导出为 Markdown", systemImage: "arrow.down.doc")
+                    }
+                    Button { copyToPasteboard(text); app.showToast(String(localized: "已复制")) } label: {
+                        Label("复制整段对话", systemImage: "doc.on.doc")
+                    }
+                }
+            case .room(let id):
+                if let room = team.room(id) {
+                    let title = team.name(of: room)
+                    ShareLink(item: MarkdownFile(name: title, text: model.markdown(title: title, team: team, botName: nil)), preview: SharePreview(title)) {
+                        Label("导出为 Markdown", systemImage: "arrow.down.doc")
+                    }
+                    Button { copyToPasteboard(model.markdown(title: title, team: team, botName: nil)); app.showToast(String(localized: "已复制")) } label: {
+                        Label("复制整段对话", systemImage: "doc.on.doc")
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+        }
+        .accessibilityLabel("更多操作")
     }
 }

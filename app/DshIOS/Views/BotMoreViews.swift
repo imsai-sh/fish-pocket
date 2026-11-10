@@ -8,6 +8,7 @@ struct BotFolderPage: View {
     @Environment(AppModel.self) private var app
     let target: BotScheduleTarget
     @State private var folders: JSON = .null
+    @State private var browsing = false
 
     var body: some View {
         let team = app.botTeam
@@ -22,8 +23,13 @@ struct BotFolderPage: View {
                     let path = folder["path"].string ?? ""
                     row(title: folder["title"].string ?? (path as NSString).lastPathComponent, path: path, selected: current == path) { choose(path) }
                 }
+                if folders["picker"].string == "browse" {
+                    Button { browsing = true } label: { Label("浏览文件夹…", systemImage: "folder.badge.gearshape") }
+                }
             } footer: {
-                Text("换了文件夹后，下一轮会在新文件夹里开始新的一段对话。要用别的文件夹，先在侧边栏新建或打开一个工作区。")
+                Text(folders["picker"].string == "browse"
+                     ? "换了文件夹后，下一轮会在新文件夹里开始新的一段对话。"
+                     : "换了文件夹后，下一轮会在新文件夹里开始新的一段对话。要用别的文件夹，先在侧边栏新建或打开一个工作区。")
             }
             .groupedRow()
             if case .bot(let id) = target, let bot = team.bot(id) {
@@ -41,6 +47,18 @@ struct BotFolderPage: View {
         .navigationTitle("工作文件夹")
         .navigationBarTitleDisplayMode(.inline)
         .task { folders = (try? await team.call("folders")) ?? .null }
+        // Its own sheet: picking a folder closes the browser from however deep it went.
+        .sheet(isPresented: $browsing) {
+            NavigationStack {
+                BotFolderBrowser(path: nil, close: { browsing = false }) { path in
+                    // The list is read again once the change is in: the new folder joins it.
+                    Task {
+                        await apply(path)
+                        folders = (try? await team.call("folders")) ?? folders
+                    }
+                }
+            }
+        }
     }
 
     private func row(title: String, path: String?, selected: Bool, action: @escaping () -> Void) -> some View {
@@ -57,11 +75,13 @@ struct BotFolderPage: View {
     }
 
     private func choose(_ path: String) {
-        Task {
-            switch target {
-            case .bot(let id): if let bot = app.botTeam.bot(id) { await app.botTeam.update(bot, ["workDir": .string(path)]) }
-            case .room(let id): if let room = app.botTeam.room(id) { await app.botTeam.update(room, ["workDir": .string(path)]) }
-            }
+        Task { await apply(path) }
+    }
+
+    private func apply(_ path: String) async {
+        switch target {
+        case .bot(let id): if let bot = app.botTeam.bot(id) { await app.botTeam.update(bot, ["workDir": .string(path)]) }
+        case .room(let id): if let room = app.botTeam.room(id) { await app.botTeam.update(room, ["workDir": .string(path)]) }
         }
     }
 }
@@ -119,6 +139,52 @@ struct MemoryAskSection: View {
             }
             asking = false
         }
+    }
+}
+
+/// What a memory holds, in a few sentences the Bot wrote from its entries. It is written
+/// when the page asks and the entries changed since; while it is being written the page
+/// reads again every couple of seconds.
+struct MemorySummarySection: View {
+    @Environment(AppModel.self) private var app
+    /// `["botId": …]` or `["roomId": …]`.
+    let target: [String: JSON]
+    @Binding var memory: JSON
+
+    var body: some View {
+        let summary = memory["summary"]["text"].string
+        let writing = memory["summarizing"].bool == true
+        if !memory["entries"].array.isEmpty {
+            Section {
+                if let summary {
+                    MarkdownView(text: summary)
+                    if memory["fresh"].bool == false && !writing {
+                        Text("这段概括写在记忆改动之前。").font(.caption).foregroundStyle(Palette.faint)
+                    }
+                }
+                if writing {
+                    HStack(spacing: 8) { ProgressView().controlSize(.small); Text("正在概括…").font(.footnote).foregroundStyle(Palette.secondary) }
+                } else {
+                    if let error = memory["error"].string { Text(BotErrorText.text(error)).font(.caption).foregroundStyle(Palette.removed) }
+                    Button(summary == nil ? "写一段概括" : "重新概括") { Task { await load(regenerate: true) } }.font(.footnote)
+                }
+            } header: {
+                Text("概括")
+            }
+            .groupedRow()
+            .task(id: writing) {
+                while writing && !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(2))
+                    if !Task.isCancelled { await load(regenerate: false) }
+                }
+            }
+        }
+    }
+
+    private func load(regenerate: Bool) async {
+        var payload = target
+        payload[regenerate ? "regenerate" : "summarize"] = true
+        if let value = try? await app.botTeam.call("memory-view", .object(payload)) { memory = value }
     }
 }
 
@@ -203,7 +269,8 @@ struct RoomMemoryPage: View {
     var body: some View {
         let target: [String: JSON] = ["roomId": .string(roomId)]
         List {
-            MemoryAskSection(target: target) { memory = $0 }
+            MemorySummarySection(target: target, memory: $memory)
+            MemoryAskSection(target: target) { if !$0.isNull { memory = $0 } }
             Section {
                 let entries = memory["entries"].array
                 if entries.isEmpty {
@@ -222,7 +289,7 @@ struct RoomMemoryPage: View {
         .groupedList()
         .navigationTitle("群记忆")
         .navigationBarTitleDisplayMode(.inline)
-        .task { memory = (try? await app.botTeam.call("memory-view", .object(target))) ?? .null }
+        .task { memory = (try? await app.botTeam.call("memory-view", ["roomId": .string(roomId), "summarize": true])) ?? .null }
     }
 
     private func forget(_ entry: JSON) async {
@@ -480,6 +547,8 @@ struct BotWorkspacePage: View {
 struct BotDiagnosticsPage: View {
     @Environment(AppModel.self) private var app
     @State private var value: JSON = .null
+    /// Every recorded failure with its stack (`diagnostics-log`), for a bug report.
+    @State private var log: String?
 
     var body: some View {
         let team = app.botTeam
@@ -490,6 +559,9 @@ struct BotDiagnosticsPage: View {
                     app.showToast(String(localized: "已复制"))
                 }
                 .disabled(value["markdown"].string == nil)
+                if let log {
+                    ShareLink(item: MarkdownFile(name: "ds-bot-log", text: log), preview: SharePreview(String(localized: "完整的错误日志"))) { Text("导出完整的错误日志") }
+                }
                 Button("清空问题记录", role: .destructive) {
                     Task { _ = try? await team.call("diagnostics-clear"); value = (try? await team.call("diagnostics")) ?? value }
                 }
@@ -510,7 +582,51 @@ struct BotDiagnosticsPage: View {
         .groupedList()
         .navigationTitle("问题诊断")
         .navigationBarTitleDisplayMode(.inline)
-        .task { value = (try? await team.call("diagnostics", ["client": ["surface": "ios-native"]])) ?? .null }
+        .task {
+            value = (try? await team.call("diagnostics", ["client": ["surface": "ios-native"]])) ?? .null
+            if let text = try? await team.call("diagnostics-log").string, !text.isEmpty { log = text }
+        }
+    }
+}
+
+/// Folders of the engine to work in, one level at a time (`folder-list`).
+struct BotFolderBrowser: View {
+    @Environment(AppModel.self) private var app
+    let path: String?
+    /// Close the whole browser, whichever level this is.
+    let close: () -> Void
+    let choose: (String) -> Void
+    @State private var listing: JSON = .null
+    @State private var failed = false
+
+    var body: some View {
+        let here = listing["path"].string ?? path ?? ""
+        List {
+            if failed { Text("这个文件夹打不开").font(.footnote).foregroundStyle(Palette.removed).groupedRow() }
+            Section {
+                ForEach(listing["entries"].array.filter { $0["hidden"].bool != true }, id: \.["path"]) { entry in
+                    NavigationLink { BotFolderBrowser(path: entry["path"].string, close: close, choose: choose) } label: {
+                        Label(entry["name"].string ?? "", systemImage: "folder")
+                    }
+                }
+                if listing["truncated"].bool == true { Text("这里的文件夹太多，只列出了一部分。").font(.caption).foregroundStyle(Palette.faint) }
+            } header: { Text(EnginePaths.display(here)) }
+            .groupedRow()
+        }
+        .groupedList()
+        .navigationTitle(here.isEmpty ? String(localized: "文件夹") : (here as NSString).lastPathComponent)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if path == nil { ToolbarItem(placement: .cancellationAction) { Button("取消", action: close) } }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("用这个文件夹") { choose(here); close() }.disabled(here.isEmpty)
+            }
+        }
+        .task {
+            var payload: [String: JSON] = [:]
+            if let path { payload["path"] = .string(path) }
+            if let value = try? await app.botTeam.call("folder-list", .object(payload)) { listing = value } else { failed = true }
+        }
     }
 }
 

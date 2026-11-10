@@ -25,6 +25,7 @@ struct BotDetailView: View {
     @State private var appearanceOpen = false
     @State private var schedules: BotSchedules
     @State private var confirmingDelete = false
+    @State private var exchange: BotExchangePair?
 
     init(botId: String, tab: Tab = .profile) {
         self.botId = botId
@@ -51,6 +52,7 @@ struct BotDetailView: View {
                     }
                     .groupedList()
                     .sheet(isPresented: $appearanceOpen) { BotAppearanceSheet(botId: bot.id) }
+                    .sheet(item: $exchange) { BotExchangeSheet(pair: $0) }
                     .botSchedules(schedules, app: app)
                     .confirmationDialog("删除\(bot.name)？", isPresented: $confirmingDelete, titleVisibility: .visible) {
                         Button("删除", role: .destructive) { Task { await delete(bot) } }
@@ -83,8 +85,11 @@ struct BotDetailView: View {
             .accessibilityLabel("更换头像")
             VStack(alignment: .leading, spacing: 4) {
                 if !bot.role.isEmpty { Text(bot.role).font(.subheadline) }
-                if team.isWorking(bot.id) {
-                    HStack(spacing: 5) { StatusDot(state: .running, size: 6); Text("在干活").font(.caption).foregroundStyle(Palette.running) }
+                if let doing = team.doingText(bot.id) {
+                    HStack(spacing: 5) {
+                        if team.isWorking(bot.id) { StatusDot(state: .running, size: 6) }
+                        Text(doing).font(.caption).foregroundStyle(team.isWorking(bot.id) ? Palette.running : Palette.waiting).lineLimit(2)
+                    }
                 } else if team.isMain(bot) {
                     Text("主 Bot，负责接活和分派").font(.caption).foregroundStyle(Palette.secondary)
                 }
@@ -156,6 +161,21 @@ struct BotDetailView: View {
         .groupedRow()
         capabilities(bot)
         connectors(bot)
+        if team.bots.count > 1 {
+            Section {
+                ForEach(team.bots.filter { $0.id != bot.id }) { other in
+                    Button { exchange = BotExchangePair(a: bot.id, b: other.id) } label: {
+                        HStack(spacing: 10) {
+                            BotAvatar(bot: other, size: 26)
+                            Text(other.name).foregroundStyle(Palette.ink)
+                            Spacer()
+                            Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
+                        }
+                    }
+                }
+            } header: { Text("和别的 Bot 的往来") } footer: { Text("Bot 之间交代、回复的话不出现在它和你的聊天里，在这里看。") }
+            .groupedRow()
+        }
         Section {
             if team.isMain(bot) {
                 if team.mainBotIds.count > 1 {
@@ -265,6 +285,7 @@ struct BotDetailView: View {
     @ViewBuilder
     private func memorySection(_ bot: BotInfo) -> some View {
         let entries = memory["entries"].array
+        MemorySummarySection(target: ["botId": .string(bot.id)], memory: $memory)
         MemoryAskSection(target: ["botId": .string(bot.id)]) { if !$0.isNull { memory = $0 } }
         Section {
             if loadingMemory && memory.isNull {
@@ -309,7 +330,7 @@ struct BotDetailView: View {
         loadingMemory = true
         defer { loadingMemory = false }
         do {
-            memory = try await app.botTeam.call("memory-view", ["botId": .string(botId)])
+            memory = try await app.botTeam.call("memory-view", ["botId": .string(botId), "summarize": true])
             memoryError = nil
         } catch {
             memoryError = error.localizedDescription

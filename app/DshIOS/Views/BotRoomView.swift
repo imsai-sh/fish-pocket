@@ -6,6 +6,8 @@ import SwiftUI
 struct BotChrome {
     var title: AnyView
     var accessory: AnyView?
+    /// The chat's own menu in the bar, given the conversation it is for.
+    var menu: ((SessionModel) -> AnyView)?
 }
 
 /// How a Bot's timeline differs: turns that answered another Bot stay out (ds-bot's own
@@ -15,6 +17,15 @@ struct BotTimeline: Equatable {
     var room = false
     /// The current part, when the chat has earlier ones: they are read with `earlier` from it.
     var earlierFrom: String?
+    /// Reasoning is drawn (ds-bot's `thinking` preference); off, a reply shows its steps without it.
+    var showsThinking = false
+    /// The session these replies belong to, for what is kept per reply (a reaction).
+    var sessionId = ""
+
+    func hides(_ block: AssistantBlock) -> Bool {
+        if case .reasoning = block { return !showsThinking }
+        return false
+    }
 
     /// The Bot's fixed reply to the handoff package of a new part (ds-bot's constants.js).
     static let handoffReply = "Noted. I have my handoff note and carry on from here."
@@ -69,6 +80,10 @@ struct RoomRelay: Hashable {
     let call: ToolCall
     var replies: [JSON] { call.result.map(Self.replies(in:)) ?? [] }
     var settled: Bool { call.result != nil }
+    /// The settled result is not whole JSON: compaction pruned its middle, and some replies may be gone.
+    var broken: Bool { call.result.map { (try? JSONDecoder().decode(JSON.self, from: Data($0.utf8))) == nil } ?? false }
+    /// A settled round nobody spoke in (a notice the group took in): there is nothing to draw.
+    var empty: Bool { settled && !broken && replies.isEmpty }
 
     init?(blocks: [AssistantBlock]) {
         for block in blocks {
@@ -109,46 +124,6 @@ struct RoomRelay: Hashable {
     }
 }
 
-/// A group round: each member's reply under its name and mark.
-struct RoomRelayView: View {
-    @Environment(AppModel.self) private var app
-    let relay: RoomRelay
-    let running: Bool
-
-    var body: some View {
-        let team = app.botTeam
-        // Until the round settles its replies come from its progress, one as each member speaks.
-        let live = relay.settled ? nil : team.round(relay.call.id)
-        let replies = live?["replies"].array ?? relay.replies
-        let speaking = (live?["speaking"].array ?? []).compactMap { $0.string.flatMap(team.bot) }
-        VStack(alignment: .leading, spacing: 16) {
-            ForEach(Array(replies.enumerated()), id: \.offset) { _, reply in
-                if reply["kind"].isNull {
-                    let bot = reply["botId"].string.flatMap(team.bot)
-                    HStack(alignment: .top, spacing: 10) {
-                        BotAvatar(bot: bot, name: reply["name"].string ?? "?", size: 28)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(bot?.name ?? reply["name"].string ?? "").font(.caption.weight(.semibold)).foregroundStyle(Palette.secondary)
-                            MarkdownView(text: reply["text"].string ?? reply["texts"].array.compactMap(\.string).joined(separator: "\n\n"))
-                        }
-                    }
-                }
-            }
-            if running && !relay.settled {
-                HStack(spacing: 6) {
-                    StatusDot(state: .running, size: 6)
-                    if speaking.isEmpty {
-                        Text("成员正在发言…").font(.footnote).foregroundStyle(Palette.secondary)
-                    } else {
-                        Text("\(speaking.map(\.name).joined(separator: "、"))正在发言").font(.footnote).foregroundStyle(Palette.secondary)
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
 /// A group chat: the group's own session in the conversation view.
 struct BotRoomView: View {
     @Environment(AppModel.self) private var app
@@ -169,9 +144,10 @@ struct BotRoomView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("查看群聊设置")),
-                accessory: AnyView(RoomMentions(room: room))
+                accessory: AnyView(RoomMentions(room: room)),
+                menu: { model in AnyView(BotChatMenu(target: .room(room.id), model: model)) }
             ))
-            .environment(\.botTimeline, BotTimeline(room: true, earlierFrom: room.json["ownParts"].array.isEmpty ? nil : room.sessionId))
+            .environment(\.botTimeline, BotTimeline(room: true, earlierFrom: room.json["ownParts"].array.isEmpty ? nil : room.sessionId, showsThinking: team.showsThinking, sessionId: room.sessionId))
             .environment(\.botComposer, .room(room.id))
             // The round's replies as each member speaks.
             .task(id: room.id) { await team.followRounds(of: room.id) }
@@ -182,8 +158,8 @@ struct BotRoomView: View {
                 team.scheduleRequest = nil
                 Task { try? await Task.sleep(for: .milliseconds(350)); detailOpen = true }
             }
-            .onAppear { app.clearUnread(room.sessionId) }
-            .onDisappear { app.clearUnread(room.sessionId) }
+            .onAppear { app.clearUnread(room.sessionId); team.visibleChat = room.id }
+            .onDisappear { app.clearUnread(room.sessionId); if team.visibleChat == room.id { team.visibleChat = nil } }
         } else {
             ContentUnavailableView("这个群聊已经不在了", systemImage: "person.2.slash")
         }
@@ -200,6 +176,7 @@ private struct RoomMentions: View {
         let team = app.botTeam
         let members = room.members.compactMap(team.bot)
         VStack(alignment: .leading, spacing: 8) {
+            BotMemoryNotice(id: room.id)
             ForEach(team.approvals(inRoom: room.id), id: \.["id"]) { approval in RoomApprovalCard(approval: approval) }
             if let goal = room.json["goal"].nonNull, goal["status"].string != "complete", goal["status"].string != "stopped" {
                 Button { team.scheduleRequest = .room(room.id) } label: {

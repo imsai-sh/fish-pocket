@@ -4,6 +4,7 @@ import SwiftUI
 /// it has used. Each Bot's own page switches these on or off for it.
 struct BotTeamSettingsView: View {
     @Environment(AppModel.self) private var app
+    @State private var releasing: JSON?
 
     var body: some View {
         let team = app.botTeam
@@ -31,6 +32,39 @@ struct BotTeamSettingsView: View {
             }
             .groupedRow()
             Section {
+                Toggle(isOn: Binding(get: { team.showsThinking }, set: { on in Task { await team.setPrefs(["thinking": .bool(on)]) } })) {
+                    Label("显示思考过程", systemImage: "brain")
+                }
+                Picker(selection: Binding(get: { team.prefs["defaultBotModel"].string ?? "" }, set: { ref in
+                    Task { await team.setPrefs(["defaultBotModel": ref.isEmpty ? .null : .string(ref)]) }
+                })) {
+                    Text(team.team["defaultModel"].string.flatMap(team.modelName).map { String(localized: "跟随 DSH（\($0)）") } ?? String(localized: "跟随 DSH")).tag("")
+                    ForEach(team.models.compactMap { item in item["ref"].string.map { (ref: $0, name: item["name"].string ?? $0) } }, id: \.ref) { item in
+                        Text(item.name).tag(item.ref)
+                    }
+                } label: { Label("新 Bot 的默认模型", systemImage: "cpu") }
+            } header: {
+                Text("偏好")
+            } footer: {
+                Text("打开后，Bot 回复的步骤里会带上它的思考和用时。这两项和网页版共用。")
+            }
+            .groupedRow()
+            if !team.privateArchives.isEmpty {
+                Section {
+                    ForEach(team.privateArchives, id: \.["id"]) { archive in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(archive["name"].string ?? "")
+                                if let path = archive["workDir"].string { Text(EnginePaths.display(path)).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1).truncationMode(.head) }
+                            }
+                            Spacer()
+                            Button("解除") { releasing = archive }.buttonStyle(.borderless)
+                        }
+                    }
+                } header: { Text("已删除的私有 Bot") } footer: { Text("私有 Bot 删除后，它的文件夹、记忆和聊天记录仍然不让别的 Bot 碰。解除之后，文件夹可以再交给别的 Bot 用。") }
+                .groupedRow()
+            }
+            Section {
                 NavigationLink { BotUsagePage() } label: { Label("用量", systemImage: "chart.bar") }
                 NavigationLink { BotWorkspacePage() } label: { Label("团队工作区", systemImage: "folder") }
                 NavigationLink { BotDiagnosticsPage() } label: { Label("问题诊断", systemImage: "stethoscope") }
@@ -41,6 +75,11 @@ struct BotTeamSettingsView: View {
         .navigationTitle("团队设置")
         .navigationBarTitleDisplayMode(.inline)
         .task { await team.refreshState() }
+        .confirmationDialog("解除对\(releasing?["name"].string ?? "")的封存？", isPresented: Binding(get: { releasing != nil }, set: { if !$0 { releasing = nil } }), titleVisibility: .visible) {
+            Button("解除", role: .destructive) {
+                if let id = releasing?["id"] { Task { await team.run("private-release", ["id": id]) } }
+            }
+        } message: { Text("它留下的文件不会删除，但别的 Bot 之后可以在那个文件夹里工作、读到里面的内容。") }
     }
 }
 
@@ -698,6 +737,10 @@ private struct MailAccountSheet: View {
     @State private var custom = false
     @State private var imapHost = ""
     @State private var smtpHost = ""
+    @State private var imapPort = ""
+    @State private var smtpPort = ""
+    @State private var imapTls = true
+    @State private var smtpTls = true
     @State private var saving = false
 
     var body: some View {
@@ -711,9 +754,13 @@ private struct MailAccountSheet: View {
                     Toggle("手动填写服务器", isOn: $custom)
                     if custom {
                         TextField("IMAP 服务器", text: $imapHost).textInputAutocapitalization(.never).autocorrectionDisabled()
+                        TextField("IMAP 端口（默认 993）", text: $imapPort).keyboardType(.numberPad)
+                        Toggle("IMAP 用加密连接", isOn: $imapTls)
                         TextField("SMTP 服务器", text: $smtpHost).textInputAutocapitalization(.never).autocorrectionDisabled()
+                        TextField("SMTP 端口（默认 465）", text: $smtpPort).keyboardType(.numberPad)
+                        Toggle("SMTP 用加密连接", isOn: $smtpTls)
                     }
-                } footer: { Text("常见邮箱会自动识别，其他邮箱请手动填写，端口默认 993 和 465。") }
+                } footer: { Text("常见邮箱会自动识别，其他邮箱请手动填写。") }
             }
             .navigationTitle("添加邮箱")
             .navigationBarTitleDisplayMode(.inline)
@@ -721,42 +768,19 @@ private struct MailAccountSheet: View {
                 saving = true
                 Task {
                     var payload: [String: JSON] = ["address": .string(address), "password": .string(password)]
-                    if custom { payload["provider"] = "other"; payload["imapHost"] = .string(imapHost); payload["smtpHost"] = .string(smtpHost) }
+                    if custom {
+                        payload["provider"] = "other"
+                        payload["imapHost"] = .string(imapHost)
+                        payload["smtpHost"] = .string(smtpHost)
+                        if let port = Double(imapPort) { payload["imapPort"] = .number(port) }
+                        if let port = Double(smtpPort) { payload["smtpPort"] = .number(port) }
+                        payload["imapTls"] = .bool(imapTls)
+                        payload["smtpTls"] = .bool(smtpTls)
+                    }
                     if await app.botTeam.run("mail-account-add", payload) { dismiss() }
                     saving = false
                 }
             }
         }
-    }
-}
-
-// MARK: - Errors
-
-/// ds-bot answers in English; the messages people meet most often, in the app's words.
-enum BotErrorText {
-    private static let table: [(String, String)] = [
-        ("Paste a key first", String(localized: "先粘贴 Key")),
-        ("Paste a token first", String(localized: "先粘贴令牌")),
-        ("GitHub did not accept this token", String(localized: "GitHub 不接受这个令牌")),
-        ("Could not reach GitHub", String(localized: "连不上 GitHub")),
-        ("Sign-in timed out", String(localized: "登录超时了")),
-        ("No sign-in is waiting", String(localized: "没有等待中的登录")),
-        ("The password was refused", String(localized: "密码被拒绝了。请用邮箱的授权码或应用专用密码。")),
-        ("Could not reach the mail server", String(localized: "连不上邮件服务器")),
-        ("Enter the IMAP and SMTP hosts", String(localized: "请填写 IMAP 和 SMTP 服务器")),
-        ("A key must have at least 4 characters", String(localized: "密钥至少要 4 个字符")),
-        ("A name uses capitals, digits, and underscores", String(localized: "名字只能用大写字母、数字和下划线，并以字母开头")),
-        ("Use a capability name with lowercase letters", String(localized: "名字只能用小写字母、数字和单个连字符，也不能和连接器重名")),
-        ("Enter a valid HTTP or HTTPS URL", String(localized: "请填写 http 或 https 开头的网址")),
-        ("Connector addresses must start with https://", String(localized: "连接器地址要以 https:// 开头")),
-        ("is not available", String(localized: "这个名字已经被占用了")),
-        ("This request was already answered", String(localized: "这个请求已经处理过了")),
-        ("This request is gone", String(localized: "这个请求已经不在了")),
-        ("The Bot is working", String(localized: "Bot 正在干活，等它做完或先让它停下")),
-        ("Automation tasks are off in DSH", String(localized: "自动化任务没有开启")),
-    ]
-
-    static func text(_ message: String) -> String {
-        table.first { message.contains($0.0) }?.1 ?? message
     }
 }

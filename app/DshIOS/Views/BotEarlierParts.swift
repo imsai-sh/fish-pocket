@@ -79,13 +79,7 @@ struct BotEarlierParts: View {
         case "post":
             let bot = item["botId"].string.flatMap(team.bot)
             let text = item["text"].string.map(Self.withoutLongNote) ?? item["texts"].array.compactMap(\.string).joined(separator: "\n\n")
-            HStack(alignment: .top, spacing: 10) {
-                BotAvatar(bot: bot, name: item["name"].string ?? "?", size: 28)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(bot?.name ?? item["name"].string ?? "").font(.caption.weight(.semibold)).foregroundStyle(Palette.secondary)
-                    MarkdownView(text: text)
-                }
-            }
+            RoomMessage(bot: bot, name: bot?.name ?? item["name"].string ?? "?", texts: [text], file: item["file"].nonNull, length: item["length"].int)
         case "answer":
             note(String(localized: "你回答了卡片"), symbol: "checkmark.bubble")
         case "closed":

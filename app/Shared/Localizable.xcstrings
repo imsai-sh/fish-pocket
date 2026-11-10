@@ -165,6 +165,28 @@
         }
       }
     },
+    "%@ 返回了错误：%@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 返回了错误：%2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ answered with an error: %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ respondió con un error: %2$@"
+          }
+        }
+      }
+    },
     "%@ 需要你确认后才会执行。" : {
       "localizations" : {
         "en" : {
@@ -246,6 +268,76 @@
         }
       }
     },
+    "%@做完了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ finished"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ terminó"
+          }
+        }
+      }
+    },
+    "%@停下了：%@。给它换个模型，或者让它继续。" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@停下了：%2$@。给它换个模型，或者让它继续。"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ stopped: %2$@. Switch its model or ask it to go on."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ se detuvo: %2$@. Cambia su modelo o pídele que continúe."
+          }
+        }
+      }
+    },
+    "%@停下来等你批准" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ paused for your approval"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se detuvo a la espera de tu aprobación"
+          }
+        }
+      }
+    },
+    "%@发信都不用再确认" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never ask again for mail from %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No volver a preguntar por los correos de %@"
+          }
+        }
+      }
+    },
     "%@回复了" : {
       "localizations" : {
         "en" : {
@@ -262,6 +354,28 @@
         }
       }
     },
+    "%@在「%@」里等你批准" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@在「%2$@」里等你批准"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ is waiting for your approval in “%2$@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ espera tu aprobación en «%2$@»"
+          }
+        }
+      }
+    },
     "%@在干活" : {
       "localizations" : {
         "en" : {
@@ -274,6 +388,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ está trabajando"
+          }
+        }
+      }
+    },
+    "%@在自己的聊天记录里查了「%@」" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@在自己的聊天记录里查了「%2$@」"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ looked up its own chat for “%2$@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ buscó «%2$@» en su propio chat"
           }
         }
       }
@@ -344,6 +480,22 @@
         }
       }
     },
+    "%@开始做了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ started on it"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se puso a ello"
+          }
+        }
+      }
+    },
     "%@想更新工作说明 AGENTS.md" : {
       "localizations" : {
         "en" : {
@@ -382,18 +534,104 @@
         }
       }
     },
-    "%@正在发言" : {
+    "%@是主 Bot，不能设为私有" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ is speaking"
+            "value" : "%@ is a Main Bot, so it cannot be private"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ está hablando"
+            "value" : "%@ es un Bot principal y no puede ser privado"
+          }
+        }
+      }
+    },
+    "%@是私有 Bot，不能做主 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is private, so it cannot be a Main Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ es privado y no puede ser un Bot principal"
+          }
+        }
+      }
+    },
+    "%@是私有 Bot，不能复制" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is private, so it cannot be copied"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ es privado y no se puede duplicar"
+          }
+        }
+      }
+    },
+    "%@是私有 Bot，不能进群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is a private Bot and cannot join a group chat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ es un Bot privado y no puede entrar en un chat de grupo"
+          }
+        }
+      }
+    },
+    "%@来回说了 %lld 轮没有进展，先停下了。在这里说句话让它们继续" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@来回说了 %2$lld 轮没有进展，先停下了。在这里说句话让它们继续"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ went back and forth %2$lld times without progress and paused. Write here to go on"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ intercambiaron %2$lld mensajes sin avanzar y se detuvieron. Escribe aquí para que sigan"
+          }
+        }
+      }
+    },
+    "%@正在输入…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is typing…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ está escribiendo…"
           }
         }
       }
@@ -410,6 +648,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ informó del progreso"
+          }
+        }
+      }
+    },
+    "%@没有及时回复" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ didn't answer in time"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ no respondió a tiempo"
+          }
+        }
+      }
+    },
+    "%@没有回答，也没有点名别人。用 @名字 直接叫某个成员" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ did not answer or call anyone. Call a member with @Name"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ no respondió ni llamó a nadie. Llama a un miembro con @Nombre"
           }
         }
       }
@@ -452,6 +722,38 @@
         }
       }
     },
+    "%@的密码没有保存，重新添加这个邮箱" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The password for %@ is not saved. Add this mailbox again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La contraseña de %@ no está guardada. Vuelve a añadir este buzón"
+          }
+        }
+      }
+    },
+    "%@的工作又被重启打断，停下了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ was cut off by a restart again and stopped"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un reinicio volvió a interrumpir a %@ y se detuvo"
+          }
+        }
+      }
+    },
     "%@的工作已停止" : {
       "localizations" : {
         "en" : {
@@ -464,6 +766,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se detuvo el trabajo de %@"
+          }
+        }
+      }
+    },
+    "%@的工作被重启打断，已经接着做了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ was cut off by a restart and picked its work back up"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un reinicio interrumpió a %@, que ya retomó su trabajo"
           }
         }
       }
@@ -500,18 +818,34 @@
         }
       }
     },
-    "%@等你填表" : {
+    "%@等你处理" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ is waiting for a form"
+            "value" : "%@ needs you"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ espera que rellenes un formulario"
+            "value" : "%@ te necesita"
+          }
+        }
+      }
+    },
+    "%@等你批准" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is waiting for your approval"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ espera tu aprobación"
           }
         }
       }
@@ -532,6 +866,38 @@
         }
       }
     },
+    "%@翻了翻自己的聊天记录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ looked up its own chat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ consultó su propio chat"
+          }
+        }
+      }
+    },
+    "%@要有自己的文件夹才能设为私有" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ needs a folder of its own to be private"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ necesita una carpeta propia para ser privado"
+          }
+        }
+      }
+    },
     "%@记得的事" : {
       "localizations" : {
         "en" : {
@@ -544,6 +910,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lo que recuerda %@"
+          }
+        }
+      }
+    },
+    "%@还在群聊里，先把它移出群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is still in a group chat. Remove it from its groups first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sigue en un chat de grupo. Sácalo primero de sus grupos"
           }
         }
       }
@@ -1769,6 +2151,22 @@
         }
       }
     },
+    "API Key 里不能有空格或特殊字符" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An API key has no spaces or special characters"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una clave de API no lleva espacios ni caracteres especiales"
+          }
+        }
+      }
+    },
     "API 协议" : {
       "localizations" : {
         "en" : {
@@ -1913,6 +2311,22 @@
         }
       }
     },
+    "App 切到后台后，Bot 可能暂停，回到前台会接着做。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bots may pause while the app is in the background and carry on when you come back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los Bots pueden pausarse con la app en segundo plano y siguen cuando vuelves."
+          }
+        }
+      }
+    },
     "App 版本" : {
       "localizations" : {
         "en" : {
@@ -1973,6 +2387,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bot"
+          }
+        }
+      }
+    },
+    "Bot 之间交代、回复的话不出现在它和你的聊天里，在这里看。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What Bots ask of and answer each other stays out of their chats with you. Read it here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo que los Bots se piden y se responden no aparece en sus chats contigo. Léelo aquí."
+          }
+        }
+      }
+    },
+    "Bot 之间接力了 %lld 次，先停下了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paused after %lld Bot relays"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En pausa tras %lld relevos entre Bots"
           }
         }
       }
@@ -2322,6 +2768,22 @@
         }
       }
     },
+    "DeepSeek 账号需要重新登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the DeepSeek account needs to sign in again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hay que volver a iniciar sesión en la cuenta de DeepSeek"
+          }
+        }
+      }
+    },
     "DeepSeek 账号需要重新登录。到设置 › 账号登录后再试。" : {
       "localizations" : {
         "en" : {
@@ -2501,6 +2963,38 @@
         }
       }
     },
+    "IMAP 用加密连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encrypt the IMAP connection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifrar la conexión IMAP"
+          }
+        }
+      }
+    },
+    "IMAP 端口（默认 993）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMAP port (default 993)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puerto IMAP (993 por defecto)"
+          }
+        }
+      }
+    },
     "MCP 服务" : {
       "localizations" : {
         "en" : {
@@ -2599,6 +3093,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Servidor SMTP"
+          }
+        }
+      }
+    },
+    "SMTP 用加密连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encrypt the SMTP connection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifrar la conexión SMTP"
+          }
+        }
+      }
+    },
+    "SMTP 端口（默认 465）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SMTP port (default 465)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puerto SMTP (465 por defecto)"
           }
         }
       }
@@ -2923,6 +3449,22 @@
         }
       }
     },
+    "「%@」这个名字已经被占用了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The name “%@” is already taken"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El nombre «%@» ya está en uso"
+          }
+        }
+      }
+    },
     "一句话说明它做什么" : {
       "localizations" : {
         "en" : {
@@ -3111,6 +3653,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Archivo anterior"
+          }
+        }
+      }
+    },
+    "上一轮没做完，等你处理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Its last turn failed and needs you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su último turno falló y te necesita"
           }
         }
       }
@@ -3649,6 +4207,38 @@
         }
       }
     },
+    "不填的话，成员们会先打个招呼。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left empty, the members say hello first."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si lo dejas vacío, los miembros saludan primero."
+          }
+        }
+      }
+    },
+    "不填的话，新 Bot 会先打个招呼。之后可以私聊，也可以拉进群。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left empty, the new Bot says hello first. You can chat with it alone or add it to a group later."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si lo dejas vacío, el nuevo Bot saluda primero. Después puedes hablarle a solas o añadirlo a un grupo."
+          }
+        }
+      }
+    },
     "不打开 App 也能看到会话在进行、已完成还是在等你允许，轻点回到对话。" : {
       "localizations" : {
         "en" : {
@@ -3905,6 +4495,22 @@
         }
       }
     },
+    "主 Bot 不能删除，先取消它的主 Bot 身份" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Main Bot cannot be deleted. Remove its Main Bot role first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un Bot principal no se puede eliminar. Quítale primero ese papel"
+          }
+        }
+      }
+    },
     "主 Bot 接下你交代的事，再分给合适的 Bot。主 Bot 不能删除，要删先把别的 Bot 设为主 Bot。" : {
       "localizations" : {
         "en" : {
@@ -3981,6 +4587,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Asunto"
+          }
+        }
+      }
+    },
+    "之前问过的" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Earlier questions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preguntas anteriores"
+          }
+        }
+      }
+    },
+    "也可以自己写" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Or write your own answer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O escribe tu propia respuesta"
           }
         }
       }
@@ -4077,6 +4715,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Presentar archivos"
+          }
+        }
+      }
+    },
+    "交代" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encargo"
           }
         }
       }
@@ -4369,6 +5023,38 @@
         }
       }
     },
+    "从记忆里去掉" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forget"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olvidar"
+          }
+        }
+      }
+    },
+    "从记忆里去掉了一条" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removed an entry from memory"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitó una entrada de la memoria"
+          }
+        }
+      }
+    },
     "从这里分叉" : {
       "localizations" : {
         "en" : {
@@ -4513,6 +5199,22 @@
         }
       }
     },
+    "以后" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From now on"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A partir de ahora"
+          }
+        }
+      }
+    },
     "以后再说" : {
       "localizations" : {
         "en" : {
@@ -4525,22 +5227,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ahora no"
-          }
-        }
-      }
-    },
-    "以后发给这些收件人不用再确认" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Don’t ask again for these recipients"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No volver a preguntar para estos destinatarios"
           }
         }
       }
@@ -5047,6 +5733,22 @@
         }
       }
     },
+    "你发的消息先交给群主，群主再点名需要的成员。建好后还能改。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your messages go to the admin first, who calls on the members needed. You can change this later."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus mensajes llegan primero al administrador, que llama a los miembros necesarios. Puedes cambiarlo después."
+          }
+        }
+      }
+    },
     "你回答了卡片" : {
       "localizations" : {
         "en" : {
@@ -5059,6 +5761,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Respondiste una tarjeta"
+          }
+        }
+      }
+    },
+    "你用一条消息回答了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You answered with a message"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respondiste con un mensaje"
+          }
+        }
+      }
+    },
+    "你让%@停下了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You stopped %@'s work"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detuviste el trabajo de %@"
           }
         }
       }
@@ -5239,6 +5973,22 @@
         }
       }
     },
+    "保存或分享图片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save or Share Image"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar o compartir imagen"
+          }
+        }
+      }
+    },
     "保存排队消息" : {
       "localizations" : {
         "en" : {
@@ -5251,6 +6001,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Guardar mensaje en cola"
+          }
+        }
+      }
+    },
+    "保存能力" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save capability"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar capacidad"
           }
         }
       }
@@ -5303,6 +6069,22 @@
         }
       }
     },
+    "修好后继续" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Went on after the failed turn"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siguió tras el turno fallido"
+          }
+        }
+      }
+    },
     "修改" : {
       "localizations" : {
         "en" : {
@@ -5319,6 +6101,22 @@
         }
       }
     },
+    "修改 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modificar Bot"
+          }
+        }
+      }
+    },
     "修改了文件" : {
       "localizations" : {
         "en" : {
@@ -5331,6 +6129,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Archivos editados"
+          }
+        }
+      }
+    },
+    "修改了群聊「%@」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated group “%@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modificó el grupo «%@»"
           }
         }
       }
@@ -5363,6 +6177,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cambiar evento"
+          }
+        }
+      }
+    },
+    "修改群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modificar grupo"
           }
         }
       }
@@ -5427,6 +6257,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Un valor puede ser $DSH_SECRET_NOMBRE para usar un secreto guardado."
+          }
+        }
+      }
+    },
+    "偏好" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferences"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferencias"
           }
         }
       }
@@ -5539,6 +6385,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Detener objetivo"
+          }
+        }
+      }
+    },
+    "停止自动朗读" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Reading Replies Aloud"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dejar de leer las respuestas"
           }
         }
       }
@@ -5831,6 +6693,54 @@
         }
       }
     },
+    "先交给它一件事（可不填）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A first task for it (optional)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una primera tarea (opcional)"
+          }
+        }
+      }
+    },
+    "先写下你的问题" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Write a question first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe primero tu pregunta"
+          }
+        }
+      }
+    },
+    "先把群主交给别的成员" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hand the admin role to another member first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pasa primero el papel de administrador a otro miembro"
+          }
+        }
+      }
+    },
     "先粘贴 Key" : {
       "localizations" : {
         "en" : {
@@ -5859,6 +6769,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pega primero un token"
+          }
+        }
+      }
+    },
+    "先选一个 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a Bot first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige primero un Bot"
+          }
+        }
+      }
+    },
+    "先选模型，再选思考强度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a model before choosing a thinking level"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige un modelo antes del nivel de razonamiento"
           }
         }
       }
@@ -6519,6 +7461,22 @@
         }
       }
     },
+    "内置形象" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Built-in Looks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aspectos incluidos"
+          }
+        }
+      }
+    },
     "内置插件" : {
       "localizations" : {
         "en" : {
@@ -6547,6 +7505,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Escribe un pequeño script y ejecútalo"
+          }
+        }
+      }
+    },
+    "写一段概括" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Write a Summary"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribir un resumen"
+          }
+        }
+      }
+    },
+    "写下要 Bot 做什么" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Say what the Bot should do"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indica qué debe hacer el Bot"
+          }
+        }
+      }
+    },
+    "写了一封邮件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wrote an email"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribió un correo"
           }
         }
       }
@@ -7127,6 +8133,54 @@
         }
       }
     },
+    "创建 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear Bot"
+          }
+        }
+      }
+    },
+    "创建了%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Created %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creó a %@"
+          }
+        }
+      }
+    },
+    "创建了群聊「%@」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Created group “%@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creó el grupo «%@»"
+          }
+        }
+      }
+    },
     "创建团队任务" : {
       "localizations" : {
         "en" : {
@@ -7203,6 +8257,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abrir terminal"
+          }
+        }
+      }
+    },
+    "创建群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear grupo"
           }
         }
       }
@@ -7347,6 +8417,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Eliminar «%@»?"
+          }
+        }
+      }
+    },
+    "删除了群聊「%@」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleted group “%@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminó el grupo «%@»"
           }
         }
       }
@@ -7511,6 +8597,22 @@
         }
       }
     },
+    "删除能力" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete capability"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar capacidad"
+          }
+        }
+      }
+    },
     "删除这一条？" : {
       "localizations" : {
         "en" : {
@@ -7555,6 +8657,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Eliminar este evento?"
+          }
+        }
+      }
+    },
+    "删除这次提问" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete This Side Chat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar esta consulta"
           }
         }
       }
@@ -8375,6 +9493,22 @@
         }
       }
     },
+    "去看看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir"
+          }
+        }
+      }
+    },
     "去设置" : {
       "localizations" : {
         "en" : {
@@ -8535,6 +9669,22 @@
         }
       }
     },
+    "发给这些收件人不用再确认" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never ask again for these recipients"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No volver a preguntar para estos destinatarios"
+          }
+        }
+      }
+    },
     "发言" : {
       "localizations" : {
         "en" : {
@@ -8631,6 +9781,22 @@
         }
       }
     },
+    "发邮件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send email"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar correo"
+          }
+        }
+      }
+    },
     "取消" : {
       "localizations" : {
         "en" : {
@@ -8675,6 +9841,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancelar trabajo en segundo plano"
+          }
+        }
+      }
+    },
+    "取消回应 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove reaction %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitar la reacción %@"
           }
         }
       }
@@ -8855,6 +10037,38 @@
         }
       }
     },
+    "另一个 DSH 正在管理这支团队，这里暂时只能看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another DSH holds this team, so it is read-only here for now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otro DSH gestiona este equipo; aquí es de solo lectura por ahora"
+          }
+        }
+      }
+    },
+    "另一个 DSH 正在管理这支团队，这里暂时只能看。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another DSH holds this team, so it is read-only here for now."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otro DSH gestiona este equipo; aquí es de solo lectura por ahora."
+          }
+        }
+      }
+    },
     "另有 %lld 个" : {
       "localizations" : {
         "en" : {
@@ -8935,6 +10149,38 @@
         }
       }
     },
+    "只有自己添加的连接器才能移除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only connectors you added can be removed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se pueden quitar los conectores que añadiste"
+          }
+        }
+      }
+    },
+    "只粘贴密钥本身，不要带「名字=」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste only the key, not a NAME=value line"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pega solo la clave, sin «NOMBRE=»"
+          }
+        }
+      }
+    },
     "只给%@用" : {
       "localizations" : {
         "en" : {
@@ -8995,6 +10241,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Llama a todos los bots del grupo"
+          }
+        }
+      }
+    },
+    "叫停" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parada"
           }
         }
       }
@@ -9223,6 +10485,22 @@
         }
       }
     },
+    "名字不能超过 %@ 个字" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the name under %@ characters"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El nombre no puede pasar de %@ caracteres"
+          }
+        }
+      }
+    },
     "名字只能用大写字母、数字和下划线，并以字母开头" : {
       "localizations" : {
         "en" : {
@@ -9411,6 +10689,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Atrás"
+          }
+        }
+      }
+    },
+    "向你要了密钥 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asked you for the key %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te pidió la clave %@"
           }
         }
       }
@@ -9639,6 +10933,38 @@
         }
       }
     },
+    "和别的 Bot 的往来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Messages with Other Bots"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensajes con otros Bots"
+          }
+        }
+      }
+    },
+    "和邮件服务器的连接断了，再试一次" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The connection to the mail server dropped. Try again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se cortó la conexión con el servidor de correo. Inténtalo de nuevo"
+          }
+        }
+      }
+    },
     "哪些 Bot 可以用" : {
       "localizations" : {
         "en" : {
@@ -9715,6 +11041,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Volver al final"
+          }
+        }
+      }
+    },
+    "回复" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reply"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respuesta"
           }
         }
       }
@@ -9827,6 +11169,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Espacio de trabajo del equipo"
+          }
+        }
+      }
+    },
+    "团队至少要有一个主 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The team needs at least one Main Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El equipo necesita al menos un Bot principal"
           }
         }
       }
@@ -9975,6 +11333,38 @@
         }
       }
     },
+    "图表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gráfico"
+          }
+        }
+      }
+    },
+    "图表操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chart actions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acciones del gráfico"
+          }
+        }
+      }
+    },
     "在 App 内切换语言" : {
       "localizations" : {
         "en" : {
@@ -10067,6 +11457,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este bot responde a los mensajes que llegan a %@."
+          }
+        }
+      }
+    },
+    "在「%@」里发了言" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posted in “%@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Publicó en «%@»"
           }
         }
       }
@@ -10279,6 +11685,38 @@
         }
       }
     },
+    "在等%@回复" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for %@ to reply"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esperando la respuesta de %@"
+          }
+        }
+      }
+    },
+    "在等别的 Bot 回复" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for another Bot to reply"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esperando la respuesta de otro Bot"
+          }
+        }
+      }
+    },
     "在系统浏览器中打开" : {
       "localizations" : {
         "en" : {
@@ -10307,6 +11745,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abrir en la versión web"
+          }
+        }
+      }
+    },
+    "在群里发言" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Post in group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Publicar en el grupo"
           }
         }
       }
@@ -10403,6 +11857,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La dirección incluye el prefijo de la API; déjala en blanco para usar la predeterminada. El número de resultados debe ser un entero de 1 a 50."
+          }
+        }
+      }
+    },
+    "地址要以 https:// 开头" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The address must start with https://"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La dirección debe empezar por https://"
           }
         }
       }
@@ -10643,6 +12113,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copiar informe"
+          }
+        }
+      }
+    },
+    "复制数据" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Data"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar datos"
+          }
+        }
+      }
+    },
+    "复制整段对话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Conversation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar la conversación"
           }
         }
       }
@@ -10919,6 +12421,54 @@
         }
       }
     },
+    "头像图片太大了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The avatar image is too large"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La imagen del avatar es demasiado grande"
+          }
+        }
+      }
+    },
+    "头像库最多存 %@ 张照片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The avatar library holds at most %@ photos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La biblioteca de avatares admite como máximo %@ fotos"
+          }
+        }
+      }
+    },
+    "头像要用 PNG、JPEG、WebP 或 GIF 图片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The avatar must be a PNG, JPEG, WebP, or GIF image"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El avatar debe ser una imagen PNG, JPEG, WebP o GIF"
+          }
+        }
+      }
+    },
     "好" : {
       "localizations" : {
         "en" : {
@@ -11015,6 +12565,22 @@
         }
       }
     },
+    "存为 Markdown 文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save as Markdown File"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar como archivo Markdown"
+          }
+        }
+      }
+    },
     "存储" : {
       "localizations" : {
         "en" : {
@@ -11027,6 +12593,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Almacenamiento"
+          }
+        }
+      }
+    },
+    "学习功能没有开启" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning is turned off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El aprendizaje está desactivado"
+          }
+        }
+      }
+    },
+    "学到了新东西，等你看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learned something and wants you to look"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aprendió algo y quiere que lo revises"
+          }
+        }
+      }
+    },
+    "它们之间还没有说过话。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They have not talked to each other yet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todavía no se han hablado."
           }
         }
       }
@@ -11091,6 +12705,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Es un proyecto de código abierto. Darle una estrella o compartirlo con amigos ayuda a que más personas lo descubran."
+          }
+        }
+      }
+    },
+    "它留下的文件不会删除，但别的 Bot 之后可以在那个文件夹里工作、读到里面的内容。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Its files are not deleted, but other Bots can then work in that folder and read what is in it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sus archivos no se eliminan, pero otros Bots podrán trabajar en esa carpeta y leer su contenido."
           }
         }
       }
@@ -11399,6 +13029,22 @@
         }
       }
     },
+    "完整的错误日志" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full error log"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registro completo de errores"
+          }
+        }
+      }
+    },
     "官网" : {
       "localizations" : {
         "en" : {
@@ -11527,6 +13173,22 @@
         }
       }
     },
+    "密钥卡片有了结果" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key card was answered"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tarjeta de clave tuvo respuesta"
+          }
+        }
+      }
+    },
     "密钥只保存在本机。" : {
       "localizations" : {
         "en" : {
@@ -11555,6 +13217,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El nombre con el que se guarda la clave en este dispositivo. Normalmente no hace falta cambiarlo."
+          }
+        }
+      }
+    },
+    "密钥太长了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key is too long"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La clave es demasiado larga"
           }
         }
       }
@@ -11591,18 +13269,34 @@
         }
       }
     },
-    "密钥至少要 4 个字符" : {
+    "密钥至少要 %@ 个字符" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A secret needs at least 4 characters"
+            "value" : "A key must have at least %@ characters"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El secreto debe tener al menos 4 caracteres"
+            "value" : "Una clave debe tener al menos %@ caracteres"
+          }
+        }
+      }
+    },
+    "对方没有及时响应，稍后再试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The service did not answer in time. Try again later"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servicio no respondió a tiempo. Inténtalo más tarde"
           }
         }
       }
@@ -11639,6 +13333,22 @@
         }
       }
     },
+    "导出为 Markdown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as Markdown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportar como Markdown"
+          }
+        }
+      }
+    },
     "导出失败" : {
       "localizations" : {
         "en" : {
@@ -11651,6 +13361,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Error al exportar"
+          }
+        }
+      }
+    },
+    "导出完整的错误日志" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export Full Error Log"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportar el registro completo de errores"
           }
         }
       }
@@ -11815,6 +13541,38 @@
         }
       }
     },
+    "展开全部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show All"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar todo"
+          }
+        }
+      }
+    },
+    "展开全部（%lld 字）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show All (%lld characters)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar todo (%lld caracteres)"
+          }
+        }
+      }
+    },
     "展开全部（%lld 行）" : {
       "localizations" : {
         "en" : {
@@ -11875,6 +13633,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mostrar detalles de la pregunta"
+          }
+        }
+      }
+    },
+    "展示卡片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show view"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar tarjeta"
           }
         }
       }
@@ -12019,6 +13793,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Instrucciones"
+          }
+        }
+      }
+    },
+    "工作说明（可不填）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instructions (optional)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instrucciones (opcional)"
           }
         }
       }
@@ -12403,6 +14193,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bifurcado"
+          }
+        }
+      }
+    },
+    "已删除的私有 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleted Private Bots"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bots privados eliminados"
           }
         }
       }
@@ -12915,6 +14721,22 @@
         }
       }
     },
+    "已断开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconectado"
+          }
+        }
+      }
+    },
     "已新建创造模式会话，可在会话列表中打开" : {
       "localizations" : {
         "en" : {
@@ -13119,6 +14941,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se esperaron %lld segundos"
+          }
+        }
+      }
+    },
+    "已经有一个叫%@的 Bot 了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Bot named %@ already exists"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya existe un Bot llamado %@"
+          }
+        }
+      }
+    },
+    "已经有一个叫「%@」的群聊了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another group chat is already called “%@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya hay un chat de grupo llamado «%@»"
+          }
+        }
+      }
+    },
+    "已经记过了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already saved"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya estaba guardado"
           }
         }
       }
@@ -13475,18 +15345,18 @@
         }
       }
     },
-    "常见邮箱会自动识别，其他邮箱请手动填写，端口默认 993 和 465。" : {
+    "常见邮箱会自动识别，其他邮箱请手动填写。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Common providers are detected automatically. For others, enter the servers manually; ports default to 993 and 465."
+            "value" : "Common mail providers are recognized automatically. Fill in the servers for others."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los proveedores comunes se detectan automáticamente. Para otros, introduce los servidores a mano; los puertos predeterminados son 993 y 465."
+            "value" : "Los proveedores habituales se reconocen solos. Para los demás, indica los servidores."
           }
         }
       }
@@ -13648,22 +15518,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Una vez activada, tanto el agente como los plugins de terceros que instales pueden usarla, y la app no distingue quién la llama. Asegúrate de confiar en el origen de un plugin antes de instalarlo. Los cambios y eliminaciones se hacen directamente por omisión: pon la escritura de esa función en «Preguntar siempre» si prefieres que te consulte cada vez."
-          }
-        }
-      }
-    },
-    "开启时会下载 Bot 插件。App 切到后台后，Bot 可能暂停，回到前台会接着做。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Turning it on downloads the Bot plugin. Bots may pause while the app is in the background and pick up again when you return."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Al activarlo se descarga el complemento de Bot. Los Bots pueden pausarse con la app en segundo plano y siguen al volver."
           }
         }
       }
@@ -14389,6 +16243,22 @@
         }
       }
     },
+    "形象" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Look"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aspecto"
+          }
+        }
+      }
+    },
     "待允许" : {
       "localizations" : {
         "en" : {
@@ -14565,6 +16435,22 @@
         }
       }
     },
+    "忘掉了：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forgot: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olvidó: %@"
+          }
+        }
+      }
+    },
     "快速查看" : {
       "localizations" : {
         "en" : {
@@ -14593,6 +16479,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pensando"
+          }
+        }
+      }
+    },
+    "思考了 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thought for %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pensó durante %@"
           }
         }
       }
@@ -15013,6 +16915,22 @@
         }
       }
     },
+    "打开%@的私聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open %@'s Chat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir el chat de %@"
+          }
+        }
+      }
+    },
     "打开「发现」时，App 会访问这里列出的地址。左滑可移除。" : {
       "localizations" : {
         "en" : {
@@ -15089,6 +17007,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abrir Salud"
+          }
+        }
+      }
+    },
+    "打开后，Bot 回复的步骤里会带上它的思考和用时。这两项和网页版共用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When on, a Bot's steps include its reasoning and how long it took. Both settings are shared with the web version."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si se activa, los pasos de un Bot incluyen su razonamiento y cuánto tardó. Ambos ajustes se comparten con la versión web."
           }
         }
       }
@@ -15349,6 +17283,22 @@
         }
       }
     },
+    "找不到叫 %@ 的能力" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No capability named %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay ninguna capacidad llamada %@"
+          }
+        }
+      }
+    },
     "找不到该插件" : {
       "localizations" : {
         "en" : {
@@ -15361,6 +17311,102 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No existe tal complemento."
+          }
+        }
+      }
+    },
+    "找不到这个任务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No such task"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encuentra esta tarea"
+          }
+        }
+      }
+    },
+    "找不到这个密钥" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No such key"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encuentra esta clave"
+          }
+        }
+      }
+    },
+    "找不到这个连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No such connection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encuentra esta conexión"
+          }
+        }
+      }
+    },
+    "找不到这个连接器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No such connector"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encuentra este conector"
+          }
+        }
+      }
+    },
+    "找不到这个邮箱" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No such mailbox"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encuentra este buzón"
+          }
+        }
+      }
+    },
+    "找不到这段对话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This conversation cannot be found"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encuentra esta conversación"
           }
         }
       }
@@ -15393,6 +17439,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Contenido de la habilidad"
+          }
+        }
+      }
+    },
+    "抄送" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cc"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cc"
           }
         }
       }
@@ -15717,6 +17779,22 @@
         }
       }
     },
+    "换了文件夹后，下一轮会在新文件夹里开始新的一段对话。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After a change of folder, the next turn starts a fresh part of the conversation in the new one."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tras cambiar de carpeta, el siguiente turno empieza un tramo nuevo de la conversación en ella."
+          }
+        }
+      }
+    },
     "换了文件夹后，下一轮会在新文件夹里开始新的一段对话。要用别的文件夹，先在侧边栏新建或打开一个工作区。" : {
       "localizations" : {
         "en" : {
@@ -15937,6 +18015,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recomendado"
+          }
+        }
+      }
+    },
+    "推进群目标" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Work on group goal"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avanzar el objetivo del grupo"
           }
         }
       }
@@ -16552,6 +18646,22 @@
         }
       }
     },
+    "搜索 Bot、群聊和私聊记录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search Bots, groups, and chats"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar Bots, grupos y chats"
+          }
+        }
+      }
+    },
     "搜索 UTC 偏移、IANA 标识或城市" : {
       "localizations" : {
         "en" : {
@@ -17112,6 +19222,22 @@
         }
       }
     },
+    "改了一条记忆：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated a memory: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizó un recuerdo: %@"
+          }
+        }
+      }
+    },
     "改写" : {
       "localizations" : {
         "en" : {
@@ -17608,18 +19734,18 @@
         }
       }
     },
-    "新 Bot 会先打个招呼，之后可以私聊，也可以拉进群。" : {
+    "新 Bot 的默认模型" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A new Bot says hello first. Then chat with it, or add it to a group."
+            "value" : "Default Model for New Bots"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un Bot nuevo saluda primero. Luego puedes chatear con él o añadirlo a un grupo."
+            "value" : "Modelo por defecto de los Bots nuevos"
           }
         }
       }
@@ -18026,6 +20152,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pregunta lateral"
+          }
+        }
+      }
+    },
+    "旁支提问列表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Side chats"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consultas paralelas"
           }
         }
       }
@@ -18823,6 +20965,22 @@
         }
       }
     },
+    "显示思考过程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Thinking"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar el razonamiento"
+          }
+        }
+      }
+    },
     "显示或隐藏侧边栏" : {
       "localizations" : {
         "en" : {
@@ -19256,6 +21414,22 @@
         }
       }
     },
+    "更多操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More actions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más acciones"
+          }
+        }
+      }
+    },
     "更多账号信息" : {
       "localizations" : {
         "en" : {
@@ -19380,6 +21554,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld actualizados"
+          }
+        }
+      }
+    },
+    "更新了%@的资料" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated %@'s profile"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizó el perfil de %@"
+          }
+        }
+      }
+    },
+    "更新了团队共享的记忆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team memory updated"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizó la memoria del equipo"
+          }
+        }
+      }
+    },
+    "更新了自己的资料" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated its own profile"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizó su propio perfil"
           }
         }
       }
@@ -19684,6 +21906,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Problemas recientes"
+          }
+        }
+      }
+    },
+    "有一封邮件等你确认" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An email is waiting for your OK"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un correo espera tu confirmación"
+          }
+        }
+      }
+    },
+    "有个 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un Bot"
           }
         }
       }
@@ -20472,6 +22726,22 @@
         }
       }
     },
+    "来自%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "via %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vía %@"
+          }
+        }
+      }
+    },
     "松手添加到消息" : {
       "localizations" : {
         "en" : {
@@ -20763,6 +23033,22 @@
         }
       }
     },
+    "查看团队" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List Bots"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver el equipo"
+          }
+        }
+      }
+    },
     "查看团队任务" : {
       "localizations" : {
         "en" : {
@@ -20891,6 +23177,22 @@
         }
       }
     },
+    "查看密钥" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List keys"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver las claves"
+          }
+        }
+      }
+    },
     "查看已安装" : {
       "localizations" : {
         "en" : {
@@ -21003,6 +23305,38 @@
         }
       }
     },
+    "查看能力" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List capabilities"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver las capacidades"
+          }
+        }
+      }
+    },
+    "查看连接器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List connectors"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver los conectores"
+          }
+        }
+      }
+    },
     "查询代码符号" : {
       "localizations" : {
         "en" : {
@@ -21031,6 +23365,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ver uso"
+          }
+        }
+      }
+    },
+    "标为未读" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark as Unread"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como no leído"
           }
         }
       }
@@ -21211,6 +23561,22 @@
         }
       }
     },
+    "概括" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summary"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumen"
+          }
+        }
+      }
+    },
     "模型" : {
       "localizations" : {
         "en" : {
@@ -21345,6 +23711,38 @@
         }
       }
     },
+    "模型没有返回内容，再试一次" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The model wrote nothing. Try again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El modelo no escribió nada. Inténtalo de nuevo"
+          }
+        }
+      }
+    },
+    "模型的 API Key 缺失或无效" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the model's API key is missing or invalid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "falta la clave de API del modelo o no es válida"
+          }
+        }
+      }
+    },
     "模型的 API Key 缺失或无效。到设置 › 模型检查，或者在它的资料页换个模型。" : {
       "localizations" : {
         "en" : {
@@ -21357,6 +23755,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Falta la clave de API del modelo o no es válida. Revisa Ajustes › Modelos o elige otro modelo en su perfil."
+          }
+        }
+      }
+    },
+    "模型的额度用完了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the model's quota is used up"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "se agotó la cuota del modelo"
           }
         }
       }
@@ -22039,6 +24453,22 @@
         }
       }
     },
+    "正在概括…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summarizing…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumiendo…"
+          }
+        }
+      }
+    },
     "正在等待后端接收安装任务，收到确认后会自动重试取消。" : {
       "localizations" : {
         "en" : {
@@ -22675,6 +25105,22 @@
         }
       }
     },
+    "每个会话可以单独交给某个 Bot 或某个群聊。左滑移除记录。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each chat can go to a Bot or a group of its own. Swipe left to remove one."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada chat puede ir a un Bot o a un grupo distinto. Desliza a la izquierda para quitarlo."
+          }
+        }
+      }
+    },
     "每周" : {
       "localizations" : {
         "en" : {
@@ -22771,6 +25217,22 @@
         }
       }
     },
+    "每次都先给我看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always show me first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrármelo siempre antes"
+          }
+        }
+      }
+    },
     "每隔一段时间" : {
       "localizations" : {
         "en" : {
@@ -22803,6 +25265,38 @@
         }
       }
     },
+    "比如：大家一起把下周的发布计划过一遍" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. Let's go over next week's launch plan together"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "p. ej.: Repasemos juntos el plan de lanzamiento de la semana que viene"
+          }
+        }
+      }
+    },
+    "比如：帮我整理这周的行业新闻" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. Round up this week's industry news for me"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "p. ej.: Resúmeme las noticias del sector de esta semana"
+          }
+        }
+      }
+    },
     "比如：研究员、文案" : {
       "localizations" : {
         "en" : {
@@ -22831,6 +25325,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ms"
+          }
+        }
+      }
+    },
+    "汇报" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informe"
           }
         }
       }
@@ -23043,6 +25553,22 @@
         }
       }
     },
+    "没有可发送的内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to send"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay nada que enviar"
+          }
+        }
+      }
+    },
     "没有回答" : {
       "localizations" : {
         "en" : {
@@ -23103,6 +25629,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se encontró pnpm, por lo que no se puede instalar nada."
+          }
+        }
+      }
+    },
+    "没有找到「%@」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing found for “%@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontró nada para «%@»"
           }
         }
       }
@@ -23235,6 +25777,86 @@
         }
       }
     },
+    "没能从记忆里去掉" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't remove from memory"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo quitar de la memoria"
+          }
+        }
+      }
+    },
+    "没能修改群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't update the group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo modificar el grupo"
+          }
+        }
+      }
+    },
+    "没能创建群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't create the group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo crear el grupo"
+          }
+        }
+      }
+    },
+    "没能删除群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't delete the group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo eliminar el grupo"
+          }
+        }
+      }
+    },
+    "没能在群里发言" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't post in the group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo publicar en el grupo"
+          }
+        }
+      }
+    },
     "没能打开" : {
       "localizations" : {
         "en" : {
@@ -23247,6 +25869,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudo activar"
+          }
+        }
+      }
+    },
+    "没能联系上%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't message %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo escribir a %@"
+          }
+        }
+      }
+    },
+    "没能让%@停下" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't stop %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo detener a %@"
+          }
+        }
+      }
+    },
+    "没能记下来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save to memory"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo guardar en la memoria"
           }
         }
       }
@@ -23359,6 +26029,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Navegador"
+          }
+        }
+      }
+    },
+    "浏览文件夹…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse Folders…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explorar carpetas…"
           }
         }
       }
@@ -24227,6 +26913,22 @@
         }
       }
     },
+    "用这个文件夹" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use This Folder"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar esta carpeta"
+          }
+        }
+      }
+    },
     "用途（可不填）" : {
       "localizations" : {
         "en" : {
@@ -24723,6 +27425,22 @@
         }
       }
     },
+    "看了「%@」的聊天记录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read “%@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leyó «%@»"
+          }
+        }
+      }
+    },
     "看内容" : {
       "localizations" : {
         "en" : {
@@ -24739,6 +27457,54 @@
         }
       }
     },
+    "看图表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Chart"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver gráfico"
+          }
+        }
+      }
+    },
+    "看它们之间的全部往来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See Everything They Said to Each Other"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver todo lo que se dijeron"
+          }
+        }
+      }
+    },
+    "看看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver"
+          }
+        }
+      }
+    },
     "看看这个工作区里有什么" : {
       "localizations" : {
         "en" : {
@@ -24751,6 +27517,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mira qué hay en este espacio de trabajo"
+          }
+        }
+      }
+    },
+    "看群聊记录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read group chat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer el chat de grupo"
+          }
+        }
+      }
+    },
+    "看表格" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Table"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver tabla"
+          }
+        }
+      }
+    },
+    "知道了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dismiss"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entendido"
           }
         }
       }
@@ -24947,6 +27761,22 @@
         }
       }
     },
+    "私有 Bot 删除后，它的文件夹、记忆和聊天记录仍然不让别的 Bot 碰。解除之后，文件夹可以再交给别的 Bot 用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After a private Bot is deleted, its folder, memory, and chats stay closed to other Bots. Once released, the folder can be given to another Bot."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al eliminar un Bot privado, su carpeta, memoria y chats siguen cerrados a los demás Bots. Una vez liberada, la carpeta puede asignarse a otro Bot."
+          }
+        }
+      }
+    },
     "私有 Bot 只在自己的文件夹里工作，别的 Bot 和群聊都碰不到它的文件和记忆。它需要一个不和别人重叠的文件夹，不能是主 Bot，也不能在群聊里。" : {
       "localizations" : {
         "en" : {
@@ -24959,6 +27789,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Un bot privado solo trabaja en su propia carpeta; los demás bots y chats de grupo no pueden tocar sus archivos ni su memoria. Necesita una carpeta que no se solape con la de nadie, y no puede ser bot principal ni estar en un chat de grupo."
+          }
+        }
+      }
+    },
+    "私聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direct chat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat directo"
+          }
+        }
+      }
+    },
+    "私聊里说过的" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Said in Chats"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dicho en los chats"
           }
         }
       }
@@ -25087,6 +27949,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quitar este conector"
+          }
+        }
+      }
+    },
+    "稍后再选" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Later"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir más tarde"
           }
         }
       }
@@ -25253,6 +28131,22 @@
         }
       }
     },
+    "第一句话（可不填）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First message (optional)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Primer mensaje (opcional)"
+          }
+        }
+      }
+    },
     "第一次发消息的人要你允许后，Bot 才会回复。" : {
       "localizations" : {
         "en" : {
@@ -25329,6 +28223,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Espera tu respuesta: %@"
+          }
+        }
+      }
+    },
+    "等你填一张卡片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for you to fill in a card"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espera que rellenes una tarjeta"
+          }
+        }
+      }
+    },
+    "等你批准" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for your approval"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espera tu aprobación"
+          }
+        }
+      }
+    },
+    "等你给一个密钥" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for a key from you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espera una clave tuya"
+          }
+        }
+      }
+    },
+    "等你连接一个服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for you to connect a service"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espera que conectes un servicio"
           }
         }
       }
@@ -25669,6 +28627,38 @@
         }
       }
     },
+    "粘贴密钥时不要带引号" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste the key without quotes"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pega la clave sin comillas"
+          }
+        }
+      }
+    },
+    "粘贴登录完成后地址栏里的完整网址" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste the whole address from the address bar after signing in"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pega la dirección completa de la barra tras iniciar sesión"
+          }
+        }
+      }
+    },
     "系列" : {
       "localizations" : {
         "en" : {
@@ -25970,6 +28960,22 @@
         }
       }
     },
+    "组合里只能放已保存的 MCP 服务和技能" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Packs can include only saved MCP servers and skills"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los paquetes solo admiten servidores MCP y habilidades ya guardados"
+          }
+        }
+      }
+    },
     "终端" : {
       "localizations" : {
         "en" : {
@@ -26114,6 +29120,22 @@
         }
       }
     },
+    "给 Bot 发消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Message Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribir a un Bot"
+          }
+        }
+      }
+    },
     "给 Bot 打开一个组合，就同时打开里面的每一项。" : {
       "localizations" : {
         "en" : {
@@ -26126,6 +29148,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Activar un paquete para un bot activa todo lo que contiene."
+          }
+        }
+      }
+    },
+    "给%@发了消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Messaged %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribió a %@"
           }
         }
       }
@@ -26174,6 +29212,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Valorar en App Store"
+          }
+        }
+      }
+    },
+    "给任务起个名字" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give the task a name"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponle nombre a la tarea"
+          }
+        }
+      }
+    },
+    "给连接器起个名字" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name the connector"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponle nombre al conector"
           }
         }
       }
@@ -26418,6 +29488,22 @@
         }
       }
     },
+    "网络不通" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the network is unreachable"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no hay conexión de red"
+          }
+        }
+      }
+    },
     "网络连接失败" : {
       "localizations" : {
         "en" : {
@@ -26562,6 +29648,22 @@
         }
       }
     },
+    "群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupo"
+          }
+        }
+      }
+    },
     "群主" : {
       "localizations" : {
         "en" : {
@@ -26610,6 +29712,22 @@
         }
       }
     },
+    "群主必须是群成员" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The admin must be a member of the group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El administrador debe ser miembro del grupo"
+          }
+        }
+      }
+    },
     "群公告" : {
       "localizations" : {
         "en" : {
@@ -26622,6 +29740,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aviso del grupo"
+          }
+        }
+      }
+    },
+    "群公告最多 %@ 个字" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A group's notice can hold at most %@ characters"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El aviso del grupo admite como máximo %@ caracteres"
           }
         }
       }
@@ -26642,18 +29776,18 @@
         }
       }
     },
-    "群名，比如：产品周会" : {
+    "群名，不填就用成员的名字" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Group name, e.g. Product weekly"
+            "value" : "Group name; left empty, the members' names"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nombre del grupo, p. ej., Reunión de producto"
+            "value" : "Nombre del grupo; vacío, los nombres de los miembros"
           }
         }
       }
@@ -26670,6 +29804,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Objetivo del grupo"
+          }
+        }
+      }
+    },
+    "群目标有了进展" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The group goal moved forward"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El objetivo del grupo avanzó"
           }
         }
       }
@@ -26706,6 +29856,54 @@
         }
       }
     },
+    "群聊发言" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Group round"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ronda del grupo"
+          }
+        }
+      }
+    },
+    "群聊最多 %@ 个 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A group chat holds at most %@ Bots"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un chat de grupo admite como máximo %@ Bots"
+          }
+        }
+      }
+    },
+    "群聊至少要两个 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A group chat needs at least two Bots"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un chat de grupo necesita al menos dos Bots"
+          }
+        }
+      }
+    },
     "群聊里的回复" : {
       "localizations" : {
         "en" : {
@@ -26734,6 +29932,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Memoria del grupo"
+          }
+        }
+      }
+    },
+    "群里已经没有 Bot 了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Bot is left in this group chat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya no queda ningún Bot en este grupo"
           }
         }
       }
@@ -26818,6 +30032,22 @@
         }
       }
     },
+    "翻记忆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recall"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consultar la memoria"
+          }
+        }
+      }
+    },
     "聊天软件" : {
       "localizations" : {
         "en" : {
@@ -26850,6 +30080,22 @@
         }
       }
     },
+    "聊过的会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chats"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chats"
+          }
+        }
+      }
+    },
     "能力" : {
       "localizations" : {
         "en" : {
@@ -26862,6 +30108,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Capacidades"
+          }
+        }
+      }
+    },
+    "能力的类型不能改，删掉再新建一个" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A capability cannot change its kind. Delete it and save a new one"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una capacidad no puede cambiar de tipo. Elimínala y guarda una nueva"
           }
         }
       }
@@ -26994,6 +30256,22 @@
         }
       }
     },
+    "自动审查只能用在单个会话上，不能设成 Bot 或群聊的权限" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto review applies to one session only and cannot be a Bot's or a group's permission"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La revisión automática solo vale para una sesión y no puede ser el permiso de un Bot o de un grupo"
+          }
+        }
+      }
+    },
     "自动换行" : {
       "localizations" : {
         "en" : {
@@ -27006,6 +30284,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajuste de línea"
+          }
+        }
+      }
+    },
+    "自动朗读回复" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read Replies Aloud"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer las respuestas en voz alta"
+          }
+        }
+      }
+    },
+    "自动选择" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automático"
           }
         }
       }
@@ -27202,18 +30512,18 @@
         }
       }
     },
-    "至少选两个 Bot。" : {
+    "至少选一天" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pick at least two Bots."
+            "value" : "Pick at least one day"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elige al menos dos Bots."
+            "value" : "Elige al menos un día"
           }
         }
       }
@@ -27410,6 +30720,38 @@
         }
       }
     },
+    "解除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liberar"
+          }
+        }
+      }
+    },
+    "解除对%@的封存？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release what %@ left behind?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Liberar lo que dejó %@?"
+          }
+        }
+      }
+    },
     "计划" : {
       "localizations" : {
         "en" : {
@@ -27555,6 +30897,38 @@
         }
       }
     },
+    "让 Bot 停下" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detener a un Bot"
+          }
+        }
+      }
+    },
+    "让%@停下了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopped %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detuvo a %@"
+          }
+        }
+      }
+    },
     "让所有人停下" : {
       "localizations" : {
         "en" : {
@@ -27619,6 +30993,38 @@
         }
       }
     },
+    "记下来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remember"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordar"
+          }
+        }
+      }
+    },
+    "记住了：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remembered: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordó: %@"
+          }
+        }
+      }
+    },
     "记录已更新" : {
       "localizations" : {
         "en" : {
@@ -27647,6 +31053,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Memoria"
+          }
+        }
+      }
+    },
+    "记忆功能没有开启" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory is turned off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La memoria está desactivada"
+          }
+        }
+      }
+    },
+    "记忆没有变化" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory not changed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La memoria no cambió"
+          }
+        }
+      }
+    },
+    "记忆的主题已经到上限了，记到已有的主题里" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory has reached its limit of topics. Add to an existing one"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La memoria alcanzó su límite de temas. Añádelo a uno existente"
           }
         }
       }
@@ -28163,6 +31617,22 @@
         }
       }
     },
+    "请你连接一个服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asked you to connect a service"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te pidió conectar un servicio"
+          }
+        }
+      }
+    },
     "请使用 http 或 https 地址，且不要包含用户名、密码或 # 片段" : {
       "localizations" : {
         "en" : {
@@ -28291,6 +31761,38 @@
         }
       }
     },
+    "请填写 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is required"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falta %@"
+          }
+        }
+      }
+    },
+    "请填写 Client ID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the client ID"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce el ID de cliente"
+          }
+        }
+      }
+    },
     "请填写 IMAP 和 SMTP 服务器" : {
       "localizations" : {
         "en" : {
@@ -28319,6 +31821,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Introduce una URL que empiece por http o https"
+          }
+        }
+      }
+    },
+    "请填写授权码或应用专用密码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the authorization code or app password"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce el código de autorización o la contraseña de aplicación"
+          }
+        }
+      }
+    },
+    "请填写邮箱地址" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter an email address"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce una dirección de correo"
           }
         }
       }
@@ -28403,6 +31937,38 @@
         }
       }
     },
+    "请求太频繁" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "too many requests"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "demasiadas solicitudes"
+          }
+        }
+      }
+    },
+    "请求太频繁，稍后再试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many requests. Try again later"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiadas solicitudes. Inténtalo más tarde"
+          }
+        }
+      }
+    },
     "请求头（可不填）" : {
       "localizations" : {
         "en" : {
@@ -28435,6 +32001,22 @@
         }
       }
     },
+    "请求密钥" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request key"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pedir clave"
+          }
+        }
+      }
+    },
     "请求已取消或连接已断开，请重试。" : {
       "localizations" : {
         "en" : {
@@ -28463,6 +32045,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La solicitud agotó el tiempo de espera. Inténtalo de nuevo."
+          }
+        }
+      }
+    },
+    "请求连接服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request connector"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pedir conector"
           }
         }
       }
@@ -28723,6 +32321,22 @@
         }
       }
     },
+    "请选一个将来的时间" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a time in the future"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige una hora futura"
+          }
+        }
+      }
+    },
     "请选择未来的日期和时间" : {
       "localizations" : {
         "en" : {
@@ -28751,6 +32365,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seleccionar modelo"
+          }
+        }
+      }
+    },
+    "请选择运行的时间" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick when it runs"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige cuándo se ejecuta"
           }
         }
       }
@@ -29155,6 +32785,22 @@
         }
       }
     },
+    "资料改过了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile updated"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfil actualizado"
+          }
+        }
+      }
+    },
     "赠金余额" : {
       "localizations" : {
         "en" : {
@@ -29199,6 +32845,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inicio"
+          }
+        }
+      }
+    },
+    "跟着这个连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same as This Connection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como esta conexión"
+          }
+        }
+      }
+    },
+    "跟随 DSH" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same as DSH"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como DSH"
+          }
+        }
+      }
+    },
+    "跟随 DSH（%@）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same as DSH (%@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como DSH (%@)"
           }
         }
       }
@@ -29571,6 +33265,22 @@
         }
       }
     },
+    "运行出错了（%@）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "it ran into an error (%@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "se produjo un error (%@)"
+          }
+        }
+      }
+    },
     "运行出错了（%@）。" : {
       "localizations" : {
         "en" : {
@@ -29731,6 +33441,22 @@
         }
       }
     },
+    "还没提问" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No question yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún sin pregunta"
+          }
+        }
+      }
+    },
     "还没有会话" : {
       "localizations" : {
         "en" : {
@@ -29791,6 +33517,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aún no hay modelos. Inicia sesión en DeepSeek o añade una clave de API en Ajustes › Cuenta y saldo."
+          }
+        }
+      }
+    },
+    "还没有可用的模型，先到设置里添加" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No model is available. Add one in Settings first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay ningún modelo disponible. Añade uno antes en Ajustes"
           }
         }
       }
@@ -29955,6 +33697,22 @@
         }
       }
     },
+    "这一轮的回复显示不出来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The replies of this round could not be shown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron mostrar las respuestas de esta ronda"
+          }
+        }
+      }
+    },
     "这不是一个目录。" : {
       "localizations" : {
         "en" : {
@@ -30035,6 +33793,54 @@
         }
       }
     },
+    "这个 Bot 已经不在了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Bot is gone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este Bot ya no existe"
+          }
+        }
+      }
+    },
+    "这个 Bot 没有封存的内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing is kept closed for this Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay nada reservado de este Bot"
+          }
+        }
+      }
+    },
+    "这个 Bot 还没开始对话，先正常发一条消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Bot has not started a conversation yet. Send a normal message first"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este Bot aún no ha iniciado una conversación. Envíale primero un mensaje normal"
+          }
+        }
+      }
+    },
     "这个 MCP 服务要启动本地命令（%@），只能在电脑上运行。" : {
       "localizations" : {
         "en" : {
@@ -30079,6 +33885,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este perfil se ejecuta sin HMR; deténlo y desinstala el paquete con el comando dsh plugin."
+          }
+        }
+      }
+    },
+    "这个令牌不对，检查后重新粘贴" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This token is not right. Check it and paste it again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este token no es correcto. Revísalo y vuelve a pegarlo"
           }
         }
       }
@@ -30147,22 +33969,6 @@
         }
       }
     },
-    "这个名字已经被占用了" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This name is already taken"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ese nombre ya está en uso"
-          }
-        }
-      }
-    },
     "这个地址无效或过长。" : {
       "localizations" : {
         "en" : {
@@ -30195,6 +34001,38 @@
         }
       }
     },
+    "这个平台暂时还用不了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This platform is not available yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta plataforma aún no está disponible"
+          }
+        }
+      }
+    },
+    "这个批准请求已经处理过了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This approval is no longer open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta aprobación ya se resolvió"
+          }
+        }
+      }
+    },
     "这个提供商不能在这里配置，可到「高级 → 配置文件」修改。" : {
       "localizations" : {
         "en" : {
@@ -30207,6 +34045,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este proveedor no se puede configurar aquí. Edítalo en «Avanzado → Archivo de configuración»."
+          }
+        }
+      }
+    },
+    "这个提议已经处理过了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This proposal is no longer open"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta propuesta ya se resolvió"
           }
         }
       }
@@ -30259,6 +34113,102 @@
         }
       }
     },
+    "这个文件在这里读不出来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This file cannot be read here"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este archivo no se puede leer aquí"
+          }
+        }
+      }
+    },
+    "这个文件夹不存在" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is no such folder"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta no existe"
+          }
+        }
+      }
+    },
+    "这个文件夹和别的 Bot 用的文件夹重叠，换一个" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This folder overlaps one another Bot uses. Choose another"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta se solapa con la de otro Bot. Elige otra"
+          }
+        }
+      }
+    },
+    "这个文件夹和私有 Bot %@的文件夹重叠，换一个" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This folder overlaps the folder of %@, a private Bot. Choose another"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta se solapa con la de %@, un Bot privado. Elige otra"
+          }
+        }
+      }
+    },
+    "这个文件夹打不开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This folder cannot be opened"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede abrir esta carpeta"
+          }
+        }
+      }
+    },
+    "这个文件夹里是 App 自己的数据，不能用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This folder holds the app's own data and cannot be used"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta contiene datos de la propia app y no se puede usar"
+          }
+        }
+      }
+    },
     "这个文件夹里没有子文件夹" : {
       "localizations" : {
         "en" : {
@@ -30271,6 +34221,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Esta carpeta no tiene subcarpetas"
+          }
+        }
+      }
+    },
+    "这个服务不支持这种登录方式" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This service does not support this way of signing in"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servicio no admite esta forma de iniciar sesión"
           }
         }
       }
@@ -30291,6 +34257,22 @@
         }
       }
     },
+    "这个模型不支持这个思考强度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This model does not offer this thinking level"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este modelo no ofrece este nivel de razonamiento"
+          }
+        }
+      }
+    },
     "这个模型没有可选的思考强度。" : {
       "localizations" : {
         "en" : {
@@ -30303,6 +34285,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este modelo no tiene niveles de razonamiento para elegir."
+          }
+        }
+      }
+    },
+    "这个版本不支持 Google 登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google sign-in is not available in this version"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta versión no admite el inicio de sesión con Google"
+          }
+        }
+      }
+    },
+    "这个版本加载不了连接器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This version cannot load connectors"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta versión no puede cargar conectores"
+          }
+        }
+      }
+    },
+    "这个版本的 Bot 插件不支持这个操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This version of the Bot plugin does not support this"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta versión del complemento de Bots no lo admite"
           }
         }
       }
@@ -30335,6 +34365,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este directorio está fuera del espacio de trabajo y no se puede leer."
+          }
+        }
+      }
+    },
+    "这个网址不是这一次登录的。重新登录，再把完整网址复制过来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This address is not from this sign-in attempt. Sign in again and copy the whole address"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta dirección no es de este intento. Inicia sesión de nuevo y copia la dirección completa"
           }
         }
       }
@@ -30403,6 +34449,22 @@
         }
       }
     },
+    "这个连接器不需要登录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This connector does not sign in"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este conector no requiere iniciar sesión"
+          }
+        }
+      }
+    },
     "这个问题已结束，无法再回答。" : {
       "localizations" : {
         "en" : {
@@ -30451,6 +34513,38 @@
         }
       }
     },
+    "这台设备暂时连不上这个平台" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This device cannot connect to this platform right now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo no puede conectarse a esta plataforma por ahora"
+          }
+        }
+      }
+    },
+    "这张卡片已经处理过了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This card was already answered"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta tarjeta ya se respondió"
+          }
+        }
+      }
+    },
     "这张照片读不出来" : {
       "localizations" : {
         "en" : {
@@ -30463,6 +34557,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudo leer esta foto"
+          }
+        }
+      }
+    },
+    "这是个文件，不是文件夹" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is a file, not a folder"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es un archivo, no una carpeta"
+          }
+        }
+      }
+    },
+    "这条内容像是密钥或证件号，记忆里不保存这类信息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This looks like a key, password, or ID number, which memory never keeps"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto parece una clave, contraseña o número de documento, que la memoria nunca guarda"
+          }
+        }
+      }
+    },
+    "这条改动已经撤销过了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That change is already restored"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese cambio ya se deshizo"
+          }
+        }
+      }
+    },
+    "这条改动撤销不了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That change cannot be restored"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese cambio no se puede deshacer"
           }
         }
       }
@@ -30499,6 +34657,38 @@
         }
       }
     },
+    "这条消息已经不在了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This message is no longer kept"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este mensaje ya no se conserva"
+          }
+        }
+      }
+    },
+    "这条消息读不出完整内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The whole message could not be read"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo leer el mensaje completo"
+          }
+        }
+      }
+    },
     "这条通知触发了本轮回复。" : {
       "localizations" : {
         "en" : {
@@ -30511,6 +34701,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Esta notificación activó esta respuesta."
+          }
+        }
+      }
+    },
+    "这段概括写在记忆改动之前。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This summary was written before the memory changed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este resumen se escribió antes de que cambiara la memoria."
+          }
+        }
+      }
+    },
+    "这里不能浏览文件夹" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folders cannot be browsed here"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aquí no se pueden explorar carpetas"
+          }
+        }
+      }
+    },
+    "这里的文件夹太多，只列出了一部分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are too many folders here; only some are listed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hay demasiadas carpetas; solo se muestran algunas."
           }
         }
       }
@@ -30803,22 +35041,6 @@
         }
       }
     },
-    "连接器地址要以 https:// 开头" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connector URLs must start with https://"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La URL del conector debe empezar por https://"
-          }
-        }
-      }
-    },
     "连接器是 MCP 服务。iOS 上只能用网址形式的连接器，需要启动本地命令的那种只能在电脑上用。" : {
       "localizations" : {
         "en" : {
@@ -30879,6 +35101,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conectar un servicio"
+          }
+        }
+      }
+    },
+    "连接服务的请求有了结果" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The connector request was answered"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La solicitud de conector tuvo respuesta"
           }
         }
       }
@@ -31011,6 +35249,38 @@
         }
       }
     },
+    "选一个 Bot 或群聊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a Bot or a group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige un Bot o un grupo"
+          }
+        }
+      }
+    },
+    "选一个形状，或者用名字的第一个字，再配一个颜色。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a shape, or the first letter of its name, and a colour."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige una forma, o la inicial de su nombre, y un color."
+          }
+        }
+      }
+    },
     "选一张照片" : {
       "localizations" : {
         "en" : {
@@ -31023,6 +35293,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elegir una foto"
+          }
+        }
+      }
+    },
+    "选两个到十二个 Bot。私有 Bot 不能进群。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick two to twelve Bots. Private Bots cannot join a group."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige de dos a doce Bots. Los Bots privados no pueden entrar en un grupo."
+          }
+        }
+      }
+    },
+    "选所有 Bot，或者勾选几个 Bot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose every Bot or a list of Bots"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige todos los Bots o marca algunos"
           }
         }
       }
@@ -31268,6 +35570,22 @@
         }
       }
     },
+    "邮件有了结果" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The email was dealt with"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El correo ya se resolvió"
+          }
+        }
+      }
+    },
     "邮箱" : {
       "localizations" : {
         "en" : {
@@ -31460,6 +35778,22 @@
         }
       }
     },
+    "重启后接着做" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picked up its work after a restart"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retomó su trabajo tras un reinicio"
+          }
+        }
+      }
+    },
     "重命名" : {
       "localizations" : {
         "en" : {
@@ -31540,6 +35874,22 @@
         }
       }
     },
+    "重复间隔要在 1 分钟到 7 天之间" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeat every 1 minute to 7 days"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repite entre cada minuto y cada 7 días"
+          }
+        }
+      }
+    },
     "重新加载" : {
       "localizations" : {
         "en" : {
@@ -31568,6 +35918,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reenviar"
+          }
+        }
+      }
+    },
+    "重新概括" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summarize Again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a resumir"
           }
         }
       }
@@ -32346,22 +36712,6 @@
         }
       }
     },
-    "颜色" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Color"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Color"
-          }
-        }
-      }
-    },
     "飞书" : {
       "localizations" : {
         "en" : {
@@ -32567,6 +36917,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Orden predeterminado"
+          }
+        }
+      }
+    },
+    "默认（%@）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default (%@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por defecto (%@)"
           }
         }
       }

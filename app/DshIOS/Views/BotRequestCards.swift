@@ -11,7 +11,7 @@ struct BotRequestCards: View {
         VStack(spacing: 8) {
             ForEach(team.secretRequests(of: bot), id: \.["id"]) { SecretRequestCard(bot: bot, request: $0) }
             ForEach(team.connectorRequests(of: bot), id: \.["id"]) { ConnectorRequestCard(request: $0) }
-            ForEach(team.mailRequests(of: bot), id: \.["id"]) { MailSendCard(request: $0) }
+            ForEach(team.mailRequests(of: bot), id: \.["id"]) { MailSendCard(bot: bot, request: $0) }
             ForEach((team.live["learning"]?[bot.id].array ?? []), id: \.["id"]) { LearningCard(bot: bot, proposal: $0) }
         }
     }
@@ -92,23 +92,32 @@ private struct ConnectorRequestCard: View {
 /// A mail the Bot wrote: checked and sent from here, or cancelled.
 private struct MailSendCard: View {
     @Environment(AppModel.self) private var app
+    let bot: BotInfo
     let request: JSON
     @State private var to = ""
+    @State private var cc = ""
     @State private var subject = ""
     @State private var body_ = ""
-    @State private var allowRecipient = false
+    /// What to do with later mails: "" asks each time, `allow-recipient`, or `no-draft`.
+    @State private var rule = ""
     @State private var sending = false
 
     var body: some View {
         BotCard {
             Text("待发送的邮件").font(.subheadline.weight(.semibold))
             field("收件人", text: $to)
+            if !cc.isEmpty { field("抄送", text: $cc) }
             field("主题", text: $subject)
             TextField("正文", text: $body_, axis: .vertical).lineLimit(3...10).font(.subheadline)
                 .padding(10).background(Palette.background, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             let files = request["attachmentDetails"].array.compactMap { $0["name"].string }
             if !files.isEmpty { Label(files.joined(separator: "、"), systemImage: "paperclip").font(.caption).foregroundStyle(Palette.secondary) }
-            Toggle("以后发给这些收件人不用再确认", isOn: $allowRecipient).font(.footnote)
+            Picker("以后", selection: $rule) {
+                Text("每次都先给我看").tag("")
+                Text("发给这些收件人不用再确认").tag("allow-recipient")
+                Text("\(bot.name)发信都不用再确认").tag("no-draft")
+            }
+            .font(.footnote)
             HStack(spacing: 8) {
                 Button("发送") { answer("send") }.buttonStyle(.capsule(height: 36, fill: false)).disabled(to.isEmpty)
                 Button("不发") { answer("cancel") }.buttonStyle(.capsule(.outline, height: 36, fill: false))
@@ -117,6 +126,7 @@ private struct MailSendCard: View {
         .disabled(sending)
         .onAppear {
             to = request["to"].string ?? request["to"].array.compactMap(\.string).joined(separator: ", ")
+            cc = request["cc"].string ?? ""
             subject = request["subject"].string ?? ""
             body_ = request["body"].string ?? ""
         }
@@ -135,8 +145,8 @@ private struct MailSendCard: View {
         sending = true
         var payload: [String: JSON] = ["requestId": request["id"], "choice": .string(choice)]
         if choice == "send" {
-            payload["fields"] = ["to": .string(to), "subject": .string(subject), "body": .string(body_)]
-            if allowRecipient { payload["rule"] = "allow-recipient" }
+            payload["fields"] = ["to": .string(to), "cc": .string(cc), "subject": .string(subject), "body": .string(body_)]
+            if !rule.isEmpty { payload["rule"] = .string(rule) }
         }
         Task { await app.botTeam.run("mail-send-answer", payload); sending = false }
     }
@@ -193,12 +203,14 @@ struct BotSideChatSheet: View {
     let botId: String
     @State private var question = ""
     @State private var chatId: String?
+    /// A new side chat is being written: the earlier ones stay, out of the way.
+    @State private var fresh = false
     @State private var asking = false
 
     var body: some View {
         let team = app.botTeam
         let chats = team.team["sideChats"][botId].array
-        let chat = chats.first { $0["id"].string == chatId } ?? chats.last
+        let chat = fresh ? nil : chats.first { $0["id"].string == chatId } ?? chats.last
         let answering = chat?["entries"].array.last?["status"].string == "answering"
         NavigationStack {
             ScrollViewReader { proxy in
@@ -249,11 +261,28 @@ struct BotSideChatSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .closeButton(dismiss)
             .toolbar {
-                if chat != nil {
+                if !chats.isEmpty {
                     ToolbarItem(placement: .topBarLeading) {
-                        Button("新的提问") {
-                            if let id = chat?["id"] { Task { _ = try? await team.call("side-close", ["chatId": id]); chatId = nil; team.refresh() } }
-                        }
+                        Menu {
+                            Button { fresh = true; chatId = nil } label: { Label("新的提问", systemImage: "plus") }
+                            Section("之前问过的") {
+                                ForEach(chats.reversed(), id: \.["id"]) { item in
+                                    Button {
+                                        fresh = false
+                                        chatId = item["id"].string
+                                    } label: {
+                                        Label(String((item["entries"].array.first?["question"].string ?? String(localized: "还没提问")).prefix(24)),
+                                              systemImage: item["id"] == chat?["id"] ? "checkmark" : "bubble.left")
+                                    }
+                                }
+                            }
+                            if let id = chat?["id"] {
+                                Button(role: .destructive) {
+                                    Task { _ = try? await team.call("side-close", ["chatId": id]); chatId = nil; await team.refreshState() }
+                                } label: { Label("删除这次提问", systemImage: "trash") }
+                            }
+                        } label: { Image(systemName: "list.bullet") }
+                        .accessibilityLabel("旁支提问列表")
                     }
                 }
             }
@@ -269,6 +298,7 @@ struct BotSideChatSheet: View {
             do {
                 let value = try await app.botTeam.call("side-ask", .object(payload))
                 chatId = value["chatId"].string
+                fresh = false
                 question = ""
                 await app.botTeam.refreshState()
             } catch {
@@ -289,8 +319,20 @@ final class ReadAloud {
 
     func toggle(_ text: String) {
         if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate); return }
+        enqueue(text)
+    }
+
+    func stop() { synthesizer.stopSpeaking(at: .immediate) }
+
+    /// Read after whatever is being read now.
+    func enqueue(_ text: String) {
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        let plain = text.replacingOccurrences(of: #"[`*_#>\[\]()]"#, with: "", options: .regularExpression)
+        let plain = text
+            .replacingOccurrences(of: #"```[\s\S]*?```"#, with: " ", options: .regularExpression)
+            .replacingOccurrences(of: #"\[([^\]]*)\]\([^)]*\)"#, with: "$1", options: .regularExpression)
+            .replacingOccurrences(of: #"[`*_#>|~]"#, with: "", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !plain.isEmpty else { return }
         let utterance = AVSpeechUtterance(string: plain)
         let chinese = plain.unicodeScalars.contains { (0x4E00...0x9FFF).contains($0.value) }
         utterance.voice = AVSpeechSynthesisVoice(language: chinese ? "zh-CN" : AVSpeechSynthesisVoice.currentLanguageCode())

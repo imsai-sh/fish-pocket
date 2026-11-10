@@ -40,6 +40,12 @@ struct BotAvatar: View {
                 Image(uiImage: image).resizable().scaledToFill()
                     .frame(width: size, height: size)
                     .clipShape(Circle())
+            } else if let symbol = bot.flatMap({ BotLook.symbol($0.json["avatar"]["shape"].string) }) {
+                Image(systemName: symbol)
+                    .font(.system(size: size * 0.46, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: size, height: size)
+                    .background(bot.map(team.color(of:)) ?? Palette.secondary, in: Circle())
             } else {
                 Text(String(name.prefix(1)))
                     .font(.system(size: size * 0.42, weight: .semibold))
@@ -49,6 +55,23 @@ struct BotAvatar: View {
             }
         }
         .accessibilityHidden(true)
+    }
+}
+
+/// The looks a Bot can have without a photo: one of ds-bot's shape names on its colour. The
+/// names are the plugin's, so a look picked here is the same Bot elsewhere; the drawings are
+/// the system's symbols.
+enum BotLook {
+    static let shapes: [(id: String, symbol: String)] = [
+        ("star", "star.fill"), ("moon", "moon.fill"), ("wave", "water.waves"), ("squircle", "app.fill"), ("zed", "bolt.fill"),
+        ("hex", "camera.macro"), ("gumdrop", "drop.fill"), ("peanut", "capsule.portrait.fill"), ("saucer", "atom"), ("bunny", "hare.fill"),
+        ("kitty", "cat.fill"), ("beacon", "light.beacon.max.fill"), ("plus", "plus"), ("magnet", "link"), ("acorn", "leaf.fill"),
+        ("pebbles", "circle.grid.cross.fill"), ("cushion", "cloud.fill"), ("ring", "circle.circle.fill"), ("gem", "diamond.fill"), ("whale", "fish.fill"),
+    ]
+
+    static func symbol(_ shape: String?) -> String? {
+        guard let shape else { return nil }
+        return shapes.first { $0.id == shape }?.symbol
     }
 }
 
@@ -166,17 +189,13 @@ struct BotDrawerEntry: View {
     @ViewBuilder
     private var status: some View {
         let team = app.botTeam
-        let waiting = team.bots.filter { bot in
-            switch team.rowLine(for: bot) {
-            case .question, .needsModel: true
-            default: team.pendingView(of: bot) != nil
-            }
-        }
+        let waiting = team.bots.filter { team.pendingCount(of: $0) > 0 }
+        let pending = waiting.reduce(0) { $0 + team.pendingCount(of: $1) }
         let working = team.bots.filter { team.isWorking($0.id) }
         if team.status != .ready {
             Text(team.status == .unknown ? String(localized: "正在准备…") : String(localized: "暂时用不了")).font(.caption).foregroundStyle(Palette.secondary)
         } else if let first = waiting.first {
-            Text(waiting.count == 1 ? waitingLine(first) : String(localized: "\(waiting.count) 件事等你处理"))
+            Text(pending == 1 ? waitingLine(first) : String(localized: "\(pending) 件事等你处理"))
                 .font(.caption).foregroundStyle(Palette.waiting).lineLimit(1)
         } else if let first = working.first {
             HStack(spacing: 5) {
@@ -195,7 +214,8 @@ struct BotDrawerEntry: View {
         switch app.botTeam.rowLine(for: bot) {
         case .needsModel: String(localized: "\(bot.name)等你选模型")
         case .question: String(localized: "\(bot.name)等你回答")
-        default: String(localized: "\(bot.name)等你填表")
+        case .waiting(let text): "\(bot.name)：\(text)"
+        default: String(localized: "\(bot.name)等你处理")
         }
     }
 
@@ -226,7 +246,7 @@ struct BotHomeEntry: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(team.mainBot.map { String(localized: "找\($0.name)和 Bot 团队") } ?? String(localized: "Bot 团队"))
                         .font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
-                    Text(summary).font(.caption).foregroundStyle(team.workingCount > 0 ? Palette.running : Palette.secondary).lineLimit(1)
+                    Text(summary).font(.caption).foregroundStyle(team.bots.contains { team.pendingCount(of: $0) > 0 } ? Palette.waiting : team.workingCount > 0 ? Palette.running : Palette.secondary).lineLimit(1)
                 }
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
@@ -242,6 +262,8 @@ struct BotHomeEntry: View {
     private var summary: String {
         let team = app.botTeam
         guard team.status == .ready else { return String(localized: "常驻替你干活，到点自己开工") }
+        let pending = team.bots.reduce(0) { $0 + team.pendingCount(of: $1) }
+        if pending > 0 { return String(localized: "\(pending) 件事等你处理") }
         if team.workingCount > 0 { return String(localized: "\(team.workingCount) 个在干活") }
         return String(localized: "\(team.bots.count) 个 Bot · \(team.rooms.count) 个群聊")
     }
@@ -251,6 +273,8 @@ struct BotHomeEntry: View {
 struct BotOpenRequest: Equatable {
     let token = UUID()
     var route: BotRoute?
+    /// On top of the page that is open, so going back returns to it.
+    var push = false
 }
 
 /// What a row says under its name.
@@ -260,6 +284,8 @@ enum BotRowLine {
     case working
     case question(String)
     case needsModel
+    /// Something else waits on the user, said in a few words.
+    case waiting(String)
 }
 
 struct BotRowText: View {
@@ -284,6 +310,7 @@ struct BotRowText: View {
             case .working: Text("正在干活…").font(compact ? .caption : .subheadline).foregroundStyle(Palette.running).lineLimit(1)
             case .question(let text): Text("等你回答：\(text)").font(compact ? .caption : .subheadline).foregroundStyle(Palette.waiting).lineLimit(1)
             case .needsModel: Text("等你选模型").font(compact ? .caption : .subheadline).foregroundStyle(Palette.waiting).lineLimit(1)
+            case .waiting(let text): Text(text).font(compact ? .caption : .subheadline).foregroundStyle(Palette.waiting).lineLimit(1)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -295,8 +322,18 @@ extension BotModel {
     func rowLine(for bot: BotInfo) -> BotRowLine {
         if bot.waiting { return .needsModel }
         if let question = question(of: bot) { return .question(question["question"].string ?? "") }
-        if isWorking(bot.id) { return .working }
-        return bot.role.isEmpty ? .none : .text(bot.role)
+        if pendingView(of: bot) != nil { return .waiting(String(localized: "等你填一张卡片")) }
+        if work["approvals"].array.contains(where: { $0["botId"].string == bot.id }) { return .waiting(String(localized: "等你批准")) }
+        if !secretRequests(of: bot).isEmpty { return .waiting(String(localized: "等你给一个密钥")) }
+        if !connectorRequests(of: bot).isEmpty { return .waiting(String(localized: "等你连接一个服务")) }
+        if !mailRequests(of: bot).isEmpty { return .waiting(String(localized: "有一封邮件等你确认")) }
+        if bot.blocked != nil { return .waiting(String(localized: "上一轮没做完，等你处理")) }
+        if !(live["learning"]?[bot.id].array ?? []).isEmpty { return .waiting(String(localized: "学到了新东西，等你看")) }
+        switch doing(bot.id) {
+        case .working: return workPhrase(bot.id).map { .text($0 + "…") } ?? .working
+        case .waiting: return .text(doingText(bot.id) ?? "")
+        default: return bot.role.isEmpty ? .none : .text(bot.role)
+        }
     }
 }
 
@@ -308,6 +345,19 @@ struct BotHomeView: View {
     let openDrawer: (() -> Void)?
     @State private var creating: CreateKind?
     @State private var showHidden = false
+    @State private var query = ""
+    /// What was said in the Bots' own chats that holds the search words, newest first.
+    @State private var hits: [ChatHit] = []
+    /// The chat pages read for this search, by Bot: read once while the search field is in use.
+    @State private var chatPages: [String: [JSON]] = [:]
+
+    struct ChatHit: Identifiable {
+        let id: String
+        let botId: String
+        let mine: Bool
+        let snippet: String
+        let time: Double
+    }
 
     enum CreateKind: String, Identifiable { case bot, room; var id: String { rawValue } }
 
@@ -347,13 +397,65 @@ struct BotHomeView: View {
             }
         }
         .refreshable { await team.refreshState() }
+        .task(id: query) { await searchMessages() }
+        // A key or a provider set in 设置 changes the models a Bot can run on; nothing on the
+        // feed says so, so the list is read again when DSH says they changed.
+        .task(id: app.revision("llm/adapters-updated", "credentials/reference-updated", "credentials/record-updated")) {
+            guard team.status == .ready else { return }
+            _ = try? await team.call("models")
+            await team.refreshState()
+        }
+    }
+
+    private var needle: String { query.trimmingCharacters(in: .whitespaces).lowercased() }
+
+    /// What the user and each Bot said in its own chat, searched here: the engine on a phone
+    /// keeps no session index, so the chats' recent pages are read (ds-bot's `chat`) and matched.
+    /// A group's messages are not in those pages; groups match by name, members and last line.
+    private func searchMessages() async {
+        let words = needle
+        guard words.count >= 2 else {
+            hits = []
+            if words.isEmpty { chatPages = [:] }
+            return
+        }
+        try? await Task.sleep(for: .milliseconds(300))
+        if Task.isCancelled { return }
+        let team = app.botTeam
+        var found: [ChatHit] = []
+        for bot in team.bots {
+            if chatPages[bot.id] == nil {
+                var items: [JSON] = []
+                var cursor: JSON = .null
+                for _ in 0..<3 {
+                    var payload: [String: JSON] = ["botId": .string(bot.id)]
+                    if !cursor.isNull { payload["cursor"] = cursor }
+                    guard let page = try? await team.call("chat", .object(payload)) else { break }
+                    items = page["items"].array + items
+                    cursor = page["cursor"]
+                    if cursor.isNull { break }
+                }
+                if Task.isCancelled { return }
+                chatPages[bot.id] = items
+            }
+            for (index, item) in (chatPages[bot.id] ?? []).enumerated() {
+                guard let kind = item["kind"].string, kind == "user" || kind == "bot", let text = item["text"].string,
+                      let range = text.range(of: words, options: .caseInsensitive) else { continue }
+                let from = text.index(range.lowerBound, offsetBy: -24, limitedBy: text.startIndex) ?? text.startIndex
+                let to = text.index(range.upperBound, offsetBy: 60, limitedBy: text.endIndex) ?? text.endIndex
+                let snippet = (from > text.startIndex ? "…" : "") + text[from..<to].replacingOccurrences(of: "\n", with: " ") + (to < text.endIndex ? "…" : "")
+                found.append(ChatHit(id: "\(bot.id):\(index)", botId: bot.id, mine: kind == "user", snippet: snippet, time: item["time"].double ?? 0))
+            }
+        }
+        hits = Array(found.sorted { $0.time > $1.time }.prefix(30))
     }
 
     /// Pinned first, then the main Bots in their order, then the most recently active.
     private var bots: [BotInfo] {
         let team = app.botTeam
         let main = team.mainBotIds
-        return team.bots.filter { showHidden || !$0.hidden }.sorted { a, b in
+        let needle = needle
+        return team.bots.filter { (showHidden || !$0.hidden || !needle.isEmpty) && (needle.isEmpty || $0.name.lowercased().contains(needle) || $0.role.lowercased().contains(needle)) }.sorted { a, b in
             if a.pinned != b.pinned { return a.pinned }
             let ia = main.firstIndex(of: a.id) ?? .max, ib = main.firstIndex(of: b.id) ?? .max
             if ia != ib { return ia < ib }
@@ -362,7 +464,13 @@ struct BotHomeView: View {
     }
 
     private var rooms: [RoomInfo] {
-        app.botTeam.rooms.filter { showHidden || !$0.hidden }.sorted { a, b in
+        let team = app.botTeam
+        let needle = needle
+        return team.rooms.filter { room in
+            (showHidden || !room.hidden || !needle.isEmpty)
+                && (needle.isEmpty || team.name(of: room).lowercased().contains(needle) || (room.preview ?? "").lowercased().contains(needle)
+                    || room.members.contains { team.bot($0)?.name.lowercased().contains(needle) == true })
+        }.sorted { a, b in
             if a.pinned != b.pinned { return a.pinned }
             return (app.sessions[a.sessionId]?.updatedAt ?? .distantPast) > (app.sessions[b.sessionId]?.updatedAt ?? .distantPast)
         }
@@ -372,7 +480,14 @@ struct BotHomeView: View {
         let team = app.botTeam
         let hiddenCount = team.bots.filter(\.hidden).count + team.rooms.filter(\.hidden).count
         return List {
-            Section {
+            if let reason = team.readOnly {
+                Section {
+                    Label("另一个 DSH 正在管理这支团队，这里暂时只能看。", systemImage: "lock")
+                        .font(.footnote).foregroundStyle(Palette.waiting)
+                        .accessibilityHint(reason)
+                }
+            }
+            if !bots.isEmpty { Section {
                 ForEach(bots) { bot in
                     NavigationLink(value: BotRoute.bot(bot.id)) {
                         HStack(spacing: 12) {
@@ -390,9 +505,10 @@ struct BotHomeView: View {
                         pinButton(bot.id, pinned: bot.pinned)
                         // A main Bot takes the user's work, so it stays in sight.
                         if !team.isMain(bot) { hideButton(bot.id, hidden: bot.hidden) }
+                        sessionButtons(bot.sessionId)
                     }
                 }
-            } header: { Text("Bot") }
+            } header: { Text("Bot") } }
             if !rooms.isEmpty {
                 Section {
                     ForEach(rooms) { room in
@@ -411,11 +527,37 @@ struct BotHomeView: View {
                         .contextMenu {
                             pinButton(room.id, pinned: room.pinned)
                             hideButton(room.id, hidden: room.hidden)
+                            sessionButtons(room.sessionId)
                         }
                     }
                 } header: { Text("群聊") }
             }
-            if hiddenCount > 0 {
+            if !hits.isEmpty {
+                Section("私聊里说过的") {
+                    ForEach(hits) { hit in
+                        NavigationLink(value: BotRoute.bot(hit.botId)) {
+                            HStack(alignment: .top, spacing: 10) {
+                                BotAvatar(bot: team.bot(hit.botId), size: 28)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(spacing: 6) {
+                                        Text(team.bot(hit.botId)?.name ?? "").font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
+                                        if hit.mine { Text("你说的").font(.caption2).foregroundStyle(Palette.faint) }
+                                        Spacer(minLength: 0)
+                                        if hit.time > 0 {
+                                            Text(Date(timeIntervalSince1970: hit.time / 1000), format: .dateTime.month().day().hour().minute()).font(.caption2).foregroundStyle(Palette.faint)
+                                        }
+                                    }
+                                    Text(hit.snippet).font(.footnote).foregroundStyle(Palette.secondary).lineLimit(2)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if !needle.isEmpty && bots.isEmpty && rooms.isEmpty && hits.isEmpty {
+                Section { Text("没有找到「\(query)」").font(.footnote).foregroundStyle(Palette.secondary) }
+            }
+            if hiddenCount > 0 && needle.isEmpty {
                 Section {
                     Button(showHidden ? String(localized: "收起已隐藏的") : String(localized: "显示 \(hiddenCount) 个已隐藏的")) {
                         withAnimation(.snappy) { showHidden.toggle() }
@@ -427,6 +569,15 @@ struct BotHomeView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .searchable(text: $query, prompt: "搜索 Bot、群聊和私聊记录")
+    }
+
+    @ViewBuilder
+    private func sessionButtons(_ sessionId: String) -> some View {
+        if !app.completionUnread.contains(sessionId) {
+            Button { app.markUnread(sessionId) } label: { Label("标为未读", systemImage: "circle.fill") }
+        }
+        Button { copyToPasteboard(sessionId); app.showToast(String(localized: "已复制")) } label: { Label("复制会话 ID", systemImage: "number") }
     }
 
     private func pinButton(_ id: String, pinned: Bool) -> some View {
@@ -512,7 +663,7 @@ struct BotSetupView: View {
                 }
                 .buttonStyle(.capsule())
                 .disabled(team.installing)
-                Text("开启时会下载 Bot 插件。App 切到后台后，Bot 可能暂停，回到前台会接着做。")
+                Text("App 切到后台后，Bot 可能暂停，回到前台会接着做。")
                     .font(.caption).foregroundStyle(Palette.secondary).multilineTextAlignment(.center)
             }
         }
@@ -532,81 +683,194 @@ struct BotSetupView: View {
 
 // MARK: - Creating
 
+/// A look for a Bot without a photo: one of the built-in shapes (or its initial) on a colour.
+struct BotLookPicker: View {
+    @Environment(AppModel.self) private var app
+    /// nil: the first character of its name.
+    @Binding var shape: String?
+    @Binding var color: String?
+    var name = ""
+
+    var body: some View {
+        let team = app.botTeam
+        let ink = color.flatMap { Color(hex: BotModel.inks[$0] ?? $0) } ?? Palette.secondary
+        VStack(alignment: .leading, spacing: 14) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 10) {
+                look(nil, ink: ink) {
+                    Text(String(name.trimmingCharacters(in: .whitespaces).prefix(1)).isEmpty ? "字" : String(name.trimmingCharacters(in: .whitespaces).prefix(1)))
+                        .font(.system(size: 17, weight: .semibold))
+                }
+                ForEach(BotLook.shapes.filter { $0.id != "whale" }, id: \.id) { item in
+                    look(item.id, ink: ink) { Image(systemName: item.symbol).font(.system(size: 17, weight: .semibold)) }
+                }
+            }
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 8), spacing: 10) {
+                ForEach(team.colorKeys, id: \.self) { key in
+                    Button { Haptics.select(); color = key } label: {
+                        Circle().fill(Color(hex: BotModel.inks[key] ?? "") ?? Palette.secondary).frame(width: 28, height: 28)
+                            .overlay(Circle().stroke(Palette.ink, lineWidth: color == key ? 2.5 : 0).padding(-4))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(key)
+                }
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    private func look<Mark: View>(_ id: String?, ink: Color, @ViewBuilder mark: () -> Mark) -> some View {
+        Button { Haptics.select(); shape = id } label: {
+            mark().foregroundStyle(.white)
+                .frame(width: 40, height: 40).background(ink, in: Circle())
+                .overlay(Circle().stroke(Palette.ink, lineWidth: shape == id ? 2.5 : 0).padding(-4))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct BotCreateSheet: View {
     @Environment(AppModel.self) private var app
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var role = ""
+    @State private var shape: String?
+    @State private var color: String?
+    @State private var model = ""
+    @State private var instructions = ""
+    @State private var brief = ""
     @State private var saving = false
 
     var body: some View {
+        let team = app.botTeam
+        let fallback = team.prefs["defaultBotModel"].string ?? team.team["defaultModel"].string
         NavigationStack {
             Form {
                 Section {
                     TextField("名字，比如：研究员", text: $name)
                     TextField("负责什么，比如：查资料、给出处", text: $role)
-                } footer: {
-                    Text("新 Bot 会先打个招呼，之后可以私聊，也可以拉进群。")
+                }
+                Section("形象") { BotLookPicker(shape: $shape, color: $color, name: name) }
+                Section {
+                    Picker("模型", selection: $model) {
+                        Text(fallback.flatMap(team.modelName).map { String(localized: "默认（\($0)）") } ?? String(localized: "稍后再选")).tag("")
+                        ForEach(team.models.compactMap { item in item["ref"].string.map { (ref: $0, name: item["name"].string ?? $0) } }, id: \.ref) { item in
+                            Text(item.name).tag(item.ref)
+                        }
+                    }
+                }
+                Section {
+                    TextField("它做事时要遵守的要求、偏好和背景", text: $instructions, axis: .vertical).lineLimit(3...8)
+                } header: { Text("工作说明（可不填）") }
+                Section {
+                    TextField("比如：帮我整理这周的行业新闻", text: $brief, axis: .vertical).lineLimit(2...6)
+                } header: { Text("先交给它一件事（可不填）") } footer: {
+                    Text("不填的话，新 Bot 会先打个招呼。之后可以私聊，也可以拉进群。")
                 }
             }
             .navigationTitle("新建 Bot")
             .navigationBarTitleDisplayMode(.inline)
-            .saveToolbar(canSave: !name.trimmingCharacters(in: .whitespaces).isEmpty, saving: saving, cancel: { dismiss() }) {
-                saving = true
-                Task {
-                    let done = await app.perform {
-                        try await app.botTeam.call("create-bot", ["name": .string(name.trimmingCharacters(in: .whitespaces)), "role": .string(role.trimmingCharacters(in: .whitespaces))])
-                    }
-                    saving = false
-                    if done { await app.botTeam.refreshState(); dismiss() }
-                }
+            .saveToolbar(canSave: !name.trimmingCharacters(in: .whitespaces).isEmpty, saving: saving, cancel: { dismiss() }) { create() }
+            .onAppear { if color == nil { color = team.colorKeys.filter { !["charcoal", "graphite", "black", "gray", "brown"].contains($0) }.randomElement() } }
+        }
+    }
+
+    private func create() {
+        let team = app.botTeam
+        var payload: [String: JSON] = ["name": .string(name.trimmingCharacters(in: .whitespaces)), "role": .string(role.trimmingCharacters(in: .whitespaces))]
+        if let color { payload["color"] = .string(color) }
+        if let shape { payload["avatar"] = ["shape": .string(shape)] }
+        if !model.isEmpty { payload["model"] = .string(model) }
+        let rules = instructions.trimmingCharacters(in: .whitespacesAndNewlines), first = brief.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !rules.isEmpty { payload["instructions"] = .string(rules) }
+        if !first.isEmpty { payload["brief"] = .string(first) }
+        saving = true
+        Task {
+            do {
+                let bot = try await team.call("create-bot", .object(payload))
+                await team.refreshState()
+                dismiss()
+                if let id = bot["id"].string { team.openRequest = BotOpenRequest(route: .bot(id), push: true) }
+            } catch {
+                app.showToast(error.localizedDescription, tone: .warning)
             }
+            saving = false
         }
     }
 }
 
+/// A new group: who is in it, who takes plain messages first, and what to start with.
 struct RoomCreateSheet: View {
     @Environment(AppModel.self) private var app
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
-    @State private var members: Set<String> = []
+    @State private var members: [String] = []
+    /// Empty: ds-bot picks (a main Bot among the members, else the first).
+    @State private var admin = ""
+    @State private var first = ""
     @State private var saving = false
 
     var body: some View {
         let team = app.botTeam
         NavigationStack {
             Form {
-                Section { TextField("群名，比如：产品周会", text: $name) }
+                Section { TextField("群名，不填就用成员的名字", text: $name) }
                 Section {
-                    ForEach(team.bots) { bot in
+                    ForEach(team.bots.filter { $0.json["private"].bool != true }) { bot in
                         Button {
-                            if members.contains(bot.id) { members.remove(bot.id) } else { members.insert(bot.id) }
+                            if let index = members.firstIndex(of: bot.id) { members.remove(at: index); if admin == bot.id { admin = "" } } else { members.append(bot.id) }
                             Haptics.select()
                         } label: {
                             HStack(spacing: 12) {
                                 BotAvatar(bot: bot, size: 32)
-                                Text(bot.name).foregroundStyle(Palette.ink)
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(bot.name).foregroundStyle(Palette.ink)
+                                    if !bot.role.isEmpty { Text(bot.role).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1) }
+                                }
                                 Spacer()
                                 Image(systemName: members.contains(bot.id) ? "checkmark.circle.fill" : "circle")
                                     .foregroundStyle(members.contains(bot.id) ? Palette.ink : Palette.faint)
                             }
                         }
                     }
-                } header: { Text("成员") } footer: { Text("至少选两个 Bot。") }
+                } header: { Text("成员") } footer: { Text("选两个到十二个 Bot。私有 Bot 不能进群。") }
+                if members.count >= 2 {
+                    Section {
+                        Picker("群主", selection: $admin) {
+                            Text("自动选择").tag("")
+                            ForEach(members, id: \.self) { id in Text(team.bot(id)?.name ?? id).tag(id) }
+                        }
+                    } footer: { Text("你发的消息先交给群主，群主再点名需要的成员。建好后还能改。") }
+                    Section {
+                        TextField("比如：大家一起把下周的发布计划过一遍", text: $first, axis: .vertical).lineLimit(2...6)
+                    } header: { Text("第一句话（可不填）") } footer: { Text("不填的话，成员们会先打个招呼。") }
+                }
             }
             .navigationTitle("新建群聊")
             .navigationBarTitleDisplayMode(.inline)
-            .saveToolbar(canSave: members.count >= 2, saving: saving, cancel: { dismiss() }) {
-                saving = true
-                Task {
-                    var payload: [String: JSON] = ["members": .array(members.map(JSON.string)), "greet": true]
-                    let trimmed = name.trimmingCharacters(in: .whitespaces)
-                    if !trimmed.isEmpty { payload["name"] = .string(trimmed) }
-                    let done = await app.perform { try await app.botTeam.call("create-room", .object(payload)) }
-                    saving = false
-                    if done { await app.botTeam.refreshState(); dismiss() }
-                }
+            .saveToolbar(canSave: (2...12).contains(members.count), saving: saving, cancel: { dismiss() }) { create() }
+        }
+    }
+
+    private func create() {
+        let team = app.botTeam
+        let opening = first.trimmingCharacters(in: .whitespacesAndNewlines)
+        var payload: [String: JSON] = ["members": .array(members.map(JSON.string)), "greet": .bool(opening.isEmpty)]
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        if !trimmed.isEmpty { payload["name"] = .string(trimmed) }
+        if !admin.isEmpty { payload["admin"] = .string(admin) }
+        saving = true
+        Task {
+            do {
+                let room = try await team.call("create-room", .object(payload))
+                await team.refreshState()
+                dismiss()
+                guard let id = room["id"].string else { return }
+                team.openRequest = BotOpenRequest(route: .room(id), push: true)
+                if !opening.isEmpty { _ = try? await team.call("send", ["sessionId": .string(id), "text": .string(opening)]) }
+            } catch {
+                app.showToast(error.localizedDescription, tone: .warning)
             }
+            saving = false
         }
     }
 }

@@ -274,6 +274,7 @@ struct ConversationView: View {
                     // A Bot runs no subagents or background jobs of DSH's, and its scheduled
                     // tasks are on its own page.
                     if bot == nil { SessionHeaderActions(sessionId: sessionId, jobs: jobs) { headerSheet = $0 } }
+                    if let menu = bot?.menu { menu(model) }
                     Button(action: toggleWorkbench) { Image(systemName: "apple.terminal") }
                         .accessibilityLabel("工作台")
                 }
@@ -681,7 +682,10 @@ private struct TimelineList: View {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 if bot?.room == true, case .assistant(_, let blocks, _, _) = item, let relay = RoomRelay(blocks: blocks) {
                     // A group round: its members' replies, under their names.
-                    RoomRelayView(relay: relay, running: item.id == activeTurn).id(item.id)
+                    if !relay.empty { RoomRelayView(relay: relay, running: item.id == activeTurn).id(item.id) }
+                } else if bot?.room == true, case .trigger(let trigger) = item, trigger.post {
+                    // A Bot's post into the group: a message of the group, unless its round shows it already.
+                    if !trigger.postShown { RoomPostView(trigger: trigger).id(item.id) }
                 } else if item.id == activeTurn, case .assistant(let turn, let blocks, let started, _) = item {
                     ActiveTurn(model: model, turn: turn, blocks: blocks, startedAt: started)
                 } else {
@@ -761,8 +765,8 @@ private struct TimelineRow: View, Equatable {
 
     var body: some View {
         switch item {
-        case .user(_, let text, let attachments, _):
-            UserBubble(text: text, attachments: attachments, model: model)
+        case .user(_, let text, let attachments, let requestId):
+            UserBubble(text: text, attachments: attachments, model: model, via: IMPlatform.via(requestId))
         case .assistant(let turn, let blocks, let started, let ended):
             AssistantTurnView(blocks: blocks, turn: turn, inProgress: inProgress, startedAt: started, endedAt: ended, regeneratePrompt: inProgress ? nil : prompt, info: info)
         case .notice(_, let text, let isError):
@@ -894,6 +898,8 @@ private struct UserBubble: View {
     let text: String
     let attachments: [Attachment]
     let model: SessionModel
+    /// The chat app the message came in over (a Bot reached from one), by name.
+    var via: String?
     @State private var revealed = false
     @Environment(\.conversationActions) private var actions
 
@@ -932,6 +938,9 @@ private struct UserBubble: View {
                     .accessibilityLabel(revealed ? "隐藏密钥" : "显示密钥")
                 }
             }
+            if let via {
+                Label("来自\(via)", systemImage: "arrow.down.left.circle").font(.caption2).foregroundStyle(Palette.faint)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.leading, 60)
@@ -956,6 +965,8 @@ struct AssistantTurnView: View {
     /// nil until the reader taps the line; then their choice holds for this turn.
     @State private var choice: Bool?
     @Environment(\.conversationActions) private var actions
+    /// A Bot's chat: its reasoning shows only when asked for, and what it did beyond its words is drawn.
+    @Environment(\.botTimeline) private var bot
 
     private var stayOpen: Bool {
         inProgress || info?.steered == true || ["aborted", "interrupted", "error"].contains(info?.closedKind ?? "")
@@ -990,22 +1001,29 @@ struct AssistantTurnView: View {
                 if showWork, finalStart > 0 {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(blocks.prefix(finalStart).enumerated()), id: \.element.id) { index, block in
-                            BlockView(block: block, live: isLive(index)).equatable()
+                            if bot?.hides(block) != true { BlockView(block: block, live: isLive(index)).equatable() }
                         }
+                        if let bot, bot.showsThinking, let turn, finished { BotThinkingTime(turn: turn) }
                     }
                     .padding(.leading, 12)
                     .overlay(alignment: .leading) { Rectangle().fill(Palette.stroke).frame(width: 2) }
                 }
             }
+            // In a Bot's chat: what it did while working, above its words; a card it ended on, below them.
+            if bot != nil { BotTurnEvents(blocks: Array(blocks.prefix(finalStart))) }
             ForEach(Array(blocks.enumerated().dropFirst(finalStart)), id: \.element.id) { index, block in
-                BlockView(block: block, live: isLive(index), closing: finished).equatable()
-                    .environment(\.fileMentions, finished ? mentions : [:])
+                if case .tool = block {} else {
+                    BlockView(block: block, live: isLive(index), closing: finished).equatable()
+                        .environment(\.fileMentions, finished ? mentions : [:])
+                }
             }
+            if bot != nil { BotTurnEvents(blocks: Array(blocks.dropFirst(finalStart))) }
             if finished {
                 ForEach(plans, id: \.plan) { plan in PlanCard(title: plan.title, plan: plan.plan) }
                 if let files = info?.deliverables, !files.isEmpty { DeliverableCards(files: files) }
                 let changes = FileChange.collect(blocks)
                 if !changes.isEmpty { ChangeCapsule(changes: changes, open: actions.openChanges) }
+                if let bot, let turn { BotReactionChip(key: BotReactions.key(session: bot.sessionId, turn: turn)) }
             }
         }
         .modifier(TurnMenu(enabled: finished, turn: turn, info: info, fallbackText: answerText, regeneratePrompt: regeneratePrompt))
@@ -1030,6 +1048,18 @@ struct AssistantTurnView: View {
     /// Index of the trailing run of text blocks (the answer after the last tool call).
     private var finalAnswerStart: Int {
         var index = blocks.count
+        // A Bot often says something and then ends its turn on a card (a question, a view, a
+        // request): those words are its reply, not narration of work, so the card counts as the tail.
+        if bot != nil {
+            while index > 0 {
+                if case .text = blocks[index - 1] { index -= 1; continue }
+                if case .tool(let call) = blocks[index - 1], BotTurnEvents.cards.contains(call.displayName) { index -= 1; continue }
+                break
+            }
+            // Only cards and no words: nothing to lift out of the steps.
+            if !blocks[index...].contains(where: { if case .text = $0 { true } else { false } }) { index = blocks.count }
+            return index
+        }
         while index > 0, case .text = blocks[index - 1] { index -= 1 }
         return index
     }

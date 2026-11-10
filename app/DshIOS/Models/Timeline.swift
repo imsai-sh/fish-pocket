@@ -220,12 +220,32 @@ struct TurnTrigger: Hashable {
     let body: String
     /// ds-bot's handoff package that opens a new part of a Bot's chat (`source.handoff`).
     var handoff = false
+    /// The Bot that sent it (ds-bot's `source.senderSessionId`), when another Bot did.
+    var senderId: String?
+    var senderName: String?
+    /// A Bot's post into a group chat (`source.role == "post"`): a message of the group, drawn as one.
+    var post = false
+    /// A post the round it landed in already shows, or one that only marks an event of that round.
+    var postShown = false
+    /// A post past what a message holds came as a file with only its start: the file, and the whole length.
+    var file: JSON?
+    var length: Int?
 
-    init(seq: Int, time: Date, source: JSON, body: String) {
+    init(seq: Int, time: Date, source: JSON, body: String, content: JSON = .null) {
         self.seq = seq
         self.time = time
         self.body = body
         handoff = source["kind"].string == "bot" && source["handoff"].bool == true
+        if source["kind"].string == "bot" {
+            senderId = source["senderSessionId"].string
+            senderName = source["senderName"].string
+            post = source["role"].string == "post"
+            postShown = !source["logged"].isNull || !source["failed"].isNull || source["resumed"].bool == true || source["stopped"].bool == true || source["done"].bool == true
+            if let length = source["length"].int {
+                self.length = length
+                file = content.array.first { $0["type"].string == "file" }?["attachment"]
+            }
+        }
         switch source["kind"].string {
         case "goal": title = String(localized: "继续执行目标"); symbol = "flag"
         case "agent-message": title = String(localized: "收到任务消息"); symbol = "person"
@@ -245,6 +265,13 @@ struct TurnTrigger: Hashable {
             case "reply": title = String(localized: "\(name)回复了"); symbol = "arrowshape.turn.up.left"
             case "report": title = String(localized: "\(name)汇报了进展"); symbol = "text.bubble"
             case "stopped": title = String(localized: "\(name)的工作已停止"); symbol = "stop.circle"
+            // What came of a card the Bot put up, told to it (ds-bot's secrets, connectors and mail).
+            case "secret": title = String(localized: "密钥卡片有了结果"); symbol = "key"
+            case "connector": title = String(localized: "连接服务的请求有了结果"); symbol = "point.3.connected.trianglepath.dotted"
+            case "mail": title = String(localized: "邮件有了结果"); symbol = "envelope"
+            case "update": title = String(localized: "资料改过了"); symbol = "pencil.line"
+            case "resume": title = String(localized: "重启后接着做"); symbol = "arrow.clockwise"
+            case "continue": title = String(localized: "修好后继续"); symbol = "arrow.clockwise"
             // A group goal's own steps (ds-bot's goals.js): drafted, resumed, or checked on.
             case "goal":
                 switch source["goal"].string {
@@ -676,7 +703,7 @@ struct TimelineBuilder {
         if let kind, kind != "user" {
             let claimed = id.map { nextTurnInbox.claimed.contains($0) } ?? false
             guard claimed || idleSteer(id) || (nextTurnInbox.claimUnknown && TurnTrigger.wakingKinds.contains(kind)) else { return false }
-            items.append(.trigger(TurnTrigger(seq: seq, time: time, source: source, body: text)))
+            items.append(.trigger(TurnTrigger(seq: seq, time: time, source: source, body: text, content: data["content"])))
             return true
         }
         // Taken from the next-step inbox: it joined a running turn.

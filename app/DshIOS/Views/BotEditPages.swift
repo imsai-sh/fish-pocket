@@ -283,23 +283,17 @@ struct BotAppearanceSheet: View {
                         }
                         .groupedRow()
                     }
-                    if !team.usesAppMark(bot) && bot.avatarImage == nil {
-                        Section("颜色") {
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 6), spacing: 12) {
-                                ForEach(team.colorKeys, id: \.self) { key in
-                                    let ink = Color(hex: BotModel.inks[key] ?? "") ?? Palette.secondary
-                                    Button { colour(bot, key) } label: {
-                                        Circle().fill(ink).frame(width: 36, height: 36)
-                                            .overlay(Circle().stroke(Palette.ink, lineWidth: bot.colorKey == key ? 2.5 : 0).padding(-4))
-                                    }
-                                    .buttonStyle(.plain)
-                                    .accessibilityLabel(key)
-                                }
-                            }
-                            .padding(.vertical, 6)
-                        }
-                        .groupedRow()
-                    }
+                    Section {
+                        BotLookPicker(shape: Binding(get: {
+                            // A photo, or the main Bot's mascot, is none of these looks.
+                            if bot.avatarImage != nil || team.usesAppMark(bot) { return "-" }
+                            let shape = bot.json["avatar"]["shape"].string
+                            return BotLook.symbol(shape) == nil ? nil : shape
+                        }, set: { shape in
+                            save(bot, avatar: shape.map { ["shape": .string($0)] } ?? .null)
+                        }), color: Binding(get: { bot.colorKey }, set: { key in if let key { colour(bot, key) } }), name: bot.name)
+                    } header: { Text("内置形象") } footer: { Text("选一个形状，或者用名字的第一个字，再配一个颜色。") }
+                    .groupedRow()
                 }
                 .groupedList()
                 .disabled(saving)

@@ -20,7 +20,9 @@ struct BotIMPage: View {
                 .groupedRow()
             }
             Section {
-                ForEach(IMPlatform.all) { platform in
+                // The platforms this engine can connect to (`im.platforms`), in the plugin's order.
+                let offered = team.team["im"]["platforms"].array.compactMap(\.string)
+                ForEach(IMPlatform.all.filter { offered.isEmpty || offered.contains($0.id) }) { platform in
                     Button { adding = platform } label: {
                         HStack {
                             Text(platform.name).foregroundStyle(Palette.ink)
@@ -89,7 +91,7 @@ private struct IMConnectionRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(IMPlatform.name(connection["platform"].string)).foregroundStyle(Palette.ink)
                 let target = connection["botId"].string.flatMap(team.bot).map { String(localized: "交给\($0.name)") }
-                Text([connection["account"].string, target].compactMap { $0 }.joined(separator: " · "))
+                Text([connection["account"]["name"].string ?? connection["account"].string, target].compactMap { $0 }.joined(separator: " · "))
                     .font(.caption).foregroundStyle(Palette.secondary)
             }
             Spacer()
@@ -151,6 +153,31 @@ private struct IMConnectionPage: View {
                 }
                 .groupedRow()
             }
+            let chats = connection["chats"].object.sorted { ($0.value["at"].double ?? 0) > ($1.value["at"].double ?? 0) }
+            if !chats.isEmpty {
+                Section {
+                    ForEach(chats, id: \.key) { key, chat in
+                        let target = chat["target"]["botId"].string.map { "b:\($0)" } ?? chat["target"]["roomId"].string.map { "r:\($0)" } ?? ""
+                        Picker(selection: Binding(get: { target }, set: { next in
+                            let value: JSON = next.hasPrefix("b:") ? ["botId": .string(String(next.dropFirst(2)))] : next.hasPrefix("r:") ? ["roomId": .string(String(next.dropFirst(2)))] : .null
+                            Task { await team.run("im-chat", ["id": .string(id), "chatKey": .string(key), "target": value]) }
+                        })) {
+                            Text("跟着这个连接").tag("")
+                            Section("Bot") { ForEach(team.bots) { Text($0.name).tag("b:\($0.id)") } }
+                            if !team.rooms.isEmpty { Section("群聊") { ForEach(team.rooms) { Text(team.name(of: $0)).tag("r:\($0.id)") } } }
+                        } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(chat["title"].string ?? key)
+                                Text(chat["kind"].string == "group" ? String(localized: "群") : String(localized: "私聊")).font(.caption).foregroundStyle(Palette.secondary)
+                            }
+                        }
+                        .swipeActions {
+                            Button("移除", role: .destructive) { Task { await team.run("im-chat", ["id": .string(id), "chatKey": .string(key), "remove": true]) } }
+                        }
+                    }
+                } header: { Text("聊过的会话") } footer: { Text("每个会话可以单独交给某个 Bot 或某个群聊。左滑移除记录。") }
+                .groupedRow()
+            }
             Section {
                 Button("断开并移除", role: .destructive) {
                     Task { if await team.run("im-remove", ["id": .string(id)]) { dismiss() } }
@@ -169,7 +196,8 @@ private struct IMConnectionPage: View {
         case "connected", "ready", "online": return String(localized: "已连接")
         case "connecting": return String(localized: "连接中")
         case "error": return String(localized: "出错")
-        default: return status?["state"].string ?? String(localized: "等待连接")
+        case "off": return String(localized: "已断开")
+        default: return String(localized: "等待连接")
         }
     }
 }

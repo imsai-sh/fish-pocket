@@ -107,8 +107,16 @@ final class BotModel {
     var scheduleRequest: BotComposer?
     /// Open a side question on the Bot whose chat asked (its ＋ tray).
     var sideChatRequest: String?
+    /// Open the memory of the Bot whose chat asked (a "memory updated" line).
+    var memoryRequest: String?
     /// Show the Bot pages (the root view consumes it).
     var openRequest: BotOpenRequest?
+    /// Memory changes already shown and closed, by Bot or group: the time of the change.
+    private(set) var seenMemoryNews: [String: Double] = [:]
+    /// Approvals already announced, so each rings once.
+    @ObservationIgnored private var announcedApprovals: Set<String> = []
+    /// The chat on screen (a Bot's or a group's id): what waits there needs no announcement.
+    var visibleChat: String?
 
     @ObservationIgnored private var revision: Double?
     @ObservationIgnored private var liveKey: String?
@@ -217,10 +225,75 @@ final class BotModel {
         return ids
     }
 
+    /// What a Bot is up to (`activity`): `working`, `thinking`, `alert` (it waits for the user
+    /// to allow a tool), `waiting` (it handed work on and waits for it to come back).
+    enum Doing: Equatable {
+        case idle, working, approval
+        /// The Bots and groups it waits on, by name.
+        case waiting([String])
+    }
+
+    func doing(_ botId: String) -> Doing {
+        switch activity[botId]?.string {
+        case nil, "idle": return .idle
+        case "alert": return .approval
+        case "waiting":
+            let entry = work["waiting"][botId]
+            let names = entry["bots"].array.compactMap { $0.string.flatMap(bot)?.name }
+                + entry["rooms"].array.compactMap { $0.string.flatMap(room).map(name(of:)) }
+            return .waiting(names)
+        default: return .working
+        }
+    }
+
     /// The Bot is working: in its own chat or in a group.
-    func isWorking(_ botId: String) -> Bool {
-        guard let value = activity[botId] else { return false }
-        return value.string != nil && value.string != "idle"
+    func isWorking(_ botId: String) -> Bool { doing(botId) == .working }
+
+    /// A line for what the Bot is up to; nil while it is idle.
+    func doingText(_ botId: String) -> String? {
+        switch doing(botId) {
+        case .idle: nil
+        case .working: workPhrase(botId) ?? String(localized: "在干活")
+        case .approval: String(localized: "等你批准")
+        case .waiting(let names): names.isEmpty ? String(localized: "在等别的 Bot 回复") : String(localized: "在等\(names.joined(separator: "、"))回复")
+        }
+    }
+
+    /// What the running call does, in the Bot's own words (`work.bots[id]`), when it said so.
+    func workPhrase(_ botId: String) -> String? {
+        let entry = work["bots"][botId]
+        let own = (entry["said"].string ?? entry["note"].string)?.trimmingCharacters(in: CharacterSet(charactersIn: " .。…\n"))
+        return own?.isEmpty == false ? own : nil
+    }
+
+    /// What waits on the user for this Bot, anywhere: approvals, cards, a model to pick, a repair.
+    func pendingCount(of bot: BotInfo) -> Int {
+        var count = 0
+        if bot.waiting { count += 1 } else if bot.blocked != nil { count += 1 }
+        if question(of: bot) != nil { count += 1 }
+        if pendingView(of: bot) != nil { count += 1 }
+        count += secretRequests(of: bot).count + connectorRequests(of: bot).count + mailRequests(of: bot).count
+        count += work["approvals"].array.filter { $0["botId"].string == bot.id }.count
+        count += live["learning"]?[bot.id].array.count ?? 0
+        return count
+    }
+
+    /// Another dsh holds the team: this one only reads it. The reason, in the plugin's words.
+    var readOnly: String? { team["readOnly"].string }
+    /// The window preferences ds-bot keeps for every client (`set-prefs`).
+    var prefs: JSON { team["prefs"] }
+    /// Reasoning shows in Bot chats only when the user asked for it (ds-bot's `thinking` preference).
+    var showsThinking: Bool { prefs["thinking"].bool == true }
+    /// Deleted private Bots whose folders stay closed to the others: `{id, name, workDir?}`.
+    var privateArchives: [JSON] { team["privateArchives"].array }
+    /// The latest memory change of a Bot or group the user has not seen: `{at, op, text}`.
+    func memoryNews(_ id: String) -> JSON? {
+        guard let news = live["memoryNews"]?[id].nonNull, let at = news["at"].double, at > (seenMemoryNews[id] ?? 0) else { return nil }
+        return news
+    }
+
+    func dismissMemoryNews(_ id: String) {
+        if let at = live["memoryNews"]?[id]["at"].double { seenMemoryNews[id] = at }
     }
 
     var workingCount: Int { bots.filter { isWorking($0.id) }.count }
@@ -280,7 +353,7 @@ final class BotModel {
         }
         if reply["ok"].bool == true { return reply["value"] }
         let error = reply["error"]
-        throw EngineError(code: error["code"].string, message: error["message"].string ?? String(localized: "Bot 操作失败"), detail: error)
+        throw EngineError(code: error["code"].string, message: error["message"].string.map(BotErrorText.text) ?? String(localized: "Bot 操作失败"), detail: error)
     }
 
     // MARK: Following
@@ -316,13 +389,15 @@ final class BotModel {
         var payload: [String: JSON] = ["locale": .string(AppLanguage.isChinese ? "zh-CN" : "en")]
         if let revision { payload["since"] = .number(revision) }
         if let liveKey { payload["live"] = .string(liveKey) }
+        // The model list changes without a revision (a key added in 设置): its key rides along.
+        if let key = team["modelsKey"].string { payload["models"] = .string(key) }
         do {
             let value = try await call("state", .object(payload))
             // Each write tells every view that reads it, so only a change is written.
             if !reachable { reachable = true }
             if value["unchanged"].bool != true, team != value { team = value }
             if !value["activity"].isNull, activity != value["activity"].object { activity = value["activity"].object }
-            if !value["work"].isNull, work != value["work"] { work = value["work"] }
+            if !value["work"].isNull, work != value["work"] { work = value["work"]; announceApprovals() }
             for key in Self.liveKeys where !value[key].isNull && live[key] != value[key] { live[key] = value[key] }
             revision = value["revision"].double
             liveKey = value["liveKey"].string
@@ -402,12 +477,14 @@ final class BotModel {
         await app.perform { try await self.app.client.call("session/cancel", ["request": ["sessionId": .string(bot.sessionId)]]) }
     }
 
-    func answer(_ question: JSON, of bot: BotInfo, selected: [String]) async -> Bool {
+    func answer(_ question: JSON, of bot: BotInfo, selected: [String], custom: String = "") async -> Bool {
+        var answer: [String: JSON] = ["selected": .array(selected.map(JSON.string))]
+        if !custom.isEmpty { answer["custom"] = .string(custom) }
         let done = await app.perform {
             try await self.call("answer-question", [
                 "sessionId": .string(bot.sessionId),
                 "questionId": question["id"],
-                "answer": ["selected": .array(selected.map(JSON.string))],
+                "answer": .object(answer),
             ])
         }
         if done { refresh() }
@@ -442,6 +519,28 @@ final class BotModel {
     func round(_ callId: String) -> JSON? { rounds.first { $0["callId"].string == callId } }
     var speaking: [String] { rounds.flatMap { $0["speaking"].array.compactMap(\.string) } }
 
+    /// A tool call waits for the user where they are not looking: say so once.
+    private func announceApprovals() {
+        let pending = work["approvals"].array.filter { $0["answerable"].bool != false }
+        let ids = Set(pending.compactMap { $0["id"].string })
+        defer { announcedApprovals = ids }
+        for approval in pending {
+            guard let id = approval["id"].string, !announcedApprovals.contains(id), let botId = approval["botId"].string, let bot = bot(botId) else { continue }
+            let roomId = approval["roomId"].string
+            if visibleChat == (roomId ?? botId) { continue }
+            let route: BotRoute = roomId.map { .room($0) } ?? .bot(botId)
+            let place = roomId.flatMap(room).map(name(of:))
+            let text = place.map { String(localized: "\(bot.name)在「\($0)」里等你批准") } ?? String(localized: "\(bot.name)等你批准")
+            BotNotifier.announce(text, detail: approval["tool"].string ?? "", app: app) { [weak self] in
+                self?.openRequest = BotOpenRequest(route: route)
+            }
+        }
+    }
+
+    /// Change the preferences ds-bot keeps for every window of the team.
+    @discardableResult
+    func setPrefs(_ patch: [String: JSON]) async -> Bool { await run("set-prefs", patch) }
+
     // MARK: Managing
 
     /// Change a Bot: only the given fields. The feed brings the new team; this reads it at once.
@@ -460,7 +559,7 @@ final class BotModel {
             await refreshState()
             return true
         } catch {
-            app.showToast(BotErrorText.text(error.localizedDescription), tone: .warning)
+            app.showToast(error.localizedDescription, tone: .warning)
             return false
         }
     }

@@ -239,6 +239,11 @@ final class AppModel {
         if completionUnread.contains(id) { completionUnread.remove(id) }
     }
 
+    /// The reader's own mark that a conversation still needs a look.
+    func markUnread(_ id: String) {
+        if !completionUnread.contains(id) { completionUnread.insert(id) }
+    }
+
     /// Waiting on the user: a tool approval or an open question.
     func isWaiting(_ id: String) -> Bool {
         !(approvals[id] ?? []).isEmpty || !(questionRequests[id] ?? []).isEmpty || control[id]?["userQuestions"]?["active"].array.isEmpty == false

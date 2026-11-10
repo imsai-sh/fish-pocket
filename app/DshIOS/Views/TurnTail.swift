@@ -11,6 +11,7 @@ struct TurnMenu: ViewModifier {
     @Environment(\.conversationActions) private var actions
     /// A Bot's chat or a group: a reply is the Bot's word, not a draft to redo or branch from.
     @Environment(\.botComposer) private var bot
+    @Environment(\.botTimeline) private var botTimeline
 
     private var closing: String { info?.closingText.isEmpty == false ? info?.closingText ?? "" : fallbackText }
     private var usage: TurnUsage? { info?.usageBroken == true ? nil : info?.usage }
@@ -30,8 +31,12 @@ struct TurnMenu: ViewModifier {
             Button { actions.present(.text(closing)) } label: { Label("选择文本", systemImage: "selection.pin.in.out") }
         }
         if bot != nil, !closing.isEmpty {
+            if let botTimeline, let turn { BotReactionMenu(key: BotReactions.key(session: botTimeline.sessionId, turn: turn)) }
             Button { actions.quote(closing) } label: { Label("引用回复", systemImage: "arrowshape.turn.up.left") }
             ShareLink(item: closing) { Label("分享", systemImage: "square.and.arrow.up") }
+            ShareLink(item: MarkdownFile(name: String(closing.prefix(24)), text: closing), preview: SharePreview(String(closing.prefix(40)))) {
+                Label("存为 Markdown 文件", systemImage: "arrow.down.doc")
+            }
             Button { ReadAloud.shared.toggle(closing) } label: { Label("朗读", systemImage: "speaker.wave.2") }
         }
         if let regeneratePrompt, bot == nil {

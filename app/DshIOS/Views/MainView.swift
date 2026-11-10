@@ -107,7 +107,7 @@ struct MainView: View {
             sheet = nil
             storeOpen = false
             botOpen = true
-            botPath = request.route.map { [$0] } ?? []
+            botPath = request.route.map { route in request.push && botPath.last != route ? botPath + [route] : [route] } ?? []
             setDrawer(false)
         }
         // The sidebar's own row; the page is also still under Settings.
