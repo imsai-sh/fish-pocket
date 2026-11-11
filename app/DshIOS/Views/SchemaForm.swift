@@ -257,13 +257,13 @@ extension View {
 /// it. With unsaved edits, the back button and the sheet's swipe give way to 取消, which
 /// asks before dropping them.
 private struct EditPageChrome: ViewModifier {
-    @Environment(\.dismiss) private var dismiss
     let dirty: Bool
     let canSave: Bool
     let saving: Bool
     let save: () -> Void
     let discard: () -> Void
     @State private var confirming = false
+    @State private var discarded = false
 
     func body(content: Content) -> some View {
         content
@@ -274,9 +274,10 @@ private struct EditPageChrome: ViewModifier {
                 Button("继续编辑", role: .cancel) {}
                 Button("放弃", role: .destructive) {
                     discard()
-                    dismiss()
+                    discarded = true
                 }
             }
+            .dismisses(when: discarded)
     }
 }
 

@@ -202,7 +202,6 @@ private struct StagedField: View {
 /// the page), and a refused save scrolling to what went wrong.
 private struct OfficialForm<Content: View>: View {
     @Environment(AppModel.self) private var app
-    @Environment(\.dismiss) private var dismiss
     let title: LocalizedStringKey
     let available: Bool
     let dirty: Bool
@@ -214,6 +213,7 @@ private struct OfficialForm<Content: View>: View {
     let discard: () -> Void
     let save: () async -> Bool
     @ViewBuilder let content: Content
+    @State private var saved = false
 
     private static var failure: String { "official-form-failure" }
 
@@ -251,12 +251,13 @@ private struct OfficialForm<Content: View>: View {
             Task {
                 if await save() {
                     Haptics.success()
-                    dismiss()
+                    saved = true
                 } else {
                     Haptics.error()
                 }
             }
         }
+        .dismisses(when: saved)
         .followSettings()
     }
 }
