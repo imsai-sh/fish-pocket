@@ -92,10 +92,13 @@ struct BotConnectorsPage: View {
     @State private var adding = false
 
     private static let order = ["dev", "docs", "work", "design", "data", "commerce", "search", "custom"]
+    /// Left out of the list because they cannot connect: Figma only lets clients it has approved
+    /// sign in, and turns this one down.
+    private static let hidden: Set<String> = ["figma"]
 
     var body: some View {
         let team = app.botTeam
-        let rows = team.connectors
+        let rows = team.connectors.filter { !Self.hidden.contains($0["id"].string ?? "") }
         List {
             ForEach(Self.order, id: \.self) { category in
                 let group = rows.filter { ($0["category"].string ?? "custom") == category }

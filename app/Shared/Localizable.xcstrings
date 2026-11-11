@@ -34829,6 +34829,22 @@
         }
       }
     },
+    "这个服务拒绝了这个应用的登录申请（HTTP %@），暂时连不上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This service turned down this app’s sign-in request (HTTP %@), so it can’t connect for now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servicio rechazó la solicitud de inicio de sesión de esta app (HTTP %@); por ahora no se puede conectar"
+          }
+        }
+      }
+    },
     "这个服务需要你自己的 OAuth 应用。在服务的开发者后台创建后，把 Client ID 填在这里。" : {
       "localizations" : {
         "en" : {
