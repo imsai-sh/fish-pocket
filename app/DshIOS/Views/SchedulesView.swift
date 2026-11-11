@@ -58,13 +58,13 @@ struct SchedulesView: View {
     }
 
     @Environment(AppModel.self) private var app
-    @Environment(\.dismiss) private var dismiss
     @AppStorage("dsh.currentWorkspace") private var workspaceId = ""
     @State private var catalog = ScheduleCatalog()
     @State private var filter = StatusFilter.all
     @State private var query = ""
     @State private var confirming: JSON?
     @State private var creating = false
+    @State private var leaving = false
 
     private var scoped: [JSON] {
         catalog.records.filter { sessionId == nil || $0["target"]["sessionId"].string == sessionId }
@@ -143,6 +143,7 @@ struct SchedulesView: View {
         } message: { record in
             Text("「\(record["title"].string ?? "")」\n任务将停止触发，并连同其已保存的任务运行记录一并删除。原会话及其消息仍然保留；已排队的消息不会被撤回。")
         }
+        .dismisses(when: leaving)
     }
 
     @ViewBuilder
@@ -188,7 +189,7 @@ struct SchedulesView: View {
 
     private func open(_ id: String) {
         if let openSession { openSession(id); return }
-        dismiss()
+        leaving = true
         UIApplication.shared.open(DshLink.session(id).url)
     }
 
@@ -244,7 +245,6 @@ struct ScheduleDetailView: View {
     enum Failure: Equatable { case local, message(String) }
 
     @Environment(AppModel.self) private var app
-    @Environment(\.dismiss) private var dismiss
     let catalog: ScheduleCatalog
     let taskId: String
     /// The session this page was opened from: its link is hidden.
@@ -266,6 +266,7 @@ struct ScheduleDetailView: View {
     @State private var confirmingDelete = false
     @State private var confirmingDiscard = false
     @State private var deleting = false
+    @State private var leaving = false
 
     private var task: JSON? { catalog.entry(taskId) ?? retained }
     private var active: Bool { task.map(ScheduleRule.isArmed) ?? true }
@@ -322,12 +323,13 @@ struct ScheduleDetailView: View {
             }
         }
         .background { if dirty { EdgeSwipeAttempt { confirmingDiscard = true } } }
+        .dismisses(when: leaving)
         .confirmationDialog("删除此任务？", isPresented: $confirmingDelete, titleVisibility: .visible) {
             Button("确认删除", role: .destructive) {
                 guard let task else { return }
                 deleting = true
                 Task {
-                    if await delete(task) { dismiss() }
+                    if await delete(task) { leaving = true }
                     deleting = false
                 }
             }
@@ -336,7 +338,7 @@ struct ScheduleDetailView: View {
             Text("任务将停止触发，并连同其已保存的任务运行记录一并删除。原会话及其消息仍然保留；已排队的消息不会被撤回。")
         }
         .confirmationDialog("有未保存的修改", isPresented: $confirmingDiscard, titleVisibility: .visible) {
-            Button("放弃修改", role: .destructive) { cancel(); dismiss() }
+            Button("放弃修改", role: .destructive) { cancel(); leaving = true }
             Button("继续编辑", role: .cancel) {}
         }
         .onAppear(perform: sync)

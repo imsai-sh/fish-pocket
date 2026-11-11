@@ -950,7 +950,8 @@ private struct UserBubble: View {
         VStack(alignment: .trailing, spacing: 6) {
             ImageGroup(attachments: attachments.filter(\.isImage), alignment: .trailing)
             ForEach(Array(attachments.filter { !$0.isImage }.enumerated()), id: \.offset) { _, attachment in
-                Label(attachment.name ?? String(localized: "附件"), systemImage: "paperclip").font(.caption)
+                FileCard(name: attachment.name ?? String(localized: "附件"), bytes: attachment.bytes)
+                    .frame(maxWidth: 280, alignment: .trailing)
             }
             if !text.isEmpty {
                 Group {
