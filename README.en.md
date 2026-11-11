@@ -29,6 +29,14 @@
 </table>
 
 <p align="center">
+  <img src="docs/assets/demo-bot.gif" width="250" alt="Creating a Bot and picking its look and color; asking it in chat for today's tech news, its avatar moving while it searches, then three stories coming back; finally the connectors page, listing services such as GitHub and Notion">
+  <br/>
+  <b>Bot mode</b>
+  <br/>
+  <sub>Make a Bot, hand it a task, and it searches the web and reports back; connect the services you use once</sub>
+</p>
+
+<p align="center">
   <img src="docs/assets/demo-ipad.gif" width="840" alt="Two Fish Pocket windows side by side on iPad, each running its own session: the left adds a leaderboard to a snake game, the right initializes a Git repository and commits">
   <br/>
   <b>Multiple windows on iPad</b>
@@ -60,7 +68,7 @@
 - **Made for iPad too.** A persistent sidebar, a side workbench, multiple windows, file drag and drop, and keyboard shortcuts.
 - **Reaches the agents on your computer too.** Sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) and the Codex, Claude Code and DeepSeek Harness sessions on your computers appear in the same sidebar: follow their progress, keep the conversation going, answer approvals, stop a run. It is optional, and nothing changes until you sign in.
 - **More private.** Sessions and workspaces stay on your device.
-- **Coming soon: Bot mode.** Turn the agent in your pocket into an always-on bot: hand it a task in chat, it runs the work on your phone and sends the result back.
+- **Bot mode:** a standing team of Bots. Each Bot has its own look, memory and working folder; chat with one, put several in a group, or let them start work on a schedule. Connect services such as GitHub and Notion once, and both ordinary conversations and Bots can use them. The backend is the open-source [DS Bot](https://github.com/Fei2411/DS-Bot); the interface is rewritten natively.
 
 Model calls still need a network connection. Use a DeepSeek account or an API key.
 
@@ -191,7 +199,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Built-in Python 3.15, with pip and venv
 - [x] Remote control: manage the Codex, Claude Code and DSH sessions on your computers from the phone (through Agents Anywhere)
 - [ ] Move the bash interpreter off the engine thread
-- [ ] Bot mode: hand tasks to the agent in your pocket from a chat
+- [x] Bot mode: hand tasks to the agent in your pocket from a chat
 
 ## Contributing
 
@@ -206,6 +214,7 @@ Fish Pocket also stands on the shoulders of these projects.
 **Used directly:**
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): the engine, and the reason any of this exists
+- [DS Bot](https://github.com/Fei2411/DS-Bot): the backend of the Bot feature (the standing team of Bots, group chats, memory and scheduled tasks). Thanks to Fei2411 and the community contributors
 - [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) and its [digidem fork](https://github.com/digidem/nodejs-mobile): Node 24 on iOS
 - [CPython](https://github.com/python/cpython): the official python.org iOS build, Python inside the app
 - [just-bash](https://github.com/vercel-labs/just-bash): a bash interpreter written in TypeScript

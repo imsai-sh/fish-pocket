@@ -330,6 +330,7 @@ struct StoreInstallConfirm: View {
     var body: some View {
         let number = choice.version["version"].string ?? ""
         let source = choice.version["source"]
+        let pinned = PluginPins.note(package: entry.name, version: number)
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 12) {
                 StoreArt(name: entry.name, icon: entry.icon, size: 48)
@@ -346,13 +347,17 @@ struct StoreInstallConfirm: View {
             if choice.version["compatibility"]["exempted"].bool == true {
                 Text("此版本与当前 DSH 不兼容，但你已为它设置了兼容性豁免").font(.footnote).foregroundStyle(Palette.waiting)
             }
-            // 这是装插件的主入口，警告要说全：插件和智能体走同一条路，本机能力对它一样开放。
-            Label(
-                "插件在本机以你的权限运行，也能用本机能力（\(NativeCapability.installWarningSummary)）。请确认你信任它的来源。",
-                systemImage: "exclamationmark.triangle"
-            )
-            .font(.footnote)
-            .foregroundStyle(Palette.secondary)
+            if let pinned {
+                Label(pinned, systemImage: "pin").font(.footnote).foregroundStyle(Palette.waiting)
+            } else {
+                // 这是装插件的主入口，警告要说全：插件和智能体走同一条路，本机能力对它一样开放。
+                Label(
+                    "插件在本机以你的权限运行，也能用本机能力（\(NativeCapability.installWarningSummary)）。请确认你信任它的来源。",
+                    systemImage: "exclamationmark.triangle"
+                )
+                .font(.footnote)
+                .foregroundStyle(Palette.secondary)
+            }
             HStack(spacing: 12) {
                 Button("取消") { dismiss() }.buttonStyle(.capsule(.outline))
                 Button("安装") {
@@ -366,6 +371,7 @@ struct StoreInstallConfirm: View {
                     }
                 }
                 .buttonStyle(.capsule())
+                .disabled(pinned != nil)
             }
         }
         .padding(20)

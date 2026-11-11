@@ -112,6 +112,18 @@ enum ToolStyle {
         case "schedule", "create_schedule", "schedule_create", "schedule_list", "schedule_delete", "schedule_update": return "clock"
         case "job_list", "job_output", "job_kill": return "gearshape.2"
         case "run_code", "workflow", "ralph": return "chevron.left.forwardslash.chevron.right"
+        // ds-bot's team tools.
+        case "message_bot", "list_bots", "list_bot_models": return "arrow.up.message"
+        case "stop_bot": return "stop.circle"
+        case "create_bot", "update_bot": return "person.badge.plus"
+        case "create_group", "update_group", "delete_group", "post_to_group", "read_group_chat", "group_relay", "group_goal": return "person.2"
+        case "ask_user": return "questionmark.bubble"
+        case "show_view": return "rectangle.on.rectangle"
+        case "remember", "forget", "recall": return "brain"
+        case "request_secret", "list_secrets": return "key"
+        case "request_connector", "list_connectors": return "point.3.connected.trianglepath.dotted"
+        case "mail_send", "mail_search", "mail_read": return "envelope"
+        case "list_capabilities", "save_capability", "delete_capability": return "puzzlepiece"
         default: return name.hasPrefix("mcp__") ? "server.rack" : "wrench.and.screwdriver"
         }
     }
@@ -132,6 +144,14 @@ enum ToolStyle {
         "workflow": String(localized: "运行工作流"), "ralph": String(localized: "运行循环工作流"), "lsp": String(localized: "查询代码符号"),
         "session_event_read": String(localized: "读取事件"), "session_event_search": String(localized: "搜索事件"), "session_event_trace": String(localized: "追踪事件"),
         "session_search": String(localized: "搜索会话"), "session_trace": String(localized: "追踪会话"),
+        "message_bot": String(localized: "给 Bot 发消息"), "stop_bot": String(localized: "让 Bot 停下"), "list_bots": String(localized: "查看团队"), "list_bot_models": String(localized: "查看可用模型"),
+        "create_bot": String(localized: "创建 Bot"), "update_bot": String(localized: "修改 Bot"),
+        "create_group": String(localized: "创建群聊"), "update_group": String(localized: "修改群聊"), "delete_group": String(localized: "删除群聊"), "post_to_group": String(localized: "在群里发言"),
+        "read_group_chat": String(localized: "看群聊记录"), "group_relay": String(localized: "群聊发言"), "group_goal": String(localized: "推进群目标"),
+        "ask_user": String(localized: "提问"), "show_view": String(localized: "展示卡片"),
+        "remember": String(localized: "记下来"), "forget": String(localized: "从记忆里去掉"), "recall": String(localized: "翻记忆"),
+        "request_secret": String(localized: "请求密钥"), "list_secrets": String(localized: "查看密钥"), "request_connector": String(localized: "请求连接服务"), "list_connectors": String(localized: "查看连接器"),
+        "mail_send": String(localized: "发邮件"), "list_capabilities": String(localized: "查看能力"), "save_capability": String(localized: "保存能力"), "delete_capability": String(localized: "删除能力"),
         "terminal_open": String(localized: "创建终端"), "terminal_read": String(localized: "读取终端"), "terminal_list": String(localized: "查看终端"), "terminal_signal": String(localized: "发送终端信号"), "terminal_close": String(localized: "关闭终端"),
     ]
 

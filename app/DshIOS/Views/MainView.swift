@@ -6,7 +6,7 @@ import SwiftUI
 /// regular width it is the split view's sidebar. With nothing selected — at
 /// launch, after archiving — a blank session in the current workspace opens.
 struct MainView: View {
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities, remote; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities, connectors, remote; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -21,6 +21,9 @@ struct MainView: View {
     /// In regular width the plugin store takes the conversation's place beside the sidebar.
     @State private var storeOpen = false
     @State private var webOpen = false
+    /// The Bot pages take the conversation's place (the drawer's Bot card opens them).
+    @State private var botOpen = false
+    @State private var botPath: [BotRoute] = []
     /// The sidebar, in regular width.
     @State private var sidebar = NavigationSplitViewVisibility.all
     @State private var windowWidth: CGFloat = 0
@@ -42,6 +45,11 @@ struct MainView: View {
     @State private var newsShown = false
     /// 「在电脑上新建会话」, once whatever sheet asked for it has gone.
     @State private var remoteTarget: RemoteSessionTarget?
+    /// The launch has gone back to the page the app was last on (`place`); from then on the page
+    /// in front is kept for the next launch. A window opened on a session stays on it.
+    @State private var placeRestored: Bool
+    /// The launch went back to a Bot page: the blank conversation made under it does not take its place.
+    @State private var launchedUnderBot = false
 
     /// A `dsh://` link this window received (`RootView`), until it is followed.
     @Binding private var link: LinkRequest?
@@ -49,7 +57,43 @@ struct MainView: View {
     /// `session`: the one this window opened on, when it opened on one.
     init(session: String? = nil, link: Binding<LinkRequest?> = .constant(nil)) {
         _selection = State(initialValue: session)
+        _placeRestored = State(initialValue: session != nil)
         _link = link
+    }
+
+    private static let placeKey = "dsh.lastPlace"
+
+    /// The page in front, as it is kept for the next launch: a conversation, the Bot list, a
+    /// Bot's chat or a group.
+    private var place: String? {
+        guard botOpen else { return selection.map { "session:\($0)" } }
+        switch botPath.last {
+        case .bot(let id)?: return "bot:\(id)"
+        case .room(let id)?: return "room:\(id)"
+        case nil: return "bots"
+        }
+    }
+
+    /// Back to the page the app was last on, when it is still there; a link or a notification
+    /// that opened the app has already picked its own.
+    private func restorePlace() {
+        guard selection == nil, let kept = UserDefaults.standard.string(forKey: Self.placeKey) else { return }
+        let parts = kept.split(separator: ":", maxSplits: 1).map(String.init)
+        let id = parts.count > 1 ? parts[1] : ""
+        switch parts[0] {
+        case "session":
+            if app.workspace(of: id) != nil, !app.isArchived(id) { selection = id }
+        case "bot": openBots([.bot(id)])
+        case "room": openBots([.room(id)])
+        case "bots": openBots([])
+        default: break
+        }
+    }
+
+    private func openBots(_ path: [BotRoute]) {
+        launchedUnderBot = true
+        botOpen = true
+        botPath = path
     }
 
     /// The credential sheets (`settings.onboarding`'s steps). Unlike the web they never open by
@@ -99,6 +143,15 @@ struct MainView: View {
             app.webRequest = nil
             webOpen = true
         }
+        .onChange(of: app.botTeam.openRequest?.token) { _, token in
+            guard token != nil, let request = app.botTeam.openRequest else { return }
+            app.botTeam.openRequest = nil
+            sheet = nil
+            storeOpen = false
+            botOpen = true
+            botPath = request.route.map { route in request.push && botPath.last != route ? botPath + [route] : [route] } ?? []
+            setDrawer(false)
+        }
         // The sidebar's own row; the page is also still under Settings.
         .onChange(of: app.nativeCapabilitiesRequest) { _, token in
             guard token != nil, scenePhase != .background else { return }
@@ -128,6 +181,11 @@ struct MainView: View {
         .onChange(of: app.remote.signedIn) { _, signedIn in
             if !signedIn, RemoteStore.sessionId(of: selection) != nil { selection = nil }
         }
+        .onChange(of: app.connectorsRequest) { _, token in
+            guard token != nil, scenePhase != .background else { return }
+            app.connectorsRequest = nil
+            sheet = .connectors
+        }
         .fullScreenCover(isPresented: $webOpen) { WebFallbackView() }
         // The Live Activity and the widgets; a cold launch keeps the link until this view is up.
         .onChange(of: link?.token, initial: true) {
@@ -150,7 +208,18 @@ struct MainView: View {
         .tint(Palette.ink)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { windowWidth = $0 }
         .focusedSceneValue(\.windowCommands, windowCommands)
-        .task(id: app.workspaces.map(\.id)) { if selection == nil { newConversation(in: workspace) } }
+        .task(id: app.workspaces.map(\.id)) {
+            // Which sessions there are is known with the workspaces.
+            guard !app.workspaces.isEmpty else { return }
+            if !placeRestored {
+                placeRestored = true
+                restorePlace()
+            }
+            if selection == nil { newConversation(in: workspace) }
+        }
+        .onChange(of: place) { _, place in
+            if placeRestored, let place { UserDefaults.standard.set(place, forKey: Self.placeKey) }
+        }
         // Which store this copy came from: only an App Store install is asked for a rating.
         .task { await AppDistribution.refresh() }
         .task(id: canAnnounce) {
@@ -180,6 +249,7 @@ struct MainView: View {
         .onChange(of: scenePhase) { _, phase in if phase == .active { app.currentSession = selection } }
         .onChange(of: selection) { _, id in
             app.currentSession = id
+            if launchedUnderBot { launchedUnderBot = false } else { botOpen = false }
             if let id {
                 if let owner = app.workspace(of: id) { workspaceId = owner.id }
             } else {
@@ -194,6 +264,7 @@ struct MainView: View {
         .onChange(of: app.openRequest?.token) { _, token in
             guard token != nil, scenePhase != .background, let id = app.openRequest?.id else { return }
             app.openRequest = nil
+            botOpen = false
             selection = id
             setDrawer(false)
         }
@@ -213,7 +284,7 @@ struct MainView: View {
             Task { await openCredentials(step) }
         }
         #if DEBUG
-        // Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|whatsnew`.
+        // Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew|capabilities`.
         .task {
             switch UserDefaults.standard.string(forKey: "dshOpen") {
             case "drawer": drawerOpen = true
@@ -224,8 +295,10 @@ struct MainView: View {
             case "signin": sheet = .signIn
             case "support": supportDialog = true
             case "share": sheet = .share
+            case "connectors": sheet = .connectors
             case "whatsnew": whatsNew = WhatsNew.current
             case "remote": sheet = .remote
+            case "capabilities": sheet = .capabilities
             default: break
             }
         }
@@ -242,6 +315,8 @@ struct MainView: View {
                 case .cordis: CordisPanelView(currentSession: selection)
                 case .share: SheetStack { ShareAppPage() }
                 case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
+                // The services ordinary conversations and Bots both reach; the Bot team's settings hold the same page.
+                case .connectors: SheetStack { BotConnectorsPage() }.settingsStyle()
                 case .remote: SheetStack { RemoteControlPage() }.environment(\.systemLists, true)
                 }
             }
@@ -328,6 +403,8 @@ struct MainView: View {
             Group {
                 if storeOpen {
                     NavigationStack { PluginStoreView(openSidebar: hideSidebar) }
+                } else if botOpen {
+                    botStack(openDrawer: hideSidebar)
                 } else {
                     NavigationStack { conversation(openDrawer: hideSidebar) }
                 }
@@ -395,8 +472,14 @@ struct MainView: View {
             let travel = width + geometry.safeAreaInsets.leading
             let progress = min(1, max(0, (drawerOpen ? 1 : 0) + drag / width))
             ZStack(alignment: .leading) {
-                NavigationStack { conversation(openDrawer: { setDrawer(true) }) }
-                    .accessibilityHidden(drawerOpen)
+                Group {
+                    if botOpen {
+                        botStack(openDrawer: { setDrawer(true) })
+                    } else {
+                        NavigationStack { conversation(openDrawer: { setDrawer(true) }) }
+                    }
+                }
+                .accessibilityHidden(drawerOpen)
                 Palette.scrim
                     .opacity(progress)
                     .ignoresSafeArea()
@@ -451,6 +534,7 @@ struct MainView: View {
     /// Show `id` from wherever it was asked for: over a sheet it closes first.
     private func open(session id: String) {
         sheet = nil
+        botOpen = false
         selection = id
         setDrawer(false)
     }
@@ -472,8 +556,8 @@ struct MainView: View {
             workspace: workspace,
             rowFrames: rowFrames,
             pluginsSelected: storeOpen,
-            select: { id in storeOpen = false; selection = id; setDrawer(false) },
-            newConversation: { workspace in storeOpen = false; workspaceId = workspace.id; newConversation(in: workspace); setDrawer(false) },
+            select: { id in storeOpen = false; botOpen = false; selection = id; setDrawer(false) },
+            newConversation: { workspace in storeOpen = false; botOpen = false; workspaceId = workspace.id; newConversation(in: workspace); setDrawer(false) },
             openSettings: { sheet = .settings },
             openSchedules: { sheet = .schedules },
             openCordis: { sheet = .cordis },
@@ -481,6 +565,19 @@ struct MainView: View {
             searchRequest: searchRequest,
             openInWindow: supportsMultipleWindows ? { openWindow(id: DshIOSApp.window, value: SessionWindow(session: $0)) } : nil
         )
+    }
+
+    /// The Bot list, with a Bot's chat or a group pushed on it.
+    private func botStack(openDrawer: (() -> Void)?) -> some View {
+        NavigationStack(path: $botPath) {
+            BotHomeView(openDrawer: openDrawer)
+                .navigationDestination(for: BotRoute.self) { route in
+                    switch route {
+                    case .bot(let id): BotChatView(botId: id)
+                    case .room(let id): BotRoomView(roomId: id)
+                    }
+                }
+        }
     }
 
     @ViewBuilder

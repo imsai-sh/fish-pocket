@@ -366,6 +366,18 @@ test('a limited photo library is never reported as the whole library', () => {
   assert.match(rendered.split('\n')[0], /shared with this app/);
 });
 
+test('a declined photo write is never reported as done', () => {
+  // Declining iOS's own delete sheet, or the app's confirmation, both come back
+  // as `cancelled`. Every write must say nothing changed, whatever it was.
+  for (const action of ['save', 'delete', 'favorite', 'hide', 'createAlbum', 'renameAlbum',
+    'deleteAlbum', 'addToAlbum', 'removeFromAlbum']) {
+    const rendered = TOOLS.photos.output.render({ action }, { action: 'cancelled' })[0].text;
+    assert.match(rendered, /Nothing in the photo library changed/, action);
+  }
+  const deleted = TOOLS.photos.output.render({ action: 'delete' }, { action: 'deleted', count: 3 })[0].text;
+  assert.match(deleted, /Recently Deleted/);
+});
+
 test('a bare date means local midnight, not UTC midnight', () => {
   // The whole point of the conversion. `new Date('2026-11-09')` is UTC midnight,
   // which lands on 8 November for anyone west of Greenwich and skips the first

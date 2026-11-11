@@ -69,7 +69,14 @@ struct DrawerView: View {
     var body: some View {
         NavigationStack {
             List {
+                // The Bot card keeps its own margins: wider than the rows under it.
+                BotDrawerEntry()
+                    .padding(.top, 4)
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
                 pluginsRow
+                connectorsRow
                 capabilitiesRow
                 webRow
                 remoteControlRow
@@ -283,6 +290,31 @@ struct DrawerView: View {
         .buttonStyle(.plain)
         .padding(.bottom, 2)
         .plainRow()
+    }
+
+    /// The services an agent can reach over MCP (GitHub, Notion…). They come with the Bot
+    /// plugin but every conversation gets their tools, so the way in is here, not only in the
+    /// Bot team's settings; the row shows once that plugin answers.
+    @ViewBuilder
+    private var connectorsRow: some View {
+        let team = app.botTeam
+        if team.status == .ready {
+            let connected = team.connectors.filter { $0["state"].string == "ready" }.count
+            Button { Haptics.tap(); app.connectorsRequest = UUID() } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "point.3.connected.trianglepath.dotted").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
+                    Text("连接器").font(.subheadline).foregroundStyle(Palette.ink)
+                    Spacer()
+                    Text(connected > 0 ? String(localized: "\(connected) 个已连接") : String(localized: "连接服务")).font(.footnote).foregroundStyle(Palette.secondary)
+                }
+                .padding(.horizontal, 12)
+                .frame(minHeight: 46)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .padding(.bottom, 2)
+            .plainRow()
+        }
     }
 
     /// What the agent may reach on this phone, and the switch for each one.
@@ -501,7 +533,9 @@ struct DrawerView: View {
     /// project on a computer, most recently used first. A project is a folder on one machine:
     /// two machines' projects of the same name stay two groups, each saying whose it is.
     private var placeGroups: [SessionGroup] {
-        var result = app.workspaces.map { SessionGroup(id: $0.id, workspace: $0, title: $0.displayTitle, rows: app.sessions(in: $0).map(Entry.local)) }
+        // The Bot team's workspace holds only its sessions, which the Bot card lists.
+        let team = app.botTeam.teamWorkspaceId
+        var result = app.workspaces.filter { $0.id != team }.map { SessionGroup(id: $0.id, workspace: $0, title: $0.displayTitle, rows: app.sessions(in: $0).map(Entry.local)) }
         let loose = app.sessions(in: nil)
         if !loose.isEmpty { result.append(SessionGroup(id: Self.ungrouped, title: String(localized: "未分组"), rows: loose.map(Entry.local))) }
         guard remote.signedIn else { return result }

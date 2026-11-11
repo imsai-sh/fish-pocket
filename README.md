@@ -29,6 +29,14 @@
 </table>
 
 <p align="center">
+  <img src="docs/assets/demo-bot.gif" width="250" alt="新建一个 Bot，给它挑形象和颜色；在聊天里让它查今天的科技新闻，它的头像边搜索边动，查完把三条新闻发回来；最后打开连接器页面，里面是 GitHub、Notion 等可以连接的服务">
+  <br/>
+  <b>Bot 模式</b>
+  <br/>
+  <sub>建一个 Bot，交代一件事，它自己联网查完再回你；常用的服务在连接器里连一次就行</sub>
+</p>
+
+<p align="center">
   <img src="docs/assets/demo-ipad.gif" width="840" alt="iPad 上两个 Fish Pocket 窗口并排，各自运行一个会话：左边给贪吃蛇加排行榜，右边初始化 Git 仓库并提交">
   <br/>
   <b>iPad 多窗口</b>
@@ -60,7 +68,7 @@
 - **iPad 适配：** 常驻侧栏、右侧工作台、多窗口、拖放文件，外接键盘支持常用快捷键。
 - **也能管电脑上的智能体：** 登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 后，电脑上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在同一个侧边栏里，可以跟进进度、接着聊、回应审批、随时打断。这是可选功能，不登录就和原来一样。
 - **更私密：** 会话和工作区留在设备上。
-- **即将推出：Bot 模式。** 把口袋里的 Agent 变成一直在线的 Bot：在聊天里交代任务，它在手机上跑完，再把结果发回给你。
+- **Bot 模式：** 一支常驻的 Bot 团队。每个 Bot 有自己的形象、记忆和工作文件夹，可以私聊，可以拉群一起商量，也可以到点自己开工。GitHub、Notion 这些服务在连接器里连一次，普通会话和 Bot 都能用。后台是开源的 [DS Bot](https://github.com/Fei2411/DS-Bot)，界面是原生重写的。
 
 模型调用仍然需要联网，用 DeepSeek 账号或 API Key 都可以。
 
@@ -191,7 +199,7 @@ App 免费，代码以 MIT 协议开源，商用需要先取得授权，见[许�
 - [x] 内置 Python 3.15，支持 pip 和 venv
 - [x] 远程控制：在手机上管电脑里的 Codex、Claude Code 和 DSH 会话（对接 Agents Anywhere）
 - [ ] bash 解释器移出引擎线程
-- [ ] Bot 模式：在聊天里给口袋里的 Agent 派任务
+- [x] Bot 模式：在聊天里给口袋里的 Agent 派任务
 
 ## 交流群
 
@@ -214,6 +222,7 @@ Fish Pocket 还站在这些优秀项目的肩膀上。
 **直接使用：**
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：引擎本身，一切的基础
+- [DS Bot](https://github.com/Fei2411/DS-Bot)：Bot 功能的后台，常驻的 Bot 团队、群聊、记忆和定时任务都靠它。感谢 Fei2411 和社区贡献者
 - [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) 及其 [digidem 分支](https://github.com/digidem/nodejs-mobile)：让 Node 24 跑在 iOS 上
 - [CPython](https://github.com/python/cpython)：python.org 官方的 iOS 构建，App 内的 Python
 - [just-bash](https://github.com/vercel-labs/just-bash)：TypeScript 写的 bash 解释器

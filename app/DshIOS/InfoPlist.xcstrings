@@ -200,19 +200,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lets the agent see what is in your photo library when you ask, and export one picture you name so the phone can read the text in it. To answer your questions, the information involved is sent with the conversation to the model provider you chose. The app never adds, changes or deletes any photo."
+            "value" : "Lets the agent see what is in your photo library when you ask, export pictures for the phone to read on-device, and organize your library the way you set writing under Device capabilities. To answer your questions, the information involved is sent with the conversation to the model provider you chose. iOS asks you again before any photo is deleted."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "让智能体在你问起时查看相册里有哪些照片，并把你指定的一张导出成文件，用手机本机的识别能力读出里面的文字。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。App 不会添加、修改或删除任何照片。"
+            "value" : "让智能体在你问起时查看相册里有哪些照片、导出照片给本机识别，并按你在「本机能力」里设的写入方式帮你整理相册。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。删除照片前 iOS 会再问你一次。"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Permite que el agente vea qué hay en tu fototeca cuando preguntas, y que exporte una foto que indiques para que el teléfono lea el texto que contiene. Para responder a tus preguntas, la información implicada se envía con la conversación al proveedor de modelos que hayas elegido. La app nunca añade, modifica ni elimina ninguna foto."
+            "value" : "Permite que el agente vea qué hay en tu fototeca cuando preguntas, exporte fotos para que el teléfono las analice en el propio dispositivo y organice tu fototeca según cómo configures la escritura en Funciones del dispositivo. Para responder a tus preguntas, la información implicada se envía con la conversación al proveedor de modelos que hayas elegido. iOS te pregunta de nuevo antes de eliminar cualquier foto."
           }
         }
       }

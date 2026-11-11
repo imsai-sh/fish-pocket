@@ -256,7 +256,8 @@ struct SettingsView: View {
             : String(localized: "离开 App 后播放无声音频，任务、自动化和开发服务器都不停。会多耗一些电。")
     }
 
-    private static func permissionName(_ option: JSON) -> String {
+    /// A permission preset in the words the app uses everywhere (`{value, name}`).
+    static func permissionName(_ option: JSON) -> String {
         switch option["value"].string {
         case "read-only": String(localized: "仅可查看")
         case "workspace-write": String(localized: "工作区内修改")
@@ -300,12 +301,6 @@ struct SettingsView: View {
             app.showToast(describeFailure(error), duration: 5)
         }
     }
-}
-
-private extension View {
-    /// A picker's value in the grey of the other rows' values; the page's ink tint would paint it black.
-    /// Only the value: the row's icon keeps the ink.
-    func pickerValueTint() -> some View { tint(.secondary) }
 }
 
 /// 设置 → 高级: the pages for people who look under the hood.
@@ -383,12 +378,22 @@ private struct AboutPage: View {
             Section {
                 LabeledContent("引擎", value: "DeepSeek Harness")
                 if let engineVersion { LabeledContent("引擎版本", value: engineVersion) }
+                if let bot = app.botTeam.installedPackage {
+                    Link(destination: BotModel.projectURL) {
+                        LabeledContent("Bot 插件", value: "DS Bot \(bot.version ?? "")")
+                    }
+                    .foregroundStyle(Palette.ink)
+                }
                 LabeledContent("App 版本", value: Self.appVersion)
                 if let release = WhatsNew.current {
                     NavigationLink("新功能") { WhatsNewPage(release: release) }
                 }
                 UpdateRow()
                 LabeledContent("系统", value: ProcessInfo.processInfo.operatingSystemVersionString)
+            } footer: {
+                if app.botTeam.installedPackage != nil {
+                    Text("Bot 功能的后台是开源项目 DS Bot（Apache-2.0），感谢 Fei2411 和社区贡献者。")
+                }
             }
             Section {
                 LabeledContent("连接状态", value: app.connected ? String(localized: "已连接") : String(localized: "重新连接中"))
