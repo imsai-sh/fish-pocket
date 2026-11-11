@@ -7,11 +7,16 @@
 // blocks, or one that fails here because iOS has no compiler or no build of the
 // tool it downloads. The plugin manager can only allow scripts, and its RPC schema
 // is generated upstream, so a refusal travels in `approvedBuilds` with a `!` prefix.
+//
+// Every install also passes the version pins (pins.mjs): the plugin manager is
+// the one path the plugin page, the web UI and a plugin's own updater share.
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parentPort } from 'node:worker_threads';
 import { writeFileAtomic } from '@deepseek-ai/dsh-atomic-write';
 import { parseDocument } from 'yaml';
+import { pinFor, pinRefusal } from './pins.mjs';
+import { enableBuiltins } from './builtins.mjs';
 
 /**
  * Debounced restart request: waits `settleMs` so the change's RPC answer
@@ -83,16 +88,42 @@ export default class IosHost {
         if (result?.application === 'restart-required') restarter.request(result.restartReason ?? 'restart-required');
         return result;
       };
+      // A pinned plugin (pins.mjs) installs only its pinned version.
+      const inspect = manager.inspect;
+      if (typeof inspect === 'function') {
+        manager.inspect = function (spec, options, signal) {
+          const pin = pinFor(spec, { dir: this.profile?.dir });
+          if (pin?.refused) return Promise.resolve({ status: 'refused', problem: 'unknown', reason: pinRefusal(pin) });
+          return inspect.call(this, pin?.spec ?? spec, options, signal);
+        };
+      }
       const installBundle = manager.installBundle;
       manager.installBundle = function (spec, options) {
+        const pin = pinFor(spec, { dir: this.profile?.dir });
+        if (pin?.refused) {
+          return Promise.resolve({
+            changed: false, application: 'failed', stage: 'install', target: spec,
+            error: { code: 'operation-error', diagnostic: pinRefusal(pin) },
+          });
+        }
+        if (pin !== undefined) {
+          spec = pin.spec;
+          if (pin.exact) options = { ...options, saveExact: true };
+        }
         const builds = options?.approvedBuilds ?? [];
         const refused = builds.filter((build) => build.startsWith('!')).map((build) => build.slice(1));
         if (refused.length === 0) return installBundle.call(this, spec, options);
         const approvedBuilds = builds.filter((build) => !build.startsWith('!'));
         return refuseBuilds(this.profile.dir, refused).then(() => installBundle.call(this, spec, { ...options, approvedBuilds }));
       };
+      // The plugins the app ships (builtins.mjs) start switched on.
+      if (process.env.DSH_IOS_DATA) {
+        void enableBuiltins(manager, process.env.DSH_IOS_DATA, { warn: (message) => ctx.logger.warn(message) })
+          .then((names) => { if (names.length > 0) ctx.logger.info('switched on built-in plugins: %s', names.join(', ')); });
+      }
       return () => {
         manager.change = change;
+        if (typeof inspect === 'function') manager.inspect = inspect;
         manager.installBundle = installBundle;
         restarter.cancel();
       };

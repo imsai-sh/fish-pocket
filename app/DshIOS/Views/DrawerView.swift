@@ -66,7 +66,9 @@ struct DrawerView: View {
             VStack(spacing: 0) {
                 topBar
                 newConversationButton
+                BotDrawerEntry()
                 pluginsRow
+                connectorsRow
                 capabilitiesRow
                 webRow
 
@@ -166,6 +168,31 @@ struct DrawerView: View {
         .buttonStyle(.plain)
         .padding(.horizontal, 8)
         .padding(.bottom, 2)
+    }
+
+    /// The services an agent can reach over MCP (GitHub, Notion…). They come with the Bot
+    /// plugin but every conversation gets their tools, so the way in is here, not only in the
+    /// Bot team's settings; the row shows once that plugin answers.
+    @ViewBuilder
+    private var connectorsRow: some View {
+        let team = app.botTeam
+        if team.status == .ready {
+            let connected = team.connectors.filter { $0["state"].string == "ready" }.count
+            Button { Haptics.tap(); app.connectorsRequest = UUID() } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "point.3.connected.trianglepath.dotted").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
+                    Text("连接器").font(.subheadline).foregroundStyle(Palette.ink)
+                    Spacer()
+                    Text(connected > 0 ? String(localized: "\(connected) 个已连接") : String(localized: "连接服务")).font(.footnote).foregroundStyle(Palette.secondary)
+                }
+                .padding(.horizontal, 12)
+                .frame(minHeight: 46)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 8)
+            .padding(.bottom, 2)
+        }
     }
 
     /// What the agent may reach on this phone, and the switch for each one.
@@ -302,7 +329,9 @@ struct DrawerView: View {
 
     /// One group per workspace in host order, then 「未分组」 when it has members.
     private var groups: [SessionGroup] {
-        var result = app.workspaces.map { SessionGroup(id: $0.id, workspace: $0, rows: app.sessions(in: $0)) }
+        // The Bot team's workspace holds only its sessions, which the Bot card lists.
+        let team = app.botTeam.teamWorkspaceId
+        var result = app.workspaces.filter { $0.id != team }.map { SessionGroup(id: $0.id, workspace: $0, rows: app.sessions(in: $0)) }
         let loose = app.sessions(in: nil)
         if !loose.isEmpty { result.append(SessionGroup(id: Self.ungrouped, workspace: nil, rows: loose)) }
         return result

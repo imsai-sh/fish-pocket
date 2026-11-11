@@ -16,6 +16,10 @@
 | [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm) | 1.10.0 | MIT | Copyright (c) 2019-2022 Miguel de Icaza 等 | 终端界面 |
 | [SwiftMath](https://github.com/mgriebling/SwiftMath) | 1.7.3 | MIT；随包的数学字体各有许可证（GUST 字体许可证、SIL OFL 等），见其 README 的 Fonts 一节 | Copyright (c) 2023 Computer Inspirations | 回复里的公式排版 |
 | [pnpm](https://github.com/pnpm/pnpm) | 11.28.5 | MIT | Rico Sta. Cruz、Zoltan Kochan 及贡献者 | 插件安装 |
+| [DS Bot](https://github.com/Fei2411/DS-Bot)（`ds-bot`） | 0.3.1 | Apache-2.0 | Copyright 2026 Fei2411 and the DS Bot contributors | Bot 功能的后台，内置在引擎里 |
+| [Simple Icons](https://github.com/simple-icons/simple-icons) | 16.37.0 | CC0-1.0 | Simple Icons 贡献者 | Bot 连接器页面的品牌图标 |
+
+Simple Icons 是上面这句话的例外：用到的 28 个图标以 SVG 文件直接放在仓库里（`app/DshIOS/Assets.xcassets/Connectors`）。CC0 只覆盖图标文件本身，各图标仍是其品牌方的商标，App 里只用来标明连接的是哪家服务。
 
 CPython 的完整许可证及其捆绑组件（OpenSSL、SQLite、libffi、zlib、bzip2、xz、zstd、expat、mpdecimal 等）的许可证见 [Python 文档的许可证页](https://docs.python.org/3.15/license.html)；标准库里的 `LICENSE.txt` 随 App 一起分发。
 
@@ -40,6 +44,7 @@ libgit2 的完整许可证见其仓库的 [COPYING](https://github.com/libgit2/l
 需要单独留意的两项：
 
 - **`@deepseek-ai/libreoffice-kit`（MPL-2.0）：** 只保留了很小的 JS 外壳，平台二进制和 wasm 在打包时已删除，`office-to-pdf` 也已禁用。
+- **`ds-bot`（Apache-2.0）：** 它的 npm 包只带 LICENSE，不带上游仓库的 NOTICE。按 Apache-2.0 第 4 条，`engine/notices/ds-bot.NOTICE`（取自上游 v0.3.1）在打包时放到 `ds-bot/NOTICE`，随 App 一起分发。原生界面只调用它的接口，没有使用它的界面代码。
 - **`just-bash` 自带的 CPython（Python 许可证）：** 位于 `just-bash/vendor/cpython-emscripten`，随 just-bash 一起打包，但 iOS 上没有启用 `python` 命令。
 
 ## 吉祥物（不适用 MIT）

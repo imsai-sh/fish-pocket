@@ -12,6 +12,10 @@ struct ComposerTray: View {
     let files: () -> Void
     let pick: (Candidate) -> Void
     let setPermission: (String) -> Void
+    /// A Bot's chat or a group chat: the model and modes are not this session's to set.
+    @Environment(\.botComposer) private var bot
+    @Environment(AppModel.self) private var app
+    @Environment(\.dismiss) private var dismiss
     @State private var confirmingPermission: String?
 
     private var composer: ComposerModel { model.composer }
@@ -33,53 +37,51 @@ struct ComposerTray: View {
                     NavigationLink {
                         CandidateList(model: model, context: context, trigger: "@", pick: pick)
                     } label: {
-                        Label("引用文件或对话", systemImage: "at")
+                        Label(bot == nil ? "引用文件或对话" : "提到 Bot、文件或对话", systemImage: "at")
                     }
-                    NavigationLink {
-                        CandidateList(model: model, context: context, trigger: "/", leading: composer.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, pick: pick)
-                    } label: {
-                        Label("指令", systemImage: "command")
-                    }
-                    NavigationLink {
-                        ModelSearchList(model: model, context: context)
-                    } label: {
-                        LabeledContent {
-                            Text(context.modelName(model)).lineLimit(1)
+                    if bot == nil {
+                        NavigationLink {
+                            CandidateList(model: model, context: context, trigger: "/", leading: composer.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, pick: pick)
                         } label: {
-                            Label("模型", systemImage: "cpu")
+                            Label("指令", systemImage: "command")
                         }
-                    }
-                }
-                .groupedRow()
-                Section {
-                    if context.hasPlanMode || composer.planActive {
-                        Toggle(isOn: Binding(get: { composer.planActive }, set: { on in Haptics.select(); composer.setPlan(on) })) {
-                            Label("计划模式", systemImage: "list.bullet.clipboard")
-                        }
-                        .toggleStyle(.mono)
-                        .disabled(composer.planSwitching)
-                    }
-                    if let thinking = context.thinking(model) {
-                        Toggle(isOn: Binding(get: { thinking.isOn }, set: { on in
-                            Haptics.select()
-                            Task { await model.selectModel(thinking.choice, effort: on ? thinking.on : thinking.off) }
-                        })) {
-                            Label("思考", systemImage: "lightbulb")
-                        }
-                        .toggleStyle(.mono)
-                    }
-                    if !context.permissionOptions.isEmpty, model.permission != nil {
-                        Picker(selection: Binding(get: { model.permission ?? "" }, set: { choosePermission($0) })) {
-                            ForEach(context.permissionOptions, id: \.value) { option in
-                                Label(ComposerView.permissionTitle(option), systemImage: ComposerView.permissionIcon(option.value)).tag(option.value)
+                    } else {
+                        // DSH's commands set this session's model, mode and goal, which a Bot
+                        // keeps as its own; what a Bot is given to do on a schedule is here.
+                        if case .bot(let id) = bot {
+                            // A quick question answered from the chat so far, kept out of it.
+                            Button {
+                                dismiss()
+                                app.botTeam.sideChatRequest = id
+                            } label: {
+                                Label("旁支提问", systemImage: "bubble.left.and.text.bubble.right")
                             }
-                        } label: {
-                            Label("访问模式", systemImage: ComposerView.permissionIcon(model.permission ?? ""))
+                            .foregroundStyle(Palette.ink)
                         }
-                        .pickerStyle(.menu)
+                        Button {
+                            dismiss()
+                            app.botTeam.scheduleRequest = bot
+                        } label: {
+                            Label("定时任务", systemImage: "clock")
+                        }
+                        .foregroundStyle(Palette.ink)
+                    }
+                    // A Bot's model, thinking level and permission are its own, set on its page;
+                    // a group's members each answer on theirs.
+                    if bot == nil {
+                        NavigationLink {
+                            ModelSearchList(model: model, context: context)
+                        } label: {
+                            LabeledContent {
+                                Text(context.modelName(model)).lineLimit(1)
+                            } label: {
+                                Label("模型", systemImage: "cpu")
+                            }
+                        }
                     }
                 }
                 .groupedRow()
+                if bot == nil { sessionModes }
             }
             .groupedList()
             .toolbar(.hidden, for: .navigationBar)
@@ -89,6 +91,39 @@ struct ComposerTray: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .sheetNotices()
+    }
+
+    /// An ordinary conversation: this session's modes.
+    private var sessionModes: some View {
+        Section {
+            if context.hasPlanMode || composer.planActive {
+                Toggle(isOn: Binding(get: { composer.planActive }, set: { on in Haptics.select(); composer.setPlan(on) })) {
+                    Label("计划模式", systemImage: "list.bullet.clipboard")
+                }
+                .toggleStyle(.mono)
+                .disabled(composer.planSwitching)
+            }
+            if let thinking = context.thinking(model) {
+                Toggle(isOn: Binding(get: { thinking.isOn }, set: { on in
+                    Haptics.select()
+                    Task { await model.selectModel(thinking.choice, effort: on ? thinking.on : thinking.off) }
+                })) {
+                    Label("思考", systemImage: "lightbulb")
+                }
+                .toggleStyle(.mono)
+            }
+            if !context.permissionOptions.isEmpty, model.permission != nil {
+                Picker(selection: Binding(get: { model.permission ?? "" }, set: { choosePermission($0) })) {
+                    ForEach(context.permissionOptions, id: \.value) { option in
+                        Label(ComposerView.permissionTitle(option), systemImage: ComposerView.permissionIcon(option.value)).tag(option.value)
+                    }
+                } label: {
+                    Label("访问模式", systemImage: ComposerView.permissionIcon(model.permission ?? ""))
+                }
+                .pickerStyle(.menu)
+            }
+        }
+        .groupedRow()
     }
 
     private func choosePermission(_ value: String) {

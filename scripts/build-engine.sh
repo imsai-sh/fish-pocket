@@ -44,5 +44,11 @@ find "$nm" -type d \( -name test -o -name tests -o -name __tests__ -o -name docs
 { find "$nm" -type f -size +1k -print0 | xargs -0 file --mime-type 2>/dev/null | grep -E 'application/x-(mach-binary|executable|sharedlib)' || true; } | cut -d: -f1 | while read -r f; do rm -f "$f"; done
 # Bin links into what was pruned above: a dangling link in the bundle fails App Store validation.
 find "$nm" -type l ! -exec test -e {} \; -delete
+# Apache-2.0 notices a bundled package leaves out of its npm tarball ship beside it.
+for notice in "$src"/notices/*.NOTICE; do
+  [ -e "$notice" ] || continue
+  name="$(basename "$notice" .NOTICE)"
+  [ -d "$nm/$name" ] && cp "$notice" "$nm/$name/NOTICE"
+done
 after=$(du -sk "$nm" | cut -f1)
 echo "engine: $out ($((before/1024)) MB -> $((after/1024)) MB)"

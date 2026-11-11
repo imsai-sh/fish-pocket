@@ -130,6 +130,7 @@ func managementText(code: String?, diagnostic: String? = nil, incompatible: [JSO
             }
         return (named + [installing ? String(localized: "请安装与当前 DSH 兼容的插件版本。") : String(localized: "请卸载后重新安装与当前 DSH 兼容的版本。")]).joined()
     default:
+        if let pinned = PluginPins.refusal(diagnostic) { return pinned }
         if let diagnostic, !diagnostic.isEmpty { return diagnostic }
         return String(localized: "Host 报告了一个错误")
     }
