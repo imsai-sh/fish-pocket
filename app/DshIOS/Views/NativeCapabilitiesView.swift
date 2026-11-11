@@ -39,6 +39,21 @@ struct NativeCapabilitiesView: View {
 
     var body: some View {
         List {
+            // 先回答「我的数据去哪了」：这页开的都是私人数据，用户最先要知道的是
+            // 它们只在本机和模型服务商之间走，开发者这边一个字节也收不到。
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("智能体在本机运行", systemImage: "lock.shield")
+                        .font(.subheadline.weight(.semibold))
+                    Text("它为回答你而读到的本机数据，会和你的消息一起直接发给你选的模型服务商（默认是 DeepSeek），不经过我们的服务器，我们也收不到。服务商怎么处理这些数据，以它的隐私政策为准。")
+                        .font(.footnote)
+                        .foregroundStyle(Palette.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.vertical, 4)
+            }
+            .groupedRow()
+
             Section {
                 ForEach(capabilities) { capability in
                     CapabilityRow(
@@ -435,7 +450,7 @@ struct NativeCapability: Identifiable {
         case "transcribe": return String(localized: "把录音文件里说的话转成文字。默认只在本机识别，录音不上传")
         case "health": return String(localized: "读「健康」里的步数、睡眠、心率等。只读，绝不写入")
         case "homekit": return String(localized: "查看家里有哪些配件和它们的状态，并按你设的写入方式改状态、跑场景")
-        case "photos": return String(localized: "查看相册里有哪些照片，并把你指定的一张导出给本机识别。不增不改不删")
+        case "photos": return String(localized: "查看相册里有哪些照片、导出给本机识别，并按你设的写入方式整理：建相簿、收藏、隐藏、存入和删除。删除和隐藏前 iOS 还会再问你一次")
         case "alarm": return String(localized: "让智能体设真正的闹钟。和通知不同，闹钟会穿透静音和专注模式，响到你关掉为止")
         case "contacts": return String(localized: "按名字、电话或邮箱查联系人。只读，不增不改不删")
         case "compose": return String(localized: "把邮件或短信替你填好，弹出系统的发送页。发不发由你点，智能体自己发不出去")

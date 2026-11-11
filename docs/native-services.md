@@ -102,7 +102,7 @@ iOS 这些都是系统框架，和「控制其他 App」（做不到）不是一
 | **健康读** | HealthKit | HealthKit capability（entitlement）+ `NSHealthShareUsageDescription` | **合规最重，见 §6.1**。读权限状态查不到（Apple 故意不给，防推断），只能"读到空"当没授权。逐类型授权 | 第二期，**要先决定做不做** |
 | **位置** | CoreLocation | `NSLocationWhenInUseUsageDescription` | 粗/精粒度两档。后台定位别碰 | 第二期 |
 | **通讯录读** | Contacts | `NSContactsUsageDescription` | 隐私敏感度高于日历（牵涉第三人），而且会被发给模型 | **已做，只读**（§3.2） |
-| **照片库** | PhotoKit | `NSPhotoLibraryUsageDescription` | 相机附件已有；照片库用系统 picker 比给智能体读权限更合适 | 用 picker，不要权限 |
+| **照片库** | PhotoKit | `NSPhotoLibraryUsageDescription` | 读必须 read-write，没有只读档，所以开了就同时给了写。删照片、删相簿、隐藏照片时 iOS 每次都会自己弹确认框。iOS 16 起隐藏的照片对 App 完全不可见（隐藏相簿计数为 0），所以只能隐藏、不能取消隐藏 | **已做，读写**：读元数据、导出给 `vision`；整理相册（建/改名/删相簿、放进/移出相簿、收藏、隐藏、存入、删除）按写入策略走。iOS 自己弹框的那几项只在「只读」时被 App 拦下，其余交给 iOS 的框，不叠第二层。不做像素编辑 |
 | **健康写** | HealthKit | `NSHealthUpdateUsageDescription`（已填，只声明不写） | 写健康数据责任太大，且"不得写入虚假数据"是硬条款 | **不做** |
 | **屏幕使用时间** | DeviceActivity | 需特批 entitlement | 家长控制专用，申请门槛高 | 不做 |
 
@@ -150,7 +150,7 @@ iOS 这些都是系统框架，和「控制其他 App」（做不到）不是一
 
 **故意不做的。**
 
-- **不写。** iOS 的通讯录权限只有一档，读写一起给，所以「智能体不会动我的通讯录」不是系统保证的，是我们自己保证的。做法和照片一样：`caps_contacts.m` 里没有 `CNSaveRequest`，表里的 `writeOps` 是空的，没有东西需要把门。
+- **不写。** iOS 的通讯录权限只有一档，读写一起给，所以「智能体不会动我的通讯录」不是系统保证的，是我们自己保证的。做法是 `caps_contacts.m` 里没有 `CNSaveRequest`，表里的 `writeOps` 是空的，没有东西需要把门。（照片以前也这样，后来因为有整理相册的需求，改成按写入策略开放写入。）
 - **不猜查的是哪个字段。** 「138」可能是号码的一段也可能是公司名。原生侧去看查询长什么样再决定，就是替调用方回答了一个它没问的问题（§4.5）。所以由调用方说明字段，三个字段各自对应 Apple 写好的谓词，匹配规则是 Apple 的，上面不再叠东西。
 - **不排序、不挑。** 命中按 store 给的顺序原样返回。两个「张三」哪个才对，只有用户知道；工具说明里要求智能体列出来问，而不是自己选一个，尤其是在给对方发东西之前。
 - **不取备注和头像。** 备注（`CNContactNoteKey`）需要向 Apple 单独申请 entitlement，没有它时**整个 fetch 都会失败**，不只是少一个字段。头像对「要个电话号码」的调用方没用。

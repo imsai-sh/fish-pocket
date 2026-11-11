@@ -10232,6 +10232,38 @@
         }
       }
     },
+    "取消收藏" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unfavorite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitar de favoritos"
+          }
+        }
+      }
+    },
+    "取消收藏这些照片？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove these photos from Favorites?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quitar estas fotos de favoritos?"
+          }
+        }
+      }
+    },
     "取消置顶" : {
       "localizations" : {
         "en" : {
@@ -12996,6 +13028,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aprendió algo y quiere que lo revises"
+          }
+        }
+      }
+    },
+    "它为回答你而读到的本机数据，会和你的消息一起直接发给你选的模型服务商（默认是 DeepSeek），不经过我们的服务器，我们也收不到。服务商怎么处理这些数据，以它的隐私政策为准。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device data it reads to answer you is sent, along with your messages, straight to the model provider you choose (DeepSeek by default). It never passes through our servers, and we never receive it. How the provider handles it is up to the provider's privacy policy."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los datos del dispositivo que lee para responderte se envían, junto con tus mensajes, directamente al proveedor de modelos que elijas (DeepSeek por defecto). Nunca pasan por nuestros servidores y nosotros no los recibimos. Cómo los trata el proveedor depende de su política de privacidad."
           }
         }
       }
@@ -15909,6 +15957,22 @@
         }
       }
     },
+    "建相簿、收藏、隐藏、把图存进相册或删掉，在对话里说一声就行。删照片前 iOS 会再问你一次。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create albums, favorite, hide, save pictures to your library or delete them — just ask in the chat. iOS asks you again before deleting a photo."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crea álbumes, marca favoritos, oculta, guarda imágenes en tu fototeca o elimínalas: solo pídelo en el chat. iOS te pregunta de nuevo antes de eliminar una foto."
+          }
+        }
+      }
+    },
     "开" : {
       "localizations" : {
         "en" : {
@@ -18136,6 +18200,54 @@
         }
       }
     },
+    "把这个文件存进相册？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save this file to your photo library?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Guardar este archivo en tu fototeca?"
+          }
+        }
+      }
+    },
+    "把这些照片放进这个相簿？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add these photos to this album?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Añadir estas fotos a este álbum?"
+          }
+        }
+      }
+    },
+    "把这些照片移出这个相簿？照片本身不会删除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove these photos from this album? The photos themselves are not deleted."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quitar estas fotos de este álbum? Las fotos en sí no se eliminan."
+          }
+        }
+      }
+    },
     "把邮件或短信替你填好，弹出系统的发送页。发不发由你点，智能体自己发不出去" : {
       "localizations" : {
         "en" : {
@@ -19809,6 +19921,38 @@
         }
       }
     },
+    "收藏" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorito"
+          }
+        }
+      }
+    },
+    "收藏这些照片？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add these photos to Favorites?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Añadir estas fotos a favoritos?"
+          }
+        }
+      }
+    },
     "收起" : {
       "localizations" : {
         "en" : {
@@ -20033,6 +20177,22 @@
         }
       }
     },
+    "改名" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renombrar"
+          }
+        }
+      }
+    },
     "改用国内镜像" : {
       "localizations" : {
         "en" : {
@@ -20109,6 +20269,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Descartar los cambios?"
+          }
+        }
+      }
+    },
+    "放进相簿" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to Album"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir al álbum"
           }
         }
       }
@@ -20852,6 +21028,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Añadir este evento?"
+          }
+        }
+      }
+    },
+    "新建这个相簿？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create this album?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Crear este álbum?"
           }
         }
       }
@@ -21886,6 +22078,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El agente y cualquier complemento de terceros que instales pueden usar estas funciones; la app no distingue quién hace la llamada. Comprueba el origen de un complemento antes de instalarlo."
+          }
+        }
+      }
+    },
+    "智能体在本机运行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The agent runs on your device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El agente se ejecuta en tu dispositivo"
           }
         }
       }
@@ -24053,18 +24261,18 @@
         }
       }
     },
-    "查看相册里有哪些照片，并把你指定的一张导出给本机识别。不增不改不删" : {
+    "查看相册里有哪些照片、导出给本机识别，并按你设的写入方式整理：建相簿、收藏、隐藏、存入和删除。删除和隐藏前 iOS 还会再问你一次" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sees what is in your library and exports one picture for the phone to read. Never adds, changes or deletes"
+            "value" : "Sees what is in your photo library, exports pictures for on-device recognition, and organizes it the way you set writing: albums, favorites, hiding, saving and deleting. iOS asks you again before deleting or hiding"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ve lo que hay en tu fototeca y exporta una foto para que el teléfono la lea. Nunca añade, cambia ni elimina"
+            "value" : "Ve qué hay en tu fototeca, exporta fotos para reconocerlas en el dispositivo y la organiza según cómo configures la escritura: álbumes, favoritos, ocultar, guardar y eliminar. iOS te pregunta de nuevo antes de eliminar u ocultar"
           }
         }
       }
@@ -30418,6 +30626,22 @@
         }
       }
     },
+    "给这个相簿改名？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename this album?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Renombrar este álbum?"
+          }
+        }
+      }
+    },
     "给连接器起个名字" : {
       "localizations" : {
         "en" : {
@@ -32175,6 +32399,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Detener a todos"
+          }
+        }
+      }
+    },
+    "让智能体帮你整理照片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let the agent organize your photos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deja que el agente organice tus fotos"
           }
         }
       }
@@ -36416,22 +36656,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se perdió la conexión."
-          }
-        }
-      }
-    },
-    "连接服务" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connect a Service"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Conectar un servicio"
           }
         }
       }

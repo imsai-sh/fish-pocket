@@ -36,6 +36,11 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
+        Release(version: "1.1.0", build: 38, features: [
+            Feature(symbol: "photo.on.rectangle.angled",
+                    title: "让智能体帮你整理照片",
+                    detail: "建相簿、收藏、隐藏、把图存进相册或删掉，在对话里说一声就行。删照片前 iOS 会再问你一次。"),
+        ]),
         Release(version: "1.1.0", build: 25, features: [
             Feature(symbol: "sparkles",
                     title: "插件的事，一键询问 AI",
