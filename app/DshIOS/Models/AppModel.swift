@@ -107,6 +107,8 @@ final class AppModel {
     let mux: StreamMux
     let account: AccountModel
     let cordis = CordisModel()
+    /// Agent sessions on the user's computers, through Agents Anywhere; idle until signed in.
+    let remote = RemoteStore()
 
     private(set) var workspaces: [Workspace] = []
     private(set) var pinned: [String] = []
@@ -129,6 +131,10 @@ final class AppModel {
     var archiveRequest: ArchiveRequest?
     var renameRequest: RenameRequest?
     var newSessionRequest: NewSessionRequest?
+    /// Start a session on a computer (the root view presents the sheet).
+    var remoteSessionRequest: RemoteSessionTarget?
+    /// Open the remote-control page: sign in, or the account's computers (the root view consumes it).
+    var remoteRequest: UUID?
     /// Height of the composer area on screen; the toast sits just above it.
     var composerHeight: CGFloat = 0
     /// Composer text waiting for a session to show it (appended to any draft there).

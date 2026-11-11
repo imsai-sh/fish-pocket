@@ -56,19 +56,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photos you take are sent to the agent as attachments."
+            "value" : "Photos you take are sent to the agent as attachments, and the camera scans the sign-in QR code on your computer."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拍照后作为附件发给智能体。"
+            "value" : "拍照后作为附件发给智能体，或扫描电脑上的登录二维码。"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las fotos que tomes se envían al agente como archivos adjuntos."
+            "value" : "Las fotos que tomes se envían al agente como archivos adjuntos, y la cámara escanea el código QR de inicio de sesión de tu ordenador."
           }
         }
       }

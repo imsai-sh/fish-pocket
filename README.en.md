@@ -66,6 +66,7 @@
 - **A workbench.** Terminal, file preview, built-in browser and change review in one panel.
 - **Made for iOS.** Dynamic Island and Lock Screen Live Activities, Home Screen and Lock Screen widgets, a Control Center button, Siri and Shortcuts, and tasks that continue in the background.
 - **Made for iPad too.** A persistent sidebar, a side workbench, multiple windows, file drag and drop, and keyboard shortcuts.
+- **Reaches the agents on your computer too.** Sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) and the Codex, Claude Code and DeepSeek Harness sessions on your computers appear in the same sidebar: follow their progress, keep the conversation going, answer approvals, stop a run. It is optional, and nothing changes until you sign in.
 - **More private.** Sessions and workspaces stay on your device.
 - **Bot mode:** a standing team of Bots. Each Bot has its own look, memory and working folder; chat with one, put several in a group, or let them start work on a schedule. Connect services such as GitHub and Notion once, and both ordinary conversations and Bots can use them. The backend is the open-source [DS Bot](https://github.com/Fei2411/DS-Bot); the interface is rewritten natively.
 
@@ -171,6 +172,8 @@ The TestFlight beta is available worldwide, including mainland China. The App St
 
 Not to us: we run no servers. Sessions and workspaces stay on your device, and model requests go straight to the provider you choose. See the [privacy policy](PRIVACY.md).
 
+Remote control is the exception, and only once you sign in to it: sessions on your computers travel through an Agents Anywhere server (its cloud service or one you host). Sessions on the device are not affected.
+
 ### Can the agent see my calendar, health data and photos?
 
 Only after you turn on that capability under Device capabilities. What is off it cannot use. When a capability is used, what it reads is sent with the conversation to the model provider you chose. Health, Contacts and Photos are read-only.
@@ -194,6 +197,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
 - [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more
 - [x] Built-in Python 3.15, with pip and venv
+- [x] Remote control: manage the Codex, Claude Code and DSH sessions on your computers from the phone (through Agents Anywhere)
 - [ ] Move the bash interpreter off the engine thread
 - [x] Bot mode: hand tasks to the agent in your pocket from a chat
 
@@ -216,6 +220,7 @@ Fish Pocket also stands on the shoulders of these projects.
 - [just-bash](https://github.com/vercel-labs/just-bash): a bash interpreter written in TypeScript
 - [libgit2](https://github.com/libgit2/libgit2): git inside the app
 - [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm): the terminal view
+- [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere): the open-source workbench remote control talks to; the desktop side and the server are its own
 
 **Ideas we learned from:**
 

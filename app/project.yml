@@ -146,8 +146,8 @@ targets:
           UIApplicationSupportsMultipleScenes: true
         # ProMotion: without this an iPhone app stays at 60 Hz.
         CADisableMinimumFrameDurationOnPhone: true
-        # 输入框的「拍照」(C-104).
-        NSCameraUsageDescription: 拍照后作为附件发给智能体。
+        # 输入框的「拍照」(C-104)，和远程控制的扫码登录。
+        NSCameraUsageDescription: 拍照后作为附件发给智能体，或扫描电脑上的登录二维码。
         # 本机能力「日历」。这条弹窗是用户在点「允许」前唯一一次被告知的机会，
         # 所以第二句写明数据会随对话发出去（docs/native-services.md §6.2.1）。
         # iOS 17 起读日历必须要 full access，没有只读档。

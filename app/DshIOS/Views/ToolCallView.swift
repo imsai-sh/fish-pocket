@@ -175,12 +175,14 @@ extension View {
 /// `call` is what the row knew, for a call the timeline no longer holds.
 struct ToolDetailSheet: View {
     let call: ToolCall
-    let model: SessionModel
+    var model: SessionModel?
+    /// The call as it stands now, where no session model holds it (a remote session).
+    var current: ((String) -> ToolCall?)?
     @Environment(\.fileLinkScope) private var scope
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        let call = model.toolCall(call.id) ?? call
+        let call = model?.toolCall(call.id) ?? current?(call.id) ?? call
         let row = ToolPresentation(call: call, live: false, cwd: scope?.root)
         let ask = call.displayName == "ask_user_question" ? AskStatus(call: call, model: model) : nil
         NavigationStack {
