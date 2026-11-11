@@ -68,7 +68,7 @@ struct BotDetailView: View {
         let team = app.botTeam
         return VStack(spacing: 8) {
             Button { appearanceOpen = true } label: {
-                BotAvatar(bot: bot, size: 88)
+                BotAvatar(bot: bot, size: 88, live: true)
                     .overlay(alignment: .bottomTrailing) {
                         Image(systemName: "pencil").font(.system(size: 12, weight: .bold)).foregroundStyle(.primary)
                             .frame(width: 28, height: 28).background(Color(.secondarySystemGroupedBackground), in: Circle())

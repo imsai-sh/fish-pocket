@@ -675,6 +675,9 @@ extension SessionModel {
 private struct TimelineList: View {
     let model: SessionModel
     @Environment(\.botTimeline) private var bot
+    @Environment(\.botComposer) private var botChat
+    /// The last user message there was when a Bot page opened: the ones after it arrive as they are sent.
+    @State private var seenThrough: Int?
 
     var body: some View {
         // A Bot's chat leaves out the turns that answered another Bot (ds-bot draws none of them).
@@ -706,20 +709,33 @@ private struct TimelineList: View {
                         isLast: isLast,
                         inProgress: false,
                         prompt: isLast ? Self.prompt(before: index, in: items) : nil,
-                        info: Self.turn(of: item).flatMap { model.turnInfo[$0] }
+                        info: Self.turn(of: item).flatMap { model.turnInfo[$0] },
+                        arrives: arrives(item)
                     )
                     .equatable()
                     .id(item.id)
                 }
             }
             if model.running && activeTurn == nil && bot?.room != true { LiveSection(model: model) }
-            // A group round says who is speaking in its own place.
-            if model.running && bot?.room != true { RunningIndicator(since: model.runningSince) }
+            // A group round says who is speaking in its own place; a Bot's own chat shows the Bot at work.
+            if model.running && bot?.room != true {
+                if case .bot(let id)? = botChat { BotActivityLine(botId: id, model: model) } else { RunningIndicator(since: model.runningSince) }
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 20)
         .padding(.bottom, 12)
         .readableWidth()
+        .onChange(of: model.loaded, initial: true) { _, loaded in
+            guard loaded, bot != nil, seenThrough == nil else { return }
+            seenThrough = model.items.reduce(0) { last, item in if case .user(let seq, _, _, _) = item { max(last, seq) } else { last } }
+        }
+    }
+
+    /// In a Bot page, a message sent while the page is open rises into place.
+    private func arrives(_ item: TimelineItem) -> Bool {
+        guard let seenThrough, case .user(let seq, _, _, _) = item else { return false }
+        return seq > seenThrough
     }
 
     private static func turn(of item: TimelineItem) -> Int? {
@@ -753,9 +769,13 @@ private struct ActiveTurn: View {
 /// or just the step line (「正在分析请求」).
 private struct LiveSection: View {
     let model: SessionModel
+    @Environment(\.botComposer) private var botChat
 
     var body: some View {
-        AssistantTurnView(blocks: model.live, turn: nil, inProgress: true, liveCount: model.live.count, startedAt: nil, endedAt: nil)
+        // In a Bot's own chat the Bot's mark below is the loading line.
+        if case .bot? = botChat, model.live.isEmpty {} else {
+            AssistantTurnView(blocks: model.live, turn: nil, inProgress: true, liveCount: model.live.count, startedAt: nil, endedAt: nil)
+        }
     }
 }
 
@@ -767,16 +787,17 @@ private struct TimelineRow: View, Equatable {
     let inProgress: Bool
     let prompt: String?
     let info: TurnInfo?
+    var arrives = false
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.item == rhs.item && lhs.model === rhs.model && lhs.isLast == rhs.isLast && lhs.inProgress == rhs.inProgress
-            && lhs.prompt == rhs.prompt && lhs.info == rhs.info
+            && lhs.prompt == rhs.prompt && lhs.info == rhs.info && lhs.arrives == rhs.arrives
     }
 
     var body: some View {
         switch item {
         case .user(_, let text, let attachments, let requestId):
-            UserBubble(text: text, attachments: attachments, model: model, via: IMPlatform.via(requestId))
+            UserBubble(text: text, attachments: attachments, model: model, via: IMPlatform.via(requestId), arrives: arrives)
         case .assistant(let turn, let blocks, let started, let ended):
             AssistantTurnView(blocks: blocks, turn: turn, inProgress: inProgress, startedAt: started, endedAt: ended, regeneratePrompt: inProgress ? nil : prompt, info: info)
         case .notice(_, let text, let isError):
@@ -910,6 +931,10 @@ private struct UserBubble: View {
     let model: SessionModel
     /// The chat app the message came in over (a Bot reached from one), by name.
     var via: String?
+    /// Just sent, in a Bot page: it rises from the composer into place.
+    var arrives = false
+    @State private var landed = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var revealed = false
     /// A long message (询问 AI writes one with an install log) folds to its first lines until asked for.
     @State private var open = false
@@ -975,6 +1000,15 @@ private struct UserBubble: View {
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.leading, 60)
+        .opacity(arrives && !landed ? 0 : 1)
+        .scaleEffect(arrives && !landed && !reduceMotion ? 0.9 : 1, anchor: .bottomTrailing)
+        .offset(y: arrives && !landed && !reduceMotion ? 36 : 0)
+        .task {
+            guard arrives, !landed else { return }
+            // After the pass that laid the new row out: started inside it, most of the rise is over before a frame is drawn.
+            await Task.yield()
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.74)) { landed = true }
+        }
     }
 }
 
@@ -998,6 +1032,8 @@ struct AssistantTurnView: View {
     @Environment(\.conversationActions) private var actions
     /// A Bot's chat: its reasoning shows only when asked for, and what it did beyond its words is drawn.
     @Environment(\.botTimeline) private var bot
+    /// A Bot's own chat: the Bot's mark at the tail is the one loading indicator.
+    @Environment(\.botComposer) private var botChat
 
     private var stayOpen: Bool {
         inProgress || info?.steered == true || ["aborted", "interrupted", "error"].contains(info?.closedKind ?? "")
@@ -1007,15 +1043,16 @@ struct AssistantTurnView: View {
         let finalStart = finalAnswerStart
         let finished = !inProgress && endedAt != nil
         let showWork = choice ?? stayOpen
+        let ownChat = if case .bot? = botChat { true } else { false }
         VStack(alignment: .leading, spacing: 8) {
             // While working the step line always shows (the one loading indicator of the turn);
             // a streamed answer with no work before it needs none.
-            if finalStart > 0 || (inProgress && (blocks.isEmpty || liveCount == 0)) {
+            if finalStart > 0 || (inProgress && !ownChat && (blocks.isEmpty || liveCount == 0)) {
                 Button {
                     withAnimation(.easeInOut(duration: 0.18)) { choice = !showWork }
                 } label: {
                     HStack(spacing: 6) {
-                        if inProgress { ProgressView().controlSize(.mini) }
+                        if inProgress && !ownChat { ProgressView().controlSize(.mini) }
                         Text(summaryLine).lineLimit(1).truncationMode(.middle)
                         Image(systemName: "chevron.right")
                             .font(.caption2.weight(.semibold))

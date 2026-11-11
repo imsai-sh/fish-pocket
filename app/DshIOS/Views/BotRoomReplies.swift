@@ -43,6 +43,7 @@ struct RoomRelayView: View {
                 case nil:
                     RoomMessage(bot: bot, name: bot?.name ?? reply["name"].string ?? "?", texts: block.texts,
                                 reactionKey: timeline.map { BotReactions.key(session: $0.sessionId, call: relay.call.id, index: block.id) })
+                        .transition(.asymmetric(insertion: .offset(y: 14).combined(with: .opacity), removal: .identity))
                 case "user":
                     // What the user added while the round ran.
                     VStack(alignment: .trailing, spacing: 4) {
@@ -66,22 +67,15 @@ struct RoomRelayView: View {
             }
             if running && !relay.settled {
                 if speaking.isEmpty {
-                    HStack(spacing: 6) {
-                        StatusDot(state: .running, size: 6)
-                        Text("成员正在发言…").font(.footnote).foregroundStyle(Palette.secondary)
-                    }
+                    BotShimmer(text: String(localized: "成员正在发言…")).frame(minHeight: 28)
                 }
-                ForEach(speaking) { member in
-                    HStack(spacing: 8) {
-                        BotAvatar(bot: member, size: 22)
-                        Text(team.workPhrase(member.id).map { "\(member.name) · \($0)…" } ?? String(localized: "\(member.name)正在输入…"))
-                            .font(.footnote).foregroundStyle(Palette.secondary).lineLimit(1)
-                        ProgressView().controlSize(.mini)
-                    }
-                }
+                ForEach(speaking) { member in BotSpeakingLine(bot: member).transition(.scale(scale: 0.6, anchor: .leading).combined(with: .opacity)) }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // While the round runs, a reply rises in where its member was typing.
+        .animation(live == nil ? nil : .spring(response: 0.4, dampingFraction: 0.8), value: replies.count)
+        .animation(live == nil ? nil : .spring(response: 0.4, dampingFraction: 0.8), value: speaking.map(\.id))
     }
 
     /// What a reply that is not a message says (ds-bot's group round kinds).

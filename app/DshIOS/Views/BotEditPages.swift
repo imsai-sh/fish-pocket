@@ -248,7 +248,7 @@ struct BotAppearanceSheet: View {
                     Section {
                         HStack {
                             Spacer()
-                            BotAvatar(bot: bot, size: 96)
+                            BotAvatar(bot: bot, size: 96, live: true)
                             Spacer()
                         }
                         .listRowBackground(Color.clear)
@@ -286,13 +286,11 @@ struct BotAppearanceSheet: View {
                     Section {
                         BotLookPicker(shape: Binding(get: {
                             // A photo, or the main Bot's mascot, is none of these looks.
-                            if bot.avatarImage != nil || team.usesAppMark(bot) { return "-" }
-                            let shape = bot.json["avatar"]["shape"].string
-                            return BotLook.symbol(shape) == nil ? nil : shape
+                            bot.avatarImage != nil || team.usesAppMark(bot) ? nil : team.character(of: bot).id
                         }, set: { shape in
-                            save(bot, avatar: shape.map { ["shape": .string($0)] } ?? .null)
-                        }), color: Binding(get: { bot.colorKey }, set: { key in if let key { colour(bot, key) } }), name: bot.name)
-                    } header: { Text("内置形象") } footer: { Text("选一个形状，或者用名字的第一个字，再配一个颜色。") }
+                            if let shape { save(bot, avatar: ["shape": .string(shape)]) }
+                        }), color: Binding(get: { bot.colorKey }, set: { key in if let key { colour(bot, key) } }))
+                    } header: { Text("内置形象") } footer: { Text("选一个形状，再配一个颜色。") }
                     .groupedRow()
                 }
                 .groupedList()

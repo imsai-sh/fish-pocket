@@ -7,71 +7,49 @@ enum BotRoute: Hashable {
 }
 
 /// A Bot's mark: the app's own mascot for the main Bot while it keeps the plugin's default
-/// look, else its colour and the first character of its name.
+/// look, else its photo, else its character in its colour. `live` marks move for what the
+/// Bot is doing, and the large ones blink and fidget at rest; the rest stay still, so a long
+/// page does not run dozens of animations.
 struct BotAvatar: View {
     @Environment(AppModel.self) private var app
-    private let bot: BotInfo?
-    private let name: String
-    private let color: Color?
-    private let size: CGFloat
-
-    init(name: String, color: Color, size: CGFloat = 40) {
-        bot = nil
-        self.name = name
-        self.color = color
-        self.size = size
-    }
-
-    init(bot: BotInfo?, name: String? = nil, size: CGFloat = 40) {
-        self.bot = bot
-        self.name = bot?.name ?? name ?? "?"
-        color = nil
-        self.size = size
-    }
+    let bot: BotInfo?
+    /// Shown by its first character when the Bot is not on the team (any more).
+    var name: String?
+    var size: CGFloat = 40
+    var live = false
+    /// Set where the page knows better than the team's feed what the Bot is doing.
+    var mood: BotMood?
+    /// The page's colour, drawn around the mark where marks overlap.
+    var outline: Color?
 
     var body: some View {
         let team = app.botTeam
+        let mood = mood ?? (live ? bot.map { team.mood($0.id) } : nil) ?? .idle
         Group {
             if let bot, team.usesAppMark(bot) {
-                Image("LaunchMark").resizable().scaledToFill()
-                    .frame(width: size, height: size)
-                    .clipShape(Circle())
+                picture(Image("LaunchMark"), mood: mood)
             } else if let data = bot?.avatarImage, let image = BotPicture.image(data) {
-                Image(uiImage: image).resizable().scaledToFill()
-                    .frame(width: size, height: size)
-                    .clipShape(Circle())
-            } else if let symbol = bot.flatMap({ BotLook.symbol($0.json["avatar"]["shape"].string) }) {
-                Image(systemName: symbol)
-                    .font(.system(size: size * 0.46, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: size, height: size)
-                    .background(bot.map(team.color(of:)) ?? Palette.secondary, in: Circle())
+                picture(Image(uiImage: image), mood: mood)
+            } else if let bot {
+                BotMark(character: team.character(of: bot), color: team.color(of: bot), size: size, mood: mood,
+                        lively: live && size >= 64, seed: bot.id, outline: outline)
             } else {
-                Text(String(name.prefix(1)))
+                Text(String((name ?? "?").prefix(1)))
                     .font(.system(size: size * 0.42, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: size, height: size)
-                    .background(color ?? bot.map(team.color(of:)) ?? Palette.secondary, in: Circle())
+                    .background(Palette.secondary, in: Circle())
             }
         }
         .accessibilityHidden(true)
     }
-}
 
-/// The looks a Bot can have without a photo: one of ds-bot's shape names on its colour. The
-/// names are the plugin's, so a look picked here is the same Bot elsewhere; the drawings are
-/// the system's symbols.
-enum BotLook {
-    static let shapes: [(id: String, symbol: String)] = [
-        ("star", "star.fill"), ("moon", "moon.fill"), ("wave", "water.waves"), ("squircle", "app.fill"), ("zed", "bolt.fill"),
-        ("hex", "camera.macro"), ("gumdrop", "drop.fill"), ("peanut", "capsule.portrait.fill"), ("saucer", "atom"), ("bunny", "hare.fill"),
-        ("kitty", "cat.fill"), ("beacon", "light.beacon.max.fill"), ("plus", "plus"), ("magnet", "link"), ("acorn", "leaf.fill"),
-        ("pebbles", "circle.grid.cross.fill"), ("cushion", "cloud.fill"), ("ring", "circle.circle.fill"), ("gem", "diamond.fill"), ("whale", "fish.fill"),
-    ]
-
-    static func symbol(_ shape: String?) -> String? {
-        guard let shape else { return nil }
-        return shapes.first { $0.id == shape }?.symbol
+    private func picture(_ image: Image, mood: BotMood) -> some View {
+        image.resizable().scaledToFill()
+            .frame(width: size, height: size)
+            .clipShape(Circle())
+            .overlay { if let outline { Circle().stroke(outline, lineWidth: 2) } }
+            .modifier(BotPictureMotion(mood: mood, size: size))
     }
 }
 
@@ -121,8 +99,7 @@ struct RoomAvatar: View {
                     .frame(width: size, height: size).background(Palette.control, in: Circle())
             } else {
                 ForEach(Array(members.enumerated()), id: \.offset) { index, bot in
-                    BotAvatar(bot: bot, size: size * 0.68)
-                        .overlay(Circle().stroke(Palette.background, lineWidth: 2))
+                    BotAvatar(bot: bot, size: size * 0.68, outline: Palette.background)
                         .offset(x: index == 0 ? 0 : size * 0.32, y: index == 0 ? 0 : size * 0.32)
                 }
             }
@@ -178,8 +155,7 @@ struct BotDrawerEntry: View {
                 Image("LaunchMark").resizable().scaledToFill().frame(width: 38, height: 38).clipShape(Circle())
             }
             ForEach(Array(shown.enumerated()), id: \.element.id) { index, bot in
-                BotAvatar(bot: bot, size: 38)
-                    .overlay(Circle().stroke(Palette.grouped, lineWidth: 2))
+                BotAvatar(bot: bot, size: 38, live: true, outline: Palette.grouped)
                     .zIndex(Double(shown.count - index))
             }
         }
@@ -238,7 +214,7 @@ struct BotHomeEntry: View {
         } label: {
             HStack(spacing: 12) {
                 if let main = team.mainBot {
-                    BotAvatar(bot: main, size: 40)
+                    BotAvatar(bot: main, size: 40, live: true)
                 } else {
                     Image("LaunchMark").resizable().scaledToFill().frame(width: 40, height: 40).clipShape(Circle())
                 }
@@ -496,7 +472,7 @@ struct BotHomeView: View {
                 ForEach(bots) { bot in
                     NavigationLink(value: BotRoute.bot(bot.id)) {
                         HStack(spacing: 12) {
-                            BotAvatar(bot: bot, size: 44)
+                            BotAvatar(bot: bot, size: 44, live: true)
                             BotRowText(title: bot.name, line: team.rowLine(for: bot), tag: team.isMain(bot) ? String(localized: "主 Bot") : nil)
                             if bot.pinned { Image(systemName: "pin.fill").font(.caption2).foregroundStyle(Palette.faint) }
                             trailing(sessionId: bot.sessionId)
@@ -620,10 +596,10 @@ struct BotSetupView: View {
         ScrollView {
             VStack(spacing: 28) {
                 HStack(spacing: -14) {
-                    BotAvatar(name: "研", color: Color(red: 0.18, green: 0.44, blue: 0.84), size: 64)
+                    BotMark(character: BotCharacter.named("star")!, color: BotInk.color("blue")!, size: 64, lively: true, seed: "star")
                     Image("LaunchMark").resizable().scaledToFill().frame(width: 80, height: 80).clipShape(Circle())
                         .overlay(Circle().stroke(Palette.background, lineWidth: 4)).zIndex(1).accessibilityHidden(true)
-                    BotAvatar(name: "码", color: Color(red: 0.72, green: 0.38, blue: 0.04), size: 64)
+                    BotMark(character: BotCharacter.named("kitty")!, color: BotInk.color("orange")!, size: 64, lively: true, seed: "kitty")
                 }
                 .padding(.top, 32)
                 VStack(spacing: 10) {
@@ -688,48 +664,72 @@ struct BotSetupView: View {
 
 // MARK: - Creating
 
-/// A look for a Bot without a photo: one of the built-in shapes (or its initial) on a colour.
+/// A look for a Bot without a photo: one of the characters in one of the team's colours.
 struct BotLookPicker: View {
     @Environment(AppModel.self) private var app
-    /// nil: the first character of its name.
+    /// A character's id; anything else (a photo, the app's mascot): none of these is picked.
     @Binding var shape: String?
     @Binding var color: String?
-    var name = ""
 
     var body: some View {
         let team = app.botTeam
-        let ink = color.flatMap { Color(hex: BotModel.inks[$0] ?? $0) } ?? Palette.secondary
-        VStack(alignment: .leading, spacing: 14) {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 10) {
-                look(nil, ink: ink) {
-                    Text(String(name.trimmingCharacters(in: .whitespaces).prefix(1)).isEmpty ? "字" : String(name.trimmingCharacters(in: .whitespaces).prefix(1)))
-                        .font(.system(size: 17, weight: .semibold))
-                }
-                ForEach(BotLook.shapes.filter { $0.id != "whale" }, id: \.id) { item in
-                    look(item.id, ink: ink) { Image(systemName: item.symbol).font(.system(size: 17, weight: .semibold)) }
+        let ink = BotInk.color(color) ?? Palette.secondary
+        VStack(spacing: 16) {
+            // The whale stays the main Bot's.
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 5), spacing: 10) {
+                ForEach(BotCharacter.all.filter { $0.id != "whale" }) { character in
+                    Button { Haptics.select(); shape = character.id } label: {
+                        BotMark(character: character, color: ink, size: 40, ringed: shape == character.id)
+                            .scaleEffect(shape == character.id ? 0.86 : 1)
+                            .frame(width: 52, height: 52)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(character.id)
+                    .accessibilityAddTraits(shape == character.id ? .isSelected : [])
                 }
             }
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 8), spacing: 10) {
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: shape)
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 6), spacing: 12) {
                 ForEach(team.colorKeys, id: \.self) { key in
                     Button { Haptics.select(); color = key } label: {
-                        Circle().fill(Color(hex: BotModel.inks[key] ?? "") ?? Palette.secondary).frame(width: 28, height: 28)
-                            .overlay(Circle().stroke(Palette.ink, lineWidth: color == key ? 2.5 : 0).padding(-4))
+                        Circle().fill(BotInk.color(key) ?? Palette.secondary).frame(width: 26, height: 26)
+                            .overlay(Circle().stroke(BotInk.color(key) ?? Palette.secondary, lineWidth: color == key ? 2 : 0).padding(-5))
+                            .frame(width: 44, height: 36)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(key)
+                    .accessibilityAddTraits(color == key ? .isSelected : [])
                 }
             }
         }
         .padding(.vertical, 6)
     }
+}
 
-    private func look<Mark: View>(_ id: String?, ink: Color, @ViewBuilder mark: () -> Mark) -> some View {
-        Button { Haptics.select(); shape = id } label: {
-            mark().foregroundStyle(.white)
-                .frame(width: 40, height: 40).background(ink, in: Circle())
-                .overlay(Circle().stroke(Palette.ink, lineWidth: shape == id ? 2.5 : 0).padding(-4))
+/// The look being picked, large: it pops as the look changes, and spins when poked.
+struct BotLookPreview: View {
+    let shape: String?
+    let color: String?
+    var mood = BotMood.idle
+    @State private var poke = 0
+
+    var body: some View {
+        Button { Haptics.tap(); poke += 1 } label: {
+            BotMark(character: BotCharacter.named(shape) ?? BotCharacter.all[0], color: BotInk.color(color) ?? Palette.secondary, size: 104,
+                    mood: mood, lively: true, seed: shape ?? "", poke: poke)
+                .phaseAnimator([false, true], trigger: [shape, color]) { mark, popped in
+                    mark.scaleEffect(popped ? 1.14 : 1).rotationEffect(.degrees(popped ? -9 : 0))
+                } animation: { popped in
+                    popped ? .spring(response: 0.16, dampingFraction: 0.7) : .spring(response: 0.42, dampingFraction: 0.42)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityHidden(true)
     }
 }
 
@@ -738,7 +738,7 @@ struct BotCreateSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var role = ""
-    @State private var shape: String?
+    @State private var shape: String? = BotCharacter.friendly.randomElement()
     @State private var color: String?
     @State private var model = ""
     @State private var instructions = ""
@@ -751,11 +751,15 @@ struct BotCreateSheet: View {
         NavigationStack {
             Form {
                 Section {
+                    BotLookPreview(shape: shape, color: color, mood: saving ? .working : .idle)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                }
+                Section {
                     TextField("名字，比如：研究员", text: $name)
                     TextField("负责什么，比如：查资料、给出处", text: $role)
                 }
-                Section("形象") { BotLookPicker(shape: $shape, color: $color, name: name)
-                .pickerValueTint() }
+                Section("形象") { BotLookPicker(shape: $shape, color: $color) }
                 Section {
                     Picker("模型", selection: $model) {
                         Text(fallback.flatMap(team.modelName).map { String(localized: "默认（\($0)）") } ?? String(localized: "稍后再选")).tag("")

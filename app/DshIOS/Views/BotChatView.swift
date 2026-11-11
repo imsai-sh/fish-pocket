@@ -62,7 +62,7 @@ private struct BotTitle: View {
     var body: some View {
         let team = app.botTeam
         HStack(spacing: 8) {
-            BotAvatar(bot: bot, size: 28)
+            BotAvatar(bot: bot, size: 28, live: true)
             VStack(alignment: .leading, spacing: 0) {
                 Text(bot.name).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
                 if let doing = team.doingText(bot.id) {

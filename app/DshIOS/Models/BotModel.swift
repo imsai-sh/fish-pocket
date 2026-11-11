@@ -315,17 +315,9 @@ final class BotModel {
     /// A form the Bot sent that waits for an answer (`show_view`): `{id, title, view}`.
     func pendingView(of bot: BotInfo) -> JSON? { team["views"][bot.sessionId].nonNull }
 
-    /// The plugin's colour names and the ink its own window paints them in (light appearance).
-    static let inks: [String: String] = [
-        "deepseek": "#4D6BFE", "charcoal": "#141416", "graphite": "#2D2D2D", "rose": "#EC2F6B", "sky": "#0AA8D6",
-        "tangerine": "#FF6900", "cobalt": "#082DFF", "black": "#000000", "brown": "#9A6B44", "red": "#FF3E51",
-        "orange": "#FF6B1A", "yellow": "#FFB020", "green": "#10B981", "cyan": "#06B6D4", "blue": "#2563EB",
-        "violet": "#8B5CF6", "magenta": "#F43F85", "gray": "#8A8F98", "aurora": "#00B8D4",
-    ]
-
-    /// The Bot's display colour: one of the plugin's colour names, or a hex.
+    /// The Bot's display colour: one of the plugin's colour names, or a hex; with neither, one its id picks.
     func color(of bot: BotInfo) -> Color {
-        if let key = bot.colorKey, let color = Color(hex: Self.inks[key] ?? key) { return color }
+        if let color = BotInk.color(bot.colorKey) { return color }
         let palette: [Color] = [Color(red: 0.18, green: 0.44, blue: 0.84), Color(red: 0.72, green: 0.38, blue: 0.04), Color(red: 0.48, green: 0.31, blue: 0.79), Color(red: 0.07, green: 0.55, blue: 0.40), Color(red: 0.80, green: 0.27, blue: 0.36)]
         let hash = bot.id.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) & 0xffff }
         return palette[hash % palette.count]
