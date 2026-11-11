@@ -18,8 +18,6 @@
 
 <p align="center"><a href="https://fish.deepseek1024.com/en/">Website</a> · <a href="README.md">中文</a></p>
 
-https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
-
 ## See it work
 
 <table>
@@ -36,6 +34,14 @@ https://github.com/user-attachments/assets/618e690f-3873-4f08-811d-3213b3b9a056
   <b>Multiple windows on iPad</b>
   <br/>
   <sub>Two windows side by side, each with its own session: one edits a game, the other commits code</sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/demo-duo.gif" width="840" alt="On a closed iPhone Duo, the agent is asked on the cover screen to print this month's calendar with Python; unfolded, the same session keeps running on the inner screen with the session sidebar beside it, and ends with a calendar that marks the weekends">
+  <br/>
+  <b>iPhone Duo</b>
+  <br/>
+  <sub>Start a task on the cover screen, unfold, and the same session keeps running with the sidebar beside the chat</sub>
 </p>
 
 <p align="center"><sub>These are recordings of the app running, with waits cut or sped up. They show the Chinese interface; the app also comes in English and Spanish.</sub></p>
