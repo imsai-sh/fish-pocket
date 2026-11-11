@@ -547,13 +547,16 @@ const maps = defineTool({
   },
 });
 
+// Not `read_image`: DSH registers its own tool by that name (it hands the picture
+// to the model), and a second global tool with the same name fails to register.
 const vision = defineTool({
-  name: 'read_image',
+  name: 'image_analysis',
   description:
     'Read what is in an image file on this device: the text in it, barcodes and QR codes, what it '
     + 'is a picture of, or how many faces are in it. Runs on the phone — the image is never '
-    + 'uploaded and it costs no tokens, so prefer it over attaching a picture when you only need '
-    + 'the text out of it. Faces are counted and located, never identified.',
+    + 'uploaded and it costs no tokens, so prefer it over read_image (which sends the picture '
+    + 'itself to the model) when you only need the text out of it. Faces are counted and '
+    + 'located, never identified.',
   parameters: {
     action: {
       type: 'string',
@@ -892,7 +895,7 @@ const photos = defineTool({
   description:
     'Read the metadata of the photos and videos on this device, list its albums, or export one '
     + 'photo to a file. Nothing here returns image data: use `list` or `albums` to find the picture '
-    + 'you mean, then `export` to get a file path and read it with read_image — all on the phone, so '
+    + 'you mean, then `export` to get a file path and read it with image_analysis — all on the phone, so '
     + 'a receipt or a screenshot never has to be uploaded.\n'
     + 'Photos come back in the library\'s own order, which is OLDEST FIRST, so ask for a stretch of '
     + 'time with from/to or pass newestFirst when the question is about recent pictures.\n'
@@ -927,7 +930,7 @@ const photos = defineTool({
       }
       if (args.action === 'export') {
         return text(`${note}Exported to ${value.path} — ${value.width}x${value.height} jpeg, `
-          + `${Math.round(value.bytes / 1024)} KB. Read it with read_image.`);
+          + `${Math.round(value.bytes / 1024)} KB. Read it with image_analysis.`);
       }
       const list = value.photos ?? [];
       if (list.length === 0) return text(`${note}No photos match that.`);
