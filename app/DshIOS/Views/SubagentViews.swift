@@ -205,8 +205,12 @@ private struct SubagentRow: View {
                 .frame(width: 14)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(facts.label).font(.subheadline).foregroundStyle(Palette.ink).lineLimit(1)
-                    Text([facts.title, facts.state].compactMap { $0 }.joined(separator: " · "))
-                        .font(.caption).foregroundStyle(Palette.secondary).lineLimit(2)
+                    // The title gives way to the state, which never breaks (「已/完成」 on a narrow screen).
+                    HStack(spacing: 0) {
+                        if let title = facts.title { Text(verbatim: title + " · ").lineLimit(1) }
+                        Text(facts.state).lineLimit(1).layoutPriority(1)
+                    }
+                    .font(.caption).foregroundStyle(Palette.secondary)
                 }
             }
         }

@@ -347,10 +347,14 @@ func copyToPasteboard(_ text: String) {
     Haptics.success()
 }
 
-/// Hide the keyboard, whichever field (or the terminal) holds it.
+/// Hide the keyboard, whichever field (or the terminal) holds it. Not by sending
+/// `resignFirstResponder` up the responder chain: the terminal answers
+/// `canPerformAction` for its own menu only, so that action passes it by.
 @MainActor
 func dismissKeyboard() {
-    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    for case let scene as UIWindowScene in UIApplication.shared.connectedScenes {
+        scene.windows.forEach { $0.endEditing(true) }
+    }
 }
 
 /// Empty the focused text view in place. Clearing a SwiftUI binding while a Chinese

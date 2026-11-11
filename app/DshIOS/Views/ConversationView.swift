@@ -376,7 +376,9 @@ struct ConversationView: View {
                     .lineLimit(1).minimumScaleFactor(0.8)
                     .accessibilityAddTraits(.isHeader)
             }
-            HStack(spacing: 8) {
+            // Side by side while both fit; a narrow window (iPhone Duo closed, Split View) stacks them
+            // instead of folding a name onto two lines.
+            RowOrColumn(spacing: 8) {
                 Menu {
                     Section("工作区") {
                         ForEach(app.workspaces) { workspace in
@@ -389,7 +391,7 @@ struct ConversationView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "folder").foregroundStyle(Palette.secondary)
-                        Text(app.workspace(of: sessionId)?.displayTitle ?? String(localized: "选择工作区")).foregroundStyle(Palette.ink)
+                        Text(app.workspace(of: sessionId)?.displayTitle ?? String(localized: "选择工作区")).foregroundStyle(Palette.ink).lineLimit(1)
                         Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(Palette.secondary)
                     }
                     .font(.subheadline)
@@ -644,6 +646,45 @@ extension SessionModel {
             for block in blocks { if case .reasoning(id, let text) = block { return text } }
         }
         return nil
+    }
+}
+
+/// Its views in a row at their natural width when that fits, else one above the other, centred.
+private struct RowOrColumn: Layout {
+    let spacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let sizes = measure(subviews, width: proposal.width)
+        let gaps = spacing * CGFloat(max(0, sizes.items.count - 1))
+        if sizes.row {
+            return CGSize(width: sizes.items.map(\.width).reduce(0, +) + gaps, height: sizes.items.map(\.height).max() ?? 0)
+        }
+        return CGSize(width: sizes.items.map(\.width).max() ?? 0, height: sizes.items.map(\.height).reduce(0, +) + gaps)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let sizes = measure(subviews, width: bounds.width)
+        for index in subviews.indices where !sizes.indices.contains(index) {
+            subviews[index].place(at: CGPoint(x: bounds.midX, y: bounds.midY), anchor: .center, proposal: .zero)
+        }
+        var x = bounds.minX, y = bounds.minY
+        for (index, size) in zip(sizes.indices, sizes.items) {
+            let origin = sizes.row
+                ? CGPoint(x: x, y: bounds.midY - size.height / 2)
+                : CGPoint(x: bounds.midX - size.width / 2, y: y)
+            subviews[index].place(at: origin, proposal: ProposedViewSize(size))
+            x += size.width + spacing
+            y += size.height + spacing
+        }
+    }
+
+    /// Views with nothing to show (a chip with no options yet) take no space and no gap.
+    private func measure(_ subviews: Subviews, width: CGFloat?) -> (row: Bool, indices: [Int], items: [CGSize]) {
+        let natural = subviews.map { $0.sizeThatFits(.unspecified) }
+        let indices = natural.indices.filter { natural[$0].width > 0 }
+        let rowWidth = indices.map { natural[$0].width }.reduce(0, +) + spacing * CGFloat(max(0, indices.count - 1))
+        if rowWidth <= (width ?? .infinity) { return (true, indices, indices.map { natural[$0] }) }
+        return (false, indices, indices.map { subviews[$0].sizeThatFits(ProposedViewSize(width: width, height: nil)) })
     }
 }
 
