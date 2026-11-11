@@ -54,6 +54,8 @@ struct Attachment: Hashable {
     /// Size before the attachment service scaled it down, when it did.
     var originalWidth: Int?
     var originalHeight: Int?
+    /// A `file` block: an uploaded file of any format, kept verbatim.
+    var isFile = false
 
     init(attachmentId: String?, name: String? = nil, mediaType: String? = nil) {
         self.attachmentId = attachmentId
@@ -63,6 +65,7 @@ struct Attachment: Hashable {
 
     /// The ref sits under `attachment`; older logs carried its fields on the block itself.
     init(block: JSON) {
+        isFile = block["type"].string == "file"
         let ref = block["attachment"].isNull ? block : block["attachment"]
         attachmentId = ref["attachmentId"].string
         name = ref["name"].string ?? block["name"].string
@@ -93,8 +96,9 @@ struct Attachment: Hashable {
         return .object(value)
     }
 
-    /// Image blocks render inline; file blocks show as a name.
-    var isImage: Bool { mediaType?.hasPrefix("image/") ?? true }
+    /// Image blocks render inline; file blocks show as a name. A file ref has no
+    /// media type (`{attachmentId, name, bytes}`), so the block's type decides.
+    var isImage: Bool { !isFile && (mediaType?.hasPrefix("image/") ?? true) }
 }
 
 enum TimelineItem: Identifiable, Hashable {
