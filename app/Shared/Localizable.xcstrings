@@ -14829,6 +14829,22 @@
         }
       }
     },
+    "搜索会话标题和消息内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search session titles and messages"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Busca en títulos y mensajes de las sesiones"
+          }
+        }
+      }
+    },
     "搜索指令" : {
       "localizations" : {
         "en" : {

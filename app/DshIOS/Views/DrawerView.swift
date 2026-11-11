@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// The left drawer (the iPad sidebar) is for finding a session. The app's name and search on
-/// top; then one list: the feature rows (插件 … 远程控制), the sessions under a header that
-/// carries the view menu (by time, by workspace, by device), and 「已归档」 at the end. Settings
-/// and the new conversation button float over the list's bottom (docs/design/README.md 4.2).
+/// The left drawer (the iPad sidebar) is for finding a session. One list: the feature rows
+/// (插件 … 远程控制), the sessions under a header that carries the view menu (by time, by
+/// workspace, by device), and 「已归档」 at the end. The app's name and the search button float
+/// over its top, settings and the new conversation button over its bottom; search itself is a
+/// page of its own over everything (docs/design/README.md 4.2).
 struct DrawerView: View {
     /// `device` joins once the user has signed in to remote control: this phone, then each computer.
     enum GroupBy: String { case time, workspace, device }
@@ -44,15 +45,16 @@ struct DrawerView: View {
     /// Open a session in a window of its own, where the system has windows.
     var openInWindow: ((String) -> Void)?
 
-    @FocusState private var searchFocused: Bool
     @AppStorage("dsh.drawer.groupBy") private var groupBy = GroupBy.workspace
     /// Groups the user opened or closed, as JSON `{workspaceId: Bool}`.
     @AppStorage("dsh.drawer.expansion") private var expansionJSON = "{}"
     /// How many sessions each group shows beyond the base five.
     @State private var watermark: [String: Int] = [:]
     @State private var search = ""
-    /// The top bar shows the search field in place of the app's name.
+    /// The search page is up; `searchShown` fades it, `searchActive` is the system field's focus.
     @State private var searchOpen = false
+    @State private var searchShown = false
+    @State private var searchActive = false
     @State private var remoteHits: [String: String] = [:]
     @State private var remoteMore = false
     @State private var searching = false
@@ -66,39 +68,30 @@ struct DrawerView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                topBar
-
-                List {
-                    if search.trimmingCharacters(in: .whitespaces).isEmpty {
-                        pluginsRow
-                        capabilitiesRow
-                        webRow
-                        remoteControlRow
-                        sessionsHeader
-                        if app.remote.expired { remoteExpiredRow }
-                        if grouping == .time { timeList } else { groupList }
-                        archivedEntry
-                    } else {
-                        searchResults
-                    }
-                }
-                .sessionList()
-                .refreshable {
-                    await app.refreshSessions()
-                    await app.remote.refresh()
-                }
-                // Floating: the list scrolls under it. Out of the way while the keyboard is up for a search.
-                .safeAreaInset(edge: .bottom, spacing: 0) { if !searchOpen { bottomBar } }
+            List {
+                pluginsRow
+                capabilitiesRow
+                webRow
+                remoteControlRow
+                sessionsHeader
+                if app.remote.expired { remoteExpiredRow }
+                if grouping == .time { timeList } else { groupList }
+                archivedEntry
             }
+            .sessionList()
+            .refreshable {
+                await app.refreshSessions()
+                await app.remote.refresh()
+            }
+            // Both bars float: the list scrolls under them, up to the screen's edges.
+            .floatingBars(top: topBar, bottom: bottomBar)
             .background(Palette.background)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Route.self) { _ in archivedPage }
         }
         .task(id: search) { await searchRemote() }
         .onChange(of: searchRequest) { openSearch() }
-        // Left empty, the search field gives the bar back to the app's name.
-        .onChange(of: searchFocused) { if !searchFocused, search.isEmpty { closeSearch() } }
+        .fullScreenCover(isPresented: $searchOpen) { searchPage }
         .onChange(of: groupBy) { Haptics.select() }
         .onChange(of: selection) { revealSelection() }
         .onChange(of: selectionRowGroupId) { revealSelection() }
@@ -116,56 +109,100 @@ struct DrawerView: View {
 
     // MARK: Header and footer
 
-    /// The app's name, and search one tap away: the field takes the bar only while it is in use.
+    /// The app's name, and search one tap away. No fill of its own: the list shows through.
     private var topBar: some View {
-        HStack(spacing: 4) {
-            if searchOpen {
-                HStack(spacing: 8) {
-                    Image(systemName: "magnifyingglass").font(.subheadline).foregroundStyle(Palette.secondary)
-                    TextField("搜索会话", text: $search).font(.subheadline).submitLabel(.search)
-                        .textInputAutocapitalization(.never).autocorrectionDisabled()
-                        .focused($searchFocused)
-                        .onAppear { searchFocused = true }
-                    if !search.isEmpty {
-                        Button { search = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.faint).hitTarget() }
-                            .accessibilityLabel("清除搜索")
-                    }
-                }
-                .padding(.leading, 14)
-                .padding(.trailing, search.isEmpty ? 14 : 2)
-                .frame(minHeight: 44)
-                .background(Palette.bubble, in: Capsule())
-                Button("取消") { closeSearch() }
-                    .font(.subheadline)
-                    .foregroundStyle(Palette.ink)
-                    .padding(.horizontal, 8)
-                    .hitTarget()
-            } else {
-                Text(verbatim: "Fish Pocket").font(.title2.weight(.bold)).foregroundStyle(Palette.ink)
-                    .lineLimit(1)
-                    .accessibilityAddTraits(.isHeader)
-                Spacer(minLength: 8)
-                FloatingIcon(systemName: "magnifyingglass", label: "搜索会话") { openSearch() }
+        HStack(spacing: 8) {
+            Text(verbatim: "Fish Pocket").font(.title2.weight(.bold)).foregroundStyle(Palette.ink)
+                .lineLimit(1)
+                .accessibilityAddTraits(.isHeader)
+            Spacer(minLength: 8)
+            Button { Haptics.tap(); openSearch() } label: {
+                Image(systemName: "magnifyingglass").font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
+                    .frame(width: 44, height: 44)
+                    .floatingGlass(in: Circle())
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("搜索会话")
         }
-        .padding(.leading, searchOpen ? 16 : 20)
-        .padding(.trailing, 10)
-        .frame(minHeight: 48)
-        .padding(.top, 8)
-        .padding(.bottom, 4)
+        .padding(.leading, 20)
+        .padding(.trailing, 12)
+        .padding(.top, 6)
+        .padding(.bottom, 6)
+        // A bar, as the system's are: its controls have fixed sizes and do not grow without limit.
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
-    /// The field takes the cursor as it appears: focus set before it exists would fall back at once,
-    /// and an unfocused empty search closes itself.
+    // MARK: Search
+
+    /// Search is a page of its own over everything, not a field in the drawer: the system's
+    /// search field (in glass at the bottom from iOS 26, in the bar before) and the matches.
+    /// It fades in over the drawer rather than sliding up as a cover does.
+    private var searchPage: some View {
+        NavigationStack {
+            List {
+                if !search.trimmingCharacters(in: .whitespaces).isEmpty { searchResults }
+            }
+            .sessionList()
+            .overlay(alignment: .top) {
+                if search.trimmingCharacters(in: .whitespaces).isEmpty {
+                    VStack(spacing: 10) {
+                        Image(systemName: "magnifyingglass").font(.title2).foregroundStyle(Palette.ink)
+                        Text("搜索会话标题和消息内容").font(.subheadline).foregroundStyle(Palette.secondary)
+                    }
+                    .padding(.top, 96)
+                    .accessibilityElement(children: .combine)
+                }
+            }
+            .background(Palette.background)
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $search, isPresented: $searchActive, prompt: "搜索会话")
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+            .searchFieldAtBottom()
+        }
+        .tint(Palette.ink)
+        .opacity(searchShown ? 1 : 0)
+        .presentationBackground(.clear)
+        .onAppear { withAnimation(.easeOut(duration: 0.2)) { searchShown = true } }
+        // The field's own ✕ (取消 before iOS 26) is the way out.
+        .onChange(of: searchActive) { if !searchActive { closeSearch() } }
+    }
+
     private func openSearch() {
-        if searchOpen { searchFocused = true } else { withAnimation(.snappy(duration: 0.2)) { searchOpen = true } }
+        guard !searchOpen else { return }
+        searchActive = true
+        withoutAnimation { searchOpen = true }
     }
 
     private func closeSearch() {
-        search = ""
-        searchFocused = false
-        withAnimation(.snappy(duration: 0.2)) { searchOpen = false }
+        guard searchOpen, searchShown else { return }
+        searchActive = false
+        withAnimation(.easeIn(duration: 0.15)) { searchShown = false } completion: {
+            search = ""
+            withoutAnimation { searchOpen = false }
+        }
     }
+
+    /// Opens a session from any list here. From the search page, the page goes at once:
+    /// the drawer under it is closing too.
+    private func open(_ id: String) {
+        if searchOpen {
+            search = ""
+            searchShown = false
+            searchActive = false
+            withoutAnimation { searchOpen = false }
+        }
+        select(id)
+    }
+
+    /// The cover's own slide is not wanted: the page fades.
+    private func withoutAnimation(_ change: () -> Void) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction, change)
+    }
+
+    // MARK: Footer
 
     /// Over the list's bottom: settings (the account's picture once signed in) and the new
     /// conversation button, the one filled control here. The engine shows only when it is not running.
@@ -179,12 +216,9 @@ struct DrawerView: View {
             newConversationButton
         }
         .padding(.horizontal, 16)
-        .padding(.top, 20)
+        .padding(.top, 8)
         .padding(.bottom, 10)
-        .background {
-            LinearGradient(colors: [Palette.background.opacity(0), Palette.background], startPoint: .top, endPoint: .center)
-                .allowsHitTesting(false)
-        }
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     /// With computers connected it first asks where: this phone, or one of them.
@@ -398,9 +432,7 @@ struct DrawerView: View {
                 }
             }
             .frame(width: 46, height: 46)
-            .background(Palette.background, in: Circle())
-            .overlay(Circle().strokeBorder(Palette.stroke))
-            .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
+            .floatingGlass(in: Circle())
             .contentShape(Circle())
         } primaryAction: {
             openSettings()
@@ -904,7 +936,7 @@ struct DrawerView: View {
         let archived = app.isArchived(session.id)
         let twoLine = subtitle != nil || phoneTag
         return Button {
-            if archived { app.open(session: session.id) } else { search = ""; select(session.id) }
+            if archived { app.open(session: session.id) } else { open(session.id) }
         } label: {
             HStack(alignment: twoLine ? .top : .center, spacing: 8) {
                 leading(session)
@@ -1009,8 +1041,7 @@ struct DrawerView: View {
                     Toast.Action(label: String(localized: "取消归档")) { remoteChange { await remote.setArchived(session.id, false) } },
                 ])
             } else {
-                search = ""
-                select(id)
+                open(id)
             }
         } label: {
             RemoteRowLabel(session: session, machine: machine ? remote.device(session.deviceId) : nil, detail: detail, indent: indent).equatable()
@@ -1198,6 +1229,54 @@ final class DrawerRowFrames {
 }
 
 private extension View {
+    /// The drawer's bars over its list. From iOS 26 they are the system's bars, and the list
+    /// softens under them at both edges; before, a fade to the page colour does it.
+    @ViewBuilder
+    func floatingBars(top: some View, bottom: some View) -> some View {
+        if #available(iOS 26.0, *) {
+            safeAreaBar(edge: .top, spacing: 0) { top }
+                .safeAreaBar(edge: .bottom, spacing: 0) { bottom }
+                .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+        } else {
+            safeAreaInset(edge: .top, spacing: 0) {
+                top.background {
+                    LinearGradient(colors: [Palette.background, Palette.background.opacity(0)], startPoint: .center, endPoint: .bottom)
+                        .ignoresSafeArea(edges: .top)
+                        .allowsHitTesting(false)
+                }
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                bottom.background {
+                    LinearGradient(colors: [Palette.background.opacity(0), Palette.background], startPoint: .top, endPoint: .center)
+                        .ignoresSafeArea(edges: .bottom)
+                        .allowsHitTesting(false)
+                }
+            }
+        }
+    }
+
+    /// A floating control's surface: the system's glass from iOS 26, the outlined page colour before.
+    @ViewBuilder
+    func floatingGlass(in shape: some Shape) -> some View {
+        if #available(iOS 26.0, *) {
+            glassEffect(.regular.interactive(), in: shape)
+        } else {
+            background(Palette.background, in: shape)
+                .overlay(shape.stroke(Palette.stroke))
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
+        }
+    }
+
+    /// From iOS 26 the search field sits at the bottom, by the keyboard, as the system's own apps have it.
+    @ViewBuilder
+    func searchFieldAtBottom() -> some View {
+        if #available(iOS 26.0, *) {
+            toolbar { DefaultToolbarItem(kind: .search, placement: .bottomBar) }
+        } else {
+            self
+        }
+    }
+
     /// A list row with no fill, separator or selection inset (headers, notes).
     func plainRow() -> some View {
         listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
