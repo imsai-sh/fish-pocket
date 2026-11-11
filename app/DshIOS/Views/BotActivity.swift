@@ -159,7 +159,8 @@ struct BotTypingDots: View {
             let time = timeline.date.timeIntervalSinceReferenceDate
             HStack(spacing: 3) {
                 ForEach(0..<3, id: \.self) { index in
-                    let swell = reduceMotion ? 0.5 : (sin((time * 1.5 - Double(index) * 0.2) * 2 * .pi) + 1) / 2
+                    let turn: Double = (time * 1.5 - Double(index) * 0.2) * 2 * .pi
+                    let swell: Double = reduceMotion ? 0.5 : (sin(turn) + 1) / 2
                     Circle().fill(color).frame(width: 6, height: 6)
                         .scaleEffect(0.65 + 0.5 * swell)
                         .opacity(0.4 + 0.6 * swell)
