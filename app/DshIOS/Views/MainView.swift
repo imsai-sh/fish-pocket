@@ -28,7 +28,6 @@ struct MainView: View {
     @State private var drawerOpen = false
     @State private var drag: CGFloat = 0
     /// The way a drag on the shell set off, fixed by its first move; nil between drags.
-    @GestureState private var dragAxis: Axis?
     /// A plain reference filled by the drawer's rows.
     @State private var rowFrames = DrawerRowFrames()
     @State private var creating = false
@@ -411,7 +410,6 @@ struct MainView: View {
                     .offset(x: (progress - 1) * travel)
                     .accessibilityHidden(!drawerOpen)
             }
-            .coordinateSpace(.named(DrawerRowFrames.space))
             .background {
                 DrawerEdgePan(enabled: !drawerOpen) { translation in
                     if drag == 0 { dismissKeyboard() }
@@ -420,34 +418,24 @@ struct MainView: View {
                     settleDrawer(predicted: predicted, width: width)
                 }
             }
-            // Only over the open drawer: over the conversation it would run through every scroll.
-            .simultaneousGesture(dragGesture(width: width), including: drawerOpen ? .all : .subviews)
-            // A list that takes over the touch cancels the drag with no end to settle it
-            // (looked at afterwards: a real end settles first).
-            .onChange(of: dragAxis) { _, axis in
-                guard axis == nil else { return }
-                Task { @MainActor in
-                    if drag != 0 { withAnimation(.snappy(duration: 0.25)) { drag = 0 } }
+            // A leftward swipe closes, from the dimmed side or anywhere in the drawer but a session
+            // row (there it reveals the row's actions). It follows the finger and settles by distance
+            // or speed. A recogniser that only begins sideways, not a drag gesture on this view: that
+            // one ran through every scroll of the session list, and redrew this view as each began and ended.
+            .background {
+                DrawerClosePan(enabled: drawerOpen) { start in
+                    start.x > width || !rowFrames.hasRow(atY: start.y)
+                } changed: { translation in
+                    drag = min(0, translation)
+                } ended: { predicted in
+                    if predicted == 0, drag != 0 {
+                        withAnimation(.snappy(duration: 0.25)) { drag = 0 }
+                    } else {
+                        settleDrawer(predicted: predicted, width: width)
+                    }
                 }
             }
         }
-    }
-
-    /// A leftward swipe closes, from the dimmed side or anywhere in the drawer but a session
-    /// row (there it reveals the row's actions). It follows the finger and settles by distance
-    /// or speed; a drag that set off vertically stays a scroll. `DrawerEdgePan` opens.
-    private func dragGesture(width: CGFloat) -> some Gesture {
-        DragGesture(minimumDistance: 12, coordinateSpace: .named(DrawerRowFrames.space))
-            .updating($dragAxis) { value, axis, _ in
-                if axis == nil { axis = abs(value.translation.width) > abs(value.translation.height) ? .horizontal : .vertical }
-            }
-            .onChanged { value in
-                guard dragAxis == .horizontal, value.startLocation.x > width || !rowFrames.hasRow(atY: value.startLocation.y) else { return }
-                drag = min(0, value.translation.width)
-            }
-            .onEnded { value in
-                settleDrawer(predicted: value.predictedEndTranslation.width, width: width)
-            }
     }
 
     private func settleDrawer(predicted: CGFloat, width: CGFloat) {
@@ -585,6 +573,68 @@ struct SheetStack<Content: View>: View {
 
     var body: some View {
         NavigationStack { content.closeButton(dismiss) }
+    }
+}
+
+/// A leftward swipe over the open drawer, reported as it follows the finger. It begins only for
+/// a swipe that sets off sideways, to the left, from a point `accepts`: a scroll of the session
+/// list never starts it, so nothing here runs while the list scrolls. On the root view, as
+/// `DrawerEdgePan` is: pages presented above keep their own gestures.
+private struct DrawerClosePan: UIViewRepresentable {
+    let enabled: Bool
+    /// Whether a swipe that started here (in the window) may close the drawer.
+    let accepts: (CGPoint) -> Bool
+    let changed: (CGFloat) -> Void
+    /// Where the swipe would come to rest; 0 when it was cancelled.
+    let ended: (CGFloat) -> Void
+
+    func makeUIView(context: Context) -> Catcher { Catcher() }
+
+    func updateUIView(_ view: Catcher, context: Context) {
+        view.enabled = enabled
+        view.accepts = accepts
+        view.changed = changed
+        view.ended = ended
+    }
+
+    final class Catcher: UIView, UIGestureRecognizerDelegate {
+        var enabled = false
+        var accepts: (CGPoint) -> Bool = { _ in true }
+        var changed: (CGFloat) -> Void = { _ in }
+        var ended: (CGFloat) -> Void = { _ in }
+        private lazy var recognizer: UIPanGestureRecognizer = {
+            let recognizer = UIPanGestureRecognizer(target: self, action: #selector(panned))
+            recognizer.maximumNumberOfTouches = 1
+            recognizer.delegate = self
+            return recognizer
+        }()
+
+        override func didMoveToWindow() {
+            recognizer.view?.removeGestureRecognizer(recognizer)
+            window?.rootViewController?.view.addGestureRecognizer(recognizer)
+        }
+
+        override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard enabled, let view = recognizer.view else { return false }
+            let velocity = recognizer.velocity(in: view)
+            guard velocity.x < 0, abs(velocity.x) > abs(velocity.y) else { return false }
+            let now = recognizer.location(in: view), moved = recognizer.translation(in: view)
+            return accepts(CGPoint(x: now.x - moved.x, y: now.y - moved.y))
+        }
+
+        /// The list under the finger keeps its own pan; everything else gives way once this one begins.
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+            other.view is UIScrollView
+        }
+
+        @objc private func panned(_ recognizer: UIPanGestureRecognizer) {
+            let translation = recognizer.translation(in: recognizer.view).x
+            switch recognizer.state {
+            case .began, .changed: changed(translation)
+            case .ended: ended(translation + recognizer.velocity(in: recognizer.view).x * 0.2)
+            default: ended(0)
+            }
+        }
     }
 }
 

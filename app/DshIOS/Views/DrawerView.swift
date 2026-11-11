@@ -1209,13 +1209,12 @@ private struct RemoteRowLabel: View, Equatable {
     }
 }
 
-/// Where the drawer's session rows are on screen, in `space`: a horizontal swipe
+/// Where the drawer's session rows are in the window: a horizontal swipe
 /// that starts on one belongs to the row, anywhere else in the drawer it closes it.
 /// Only heights count, since a list cell spans the drawer past the row's insets.
 /// A plain reference: rows report while scrolling, nothing redraws for it.
 @MainActor
 final class DrawerRowFrames {
-    static let space = "shell"
     private var frames: [String: CGRect] = [:]
     /// Rows on screen. Frames stay when a row leaves: a row back from behind
     /// a pushed page has not moved, so it does not report again.
@@ -1293,7 +1292,7 @@ private extension View {
     }
 
     func reportsFrame(_ id: String, to frames: DrawerRowFrames) -> some View {
-        onGeometryChange(for: CGRect.self) { $0.frame(in: .named(DrawerRowFrames.space)) } action: { frames.set($0, of: id) }
+        onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frames.set($0, of: id) }
             .onAppear { frames.setShown(id, true) }
             .onDisappear { frames.setShown(id, false) }
     }
