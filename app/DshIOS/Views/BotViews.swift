@@ -202,47 +202,6 @@ struct BotDrawerEntry: View {
     }
 }
 
-/// The Bot entry on the new conversation page: the main Bot's mascot and the team at a glance.
-struct BotHomeEntry: View {
-    @Environment(AppModel.self) private var app
-
-    var body: some View {
-        let team = app.botTeam
-        Button {
-            Haptics.tap()
-            team.openRequest = BotOpenRequest(route: nil)
-        } label: {
-            HStack(spacing: 12) {
-                if let main = team.mainBot {
-                    BotAvatar(bot: main, size: 40, live: true)
-                } else {
-                    Image("LaunchMark").resizable().scaledToFill().frame(width: 40, height: 40).clipShape(Circle())
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Bot").font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
-                    Text(summary).font(.caption).foregroundStyle(team.bots.contains { team.pendingCount(of: $0) > 0 } ? Palette.waiting : team.workingCount > 0 ? Palette.running : Palette.secondary).lineLimit(1)
-                }
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
-            }
-            .padding(.horizontal, 14)
-            .frame(minHeight: 60)
-            .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var summary: String {
-        let team = app.botTeam
-        guard team.status == .ready else { return String(localized: "常驻替你干活，到点自己开工") }
-        let pending = team.bots.reduce(0) { $0 + team.pendingCount(of: $1) }
-        if pending > 0 { return String(localized: "\(pending) 件事等你处理") }
-        if team.workingCount > 0 { return String(localized: "\(team.workingCount) 个在干活") }
-        return String(localized: "\(team.bots.count) 个 Bot · \(team.rooms.count) 个群聊")
-    }
-}
-
 /// Ask the root view to show the Bot pages (nil: the list).
 struct BotOpenRequest: Equatable {
     let token = UUID()

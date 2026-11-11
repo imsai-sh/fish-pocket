@@ -1220,6 +1220,7 @@
       }
     },
     "%lld 个在干活" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15860,6 +15861,7 @@
       }
     },
     "常驻替你干活，到点自己开工" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36321,7 +36323,56 @@
         }
       }
     },
+    "连上的服务，普通会话和 Bot 都能用。连接器是 MCP 服务，iOS 上只能用网址形式的，需要启动本地命令的那种只能在电脑上用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordinary conversations and Bots can both use a connected service. Connectors are MCP servers; on iOS only the ones at a web address work, and the ones that start a local command need a computer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tanto las conversaciones normales como los Bots pueden usar un servicio conectado. Los conectores son servidores MCP; en iOS solo funcionan los que tienen una dirección web, y los que inician un comando local necesitan un ordenador."
+          }
+        }
+      }
+    },
+    "这里只管 Bot。普通会话一直可以用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These switches are for Bots only. Ordinary conversations can always use it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos interruptores son solo para los Bots. Las conversaciones normales siempre pueden usarlo."
+          }
+        }
+      }
+    },
+    "连接服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect services"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectar servicios"
+          }
+        }
+      }
+    },
     "连接器是 MCP 服务。iOS 上只能用网址形式的连接器，需要启动本地命令的那种只能在电脑上用。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -181,7 +181,6 @@ struct ConversationView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 if blank && !composerFocused && model.composer.isEmpty {
-                    BotHomeEntry().padding(.bottom, 10)
                     suggestions(model).padding(.bottom, 10)
                 }
                 if let accessory = bot?.accessory { accessory.padding(.bottom, 8) }

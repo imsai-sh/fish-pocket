@@ -157,7 +157,7 @@ struct BotConnectorsPage: View {
                 Section {
                     Button { adding = true } label: { Label("添加自定义连接器", systemImage: "plus") }
                 } footer: {
-                    Text("连接器是 MCP 服务。iOS 上只能用网址形式的连接器，需要启动本地命令的那种只能在电脑上用。")
+                    Text("连上的服务，普通会话和 Bot 都能用。连接器是 MCP 服务，iOS 上只能用网址形式的，需要启动本地命令的那种只能在电脑上用。")
                 }
                 .groupedRow()
             }
@@ -404,7 +404,7 @@ struct BotConnectorPage: View {
                     HStack(spacing: 10) { BotAvatar(bot: bot, size: 26); Text(bot.name) }
                 }
             }
-        } header: { Text("哪些 Bot 可以用") }
+        } header: { Text("哪些 Bot 可以用") } footer: { Text("这里只管 Bot。普通会话一直可以用。") }
         .groupedRow()
         if !row["readOnly"].isNull {
             Section {

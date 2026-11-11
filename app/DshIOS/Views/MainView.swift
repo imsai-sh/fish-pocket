@@ -6,7 +6,7 @@ import SwiftUI
 /// regular width it is the split view's sidebar. With nothing selected — at
 /// launch, after archiving — a blank session in the current workspace opens.
 struct MainView: View {
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities, connectors; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -157,6 +157,11 @@ struct MainView: View {
             app.nativeCapabilitiesRequest = nil
             sheet = .capabilities
         }
+        .onChange(of: app.connectorsRequest) { _, token in
+            guard token != nil, scenePhase != .background else { return }
+            app.connectorsRequest = nil
+            sheet = .connectors
+        }
         .fullScreenCover(isPresented: $webOpen) { WebFallbackView() }
         // The Live Activity and the widgets; a cold launch keeps the link until this view is up.
         .onChange(of: link?.token, initial: true) {
@@ -255,7 +260,7 @@ struct MainView: View {
             Task { await openCredentials(step) }
         }
         #if DEBUG
-        // Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|whatsnew`.
+        // Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew`.
         .task {
             switch UserDefaults.standard.string(forKey: "dshOpen") {
             case "drawer": drawerOpen = true
@@ -266,6 +271,7 @@ struct MainView: View {
             case "signin": sheet = .signIn
             case "support": supportDialog = true
             case "share": sheet = .share
+            case "connectors": sheet = .connectors
             case "whatsnew": whatsNew = WhatsNew.current
             default: break
             }
@@ -283,6 +289,8 @@ struct MainView: View {
                 case .cordis: CordisPanelView(currentSession: selection)
                 case .share: SheetStack { ShareAppPage() }
                 case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
+                // The services ordinary conversations and Bots both reach; the Bot team's settings hold the same page.
+                case .connectors: SheetStack { BotConnectorsPage() }.settingsStyle()
                 }
             }
             .sheetNotices()

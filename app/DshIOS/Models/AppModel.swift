@@ -146,6 +146,8 @@ final class AppModel {
     /// Open the device-capability screen, where the user grants and reviews them
     /// (the root view consumes it).
     var nativeCapabilitiesRequest: UUID?
+    /// Open the connectors (the root view consumes it).
+    var connectorsRequest: UUID?
     /// A credential step to open (set through `requestCredentials`; the root view consumes it).
     var credentialRequest: (step: CredentialStep, token: UUID)?
     /// The session in the main view, kept by the root view (unread completions skip it).
