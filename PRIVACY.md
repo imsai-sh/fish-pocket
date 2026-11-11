@@ -29,7 +29,7 @@ Fish Pocket 是独立的开源社区项目，与深度求索（DeepSeek）不存
 - **插件：** 打开插件市场时，App 会访问索引源里列出的地址，默认是 `api.dshfind.com`，并从索引指定的地址加载插件图标，目前是 GitHub。查看插件说明时会访问 npm 文件 CDN 或插件的代码仓库，安装插件时会访问 npm 仓库。这些请求不含你的对话或文件，但对方能看到你的 IP 地址。已安装的插件和智能体运行的命令可以按你的操作访问网络。
 - **内置浏览器：** 你访问的网站会收到常规的网络请求。
 - **Apple 的系统服务：** 让智能体查天气、查地点或路线时，要查的坐标或地名会发给 Apple 的天气和地图服务，由系统发出。语音转写默认在设备上完成，录音不上传；只有智能体明确改用联网识别时，录音才会发给 Apple。
-- **远程控制（可选）：** 只有你在「设置 → 远程控制」里登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 之后才会发生。App 会连接你登录的那台 Agents Anywhere 服务器（它的官方云服务，或你自己部署的服务器），读取并显示你电脑上的智能体会话；你在这些会话里发的消息、附件和对审批、提问的回应，经这台服务器转给你的电脑。本机的会话不会发到那里。这些数据如何处理，由 Agents Anywhere 的隐私政策或你自己的服务器决定。
+- **远程控制（可选）：** 只有你在侧边栏或设置的「远程控制」里登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 之后才会发生。App 会连接你登录的那台 Agents Anywhere 服务器（它的官方云服务，或你自己部署的服务器），读取并显示你电脑上的智能体会话；你在这些会话里发的消息、附件和对审批、提问的回应，经这台服务器转给你的电脑。本机的会话不会发到那里。这些数据如何处理，由 Agents Anywhere 的隐私政策或你自己的服务器决定。
 - **更新检查：** App 会向 Apple 和 GitHub 查询最新版本，请求里不含你的个人信息。
 
 ### 儿童
@@ -65,7 +65,7 @@ These connections happen only when you use the related feature, and the data goe
 - **Plugins:** Opening the plugin market contacts the addresses in your index sources, `api.dshfind.com` by default, and loads plugin icons from the addresses the index gives, currently GitHub. Viewing a plugin's documentation contacts npm file CDNs or the plugin's repository, and installing a plugin contacts the npm registry. These requests do not contain your conversations or files, but those services can see your IP address. Installed plugins and commands run by the agent can access the network as you direct them.
 - **Built-in browser:** Websites you visit receive ordinary network requests.
 - **Apple system services:** When the agent looks up weather, a place or a route, the coordinates or place name being looked up are sent by iOS to Apple's weather and maps services. Transcription runs on the device by default and the recording is not uploaded; only when the agent explicitly asks for online recognition is the recording sent to Apple.
-- **Remote control (optional):** This happens only after you sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) under Settings → Remote control. The app connects to the Agents Anywhere server you signed in to (its cloud service, or a server you host yourself) to read and show the agent sessions on your computers; the messages and attachments you send in those sessions, and your answers to approvals and questions, go through that server to your computer. Sessions on this device are never sent there. How this data is handled is governed by Agents Anywhere's privacy policy, or by you for a server of your own.
+- **Remote control (optional):** This happens only after you sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) under Remote control, in the sidebar or in Settings. The app connects to the Agents Anywhere server you signed in to (its cloud service, or a server you host yourself) to read and show the agent sessions on your computers; the messages and attachments you send in those sessions, and your answers to approvals and questions, go through that server to your computer. Sessions on this device are never sent there. How this data is handled is governed by Agents Anywhere's privacy policy, or by you for a server of your own.
 - **Update check:** The app asks Apple and GitHub for the latest version. These requests contain no personal information.
 
 ### Children
