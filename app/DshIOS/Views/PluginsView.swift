@@ -506,7 +506,7 @@ struct PluginDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .followSettings()
-        .background { PopWhen(uninstalled) }
+        .dismisses(when: uninstalled)
     }
 
     private func detail(_ package: PluginPackage) -> some View {
@@ -675,20 +675,6 @@ struct PluginDetailView: View {
             }
             .groupedRow()
         }
-    }
-}
-
-/// Pops the page once `done` turns true. `dismiss` is read here and not on the page: on iOS 17 the
-/// page's body and the navigation stack kept updating each other until the app was killed, and
-/// `dismiss` was the one input of that body that moves with the stack.
-private struct PopWhen: View {
-    @Environment(\.dismiss) private var dismiss
-    let done: Bool
-
-    init(_ done: Bool) { self.done = done }
-
-    var body: some View {
-        Color.clear.onChange(of: done) { _, done in if done { dismiss() } }
     }
 }
 

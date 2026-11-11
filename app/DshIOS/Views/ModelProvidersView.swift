@@ -421,7 +421,6 @@ private struct ProviderEditorPage: View {
 /// the key here, then 下一步 to the models, which saves.
 private struct ProviderEditor: View {
     @Environment(AppModel.self) private var app
-    @Environment(\.dismiss) private var dismiss
     let model: ModelProvidersModel
     let row: ProviderRow
     let namespace: JSON
@@ -443,6 +442,7 @@ private struct ProviderEditor: View {
     @State private var attempts = 0
     @State private var prepared = false
     @State private var choosingModels = false
+    @State private var saved = false
 
     private var adding: Bool { onAdded != nil }
     private var graph: SchemaGraph? { app.settings.graph(namespace["ns"].string ?? "") }
@@ -499,6 +499,7 @@ private struct ProviderEditor: View {
         .scrollDismissesKeyboard(.interactively)
         .modifier(EditorChrome(adding: adding, dirty: dirty, canSave: canSave, canContinue: canContinue, busy: busy, next: { choosingModels = true }, save: { Task { await apply() } }))
         .navigationDestination(isPresented: $choosingModels) { modelsStep }
+        .dismisses(when: saved)
         .task(id: row.provider) { prepare() }
     }
 
@@ -706,7 +707,7 @@ private struct ProviderEditor: View {
         }
         Haptics.success()
         // Close first: a fresh list drops this provider from what can be added.
-        if let onAdded { onAdded() } else { dismiss() }
+        if let onAdded { onAdded() } else { saved = true }
         await model.load(app)
         app.showToast(String(localized: "已保存 \(row.targetLabel)。"))
     }
