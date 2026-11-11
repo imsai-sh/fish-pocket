@@ -2441,6 +2441,118 @@
         }
       }
     },
+    "Bot 模式" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot mode"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo Bot"
+          }
+        }
+      }
+    },
+    "一支常驻的 Bot 团队：可以私聊，可以拉群一起商量，也能到点自己开工。入口在侧边栏。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A standing team of Bots: chat with one, put several in a group, or let them start work on a schedule. Find it in the sidebar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un equipo permanente de Bots: habla con uno, reúne a varios en un grupo o deja que empiecen a trabajar a su hora. Está en la barra lateral."
+          }
+        }
+      }
+    },
+    "每个 Bot 有自己的样子" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every Bot has its own look"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada Bot tiene su propio aspecto"
+          }
+        }
+      }
+    },
+    "新建时挑一个形象和颜色，它思考、搜索、干活的时候各有各的神态。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a character and a color when you create one; it looks different while it thinks, searches and works."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige un personaje y un color al crearlo; se ve distinto cuando piensa, busca y trabaja."
+          }
+        }
+      }
+    },
+    "GitHub、Notion 这些服务连一次，普通会话和 Bot 都能用。入口也在侧边栏。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect services such as GitHub and Notion once, and both ordinary conversations and Bots can use them. Also in the sidebar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conecta una vez servicios como GitHub y Notion, y podrán usarlos tanto las conversaciones normales como los Bots. También en la barra lateral."
+          }
+        }
+      }
+    },
+    "回到上次的会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to where you left off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuelve a donde lo dejaste"
+          }
+        }
+      }
+    },
+    "重新打开 App，直接回到上次所在的会话或 Bot 聊天。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the app again and it goes straight back to the conversation or Bot chat you were in."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al volver a abrir la app, regresa directamente a la conversación o al chat con el Bot en el que estabas."
+          }
+        }
+      }
+    },
     "Bot 功能的后台是开源项目 DS Bot（Apache-2.0），感谢 Fei2411 和社区贡献者。" : {
       "localizations" : {
         "en" : {
@@ -35759,6 +35871,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este servicio no admite esta forma de iniciar sesión"
+          }
+        }
+      }
+    },
+    "这个服务拒绝了这个应用的登录申请（HTTP %@），暂时连不上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This service turned down this app’s sign-in request (HTTP %@), so it can’t connect for now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servicio rechazó la solicitud de inicio de sesión de esta app (HTTP %@); por ahora no se puede conectar"
           }
         }
       }

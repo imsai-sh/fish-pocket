@@ -27,3 +27,11 @@ test('every command listed as existing exists', () => {
   const builtin = new Set(['type', 'command']);
   assert.deepEqual(listed.filter((name) => !COMMANDS.has(name) && !builtin.has(name)), []);
 });
+
+test('every reference the skill points to ships with it, and none is left unmentioned', () => {
+  // The skill names its longer topics by relative path; the agent reads them from the bundle.
+  const mentioned = [...new Set([...text.matchAll(/`(references\/[\w-]+\.md)`/g)].map((m) => m[1]))].sort();
+  const shipped = fs.readdirSync(new URL('../skills/ios-environment/references/', import.meta.url)).map((name) => `references/${name}`).sort();
+  assert.ok(mentioned.length > 0);
+  assert.deepEqual(mentioned, shipped);
+});

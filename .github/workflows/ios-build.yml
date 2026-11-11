@@ -23,8 +23,10 @@ concurrency:
 
 jobs:
   build:
-    # iOS 26 SDK (BGContinuedProcessingTask and friends): Xcode 26.
-    runs-on: macos-26
+    # The Xcode the app is built with everywhere else: local builds and Xcode Cloud are on
+    # Xcode 27, and an older compiler here fails code they accept (it gave up type-checking a
+    # long SwiftUI body). `xcode-27` is GitHub's macOS 27 image, a preview for now.
+    runs-on: xcode-27
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
@@ -36,7 +38,10 @@ jobs:
           cache-dependency-path: engine/package-lock.json
 
       - name: Xcode
-        run: xcodebuild -version
+        # The image's default is 27.1; local builds are on 27.2.
+        run: |
+          sudo xcode-select -s /Applications/Xcode_27.2.app
+          xcodebuild -version
 
       - name: Cache nodejs-mobile
         id: nodejs-mobile

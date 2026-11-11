@@ -120,17 +120,21 @@ struct BotConnectorsPage: View {
     @State private var category: String?
 
     private static let order = ["dev", "docs", "work", "design", "data", "commerce", "search", "custom"]
+    /// Left out of the list because they cannot connect: Figma only lets clients it has approved
+    /// sign in, and turns this one down.
+    private static let hidden: Set<String> = ["figma"]
 
     var body: some View {
         let team = app.botTeam
         let needle = query.trimmingCharacters(in: .whitespaces).lowercased()
-        let rows = team.connectors.filter { row in
+        let all = team.connectors.filter { !Self.hidden.contains($0["id"].string ?? "") }
+        let rows = all.filter { row in
             needle.isEmpty || ConnectorBrand.name(row).lowercased().contains(needle) || (row["name"].string ?? "").lowercased().contains(needle)
                 || ConnectorBrand.about(row).lowercased().contains(needle)
         }
         // In use, or on the way there: the ones that need a hand first.
         let mine = rows.filter { $0["state"].string != "off" }.sorted { Self.rank($0) < Self.rank($1) }
-        let kinds = Self.order.filter { kind in team.connectors.contains { Self.kind($0) == kind } }
+        let kinds = Self.order.filter { kind in all.contains { Self.kind($0) == kind } }
         List {
             if needle.isEmpty, kinds.count > 1 {
                 Section { pills(kinds) }
