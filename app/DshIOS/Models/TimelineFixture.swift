@@ -13,8 +13,9 @@ enum TimelineFixture {
         return ["type": .string(type), "seq": .number(Double(seq)), "time": .number(clock), "data": data]
     }
 
-    private static func user(_ text: String, source: JSON = ["kind": "user"], id: String? = nil) -> JSON {
-        var data: [String: JSON] = ["content": [["type": "text", "text": .string(text)]], "source": source]
+    private static func user(_ text: String, files: [String] = [], source: JSON = ["kind": "user"], id: String? = nil) -> JSON {
+        let attached: [JSON] = files.map { ["type": "file", "attachment": ["attachmentId": .string("sha256-\($0)"), "name": .string($0), "bytes": 20480]] }
+        var data: [String: JSON] = ["content": .array(attached + [["type": "text", "text": .string(text)]]), "source": source]
         if let id { data["id"] = .string(id) }
         return event("user/message", .object(data))
     }
@@ -80,7 +81,7 @@ enum TimelineFixture {
             event("turn/end", ["turn": 1, "reason": ["kind": "completed"]]),
         ]
         let rest: [JSON] = [
-            user("继续"),
+            user("继续", files: ["季度报表.xlsx", "notes.txt"]),
             event("turn/start", ["turn": 2]),
             event("llm/retry", ["retryId": "r1", "turn": 2, "step": 1, "mode": "normal", "retry": 2, "maxRetries": 5, "delayMs": 4000, "failure": ["code": "RATE", "message": "429 Too Many Requests"]]),
             event("llm/retry-started", ["retryId": "r1", "turn": 2, "step": 1, "retry": 2]),

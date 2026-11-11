@@ -226,7 +226,7 @@ struct FileContentView: View {
     var body: some View {
         Group {
             if let failure, !(renderer.pagesText && loaded) {
-                failed(failure)
+                if failure.notText { unsupported } else { failed(failure) }
             } else if !loaded && renderer != .unsupported {
                 VStack(spacing: 12) {
                     ProgressView()
@@ -310,15 +310,26 @@ struct FileContentView: View {
         }
     }
 
+    /// A format with no renderer here, known or not: the file itself, and the ways to take it elsewhere.
     private var unsupported: some View {
-        ContentUnavailableView {
-            Label("该格式文件暂时无法预览", systemImage: "doc")
-        } actions: {
+        VStack(spacing: 20) {
+            FileGlyph(name: name, height: 96)
+            VStack(spacing: 6) {
+                Text(name).font(.headline).foregroundStyle(Palette.ink).multilineTextAlignment(.center).lineLimit(3)
+                Text(FileFormat.caption(name, bytes: localURL.flatMap { try? $0.resourceValues(forKeys: [.fileSizeKey]).fileSize }))
+                    .font(.subheadline).foregroundStyle(Palette.secondary)
+            }
             if let localURL {
-                Button("用快速查看打开") { preview = localURL }
-                ShareLink(item: localURL)
+                HStack(spacing: 12) {
+                    Button("用快速查看打开") { preview = localURL }.buttonStyle(.capsule(.secondary, height: 44, fill: false))
+                    ShareLink(item: localURL) { Image(systemName: "square.and.arrow.up") }
+                        .buttonStyle(.capsule(.secondary, height: 44, fill: false))
+                        .accessibilityLabel("分享")
+                }
+                .padding(.top, 4)
             }
         }
+        .padding(32)
     }
 
     // MARK: Text
@@ -596,6 +607,8 @@ struct FileFailure: Equatable {
     var retry = true
     /// Quick Look may still open what the text reader refused.
     var external = false
+    /// Not text at all: shown as the file it is, not as a failed read.
+    var notText = false
 
     init(message: String, retry: Bool, external: Bool) {
         self.message = message
@@ -612,6 +625,7 @@ struct FileFailure: Equatable {
             self.init(message: String(localized: "该路径不是普通文件，没有可显示的内容"), retry: false, external: false)
         case "workspace-file/not-text":
             self.init(message: String(localized: "该格式文件暂时无法预览"), retry: false, external: true)
+            notText = true
         case "workspace-file/too-large":
             let limit = failure?.detail["details"]["limit"].int ?? 0
             let size = ByteCountFormatter.string(fromByteCount: Int64(limit), countStyle: .binary)
