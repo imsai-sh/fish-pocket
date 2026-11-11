@@ -36,7 +36,7 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
-        Release(version: "1.1.0", build: 39, features: [
+        Release(version: "1.1.0", build: 40, features: [
             Feature(symbol: "laptopcomputer.and.iphone",
                     title: "在手机上管电脑里的智能体",
                     detail: "登录 Agents Anywhere 后，电脑上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在侧边栏，和本机会话放在一起。"),
@@ -46,6 +46,20 @@ enum WhatsNew {
             Feature(symbol: "rectangle.stack",
                     title: "按设备、项目或时间整理会话",
                     detail: "侧边栏可以按设备分组，每条会话标明是哪台电脑、哪个智能体。入口在侧边栏的「远程控制」。"),
+        ]),
+        Release(version: "1.1.0", build: 39, features: [
+            Feature(symbol: "person.2",
+                    title: "Bot 模式",
+                    detail: "一支常驻的 Bot 团队：可以私聊，可以拉群一起商量，也能到点自己开工。入口在侧边栏。"),
+            Feature(symbol: "face.smiling",
+                    title: "每个 Bot 有自己的样子",
+                    detail: "新建时挑一个形象和颜色，它思考、搜索、干活的时候各有各的神态。"),
+            Feature(symbol: "point.3.connected.trianglepath.dotted",
+                    title: "连接器",
+                    detail: "GitHub、Notion 这些服务连一次，普通会话和 Bot 都能用。入口也在侧边栏。"),
+            Feature(symbol: "arrow.uturn.backward",
+                    title: "回到上次的会话",
+                    detail: "重新打开 App，直接回到上次所在的会话或 Bot 聊天。"),
         ]),
         Release(version: "1.1.0", build: 38, features: [
             Feature(symbol: "photo.on.rectangle.angled",

@@ -77,6 +77,9 @@ enum BotErrorText {
         (#"state mismatch|is not for this attempt"#, { _ in String(localized: "这个网址不是这一次登录的。重新登录，再把完整网址复制过来") }),
         (#"The address has no code|Paste the address or the code"#, { _ in String(localized: "粘贴登录完成后地址栏里的完整网址") }),
         (#"does not publish OAuth sign-in metadata"#, { _ in String(localized: "这个服务不支持这种登录方式") }),
+        // The service turned down the plugin's attempt to register itself as a client (Figma
+        // only lets clients it has approved register).
+        (#"Dynamic Client Registration rejected \(HTTP (\d+)\)"#, { String(localized: "这个服务拒绝了这个应用的登录申请（HTTP \($0[1])），暂时连不上") }),
         (#"Enter the client ID"#, { _ in String(localized: "请填写 Client ID") }),
         (#"Google sign-in is not available"#, { _ in String(localized: "这个版本不支持 Google 登录") }),
         (#"(GitHub|Gmail|Telegram|WeChat|Slack|https?://\S+) answered (.+)"#, { String(localized: "\($0[1]) 返回了错误：\($0[2])") }),

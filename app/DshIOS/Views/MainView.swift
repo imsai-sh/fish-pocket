@@ -203,20 +203,15 @@ struct MainView: View {
         }
     }
 
-    var body: some View {
+    /// The layout with what the window follows: its launch, the page it is on, and the requests
+    /// the model raises. Apart from `body`, as `layout` is: one chain of all of it is more than
+    /// the compiler type-checks in the time it allows itself (Xcode 26 gives up on it).
+    private var shell: some View {
         layout
         .tint(Palette.ink)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { windowWidth = $0 }
         .focusedSceneValue(\.windowCommands, windowCommands)
-        .task(id: app.workspaces.map(\.id)) {
-            // Which sessions there are is known with the workspaces.
-            guard !app.workspaces.isEmpty else { return }
-            if !placeRestored {
-                placeRestored = true
-                restorePlace()
-            }
-            if selection == nil { newConversation(in: workspace) }
-        }
+        .task(id: app.workspaces.map(\.id)) { launched() }
         .onChange(of: place) { _, place in
             if placeRestored, let place { UserDefaults.standard.set(place, forKey: Self.placeKey) }
         }
@@ -284,44 +279,64 @@ struct MainView: View {
             Task { await openCredentials(step) }
         }
         #if DEBUG
-        // Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew|capabilities`.
-        .task {
-            switch UserDefaults.standard.string(forKey: "dshOpen") {
-            case "drawer": drawerOpen = true
-            case "settings": sheet = .settings
-            case "plugins": sheet = .plugins
-            case "store": openPlugins()
-            case "schedules": sheet = .schedules
-            case "signin": sheet = .signIn
-            case "support": supportDialog = true
-            case "share": sheet = .share
-            case "connectors": sheet = .connectors
-            case "whatsnew": whatsNew = WhatsNew.current
-            case "remote": sheet = .remote
-            case "capabilities": sheet = .capabilities
-            default: break
-            }
-        }
+        .task { openForChecks() }
         #endif
-        .sheet(item: $sheet) { sheet in
-            Group {
-                switch sheet {
-                case .settings: SettingsView()
-                // Pages 设置 also holds look the same opened from here: the system's lists.
-                case .plugins: SheetStack { PluginsView() }.environment(\.systemLists, true)
-                case .store: SheetStack { PluginStoreView() }
-                case .schedules: SheetStack { SchedulesView(openSession: open(session:)) }.environment(\.systemLists, true)
-                case .signIn: SignInSheet()
-                case .cordis: CordisPanelView(currentSession: selection)
-                case .share: SheetStack { ShareAppPage() }
-                case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
-                // The services ordinary conversations and Bots both reach; the Bot team's settings hold the same page.
-                case .connectors: SheetStack { BotConnectorsPage() }.settingsStyle()
-                case .remote: SheetStack { RemoteControlPage() }.environment(\.systemLists, true)
-                }
-            }
-            .sheetNotices()
+    }
+
+    /// The workspaces are known, and with them which sessions there are: back to the page the
+    /// app was last on, or a blank conversation.
+    private func launched() {
+        guard !app.workspaces.isEmpty else { return }
+        if !placeRestored {
+            placeRestored = true
+            restorePlace()
         }
+        if selection == nil { newConversation(in: workspace) }
+    }
+
+    #if DEBUG
+    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew|capabilities|remote`.
+    private func openForChecks() {
+        switch UserDefaults.standard.string(forKey: "dshOpen") {
+        case "drawer": drawerOpen = true
+        case "settings": sheet = .settings
+        case "plugins": sheet = .plugins
+        case "store": openPlugins()
+        case "schedules": sheet = .schedules
+        case "signin": sheet = .signIn
+        case "support": supportDialog = true
+        case "share": sheet = .share
+        case "connectors": sheet = .connectors
+        case "whatsnew": whatsNew = WhatsNew.current
+        case "capabilities": sheet = .capabilities
+        case "remote": sheet = .remote
+        default: break
+        }
+    }
+    #endif
+
+    /// What a sheet of the shell shows.
+    @ViewBuilder
+    private func page(of sheet: Sheet) -> some View {
+        switch sheet {
+        case .settings: SettingsView()
+        // Pages 设置 also holds look the same opened from here: the system's lists.
+        case .plugins: SheetStack { PluginsView() }.environment(\.systemLists, true)
+        case .store: SheetStack { PluginStoreView() }
+        case .schedules: SheetStack { SchedulesView(openSession: open(session:)) }.environment(\.systemLists, true)
+        case .signIn: SignInSheet()
+        case .cordis: CordisPanelView(currentSession: selection)
+        case .share: SheetStack { ShareAppPage() }
+        case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
+        // The services ordinary conversations and Bots both reach; the Bot team's settings hold the same page.
+        case .connectors: SheetStack { BotConnectorsPage() }.settingsStyle()
+        case .remote: SheetStack { RemoteControlPage() }.environment(\.systemLists, true)
+        }
+    }
+
+    var body: some View {
+        shell
+        .sheet(item: $sheet) { page(of: $0).sheetNotices() }
         .sheet(item: $onboarding, onDismiss: onboardingDismissed) { step in
             switch step {
             case .signIn(let ref, let autoStart):

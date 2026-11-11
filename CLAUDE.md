@@ -52,10 +52,18 @@
 - **连续推送只跑最新一次**，前一次会被自动取消。但被取消的那次如果已经导出完，包照样会上传并占一个 build 号，所以 build 列表里的号不一定连续，也可能多出包。
 - **归档成功就自动上传**，不用另外操作。构建要等上传的包处理完才算结束，全程二三十分钟，其中真正在构建的只有几分钟；处理完之前包不会出现在 build 列表里，不是没传上去。
 - **云端构建失败不影响本地**：`scripts/run-sim.sh`、`scripts/run-device.sh` 和 GitHub 上的编译检查走的是各自的流程。
+- **GitHub 的编译检查用 Xcode 27.2**（`.github/workflows/ios-build.yml`，运行器是 `xcode-27`），和本机、Xcode Cloud 是同一代。它停在旧版本时出过一次事：本机和 Xcode Cloud 都能编的代码，旧编译器报「无法在合理时间内完成类型检查」。本机升级 Xcode 后，把工作流里的版本一起改；README「快速开始」里写的最低 Xcode 版本也跟着它走，因为没有别的地方验证更老的版本。
 
 ## 内置 skill：iOS 环境说明
 
-`engine/skills/ios-environment/SKILL.md` 随 App 打包，App 里的 Agent 靠它判断这台「iOS 沙盒」里能做什么、不能做什么。它写错了，Agent 就会去试不存在的命令，或者放弃本来能做的事。
+`engine/skills/ios-environment/` 随 App 打包，App 里的 Agent 靠它判断这台「iOS 沙盒」里能做什么、不能做什么。它写错了，Agent 就会去试不存在的命令，或者放弃本来能做的事。
+
+它按标准的 skill 格式分成两层，免得每次加载都把三万字全塞给模型：
+
+- `SKILL.md`：每次加载都会读到的主文件。放随时要查的东西：有哪些命令、缺的命令用什么代替、shell 的行为、文件布局、Node、Python、包管理、git。
+- `references/`：篇幅大、只在特定任务里才用得上的专题，Agent 按主文件的指引再去读。现在有 `plugins.md`（写或改 DSH 插件之前读）和 `device-capabilities.md`（用本机能力之前读）。
+
+拆出去的专题，主文件里要留一段：一句话说清是什么、什么时候去读哪个文件（写成 `references/<名字>.md`），再加上不读也必须知道的硬规则。Agent 没读子文档时，只知道主文件里的内容。App 里技能目录映射在只读的 `/opt/dsh/` 下，Agent 读得到。
 
 **只要改动影响 Agent 在 App 里的执行环境，就在同一个提交里更新这份 skill。** 包括但不限于：
 
@@ -64,9 +72,10 @@
 - Python：`engine/runtime/python`、`scripts/fetch-python.sh`（版本、pip/venv、subprocess 的能力）。
 - Node 和包管理：`scripts/fetch-nodejs-mobile.sh` 的 Node 版本、pnpm 版本、`engine/runtime/node-worker.mjs`、`engine/shims`（比如 `sharp` 替身支持的方法）。
 - 文件系统布局：`native/root`、`app/DshIOS/EnginePaths.swift`、`engine/main.mjs` 里的 `HOME`、`TMPDIR`、工作区位置。
-- 插件在原生界面和网页版里的可见范围，以及设置里相关入口的名字。
+- 插件在原生界面和网页版里的可见范围，以及设置里相关入口的名字（`references/plugins.md`，主文件里的摘要也要对得上）。
+- 本机能力增减、改名或行为变化（`references/device-capabilities.md`，主文件里列的工具名也要跟着改）。
 
-改完跑 `cd engine && node --test test/ios-environment.test.mjs`：它检查 frontmatter、description 不超过 500 字，以及「Commands that exist」里列的每个命令都真实存在。在没有 git 原生插件的机器上（比如 Linux），`git` 会被报成不存在，这一项可以忽略；macOS 上先跑 `scripts/build-git-addon.sh`。
+改完跑 `cd engine && node --test test/ios-environment.test.mjs`：它检查 frontmatter、description 不超过 500 字、「Commands that exist」里列的每个命令都真实存在，以及主文件里提到的子文档和 `references/` 下的文件一一对应。在没有 git 原生插件的机器上（比如 Linux），`git` 会被报成不存在，这一项可以忽略；macOS 上先跑 `scripts/build-git-addon.sh`。
 
 写法上保持现在的风格：英文、短句、先说能不能用再说替代办法；「Commands that exist」之外的命令都会被当成不存在，所以新增命令一定要列进去。
 
