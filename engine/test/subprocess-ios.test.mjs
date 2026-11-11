@@ -72,6 +72,28 @@ test('terminal keeps cwd between lines', async () => {
   await t.terminate();
 });
 
+test('terminal edits its line: arrow keys, history, tab completion', async () => {
+  const sp = await runtime();
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dsh-ios-'));
+  fs.writeFileSync(path.join(dir, 'notes.txt'), 'note\n');
+  const t = await sp.spawnTerminal({ argv: ['/bin/bash'], cwd: dir, rows: 24, cols: 80, terminalType: 'xterm-256color', graceMs: 100, env: { PATH: '/bin' } });
+  let text = '';
+  t.output.on('data', (c) => { text += c; });
+  const ran = () => new Promise((r) => setTimeout(r, 100));
+  // Left, then a letter: inserted before the last one.
+  await t.write('echo ac\x1b[Db\r');
+  await ran();
+  assert.equal(text.split('\r\nabc\r\n').length, 2, text);
+  // Up brings the line back.
+  await t.write('\x1b[A\r');
+  await ran();
+  assert.equal(text.split('\r\nabc\r\n').length, 3, text);
+  await t.write('cat no\t\r');
+  await ran();
+  assert.match(text, /cat notes\.txt [^]*\r\nnote\r\n/);
+  await t.terminate();
+});
+
 test('unknown executables are reported, not crashed on', async () => {
   const sp = await runtime();
   await assert.rejects(sp.resolveExecutable('gcc'), /command not found/);
