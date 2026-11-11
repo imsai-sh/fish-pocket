@@ -87,6 +87,15 @@ Bot 没有照片时显示的角色是 App 自己画的，形状和动作都写�
 - **动作**：`Pose.make` 按状态（思考、搜索、干活、交接、等待、有事找用户）算出当下的姿态。改动作只改这里。
 - 只有传了 `live: true` 的头像会动（列表、标题栏、详情页、聊天尾部的状态行）；聊天记录里的头像保持静止，免得长对话同时跑几十个动画。系统开了「减弱动态效果」时全部静止。
 
+## Bot 连接器的图标和说明
+
+连接器页面（`app/DshIOS/Views/BotConnectors.swift`）里每个服务的图标、品牌色和一句中文说明，都在 `ConnectorBrand.looks` 这张表里，按 ds-bot 接口返回的连接器 id 查。接口本身不带图标，说明也只有英文。
+
+- **图标取自 [Simple Icons](https://github.com/simple-icons/simple-icons)（CC0）**，不取自 ds-bot 的网页版。SVG 放在 `app/DshIOS/Assets.xcassets/Connectors/<id>.imageset`，模板渲染，由代码按品牌色上底色。Simple Icons 里没有的品牌（有些是品牌方要求下架的），表里不填图标，显示成品牌色加名字首字母。
+- **ds-bot 新增了连接器时**，在表里补一行，否则它显示成通用的拼图块、说明是英文。新的中文说明要照「文案翻译」的步骤补 `en`、`es`。
+- **导入一个新图标**：从 Simple Icons 的 npm 包里取 `icons/<名字>.svg` 的那一条路径，写成 24×24 的单路径 SVG，配一个模板渲染的 `Contents.json`（照现有的抄）；品牌色在它的 `data/simple-icons.json` 里。只读这两处的数据，不要运行包里的脚本。换了 Simple Icons 的版本，记得改 `THIRD_PARTY_NOTICES.md` 里的版本号。
+- 近乎纯黑的品牌色（GitHub、Notion、Vercel）在深色模式下会自动反成白底黑标，不用单独处理。
+
 ## 微信交流群二维码
 
 群二维码只放在 README 和官网，App 里不放，设置页底部只有一个「官网」链接。二维码 7 天过期，有两份，换图时一起换：

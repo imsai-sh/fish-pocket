@@ -219,8 +219,7 @@ struct BotHomeEntry: View {
                     Image("LaunchMark").resizable().scaledToFill().frame(width: 40, height: 40).clipShape(Circle())
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(team.mainBot.map { String(localized: "找\($0.name)和 Bot 团队") } ?? String(localized: "Bot 团队"))
-                        .font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
+                    Text("Bot").font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
                     Text(summary).font(.caption).foregroundStyle(team.bots.contains { team.pendingCount(of: $0) > 0 } ? Palette.waiting : team.workingCount > 0 ? Palette.running : Palette.secondary).lineLimit(1)
                 }
                 Spacer(minLength: 0)

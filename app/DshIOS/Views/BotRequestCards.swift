@@ -75,7 +75,10 @@ private struct ConnectorRequestCard: View {
     var body: some View {
         let id = request["connectorId"].string ?? ""
         BotCard {
-            Text("想连接 \(request["name"].string ?? id)").font(.subheadline.weight(.semibold))
+            HStack(spacing: 10) {
+                ConnectorIcon(id: id, name: request["name"].string ?? id, size: 32)
+                Text("想连接 \(request["name"].string ?? id)").font(.subheadline.weight(.semibold))
+            }
             if let purpose = request["purpose"].string, !purpose.isEmpty { Text(purpose).font(.footnote).foregroundStyle(Palette.secondary) }
             HStack(spacing: 8) {
                 Button("去连接") { open = true }.buttonStyle(.capsule(height: 36, fill: false))

@@ -2376,6 +2376,22 @@
         }
       }
     },
+    "Base、数据表和记录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bases, tables, and records"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bases, tablas y registros"
+          }
+        }
+      }
+    },
     "Bot" : {
       "localizations" : {
         "en" : {
@@ -2457,6 +2473,7 @@
       }
     },
     "Bot 团队" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2552,6 +2569,22 @@
         }
       }
     },
+    "CRM 记录、列表和备注" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CRM records, lists, and notes"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros, listas y notas del CRM"
+          }
+        }
+      }
+    },
     "Client ID" : {
       "localizations" : {
         "en" : {
@@ -2596,6 +2629,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cliente listo para activar"
+          }
+        }
+      }
+    },
+    "Cloudflare 产品文档" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloudflare product documentation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentación de los productos de Cloudflare"
           }
         }
       }
@@ -3012,6 +3061,38 @@
         }
       }
     },
+    "Issue、项目和迭代" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issues, projects, and cycles"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incidencias, proyectos y ciclos"
+          }
+        }
+      }
+    },
+    "Jira 的 Issue 和 Confluence 页面" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jira issues and Confluence pages"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incidencias de Jira y páginas de Confluence"
+          }
+        }
+      }
+    },
     "MCP 服务" : {
       "localizations" : {
         "en" : {
@@ -3098,6 +3179,22 @@
         }
       }
     },
+    "Postgres 数据库和分支" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Postgres databases and branches"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bases de datos Postgres y ramas"
+          }
+        }
+      }
+    },
     "SMTP 服务器" : {
       "localizations" : {
         "en" : {
@@ -3152,6 +3249,22 @@
     "Tokens" : {
       "shouldTranslate" : false
     },
+    "Workers、DNS 和账号资源" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workers, DNS, and account resources"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workers, DNS y recursos de la cuenta"
+          }
+        }
+      }
+    },
     "ZIP 含当前会话、子会话和附件，分享前请确认接收方。" : {
       "localizations" : {
         "en" : {
@@ -3164,6 +3277,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El ZIP contiene esta sesión, sus subsesiones y archivos adjuntos. Verifica el destinatario antes de compartirlo."
+          }
+        }
+      }
+    },
+    "Zap 和应用操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaps and app actions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaps y acciones de apps"
           }
         }
       }
@@ -5168,6 +5297,22 @@
         }
       }
     },
+    "仓库、Issue 和拉取请求" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repositories, issues, and pull requests"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repositorios, incidencias y pull requests"
+          }
+        }
+      }
+    },
     "代码" : {
       "localizations" : {
         "en" : {
@@ -5362,6 +5507,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "任务 %1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "任务、列表和文档" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasks, lists, and docs"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tareas, listas y documentos"
+          }
+        }
+      }
+    },
+    "任务、项目和工作区" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasks, projects, and workspaces"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tareas, proyectos y espacios de trabajo"
+          }
+        }
+      }
+    },
+    "任务和项目" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasks and projects"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tareas y proyectos"
           }
         }
       }
@@ -7106,6 +7299,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Compartido con el equipo"
+          }
+        }
+      }
+    },
+    "公开代码仓库的文档" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentation for public code repositories"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentación de repositorios de código públicos"
           }
         }
       }
@@ -10438,6 +10647,22 @@
         }
       }
     },
+    "可用工具" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tools"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herramientas"
+          }
+        }
+      }
+    },
     "可继续" : {
       "localizations" : {
         "en" : {
@@ -10514,6 +10739,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Los de cada bot"
+          }
+        }
+      }
+    },
+    "各种库的文档和代码示例" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Library documentation and code examples"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentación de bibliotecas y ejemplos de código"
           }
         }
       }
@@ -11298,6 +11539,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajustes del equipo"
+          }
+        }
+      }
+    },
+    "国内的地图、地点和路线" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maps, places, and routes in China"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapas, lugares y rutas en China"
           }
         }
       }
@@ -13478,6 +13735,22 @@
         }
       }
     },
+    "对话、联系人和文章" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversations, contacts, and articles"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversaciones, contactos y artículos"
+          }
+        }
+      }
+    },
     "对话消息" : {
       "localizations" : {
         "en" : {
@@ -15474,6 +15747,22 @@
         }
       }
     },
+    "已连接里找到的" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Found among connected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encontrados entre los conectados"
+          }
+        }
+      }
+    },
     "已配置" : {
       "localizations" : {
         "en" : {
@@ -16644,6 +16933,22 @@
         }
       }
     },
+    "微软产品文档" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microsoft product documentation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentación de los productos de Microsoft"
+          }
+        }
+      }
+    },
     "必填" : {
       "localizations" : {
         "en" : {
@@ -17557,6 +17862,7 @@
       }
     },
     "找%@和 Bot 团队" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -17856,6 +18162,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El informe no incluye secretos ni rutas personales, así que puedes pegarlo directamente al reportar un problema."
+          }
+        }
+      }
+    },
+    "报错、链路和发布" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errors, traces, and releases"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errores, trazas y versiones"
           }
         }
       }
@@ -19133,6 +19455,22 @@
         }
       }
     },
+    "搜索服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search services"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar servicios"
+          }
+        }
+      }
+    },
     "搜索模型" : {
       "localizations" : {
         "en" : {
@@ -19273,6 +19611,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudo completar la operación. Intentar otra vez."
+          }
+        }
+      }
+    },
+    "支付、发票和客户" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Payments, invoices, and customers"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagos, facturas y clientes"
+          }
+        }
+      }
+    },
+    "支付、订单和商品目录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Payments, orders, and catalog"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagos, pedidos y catálogo"
           }
         }
       }
@@ -19789,6 +20159,22 @@
         }
       }
     },
+    "数据库、数据表和项目设置" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Databases, tables, and project settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bases de datos, tablas y ajustes del proyecto"
+          }
+        }
+      }
+    },
     "整理今天的待办" : {
       "localizations" : {
         "en" : {
@@ -19821,6 +20207,22 @@
         }
       }
     },
+    "文件、文件夹和元数据" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Files, folders, and metadata"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos, carpetas y metadatos"
+          }
+        }
+      }
+    },
     "文件不存在，可能已被移动或删除" : {
       "localizations" : {
         "en" : {
@@ -19843,6 +20245,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Files & Folders"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos y carpetas"
+          }
+        }
+      }
+    },
+    "文件和文件夹" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Files and folders"
           }
         },
         "es" : {
@@ -24055,6 +24473,22 @@
         }
       }
     },
+    "模型、数据集和 Spaces" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Models, datasets, and Spaces"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modelos, conjuntos de datos y Spaces"
+          }
+        }
+      }
+    },
     "模型列表" : {
       "localizations" : {
         "en" : {
@@ -27785,6 +28219,22 @@
         }
       }
     },
+    "登录并连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in and connect"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión y conectar"
+          }
+        }
+      }
+    },
     "登录账号或填写 API Key，二选一即可使用 DeepSeek 模型。" : {
       "localizations" : {
         "en" : {
@@ -27813,6 +28263,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se agotó el tiempo de inicio de sesión"
+          }
+        }
+      }
+    },
+    "白板和白板上的内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boards and whiteboard items"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pizarras y sus elementos"
           }
         }
       }
@@ -28021,6 +28487,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ver todo lo que se dijeron"
+          }
+        }
+      }
+    },
+    "看板、条目和流程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boards, items, and workflows"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tableros, elementos y flujos de trabajo"
           }
         }
       }
@@ -28565,6 +29047,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Barra vertical"
+          }
+        }
+      }
+    },
+    "站点、部署和表单" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sites, deploys, and forms"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sitios, despliegues y formularios"
+          }
+        }
+      }
+    },
+    "站点、页面和 CMS 内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sites, pages, and CMS content"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sitios, páginas y contenido del CMS"
+          }
+        }
+      }
+    },
+    "站点、页面和站点内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sites, pages, and site content"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sitios, páginas y contenido del sitio"
           }
         }
       }
@@ -29870,6 +30400,22 @@
         }
       }
     },
+    "给智能体用的网页搜索" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Web search for agents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Búsqueda web para agentes"
+          }
+        }
+      }
+    },
     "给连接器起个名字" : {
       "localizations" : {
         "en" : {
@@ -30734,6 +31280,22 @@
         }
       }
     },
+    "联系人、交易和工单" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contacts, deals, and tickets"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contactos, negocios y tickets"
+          }
+        }
+      }
+    },
     "能力" : {
       "localizations" : {
         "en" : {
@@ -31470,6 +32032,22 @@
         }
       }
     },
+    "订单、付款和发票" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orders, payments, and invoices"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pedidos, pagos y facturas"
+          }
+        }
+      }
+    },
     "认出图里的文字、二维码和内容。全在本机算，图片不上传" : {
       "localizations" : {
         "en" : {
@@ -32011,6 +32589,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Diseño"
+          }
+        }
+      }
+    },
+    "设计、文件夹和导出" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Designs, folders, and exports"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diseños, carpetas y exportaciones"
+          }
+        }
+      }
+    },
+    "设计稿、组件和评论" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Design files, components, and comments"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos de diseño, componentes y comentarios"
           }
         }
       }
@@ -37121,6 +37731,22 @@
         }
       }
     },
+    "集合、请求和工作区" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collections, requests, and workspaces"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colecciones, solicitudes y espacios de trabajo"
+          }
+        }
+      }
+    },
     "需先迁移原会话" : {
       "localizations" : {
         "en" : {
@@ -37297,6 +37923,22 @@
         }
       }
     },
+    "页面、数据库和知识库" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages, databases, and wiki content"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Páginas, bases de datos y wikis"
+          }
+        }
+      }
+    },
     "页面加载失败 (%lld): %@" : {
       "localizations" : {
         "en" : {
@@ -37315,6 +37957,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "页面加载失败 (%1$lld): %2$@"
+          }
+        }
+      }
+    },
+    "项目、部署和日志" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Projects, deployments, and logs"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proyectos, despliegues y registros"
           }
         }
       }
@@ -37399,6 +38057,22 @@
         }
       }
     },
+    "频道和消息" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Channels and messages"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Canales y mensajes"
+          }
+        }
+      }
+    },
     "飞书" : {
       "localizations" : {
         "en" : {
@@ -37476,6 +38150,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Código de verificación"
+          }
+        }
+      }
+    },
+    "高德地图" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amap"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amap"
           }
         }
       }
