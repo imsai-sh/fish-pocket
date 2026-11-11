@@ -16,7 +16,7 @@ struct ImageGroup: View {
         if images.count == 1, let only = images.first {
             AttachmentThumb(attachment: only, size: Self.singleSize(only))
         } else if !images.isEmpty {
-            HStack(spacing: 6) {
+            ThumbRows(spacing: 6, alignment: alignment) {
                 ForEach(Array(images.enumerated()), id: \.offset) { _, attachment in
                     AttachmentThumb(attachment: attachment, size: CGSize(width: 64, height: 64))
                 }
@@ -35,6 +35,64 @@ struct ImageGroup: View {
         guard let pixels, pixels.width > 0, pixels.height > 0 else { return CGSize(width: long, height: long * 0.75) }
         let ratio = min(4, max(0.25, pixels.width / pixels.height))
         return ratio >= 1 ? CGSize(width: long, height: long / ratio) : CGSize(width: long * ratio, height: long)
+    }
+}
+
+/// Thumbnails in as many rows as the width needs. A message holds up to 20 images: in one
+/// row they were wider than a phone, and the whole timeline widened with them (cut off on
+/// both sides, from iPhone Duo's outer display at five images to any phone).
+private struct ThumbRows: Layout {
+    let spacing: CGFloat
+    let alignment: HorizontalAlignment
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = rows(subviews, width: proposal.width)
+        let width = rows.map(\.width).max() ?? 0
+        let height = rows.map(\.height).reduce(0, +) + spacing * CGFloat(max(0, rows.count - 1))
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var y = bounds.minY
+        for row in rows(subviews, width: bounds.width) {
+            var x = switch alignment {
+            case .trailing: bounds.maxX - row.width
+            case .center: bounds.midX - row.width / 2
+            default: bounds.minX
+            }
+            for index in row.indices {
+                let size = subviews[index].sizeThatFits(.unspecified)
+                subviews[index].place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+                x += size.width + spacing
+            }
+            y += row.height + spacing
+        }
+    }
+
+    private struct Row {
+        var indices: [Int] = []
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+    }
+
+    /// Fills each row up to `width`; with no width given (or room for less than one), one per row at least.
+    private func rows(_ subviews: Subviews, width: CGFloat?) -> [Row] {
+        let limit = width ?? .infinity
+        var rows: [Row] = []
+        var row = Row()
+        for index in subviews.indices {
+            let size = subviews[index].sizeThatFits(.unspecified)
+            let added = row.indices.isEmpty ? size.width : row.width + spacing + size.width
+            if !row.indices.isEmpty, added > limit {
+                rows.append(row)
+                row = Row()
+            }
+            row.width = row.indices.isEmpty ? size.width : row.width + spacing + size.width
+            row.height = max(row.height, size.height)
+            row.indices.append(index)
+        }
+        if !row.indices.isEmpty { rows.append(row) }
+        return rows
     }
 }
 

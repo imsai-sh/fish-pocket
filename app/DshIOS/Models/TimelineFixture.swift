@@ -13,9 +13,10 @@ enum TimelineFixture {
         return ["type": .string(type), "seq": .number(Double(seq)), "time": .number(clock), "data": data]
     }
 
-    private static func user(_ text: String, files: [String] = [], source: JSON = ["kind": "user"], id: String? = nil) -> JSON {
+    private static func user(_ text: String, files: [String] = [], images: Int = 0, source: JSON = ["kind": "user"], id: String? = nil) -> JSON {
         let attached: [JSON] = files.map { ["type": "file", "attachment": ["attachmentId": .string("sha256-\($0)"), "name": .string($0), "bytes": 20480]] }
-        var data: [String: JSON] = ["content": .array(attached + [["type": "text", "text": .string(text)]]), "source": source]
+        let pictures: [JSON] = (0..<images).map { ["type": "image", "attachment": ["attachmentId": .string("sha256-image\($0)"), "mediaType": "image/png", "width": 1179, "height": 2556]] }
+        var data: [String: JSON] = ["content": .array(pictures + attached + [["type": "text", "text": .string(text)]]), "source": source]
         if let id { data["id"] = .string(id) }
         return event("user/message", .object(data))
     }
@@ -133,6 +134,8 @@ enum TimelineFixture {
                 套餐 $5 一个月，高级版 $10，`echo $HOME` 不是公式。
                 """#)]]),
             event("turn/end", ["turn": 4, "reason": ["kind": "completed"]]),
+            // More images than fit across a phone: the thumbnails wrap.
+            user("这几张截图里的蓝牙设备都是什么？", images: 7),
         ]
         return turn1 + rest + math
     }()
