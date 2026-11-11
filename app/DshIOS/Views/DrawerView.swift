@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// The left drawer (the iPad sidebar) is for finding a session. Search, new conversation
-/// and 插件 on top, sessions by time with their workspace under the title (or, from the
-/// view menu, by workspace), 「已归档」 at the end of the list, and settings at the bottom
-/// (docs/design/README.md 4.2).
+/// The left drawer (the iPad sidebar) is for finding a session. The app's name and search on
+/// top; then one list: the feature rows (插件 … 远程控制), the sessions under a header that
+/// carries the view menu (by time, by workspace, by device), and 「已归档」 at the end. Settings
+/// and the new conversation button float over the list's bottom (docs/design/README.md 4.2).
 struct DrawerView: View {
     /// `device` joins once the user has signed in to remote control: this phone, then each computer.
     enum GroupBy: String { case time, workspace, device }
@@ -51,6 +51,8 @@ struct DrawerView: View {
     /// How many sessions each group shows beyond the base five.
     @State private var watermark: [String: Int] = [:]
     @State private var search = ""
+    /// The top bar shows the search field in place of the app's name.
+    @State private var searchOpen = false
     @State private var remoteHits: [String: String] = [:]
     @State private var remoteMore = false
     @State private var searching = false
@@ -66,14 +68,14 @@ struct DrawerView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 topBar
-                newConversationButton
-                pluginsRow
-                capabilitiesRow
-                webRow
-                remoteControlRow
 
                 List {
                     if search.trimmingCharacters(in: .whitespaces).isEmpty {
+                        pluginsRow
+                        capabilitiesRow
+                        webRow
+                        remoteControlRow
+                        sessionsHeader
                         if app.remote.expired { remoteExpiredRow }
                         if grouping == .time { timeList } else { groupList }
                         archivedEntry
@@ -86,15 +88,17 @@ struct DrawerView: View {
                     await app.refreshSessions()
                     await app.remote.refresh()
                 }
-
-                settingsRow
+                // Floating: the list scrolls under it. Out of the way while the keyboard is up for a search.
+                .safeAreaInset(edge: .bottom, spacing: 0) { if !searchOpen { bottomBar } }
             }
             .background(Palette.background)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Route.self) { _ in archivedPage }
         }
         .task(id: search) { await searchRemote() }
-        .onChange(of: searchRequest) { searchFocused = true }
+        .onChange(of: searchRequest) { openSearch() }
+        // Left empty, the search field gives the bar back to the app's name.
+        .onChange(of: searchFocused) { if !searchFocused, search.isEmpty { closeSearch() } }
         .onChange(of: groupBy) { Haptics.select() }
         .onChange(of: selection) { revealSelection() }
         .onChange(of: selectionRowGroupId) { revealSelection() }
@@ -112,78 +116,116 @@ struct DrawerView: View {
 
     // MARK: Header and footer
 
-    /// Search and the view menu; a new conversation has a row of its own under them.
+    /// The app's name, and search one tap away: the field takes the bar only while it is in use.
     private var topBar: some View {
         HStack(spacing: 4) {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass").font(.subheadline).foregroundStyle(Palette.secondary)
-                TextField("搜索会话", text: $search).font(.subheadline).submitLabel(.search)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled()
-                    .focused($searchFocused)
-                if !search.isEmpty {
-                    Button { search = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.faint).hitTarget() }
-                        .accessibilityLabel("清除搜索")
+            if searchOpen {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass").font(.subheadline).foregroundStyle(Palette.secondary)
+                    TextField("搜索会话", text: $search).font(.subheadline).submitLabel(.search)
+                        .textInputAutocapitalization(.never).autocorrectionDisabled()
+                        .focused($searchFocused)
+                        .onAppear { searchFocused = true }
+                    if !search.isEmpty {
+                        Button { search = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.faint).hitTarget() }
+                            .accessibilityLabel("清除搜索")
+                    }
                 }
+                .padding(.leading, 14)
+                .padding(.trailing, search.isEmpty ? 14 : 2)
+                .frame(minHeight: 44)
+                .background(Palette.bubble, in: Capsule())
+                Button("取消") { closeSearch() }
+                    .font(.subheadline)
+                    .foregroundStyle(Palette.ink)
+                    .padding(.horizontal, 8)
+                    .hitTarget()
+            } else {
+                Text(verbatim: "Fish Pocket").font(.title2.weight(.bold)).foregroundStyle(Palette.ink)
+                    .lineLimit(1)
+                    .accessibilityAddTraits(.isHeader)
+                Spacer(minLength: 8)
+                FloatingIcon(systemName: "magnifyingglass", label: "搜索会话") { openSearch() }
             }
-            .padding(.leading, 14)
-            .padding(.trailing, search.isEmpty ? 14 : 2)
-            .frame(minHeight: 44)
-            .background(Palette.bubble, in: Capsule())
-            viewMenu
         }
-        .padding(.leading, 16)
-        .padding(.trailing, 8)
-        .padding(.top, 12)
+        .padding(.leading, searchOpen ? 16 : 20)
+        .padding(.trailing, 10)
+        .frame(minHeight: 48)
+        .padding(.top, 8)
         .padding(.bottom, 4)
     }
 
-    /// The one thing here that is not about finding a session, so it says its name and
-    /// takes the full width, as the web sidebar's 新会话 button does — not an icon among icons.
-    /// Outlined: the drawer is for finding sessions, and this must not outweigh them.
-    /// With computers connected it first asks where: this phone, or one of them.
-    private var newConversationButton: some View {
-        Group {
-            if remote.signedIn, !remote.devices.isEmpty {
-                Menu {
-                    Button { startLocalConversation() } label: { Label("在本机", systemImage: "iphone") }
-                        .disabled(app.workspaces.isEmpty)
-                    Section("在电脑上") {
-                        ForEach(remote.devices) { device in
-                            Button { app.remoteSessionRequest = RemoteSessionTarget(deviceId: device.id) } label: {
-                                Label(device.online ? device.name : String(localized: "\(device.name)（离线）"), systemImage: device.symbol)
-                            }
-                            .disabled(!device.online)
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "square.and.pencil").font(.callout.weight(.semibold))
-                        Text("新会话")
-                        Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(Palette.secondary)
-                    }
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(Palette.ink)
-                    .padding(.horizontal, 16)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .background { Capsule().strokeBorder(Palette.stroke) }
-                    .contentShape(Capsule())
-                }
-                .accessibilityLabel("新会话，选择在本机还是电脑上")
-            } else {
-                Button(action: startLocalConversation) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "square.and.pencil").font(.callout.weight(.semibold))
-                        Text("新会话")
-                    }
-                }
-                .buttonStyle(.capsule(.outline, height: 44))
-                .disabled(app.workspaces.isEmpty)
-                .opacity(app.workspaces.isEmpty ? 0.4 : 1)
+    /// The field takes the cursor as it appears: focus set before it exists would fall back at once,
+    /// and an unfocused empty search closes itself.
+    private func openSearch() {
+        if searchOpen { searchFocused = true } else { withAnimation(.snappy(duration: 0.2)) { searchOpen = true } }
+    }
+
+    private func closeSearch() {
+        search = ""
+        searchFocused = false
+        withAnimation(.snappy(duration: 0.2)) { searchOpen = false }
+    }
+
+    /// Over the list's bottom: settings (the account's picture once signed in) and the new
+    /// conversation button, the one filled control here. The engine shows only when it is not running.
+    private var bottomBar: some View {
+        HStack(spacing: 10) {
+            settingsButton
+            if let engineStatus {
+                Text(engineStatus).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1)
             }
+            Spacer(minLength: 8)
+            newConversationButton
         }
         .padding(.horizontal, 16)
-        .padding(.top, 8)
-        .padding(.bottom, 6)
+        .padding(.top, 20)
+        .padding(.bottom, 10)
+        .background {
+            LinearGradient(colors: [Palette.background.opacity(0), Palette.background], startPoint: .top, endPoint: .center)
+                .allowsHitTesting(false)
+        }
+    }
+
+    /// With computers connected it first asks where: this phone, or one of them.
+    @ViewBuilder
+    private var newConversationButton: some View {
+        if remote.signedIn, !remote.devices.isEmpty {
+            Menu {
+                Button { startLocalConversation() } label: { Label("在本机", systemImage: "iphone") }
+                    .disabled(app.workspaces.isEmpty)
+                Section("在电脑上") {
+                    ForEach(remote.devices) { device in
+                        Button { app.remoteSessionRequest = RemoteSessionTarget(deviceId: device.id) } label: {
+                            Label(device.online ? device.name : String(localized: "\(device.name)（离线）"), systemImage: device.symbol)
+                        }
+                        .disabled(!device.online)
+                    }
+                }
+            } label: {
+                newConversationLabel
+            }
+            .accessibilityLabel("新会话，选择在本机还是电脑上")
+        } else {
+            Button(action: startLocalConversation) { newConversationLabel }
+                .buttonStyle(.plain)
+                .disabled(app.workspaces.isEmpty)
+                .opacity(app.workspaces.isEmpty ? 0.4 : 1)
+        }
+    }
+
+    private var newConversationLabel: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "square.and.pencil")
+            Text("新会话").lineLimit(1).fixedSize()
+        }
+        .font(.callout.weight(.semibold))
+        .foregroundStyle(Palette.onInk)
+        .padding(.horizontal, 18)
+        .frame(minHeight: 46)
+        .background(Palette.ink, in: Capsule())
+        .contentShape(Capsule())
+        .shadow(color: .black.opacity(0.14), radius: 8, y: 3)
     }
 
     private func startLocalConversation() {
@@ -205,8 +247,8 @@ struct DrawerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 8)
         .padding(.bottom, 2)
+        .plainRow()
     }
 
     /// What the agent may reach on this phone, and the switch for each one.
@@ -227,8 +269,8 @@ struct DrawerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 8)
         .padding(.bottom, 2)
+        .plainRow()
     }
 
     /// The web version: plugin interfaces are not shown natively, so it gets a row of its own.
@@ -245,8 +287,8 @@ struct DrawerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 8)
         .padding(.bottom, 2)
+        .plainRow()
     }
 
     /// The computers of the user's Agents Anywhere account: signing in, then the machines themselves.
@@ -264,8 +306,8 @@ struct DrawerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 8)
         .padding(.bottom, 2)
+        .plainRow()
     }
 
     private var remoteControlNote: String {
@@ -273,6 +315,19 @@ struct DrawerView: View {
         guard remote.signedIn else { return String(localized: "连接电脑") }
         let online = remote.devices.filter(\.online).count
         return online > 0 ? String(localized: "\(online) 台在线") : String(localized: "电脑离线")
+    }
+
+    /// What the list under it is, and how it is grouped: the view menu sits with the sessions it arranges.
+    private var sessionsHeader: some View {
+        HStack(spacing: 8) {
+            Text("会话").font(.footnote).foregroundStyle(Palette.secondary).accessibilityAddTraits(.isHeader)
+            Spacer(minLength: 8)
+            viewMenu
+        }
+        .padding(.leading, 14)
+        .padding(.trailing, 4)
+        .padding(.top, 6)
+        .plainRow()
     }
 
     private var viewMenu: some View {
@@ -288,19 +343,31 @@ struct DrawerView: View {
                 Button { app.remoteSessionRequest = RemoteSessionTarget() } label: { Label("在电脑上新建会话", systemImage: "laptopcomputer") }
             }
         } label: {
-            Image(systemName: "line.3.horizontal.decrease")
-                .font(.subheadline)
-                .foregroundStyle(grouping == .time ? Palette.secondary : Palette.ink)
-                .hitTarget()
+            HStack(spacing: 5) {
+                Image(systemName: "line.3.horizontal.decrease")
+                Text(groupingTitle)
+            }
+            .font(.footnote)
+            .foregroundStyle(Palette.secondary)
+            .padding(.horizontal, 8)
+            .hitTarget()
         }
         .accessibilityLabel("视图选项")
+        .accessibilityValue(groupingTitle)
+    }
+
+    private var groupingTitle: String {
+        switch grouping {
+        case .time: String(localized: "按时间")
+        case .workspace: app.remote.signedIn ? String(localized: "按项目") : String(localized: "按工作区")
+        case .device: String(localized: "按设备")
+        }
     }
 
     /// Settings on a tap. Holding it reaches what is not about finding a session:
     /// automations (also in settings), the Cordis panel, signing in.
-    /// Signed in, the row carries the account as the web sidebar's account button does:
-    /// Platform's picture and `name ?? contact`. The engine shows only when it is not running.
-    private var settingsRow: some View {
+    /// Signed in, it is Platform's picture, as the web sidebar's account button is.
+    private var settingsButton: some View {
         Menu {
             Button(action: openSettings) { Label("设置", systemImage: "gearshape") }
             Button(action: openSchedules) {
@@ -323,30 +390,22 @@ struct DrawerView: View {
                 Button(action: openSignIn) { Label("登录", systemImage: "person") }
             }
         } label: {
-            HStack(spacing: 12) {
+            Group {
                 if app.account.signedIn {
-                    AccountAvatar(url: app.account.profileValue?["avatarUrl"].string.flatMap(URL.init(string:)), size: 32)
+                    AccountAvatar(url: app.account.profileValue?["avatarUrl"].string.flatMap(URL.init(string:)), size: 38)
                 } else {
-                    Image(systemName: "slider.horizontal.3").font(.subheadline).foregroundStyle(Palette.ink)
-                        .frame(width: 32, height: 32).background(Palette.control, in: Circle())
+                    Image(systemName: "slider.horizontal.3").font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
                 }
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(accountTitle).font(.subheadline).foregroundStyle(Palette.ink).lineLimit(1)
-                    if let engineStatus {
-                        Text(engineStatus).font(.caption).foregroundStyle(Palette.secondary)
-                    }
-                }
-                Spacer()
-                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
             }
-            .padding(.horizontal, 12)
-            .frame(minHeight: 52)
-            .contentShape(Rectangle())
+            .frame(width: 46, height: 46)
+            .background(Palette.background, in: Circle())
+            .overlay(Circle().strokeBorder(Palette.stroke))
+            .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
+            .contentShape(Circle())
         } primaryAction: {
             openSettings()
         }
-        .padding(.horizontal, 8)
-        .padding(.bottom, 8)
+        .accessibilityLabel(Text(accountTitle))
     }
 
     private var accountTitle: String {
