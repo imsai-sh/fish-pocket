@@ -38,7 +38,7 @@ typedef struct {
   /// never reaches the handler: an unimplemented operation must not execute,
   /// which is what keeps a plugin calling us directly (process._linkedBinding
   /// is visible to any JS) from reaching something we have not built yet.
-  const char *ops[8];
+  const char *ops[16];
   /// The iOS permission this capability needs, or NULL when it needs none.
   /// Only for display in the app's capability list — the capability itself
   /// still asks iOS at use time, and nothing here gates on this field.
@@ -47,7 +47,7 @@ typedef struct {
   /// Reads are already gated by the iOS permission; this is what the write
   /// policy applies to, and what the capability screen offers a switch for.
   /// Empty for a capability that only reads or only touches our own state.
-  const char *writeOps[6];
+  const char *writeOps[12];
   /// True when the capability reaches the user's data but iOS has no permission
   /// for it. Then this app's own switch is the only gate there can be, and the
   /// dispatcher enforces it exactly where it enforces everything else.
@@ -104,8 +104,13 @@ static const dsh_capability CAPABILITIES[] = {
   {"homekit",  dsh_native_homekit,  {"list", "get", "set", "scenes", "trigger", NULL}, "homekit",
    {"set", "trigger", NULL}, false},
   // Metadata and an export to a file the engine can see, so a receipt can go to
-  // `vision` without leaving the phone. Nothing here adds, changes or deletes.
-  {"photos",   dsh_native_photos,   {"list", "albums", "export", NULL}, "photos", {NULL}, false},
+  // `vision` without leaving the phone — and the writes that organising a
+  // library takes, under the write policy. Deleting also gets iOS's own sheet.
+  {"photos",   dsh_native_photos,
+   {"list", "albums", "export", "save", "delete", "favorite", "hide",
+    "createAlbum", "renameAlbum", "deleteAlbum", "addToAlbum", "removeFromAlbum", NULL}, "photos",
+   {"save", "delete", "favorite", "hide", "createAlbum", "renameAlbum", "deleteAlbum", "addToAlbum",
+    "removeFromAlbum", NULL}, false},
   // iOS 26+ only, and implemented in Swift behind DshAlarmBridge.h: AlarmKit's
   // whole surface is Swift generics and async sequences. An alarm rings through
   // silent mode, which is why it is a separate capability from `notify` rather

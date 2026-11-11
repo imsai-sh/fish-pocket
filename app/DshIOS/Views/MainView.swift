@@ -189,7 +189,7 @@ struct MainView: View {
             Task { await openCredentials(step) }
         }
         #if DEBUG
-        // Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|whatsnew`.
+        // Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|whatsnew|capabilities`.
         .task {
             switch UserDefaults.standard.string(forKey: "dshOpen") {
             case "drawer": drawerOpen = true
@@ -201,6 +201,7 @@ struct MainView: View {
             case "support": supportDialog = true
             case "share": sheet = .share
             case "whatsnew": whatsNew = WhatsNew.current
+            case "capabilities": sheet = .capabilities
             default: break
             }
         }
