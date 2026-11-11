@@ -43,12 +43,19 @@ private struct RemoteSignInPage: View {
             .groupedRow()
 
             Section {
-                step(1, "在电脑上安装 Agents Anywhere 并登录", "它是开源的桌面应用，负责把电脑上的智能体接到你的账号。")
+                step(1, "在电脑上安装 Agents Anywhere 并登录", "它是开源的桌面应用，负责把电脑上的智能体接到你的账号。") {
+                    // What step 1 installs: its download sits in the step, not as a row after step 3.
+                    Button { openURL(RemoteStore.Links.download) } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.down.circle")
+                            Text("下载 Agents Anywhere")
+                        }
+                    }
+                    .buttonStyle(.capsule(.secondary, height: 34, fill: false))
+                    .padding(.top, 6)
+                }
                 step(2, "在它的「设置 → 连接手机」里点「开始连接」", "电脑上会显示一个登录二维码。")
                 step(3, "回到这里扫码", "在电脑上确认后就连上了。")
-                Button { openURL(RemoteStore.Links.download) } label: {
-                    Label("下载 Agents Anywhere", systemImage: "arrow.down.circle").foregroundStyle(Palette.ink)
-                }
             } header: {
                 Text("怎么连接")
             }
@@ -80,16 +87,20 @@ private struct RemoteSignInPage: View {
         .sheet(isPresented: $typing) { RemotePasswordSheet() }
     }
 
-    private func step(_ number: Int, _ title: LocalizedStringKey, _ detail: LocalizedStringKey) -> some View {
+    private func step(_ number: Int, _ title: LocalizedStringKey, _ detail: LocalizedStringKey,
+                      @ViewBuilder action: () -> some View = { EmptyView() }) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(verbatim: "\(number)").font(.footnote.weight(.semibold).monospacedDigit()).foregroundStyle(Palette.onInk)
                 .frame(width: 22, height: 22).background(Palette.ink, in: Circle())
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.subheadline.weight(.medium)).foregroundStyle(Palette.ink)
                 Text(detail).font(.footnote).foregroundStyle(Palette.secondary)
+                action()
             }
         }
         .padding(.vertical, 2)
+        // Every step's separator starts at its number, whatever the step holds.
+        .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
     }
 
     private func link(_ title: LocalizedStringKey, _ icon: String, _ url: URL) -> some View {
