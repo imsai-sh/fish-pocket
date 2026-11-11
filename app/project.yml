@@ -12,6 +12,10 @@ packages:
   SwiftTerm:
     url: https://github.com/migueldeicaza/SwiftTerm
     exactVersion: 1.10.0
+  # Typesets the LaTeX in replies (Views/MathFormula.swift).
+  SwiftMath:
+    url: https://github.com/mgriebling/SwiftMath
+    exactVersion: 1.7.3
 settings:
   base:
     SWIFT_VERSION: "5.0"
@@ -107,6 +111,7 @@ targets:
       - sdk: libz.tbd
       - sdk: libiconv.tbd
       - package: SwiftTerm
+      - package: SwiftMath
       - target: DshLiveActivity
     postBuildScripts:
       # CPython's standard library into the bundle (python/lib), and each extension
