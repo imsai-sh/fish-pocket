@@ -271,7 +271,7 @@ struct MainView: View {
     }
 
     #if DEBUG
-    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew`.
+    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew|capabilities`.
     private func openForChecks() {
         switch UserDefaults.standard.string(forKey: "dshOpen") {
         case "drawer": drawerOpen = true
@@ -284,6 +284,7 @@ struct MainView: View {
         case "share": sheet = .share
         case "connectors": sheet = .connectors
         case "whatsnew": whatsNew = WhatsNew.current
+        case "capabilities": sheet = .capabilities
         default: break
         }
     }
