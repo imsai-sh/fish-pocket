@@ -103,7 +103,37 @@ enum TimelineFixture {
             event("turn/end", ["turn": 3, "reason": ["kind": "error", "error": ["code": "RATE", "message": "模型服务暂时不可用"]]]),
             user("{\"kind\":\"answer_to_pending_question\",\"tool\":\"ask_user_question\",\"callId\":\"c9\",\"questions\":[{\"id\":\"q\",\"header\":\"方案\",\"question\":\"用哪个？\",\"options\":[{\"label\":\"甲\",\"description\":\"快\"},{\"label\":\"乙\"}]}],\"answers\":[{\"id\":\"q\",\"selected\":[\"甲\"]}]}", source: ["kind": "user-question-reply", "callId": "c9", "outcome": "answered"]),
         ]
-        return turn1 + rest
+        // Formulas: both inline and both display forms, inside emphasis and list items, ones
+        // SwiftMath needs adapting for, ones it cannot typeset, and `$` that is not a formula.
+        let math: [JSON] = [
+            user("求根公式和旋转矩阵怎么写？"),
+            event("turn/start", ["turn": 4]),
+            assistant(4, id: "m5", [["type": "text", "text": .string(#"""
+                对于 $ax^2 + bx + c = 0$（$a \neq 0$），求根公式为：
+
+                $$\boxed{x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}}$$
+
+                **其中 $\Delta = b^2 - 4ac$ 是判别式**，协方差 $\hat{\sigma}_{xy}$ 与 $\hat{\sigma}_{yx}$ 相等。
+
+                绕原点逆时针旋转 \(\theta\) 的矩阵：
+
+                \[
+                R(\theta)=
+                \begin{bmatrix}
+                \cos\theta & -\sin\theta \\
+                \sin\theta & \cos\theta
+                \end{bmatrix}
+                \]
+
+                - 样本均值 \(\bar{x}=\frac{1}{n}\sum_{i=1}^{n}x_i\)，样本为 $x_1,x_2,\dots,x_n$
+                - 多行推导 $$\begin{align} f(x) &= x^2 + 2x + 1 \\ &= (x+1)^2 \end{align}$$
+                - 排不出来的保留原文：$\underbrace{a+b}_{n}$，带中文的也是：$\frac{路程}{时间}$
+
+                套餐 $5 一个月，高级版 $10，`echo $HOME` 不是公式。
+                """#)]]),
+            event("turn/end", ["turn": 4, "reason": ["kind": "completed"]]),
+        ]
+        return turn1 + rest + math
     }()
 }
 #endif

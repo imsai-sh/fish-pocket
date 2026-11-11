@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// Block-level Markdown for assistant replies: headings, paragraphs, lists,
-/// quotes, fenced code, tables, rules and images of files. Inline styling
-/// (bold, code, links) comes from Foundation's Markdown parser.
+/// quotes, fenced code, tables, rules, formulas and images of files. Inline
+/// styling (bold, code, links) comes from Foundation's Markdown parser.
 struct MarkdownView: View {
     let text: String
     /// Streaming text changes every frame; caching each version would only evict finished replies.
@@ -12,6 +12,8 @@ struct MarkdownView: View {
     /// Off in the timeline: there a long press is the reply's menu, which has 「选择文本」.
     var selectable = true
     @Environment(\.fileMentions) private var fileMentions
+    /// Formulas are drawn at the text's size, so they are redrawn when it changes.
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -30,11 +32,11 @@ struct MarkdownView: View {
     private func view(for block: MarkdownBlock) -> some View {
         switch block {
         case .heading(let level, let text):
-            Text(inline(text))
+            inline(text, level == 1 ? .title2 : level == 2 ? .title3 : .headline)
                 .font(level == 1 ? .title2.bold() : level == 2 ? .title3.bold() : .headline)
                 .padding(.top, 4)
         case .paragraph(let text):
-            Text(inline(text))
+            inline(text)
         case .list(let items, let ordered):
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(Array(items.enumerated()), id: \.offset) { index, item in
@@ -42,7 +44,7 @@ struct MarkdownView: View {
                         Text(item.checked.map { $0 ? "☑︎" : "☐" } ?? (ordered ? "\(item.number ?? index + 1)." : "•"))
                             .foregroundStyle(Palette.secondary)
                             .monospacedDigit()
-                        Text(inline(item.text))
+                        inline(item.text)
                     }
                     .padding(.leading, CGFloat(item.indent) * 14)
                 }
@@ -50,7 +52,7 @@ struct MarkdownView: View {
         case .quote(let text):
             HStack(spacing: 8) {
                 RoundedRectangle(cornerRadius: 1.5).fill(Palette.stroke).frame(width: 3)
-                Text(inline(text)).foregroundStyle(Palette.secondary)
+                inline(text).foregroundStyle(Palette.secondary)
             }
         case .code(let language, let code):
             if language == "schemaJson", let node = GenUIView.parse(code) {
@@ -64,7 +66,7 @@ struct MarkdownView: View {
                     ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
                         GridRow {
                             ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
-                                Text(inline(cell)).font(index == 0 ? .subheadline.bold() : .subheadline)
+                                inline(cell, .subheadline).font(index == 0 ? .subheadline.bold() : .subheadline)
                             }
                         }
                         if index == 0 { Divider() }
@@ -75,14 +77,17 @@ struct MarkdownView: View {
             }
         case .rule:
             Divider()
+        case .math(let latex):
+            MathBlockView(latex: latex)
         case .image(let alt, let destination):
             ReplyImage(alt: alt, destination: destination)
         }
     }
 
-    private func inline(_ text: String) -> AttributedString {
-        let string = cached ? MarkdownCache.inline(text) : MarkdownCache.render(text)
-        return linksFiles && !fileMentions.isEmpty ? Self.linkMentions(string, fileMentions) : string
+    private func inline(_ text: String, _ style: UIFont.TextStyle = .callout) -> Text {
+        var string = cached ? MarkdownCache.inline(text) : MarkdownCache.render(text)
+        if linksFiles && !fileMentions.isEmpty { string = Self.linkMentions(string, fileMentions) }
+        return MathText.text(string, size: UIFont.preferredFont(forTextStyle: style).pointSize)
     }
 
     /// Links code spans that exactly name a path or its unique basename.
@@ -158,7 +163,17 @@ enum MarkdownCache {
     }
 
     static func render(_ text: String) -> AttributedString {
-        var string = (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(text)
+        let math = MathSyntax.extract(text)
+        var string = parse(math.masked)
+        let marks = string.characters.indices.filter { string.characters[$0] == MathSyntax.placeholder }
+        if marks.count == math.formulas.count {
+            for (mark, formula) in zip(marks, math.formulas).reversed() {
+                string[mark..<string.characters.index(after: mark)][MathFormulaKey.self] = formula
+            }
+        } else {
+            // Markdown swallowed a placeholder (a formula inside a link's address): no formulas then.
+            string = parse(text)
+        }
         // Inline code: a shade behind it, as in the design's `spawn` chip.
         for run in string.runs where run.inlinePresentationIntent?.contains(.code) == true {
             string[run.range].backgroundColor = Palette.bubble
@@ -166,6 +181,10 @@ enum MarkdownCache {
         }
         linkify(&string)
         return string
+    }
+
+    private static func parse(_ text: String) -> AttributedString {
+        (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(text)
     }
 
     private static let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
@@ -323,6 +342,8 @@ enum MarkdownBlock {
     case code(String?, String)
     case table([[String]])
     case rule
+    /// `$$ … $$` or `\[ … \]` on lines of its own.
+    case math(String)
     /// `![alt](path)` naming a file, as the engine's prompt tells the model to show one.
     case image(alt: String, destination: String)
 
@@ -352,6 +373,9 @@ enum MarkdownBlock {
                 blocks.append(.code(language.isEmpty ? nil : language, code.joined(separator: "\n")))
             } else if trimmed.isEmpty {
                 flush()
+            } else if let latex = MathSyntax.displayBlock(trimmed, &lines) {
+                flush()
+                blocks.append(.math(latex))
             } else if let hashes = trimmed.firstIndex(where: { $0 != "#" }), trimmed.hasPrefix("#"), trimmed[hashes] == " ", trimmed.distance(from: trimmed.startIndex, to: hashes) <= 6 {
                 flush()
                 blocks.append(.heading(trimmed.distance(from: trimmed.startIndex, to: hashes), String(trimmed[hashes...]).trimmingCharacters(in: .whitespaces)))
