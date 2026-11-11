@@ -288,6 +288,22 @@ extension View {
             }
         }
     }
+
+    /// Leaves the page once `done` turns true: pops it, or closes the sheet it is the root of.
+    /// For pushed pages that push further, which must not read `dismiss` themselves: on iOS 17
+    /// that value moves with the navigation stack, so the page's body and the stack kept
+    /// updating each other until the app was killed. Here nothing reads it before it is used.
+    func dismisses(when done: Bool) -> some View {
+        background { if done { Dismissal() } }
+    }
+}
+
+private struct Dismissal: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Color.clear.onAppear { dismiss() }
+    }
 }
 
 extension GeometryProxy {

@@ -293,13 +293,11 @@ struct MainView: View {
 
     private var split: some View {
         NavigationSplitView(columnVisibility: $sidebar) {
-            // The system's sidebar button stays. Removed, a split view too narrow for both
-            // columns (iPhone Duo open and held upright) has no way to put the sidebar away,
-            // and its layout never settles: the app hangs there and on the next rotation.
-            // A width that follows the fold hangs it the same way, on the one layout pass
-            // where the window has turned and the width has not. These fit every pose.
+            // A width that follows the fold hangs the split view, on the one layout pass where
+            // the window has turned and the width has not. These fit every pose.
             drawer.navigationSplitViewColumnWidth(min: 280, ideal: 320, max: 360)
                 .toolbar(.hidden, for: .navigationBar)
+                .modifier(SidebarToggle(system: systemSidebarButton))
         } detail: {
             Group {
                 if storeOpen {
@@ -315,10 +313,20 @@ struct MainView: View {
         .navigationSplitViewStyle(.balanced)
     }
 
-    /// Our button puts a shown sidebar away. A hidden one comes back with the system's
-    /// button, which takes the same place in the bar: one of the two at a time.
+    /// Whether the system's sidebar button stays. From iOS 27.1 it has to: removed, a split
+    /// view too narrow for both columns (iPhone Duo open and held upright) has no way to put
+    /// the sidebar away, and its layout never settles: the app hangs there and on the next
+    /// rotation. Before that there is no such device, and the system's button cannot be
+    /// counted on: with the sidebar away, iPadOS 26 shows none in the conversation's bar.
+    private var systemSidebarButton: Bool {
+        if #available(iOS 27.1, *) { true } else { false }
+    }
+
+    /// Our button puts a shown sidebar away. Where the system's button stays, a hidden one
+    /// comes back with it, in the same place in the bar: one of the two at a time. Elsewhere
+    /// ours does both.
     private var hideSidebar: (() -> Void)? {
-        sidebar == .detailOnly ? nil : toggleSidebar
+        systemSidebarButton && sidebar == .detailOnly ? nil : toggleSidebar
     }
 
     private var windowCommands: WindowCommands {
@@ -511,6 +519,15 @@ struct MainView: View {
             }
             catch { app.showToast(String(localized: "新建会话失败：\(error.localizedDescription)"), tone: .warning, duration: 6) }
         }
+    }
+}
+
+/// On the sidebar column: the system's sidebar button, kept or removed (`systemSidebarButton`).
+private struct SidebarToggle: ViewModifier {
+    let system: Bool
+
+    func body(content: Content) -> some View {
+        if system { content } else { content.toolbar(removing: .sidebarToggle) }
     }
 }
 

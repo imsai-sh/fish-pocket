@@ -341,9 +341,9 @@ struct AttachmentRail: View {
             HStack(spacing: 10) {
                 Group {
                     if case .uploading = attachment.upload { ProgressView().controlSize(.small) }
-                    else { Image(systemName: "doc").font(.title3).foregroundStyle(Palette.secondary) }
+                    else { FileGlyph(name: attachment.name, height: 36) }
                 }
-                .frame(width: 24)
+                .frame(width: 32)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(attachment.name).font(.footnote.weight(.medium)).foregroundStyle(Palette.ink).lineLimit(1).truncationMode(.middle)
                     Text(meta(attachment)).font(.caption2).foregroundStyle(failed ? Palette.removed : Palette.secondary).lineLimit(1)
@@ -376,10 +376,7 @@ struct AttachmentRail: View {
         switch attachment.upload {
         case .uploading: return String(localized: "上传中…")
         case .failed: return String(localized: "上传失败，轻点重试")
-        default:
-            let ext = (attachment.name as NSString).pathExtension.uppercased().prefix(8)
-            let size = ByteCountFormatter.string(fromByteCount: Int64(attachment.bytes), countStyle: .file)
-            return [String(ext), size].filter { !$0.isEmpty }.joined(separator: " ")
+        default: return FileFormat.caption(attachment.name, bytes: attachment.bytes)
         }
     }
 }

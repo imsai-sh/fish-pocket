@@ -61,21 +61,22 @@ struct DshLiveActivity: Widget {
                     .padding(.horizontal, 4)
                 }
             } compactLeading: {
-                HStack(spacing: 5) {
-                    Dot(phase: state.phase)
-                    Mark()
-                }
-                .padding(.leading, 2)
+                CompactLeading(phase: state.phase)
             } compactTrailing: {
-                if state.phase == .approval || state.phase == .question {
-                    Text(state.phase == .approval ? "待允许" : "待回答")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(Tint.of(state.phase))
-                } else {
-                    Elapsed(state: state)
-                        .font(.caption2.monospacedDigit())
-                        .frame(maxWidth: 44)
+                Group {
+                    if state.phase == .approval || state.phase == .question {
+                        Text(state.phase == .approval ? "待允许" : "待回答")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(Tint.of(state.phase))
+                    } else {
+                        Elapsed(state: state)
+                            .font(.caption2.monospacedDigit())
+                            .frame(maxWidth: 44)
+                    }
                 }
+                // An hour-long run, or the narrow island, shrinks the text rather than cutting it.
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             } minimal: {
                 Dot(phase: state.phase)
             }
@@ -138,6 +139,49 @@ private struct Elapsed: View {
                 .multilineTextAlignment(.trailing)
         }
     }
+}
+
+/// The dot and the mark side by side. iPhone Duo's island stands upright and is too narrow for
+/// both (the dot was cut in half): there the mark alone carries the status colour.
+private struct CompactLeading: View {
+    let phase: DshActivityAttributes.ContentState.Phase
+
+    var body: some View {
+        // The upright island came with the iOS 27 SDK (SwiftUI 8): Xcode 26 still builds the widget.
+        #if canImport(SwiftUI, _version: 8.0)
+        if #available(iOS 27.0, *) {
+            Narrowable(phase: phase)
+        } else {
+            Self.full(phase)
+        }
+        #else
+        Self.full(phase)
+        #endif
+    }
+
+    static func full(_ phase: DshActivityAttributes.ContentState.Phase) -> some View {
+        HStack(spacing: 5) {
+            Dot(phase: phase)
+            Mark()
+        }
+        .padding(.leading, 2)
+    }
+
+    #if canImport(SwiftUI, _version: 8.0)
+    @available(iOS 27.0, *)
+    private struct Narrowable: View {
+        let phase: DshActivityAttributes.ContentState.Phase
+        @Environment(\.isDynamicIslandLimitedInWidth) private var limited
+
+        var body: some View {
+            if limited {
+                Mark().foregroundStyle(Tint.of(phase))
+            } else {
+                CompactLeading.full(phase)
+            }
+        }
+    }
+    #endif
 }
 
 /// The brand mark: the Dynamic Island has no room for the full name.
