@@ -279,8 +279,11 @@ struct ConversationView: View {
                     // tasks are on its own page.
                     if bot == nil { SessionHeaderActions(sessionId: sessionId, jobs: jobs) { headerSheet = $0 } }
                     if let menu = bot?.menu { menu(model) }
-                    Button(action: toggleWorkbench) { Image(systemName: "apple.terminal") }
-                        .accessibilityLabel("工作台")
+                    // A Bot works in its own folder and reports in the chat: its pages have no way into the workbench.
+                    if bot == nil {
+                        Button(action: toggleWorkbench) { Image(systemName: "apple.terminal") }
+                            .accessibilityLabel("工作台")
+                    }
                 }
             }
         }
@@ -312,7 +315,7 @@ struct ConversationView: View {
                 .interactiveDismissDisabled(workbenchTab == .terminal)
         }
         .onChange(of: workbenchOpen) { _, open in if open, sizeClass == .regular { makeRoomForWorkbench() } }
-        .focusedSceneValue(\.workbenchCommands, WorkbenchCommands(available: !blank, toggle: toggleWorkbench, open: openWorkbench))
+        .focusedSceneValue(\.workbenchCommands, WorkbenchCommands(available: !blank && bot == nil, toggle: toggleWorkbench, open: openWorkbench))
         // The sheet leaves the background live, so the composer keeps its focus and the
         // keyboard would stay over the sheet; an answer comes first.
         .onChange(of: presentedInteractionId(model)) { _, id in if id != nil { dismissKeyboard() } }

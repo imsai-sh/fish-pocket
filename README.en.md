@@ -202,6 +202,7 @@ Fish Pocket also stands on the shoulders of these projects.
 **Used directly:**
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): the engine, and the reason any of this exists
+- [DS Bot](https://github.com/Fei2411/DS-Bot): the backend of the Bot feature (the standing team of Bots, group chats, memory and scheduled tasks). Thanks to Fei2411 and the community contributors
 - [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) and its [digidem fork](https://github.com/digidem/nodejs-mobile): Node 24 on iOS
 - [CPython](https://github.com/python/cpython): the official python.org iOS build, Python inside the app
 - [just-bash](https://github.com/vercel-labs/just-bash): a bash interpreter written in TypeScript

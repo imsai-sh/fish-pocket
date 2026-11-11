@@ -71,6 +71,8 @@ struct RoomInfo: Identifiable, Hashable {
 @Observable
 final class BotModel {
     static let package = "ds-bot"
+    /// The open-source project behind the Bot feature, linked where it is credited.
+    static let projectURL = URL(string: "https://github.com/Fei2411/DS-Bot")!
 
     enum Status: Equatable {
         /// Not known yet (the engine or the plugin list is still loading).

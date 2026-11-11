@@ -353,16 +353,14 @@ struct BotHomeView: View {
             if let openDrawer { ToolbarItem(placement: .topBarLeading) { DrawerButton(action: openDrawer) } }
             if team.status == .ready {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { settingsOpen = true } label: { Image(systemName: "gearshape") }
-                        .accessibilityLabel("团队设置")
-                }
-                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button { creating = .bot } label: { Label("新建 Bot", systemImage: "person.badge.plus") }
                         Button { creating = .room } label: { Label("新建群聊", systemImage: "person.2") }
                             .disabled(team.bots.count < 2)
-                    } label: { Image(systemName: "plus") }
-                    .accessibilityLabel("新建 Bot 或群聊")
+                        Divider()
+                        Button { settingsOpen = true } label: { Label("团队设置", systemImage: "gearshape") }
+                    } label: { Image(systemName: "ellipsis") }
+                    .accessibilityLabel("更多操作")
                 }
             }
         }

@@ -210,6 +210,7 @@ Fish Pocket 还站在这些优秀项目的肩膀上。
 **直接使用：**
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：引擎本身，一切的基础
+- [DS Bot](https://github.com/Fei2411/DS-Bot)：Bot 功能的后台，常驻的 Bot 团队、群聊、记忆和定时任务都靠它。感谢 Fei2411 和社区贡献者
 - [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) 及其 [digidem 分支](https://github.com/digidem/nodejs-mobile)：让 Node 24 跑在 iOS 上
 - [CPython](https://github.com/python/cpython)：python.org 官方的 iOS 构建，App 内的 Python
 - [just-bash](https://github.com/vercel-labs/just-bash)：TypeScript 写的 bash 解释器

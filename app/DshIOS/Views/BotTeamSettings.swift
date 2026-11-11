@@ -71,6 +71,19 @@ struct BotTeamSettingsView: View {
                 NavigationLink { BotDiagnosticsPage() } label: { Label("问题诊断", systemImage: "stethoscope") }
             }
             .groupedRow()
+            Section {
+                Link(destination: BotModel.projectURL) {
+                    LabeledContent {
+                        Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
+                    } label: {
+                        Label("DS Bot 项目主页", systemImage: "heart")
+                    }
+                }
+                .foregroundStyle(Palette.ink)
+            } footer: {
+                Text("Bot 功能的后台是开源项目 DS Bot（Apache-2.0），感谢 Fei2411 和社区贡献者。")
+            }
+            .groupedRow()
         }
         .groupedList()
         .navigationTitle("团队设置")

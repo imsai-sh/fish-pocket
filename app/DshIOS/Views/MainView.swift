@@ -44,6 +44,11 @@ struct MainView: View {
     @State private var whatsNew: WhatsNew.Release?
     /// It was shown: no update toast on top of it this time.
     @State private var newsShown = false
+    /// The launch has gone back to the page the app was last on (`place`); from then on the page
+    /// in front is kept for the next launch. A window opened on a session stays on it.
+    @State private var placeRestored: Bool
+    /// The launch went back to a Bot page: the blank conversation made under it does not take its place.
+    @State private var launchedUnderBot = false
 
     /// A `dsh://` link this window received (`RootView`), until it is followed.
     @Binding private var link: LinkRequest?
@@ -51,7 +56,43 @@ struct MainView: View {
     /// `session`: the one this window opened on, when it opened on one.
     init(session: String? = nil, link: Binding<LinkRequest?> = .constant(nil)) {
         _selection = State(initialValue: session)
+        _placeRestored = State(initialValue: session != nil)
         _link = link
+    }
+
+    private static let placeKey = "dsh.lastPlace"
+
+    /// The page in front, as it is kept for the next launch: a conversation, the Bot list, a
+    /// Bot's chat or a group.
+    private var place: String? {
+        guard botOpen else { return selection.map { "session:\($0)" } }
+        switch botPath.last {
+        case .bot(let id)?: return "bot:\(id)"
+        case .room(let id)?: return "room:\(id)"
+        case nil: return "bots"
+        }
+    }
+
+    /// Back to the page the app was last on, when it is still there; a link or a notification
+    /// that opened the app has already picked its own.
+    private func restorePlace() {
+        guard selection == nil, let kept = UserDefaults.standard.string(forKey: Self.placeKey) else { return }
+        let parts = kept.split(separator: ":", maxSplits: 1).map(String.init)
+        let id = parts.count > 1 ? parts[1] : ""
+        switch parts[0] {
+        case "session":
+            if app.workspace(of: id) != nil, !app.isArchived(id) { selection = id }
+        case "bot": openBots([.bot(id)])
+        case "room": openBots([.room(id)])
+        case "bots": openBots([])
+        default: break
+        }
+    }
+
+    private func openBots(_ path: [BotRoute]) {
+        launchedUnderBot = true
+        botOpen = true
+        botPath = path
     }
 
     /// The credential sheets (`settings.onboarding`'s steps). Unlike the web they never open by
@@ -138,7 +179,18 @@ struct MainView: View {
         .tint(Palette.ink)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { windowWidth = $0 }
         .focusedSceneValue(\.windowCommands, windowCommands)
-        .task(id: app.workspaces.map(\.id)) { if selection == nil { newConversation(in: workspace) } }
+        .task(id: app.workspaces.map(\.id)) {
+            // Which sessions there are is known with the workspaces.
+            guard !app.workspaces.isEmpty else { return }
+            if !placeRestored {
+                placeRestored = true
+                restorePlace()
+            }
+            if selection == nil { newConversation(in: workspace) }
+        }
+        .onChange(of: place) { _, place in
+            if placeRestored, let place { UserDefaults.standard.set(place, forKey: Self.placeKey) }
+        }
         // Which store this copy came from: only an App Store install is asked for a rating.
         .task { await AppDistribution.refresh() }
         .task(id: canAnnounce) {
@@ -168,7 +220,7 @@ struct MainView: View {
         .onChange(of: scenePhase) { _, phase in if phase == .active { app.currentSession = selection } }
         .onChange(of: selection) { _, id in
             app.currentSession = id
-            botOpen = false
+            if launchedUnderBot { launchedUnderBot = false } else { botOpen = false }
             if let id {
                 if let owner = app.workspace(of: id) { workspaceId = owner.id }
             } else {

@@ -2424,18 +2424,18 @@
         }
       }
     },
-    "Bot 功能的后台是开源插件 DS Bot（Apache-2.0），由 Fei2411 和社区贡献者开发。" : {
+    "Bot 功能的后台是开源项目 DS Bot（Apache-2.0），感谢 Fei2411 和社区贡献者。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot runs on the open-source plugin DS Bot (Apache-2.0), made by Fei2411 and community contributors."
+            "value" : "Bot runs on the open-source project DS Bot (Apache-2.0). Thanks to Fei2411 and the community contributors."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bot funciona con el complemento de código abierto DS Bot (Apache-2.0), creado por Fei2411 y la comunidad."
+            "value" : "Bot funciona con el proyecto de código abierto DS Bot (Apache-2.0). Gracias a Fei2411 y a la comunidad."
           }
         }
       }
@@ -2647,6 +2647,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Expresión cron"
+          }
+        }
+      }
+    },
+    "DS Bot 项目主页" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DS Bot on GitHub"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DS Bot en GitHub"
           }
         }
       }
@@ -20244,6 +20260,7 @@
       }
     },
     "新建 Bot 或群聊" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -369,7 +369,7 @@ private struct AboutPage: View {
                 LabeledContent("引擎", value: "DeepSeek Harness")
                 if let engineVersion { LabeledContent("引擎版本", value: engineVersion) }
                 if let bot = app.botTeam.installedPackage {
-                    Link(destination: URL(string: "https://github.com/Fei2411/DS-Bot")!) {
+                    Link(destination: BotModel.projectURL) {
                         LabeledContent("Bot 插件", value: "DS Bot \(bot.version ?? "")")
                     }
                     .foregroundStyle(Palette.ink)
@@ -382,7 +382,7 @@ private struct AboutPage: View {
                 LabeledContent("系统", value: ProcessInfo.processInfo.operatingSystemVersionString)
             } footer: {
                 if app.botTeam.installedPackage != nil {
-                    Text("Bot 功能的后台是开源插件 DS Bot（Apache-2.0），由 Fei2411 和社区贡献者开发。")
+                    Text("Bot 功能的后台是开源项目 DS Bot（Apache-2.0），感谢 Fei2411 和社区贡献者。")
                 }
             }
             Section {

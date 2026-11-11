@@ -16,7 +16,7 @@ struct BotChatView: View {
         let team = app.botTeam
         if let bot = team.bot(botId) {
             ConversationView(sessionId: bot.sessionId, selection: $selection, openDrawer: nil, bot: BotChrome(
-                title: AnyView(Button { detailOpen = true } label: { BotTitle(bot: bot) }
+                title: AnyView(Button { detailOpen = true } label: { BotTitle(bot: bot).modifier(BotTitleCapsule()) }
                     .buttonStyle(.plain)
                     .accessibilityHint("查看 Bot 详情")),
                 accessory: AnyView(BotPending(bot: bot)),
@@ -48,6 +48,9 @@ struct BotChatView: View {
             }
             .onAppear { app.clearUnread(bot.sessionId); team.visibleChat = bot.id }
             .onDisappear { app.clearUnread(bot.sessionId); if team.visibleChat == bot.id { team.visibleChat = nil } }
+        } else if team.status == .unknown {
+            // The app opened on this chat (the page it was last on) before the team answered.
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).background(Palette.background)
         } else {
             ContentUnavailableView("这个 Bot 已不在团队里", systemImage: "person.slash")
         }
@@ -71,6 +74,18 @@ private struct BotTitle: View {
                     Text(bot.role).font(.caption2).foregroundStyle(Palette.secondary).lineLimit(1)
                 }
             }
+        }
+    }
+}
+
+/// A chat's title drawn as the button it is: glass like the bar's own buttons where those are
+/// glass (iOS 26 on), a filled capsule before that, where a bare title would read as a label.
+struct BotTitleCapsule: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.padding(.leading, 8).padding(.trailing, 14).frame(minHeight: 44).glassEffect(.regular.interactive(), in: .capsule)
+        } else {
+            content.padding(.leading, 6).padding(.trailing, 12).frame(minHeight: 36).background(Palette.control, in: Capsule())
         }
     }
 }
@@ -323,7 +338,7 @@ struct BotChatMenu: View {
                 }
             }
         } label: {
-            Image(systemName: "ellipsis.circle")
+            Image(systemName: "ellipsis")
         }
         .accessibilityLabel("更多操作")
     }

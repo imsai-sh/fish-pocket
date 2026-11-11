@@ -137,10 +137,14 @@ struct BotRoomView: View {
         if let room = team.room(roomId) {
             ConversationView(sessionId: room.sessionId, selection: $selection, openDrawer: nil, bot: BotChrome(
                 title: AnyView(Button { detailOpen = true } label: {
-                    VStack(spacing: 1) {
-                        Text(team.name(of: room)).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
-                        Text("\(room.members.count) 个 Bot").font(.caption2).foregroundStyle(Palette.secondary)
+                    HStack(spacing: 8) {
+                        RoomAvatar(room: room, size: 28)
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(team.name(of: room)).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink).lineLimit(1)
+                            Text("\(room.members.count) 个 Bot").font(.caption2).foregroundStyle(Palette.secondary)
+                        }
                     }
+                    .modifier(BotTitleCapsule())
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("查看群聊设置")),
@@ -160,6 +164,8 @@ struct BotRoomView: View {
             }
             .onAppear { app.clearUnread(room.sessionId); team.visibleChat = room.id }
             .onDisappear { app.clearUnread(room.sessionId); if team.visibleChat == room.id { team.visibleChat = nil } }
+        } else if team.status == .unknown {
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).background(Palette.background)
         } else {
             ContentUnavailableView("这个群聊已经不在了", systemImage: "person.2.slash")
         }
