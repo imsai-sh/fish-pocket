@@ -36,6 +36,20 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
+        Release(version: "1.1.0", build: 30, features: [
+            Feature(symbol: "person.2",
+                    title: "Bot 模式",
+                    detail: "一支常驻的 Bot 团队：可以私聊，可以拉群一起商量，也能到点自己开工。入口在侧边栏。"),
+            Feature(symbol: "face.smiling",
+                    title: "每个 Bot 有自己的样子",
+                    detail: "新建时挑一个形象和颜色，它思考、搜索、干活的时候各有各的神态。"),
+            Feature(symbol: "point.3.connected.trianglepath.dotted",
+                    title: "连接器",
+                    detail: "GitHub、Notion 这些服务连一次，普通会话和 Bot 都能用。入口也在侧边栏。"),
+            Feature(symbol: "arrow.uturn.backward",
+                    title: "回到上次的会话",
+                    detail: "重新打开 App，直接回到上次所在的会话或 Bot 聊天。"),
+        ]),
         Release(version: "1.1.0", build: 25, features: [
             Feature(symbol: "sparkles",
                     title: "插件的事，一键询问 AI",
