@@ -58,7 +58,7 @@
 ### 注意
 
 - **升级 nodejs-mobile、Python、libgit2、FFmpeg 的版本后**（`scripts/fetch-nodejs-mobile.sh`、`scripts/fetch-python.sh`、`scripts/build-libgit2.sh`、`scripts/build-ffmpeg.sh`），本地从零跑一遍 `app/ci_scripts/ci_post_clone.sh`。升级 FFmpeg 还要确认 `native/ffmpeg/ffmpeg.patch` 能打上，并在模拟器里实测一遍 `ffmpeg`、`ffprobe`。云端每次都重新下载和编译，下载地址或 sha256 写错会直接失败。
-- **改构建脚本或 `app/project.yml` 的工程结构时**，合并前先在分支上手动触发一次云端构建。本地能验证脚本和编译，验证不了云端的签名和上传。
+- **云端构建只在推 `release` 时跑**，不在分支上手动触发。改构建脚本或 `app/project.yml` 的工程结构时，本地跑通 `ci_post_clone.sh` 并编译一遍就可以合并；云端的签名和上传等下次推 `release` 时再验证。
 - **触发规则按提交看，不按净差异看。** 推到 `release` 的这一批提交里，只要有一个改到上面四个目录就会出包，哪怕后面的提交又把它改回去了。
 - **连续推送 `release` 只跑最新一次**，前一次会被自动取消。但被取消的那次如果已经导出完，包照样会上传并占一个 build 号，所以 build 列表里的号不一定连续，也可能多出包。
 - **归档成功就自动上传**，不用另外操作。构建要等上传的包处理完才算结束，全程二三十分钟，其中真正在构建的只有几分钟；处理完之前包不会出现在 build 列表里，不是没传上去。
