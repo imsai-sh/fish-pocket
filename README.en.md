@@ -44,6 +44,14 @@
   <sub>Start a task on the cover screen, unfold, and the same session keeps running with the sidebar beside the chat</sub>
 </p>
 
+<p align="center">
+  <img src="docs/assets/demo-watch.gif" width="840" alt="A task is sent on iPhone, which then goes back to the Home Screen; on the Apple Watch beside it the mascot first shows it is working, then that it waits on you. The approval is opened and allowed on the watch, the task carries on, and a card pops up on the watch when it is done">
+  <br/>
+  <b>Apple Watch</b>
+  <br/>
+  <sub>Put the phone down and glance at your wrist: approve from the watch, and get a tap when the work is done</sub>
+</p>
+
 <p align="center"><sub>These are recordings of the app running, with waits cut or sped up. They show the Chinese interface; the app also comes in English and Spanish.</sub></p>
 
 ## What it does
