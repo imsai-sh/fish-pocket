@@ -70,6 +70,29 @@
 
 写法上保持现在的风格：英文、短句、先说能不能用再说替代办法；「Commands that exist」之外的命令都会被当成不存在，所以新增命令一定要列进去。
 
+## 手表 App
+
+手表 App 内嵌在 iPhone App 里一起安装，引擎不在手表上。手机通过 WatchConnectivity 把会话状态发给手表，手表只负责显示、震动提醒，以及把「允许 / 拒绝」发回手机。
+
+- `app/WatchShared`：手机和手表共用的数据（`WatchSnapshot`、`WatchCommand`），两个 target 都编译它。改这里等于改两端的协议。
+- `app/DshIOS/WatchLink.swift`：手机端。状态变了就发给手表，并执行手表发回的指令。
+- `app/Watch`：手表端的界面、素材和文案。
+
+### 文案
+
+手表的文案在 `app/Watch/Localizable.xcstrings`，`scripts/sync-strings.sh` 不管它，要手动加词条并补上 `en`、`es`。每个词条的 `zh-Hans` 也要写出来并标成 `translated`，否则中文用户会看到英文。加完跑 `node scripts/strings-coverage.mjs` 确认全覆盖。
+
+### 本地看效果
+
+- 只看界面：单独编译 `DshWatch` scheme，用 Debug 版的启动参数 `-dshWatchDemo waiting`（还有 `question`、`running`、`done`、`many`、`idle`、`unknown`、`offline`）显示一份固定的演示数据，不需要手机。
+- 手表模拟器如果和某台 iPhone 模拟器配了对，而那台 iPhone 上没装主 App，系统会把手表 App 卸掉。所以要么装到没配对的手表模拟器上，要么先把主 App 装到配对的 iPhone 模拟器上。
+- 联调：两台配对的模拟器都开着，`scripts/run-sim.sh` 把主 App 装到 iPhone 上，手表 App 会跟着装过去。
+
+### 注意
+
+- 构建主 App 时不要给 `xcodebuild` 传 `-sdk iphonesimulator`：它会让内嵌的手表 App 也按 iOS 的 SDK 编译，直接失败。用 `-destination` 选平台就够了。
+- 手表 App 的 bundle ID 必须以主 App 的 bundle ID 开头，`WKCompanionAppBundleIdentifier` 要和主 App 的一致，改主 App 的 bundle ID 时一起改。
+
 ## 微信交流群二维码
 
 群二维码只放在 README 和官网，App 里不放，设置页底部只有一个「官网」链接。二维码 7 天过期，有两份，换图时一起换：

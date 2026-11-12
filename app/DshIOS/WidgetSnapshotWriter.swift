@@ -102,45 +102,24 @@ final class WidgetSnapshotWriter {
     /// Top-level sessions only: a subagent's approval or question shows on the session it serves.
     private static func snapshot(of app: AppModel) -> WidgetSnapshot {
         let showTitles = UserDefaults.standard.object(forKey: showTitlesKey) as? Bool ?? true
-        func root(_ id: String) -> String {
-            var id = id
-            for _ in 0..<8 {
-                guard let session = app.sessions[id], session.isSubagent, let parent = session.parentId else { break }
-                id = parent
+        let board = SessionBoard(app)
+        func phase(_ id: String) -> WidgetSnapshot.Phase {
+            switch board.entries[id]?.phase {
+            case .approval: .approval
+            case .question: .question
+            case .running: .running
+            case nil: .idle
             }
-            return id
-        }
-
-        var phase: [String: WidgetSnapshot.Phase] = [:]
-        var detail: [String: String] = [:]
-        for (agentId, pending) in app.approvals.sorted(by: { $0.key < $1.key }) {
-            guard let approval = pending.first else { continue }
-            let id = root(agentId)
-            guard phase[id] == nil else { continue }
-            phase[id] = .approval
-            detail[id] = approval.reason?.isEmpty == false ? approval.reason! : String(localized: "工具 \(approval.toolName) 请求越权执行")
-        }
-        for id in app.sessions.keys.sorted() where app.isWaiting(id) {
-            let owner = root(id)
-            guard phase[owner] == nil else { continue }
-            phase[owner] = .question
-            detail[owner] = app.control[id]?["userQuestions"]?["active"].array.first?["questions"].array.first?["question"].string
-                ?? app.questionRequests[id]?.first?.questions.first?.question
-        }
-        for session in app.sessions.values where session.running {
-            let id = root(session.id)
-            if phase[id] == nil { phase[id] = .running }
         }
 
         let rank: (WidgetSnapshot.Phase) -> Int = { $0.waiting ? 0 : $0 == .running ? 1 : 2 }
-        let sessions = app.sessions.values
-            .filter { !$0.isSubagent && !$0.blank && !app.isArchived($0.id) }
+        let sessions = SessionBoard.listed(in: app)
             .map { summary in
                 WidgetSnapshot.Session(
                     id: summary.id,
                     title: showTitles ? app.title(of: summary.id) : nil,
-                    phase: phase[summary.id] ?? .idle,
-                    detail: showTitles ? detail[summary.id] : nil,
+                    phase: phase(summary.id),
+                    detail: showTitles ? board.entries[summary.id]?.detail : nil,
                     since: nil,
                     updatedAt: summary.updatedAt
                 )

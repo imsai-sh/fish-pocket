@@ -7,7 +7,7 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root/app"
 xcodegen generate --quiet
-xcodebuild -project DshIOS.xcodeproj -scheme DshIOS -sdk iphonesimulator -destination "generic/platform=iOS Simulator" \
+xcodebuild -project DshIOS.xcodeproj -scheme DshIOS -destination "generic/platform=iOS Simulator" \
   -derivedDataPath build/DerivedData -skipPackagePluginValidation ARCHS=arm64 build -quiet
 data=()
 while IFS= read -r file; do data+=(--stringsdata "$file"); done < <(
