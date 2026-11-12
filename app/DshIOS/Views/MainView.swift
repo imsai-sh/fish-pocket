@@ -6,7 +6,7 @@ import SwiftUI
 /// regular width it is the split view's sidebar. With nothing selected — at
 /// launch, after archiving — a blank session in the current workspace opens.
 struct MainView: View {
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities, connectors, remote; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -21,6 +21,9 @@ struct MainView: View {
     /// In regular width the plugin store takes the conversation's place beside the sidebar.
     @State private var storeOpen = false
     @State private var webOpen = false
+    /// The Bot pages take the conversation's place (the drawer's Bot card opens them).
+    @State private var botOpen = false
+    @State private var botPath: [BotRoute] = []
     /// The sidebar, in regular width.
     @State private var sidebar = NavigationSplitViewVisibility.all
     @State private var windowWidth: CGFloat = 0
@@ -28,7 +31,6 @@ struct MainView: View {
     @State private var drawerOpen = false
     @State private var drag: CGFloat = 0
     /// The way a drag on the shell set off, fixed by its first move; nil between drags.
-    @GestureState private var dragAxis: Axis?
     /// A plain reference filled by the drawer's rows.
     @State private var rowFrames = DrawerRowFrames()
     @State private var creating = false
@@ -41,6 +43,13 @@ struct MainView: View {
     @State private var whatsNew: WhatsNew.Release?
     /// It was shown: no update toast on top of it this time.
     @State private var newsShown = false
+    /// 「在电脑上新建会话」, once whatever sheet asked for it has gone.
+    @State private var remoteTarget: RemoteSessionTarget?
+    /// The launch has gone back to the page the app was last on (`place`); from then on the page
+    /// in front is kept for the next launch. A window opened on a session stays on it.
+    @State private var placeRestored: Bool
+    /// The launch went back to a Bot page: the blank conversation made under it does not take its place.
+    @State private var launchedUnderBot = false
 
     /// A `dsh://` link this window received (`RootView`), until it is followed.
     @Binding private var link: LinkRequest?
@@ -48,7 +57,43 @@ struct MainView: View {
     /// `session`: the one this window opened on, when it opened on one.
     init(session: String? = nil, link: Binding<LinkRequest?> = .constant(nil)) {
         _selection = State(initialValue: session)
+        _placeRestored = State(initialValue: session != nil)
         _link = link
+    }
+
+    private static let placeKey = "dsh.lastPlace"
+
+    /// The page in front, as it is kept for the next launch: a conversation, the Bot list, a
+    /// Bot's chat or a group.
+    private var place: String? {
+        guard botOpen else { return selection.map { "session:\($0)" } }
+        switch botPath.last {
+        case .bot(let id)?: return "bot:\(id)"
+        case .room(let id)?: return "room:\(id)"
+        case nil: return "bots"
+        }
+    }
+
+    /// Back to the page the app was last on, when it is still there; a link or a notification
+    /// that opened the app has already picked its own.
+    private func restorePlace() {
+        guard selection == nil, let kept = UserDefaults.standard.string(forKey: Self.placeKey) else { return }
+        let parts = kept.split(separator: ":", maxSplits: 1).map(String.init)
+        let id = parts.count > 1 ? parts[1] : ""
+        switch parts[0] {
+        case "session":
+            if app.workspace(of: id) != nil, !app.isArchived(id) { selection = id }
+        case "bot": openBots([.bot(id)])
+        case "room": openBots([.room(id)])
+        case "bots": openBots([])
+        default: break
+        }
+    }
+
+    private func openBots(_ path: [BotRoute]) {
+        launchedUnderBot = true
+        botOpen = true
+        botPath = path
     }
 
     /// The credential sheets (`settings.onboarding`'s steps). Unlike the web they never open by
@@ -98,11 +143,48 @@ struct MainView: View {
             app.webRequest = nil
             webOpen = true
         }
+        .onChange(of: app.botTeam.openRequest?.token) { _, token in
+            guard token != nil, let request = app.botTeam.openRequest else { return }
+            app.botTeam.openRequest = nil
+            sheet = nil
+            storeOpen = false
+            botOpen = true
+            botPath = request.route.map { route in request.push && botPath.last != route ? botPath + [route] : [route] } ?? []
+            setDrawer(false)
+        }
         // The sidebar's own row; the page is also still under Settings.
         .onChange(of: app.nativeCapabilitiesRequest) { _, token in
             guard token != nil, scenePhase != .background else { return }
             app.nativeCapabilitiesRequest = nil
             sheet = .capabilities
+        }
+        .onChange(of: app.remoteRequest) { _, token in
+            guard token != nil, scenePhase != .background else { return }
+            app.remoteRequest = nil
+            setDrawer(false)
+            sheet = .remote
+        }
+        // Asked for from the sidebar, a conversation or a page inside a sheet: that sheet goes first.
+        .onChange(of: app.remoteSessionRequest) { _, request in
+            guard let request, scenePhase != .background else { return }
+            app.remoteSessionRequest = nil
+            setDrawer(false)
+            let wait = sheet != nil
+            sheet = nil
+            Task {
+                if wait { try? await Task.sleep(for: .milliseconds(450)) }
+                remoteTarget = request
+            }
+        }
+        .sheet(item: $remoteTarget) { RemoteNewSessionSheet(target: $0).sheetNotices() }
+        // Signed out of remote control (or the server ended it): its conversation has nothing to show.
+        .onChange(of: app.remote.signedIn) { _, signedIn in
+            if !signedIn, RemoteStore.sessionId(of: selection) != nil { selection = nil }
+        }
+        .onChange(of: app.connectorsRequest) { _, token in
+            guard token != nil, scenePhase != .background else { return }
+            app.connectorsRequest = nil
+            sheet = .connectors
         }
         .fullScreenCover(isPresented: $webOpen) { WebFallbackView() }
         // The Live Activity and the widgets; a cold launch keeps the link until this view is up.
@@ -121,12 +203,18 @@ struct MainView: View {
         }
     }
 
-    var body: some View {
+    /// The layout with what the window follows: its launch, the page it is on, and the requests
+    /// the model raises. Apart from `body`, as `layout` is: one chain of all of it is more than
+    /// the compiler type-checks in the time it allows itself (Xcode 26 gives up on it).
+    private var shell: some View {
         layout
         .tint(Palette.ink)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { windowWidth = $0 }
         .focusedSceneValue(\.windowCommands, windowCommands)
-        .task(id: app.workspaces.map(\.id)) { if selection == nil { newConversation(in: workspace) } }
+        .task(id: app.workspaces.map(\.id)) { launched() }
+        .onChange(of: place) { _, place in
+            if placeRestored, let place { UserDefaults.standard.set(place, forKey: Self.placeKey) }
+        }
         // Which store this copy came from: only an App Store install is asked for a rating.
         .task { await AppDistribution.refresh() }
         .task(id: canAnnounce) {
@@ -156,6 +244,7 @@ struct MainView: View {
         .onChange(of: scenePhase) { _, phase in if phase == .active { app.currentSession = selection } }
         .onChange(of: selection) { _, id in
             app.currentSession = id
+            if launchedUnderBot { launchedUnderBot = false } else { botOpen = false }
             if let id {
                 if let owner = app.workspace(of: id) { workspaceId = owner.id }
             } else {
@@ -170,6 +259,7 @@ struct MainView: View {
         .onChange(of: app.openRequest?.token) { _, token in
             guard token != nil, scenePhase != .background, let id = app.openRequest?.id else { return }
             app.openRequest = nil
+            botOpen = false
             selection = id
             setDrawer(false)
         }
@@ -189,38 +279,64 @@ struct MainView: View {
             Task { await openCredentials(step) }
         }
         #if DEBUG
-        // Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|whatsnew`.
-        .task {
-            switch UserDefaults.standard.string(forKey: "dshOpen") {
-            case "drawer": drawerOpen = true
-            case "settings": sheet = .settings
-            case "plugins": sheet = .plugins
-            case "store": openPlugins()
-            case "schedules": sheet = .schedules
-            case "signin": sheet = .signIn
-            case "support": supportDialog = true
-            case "share": sheet = .share
-            case "whatsnew": whatsNew = WhatsNew.current
-            default: break
-            }
-        }
+        .task { openForChecks() }
         #endif
-        .sheet(item: $sheet) { sheet in
-            Group {
-                switch sheet {
-                case .settings: SettingsView()
-                // Pages 设置 also holds look the same opened from here: the system's lists.
-                case .plugins: SheetStack { PluginsView() }.environment(\.systemLists, true)
-                case .store: SheetStack { PluginStoreView() }
-                case .schedules: SheetStack { SchedulesView(openSession: open(session:)) }.environment(\.systemLists, true)
-                case .signIn: SignInSheet()
-                case .cordis: CordisPanelView(currentSession: selection)
-                case .share: SheetStack { ShareAppPage() }
-                case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
-                }
-            }
-            .sheetNotices()
+    }
+
+    /// The workspaces are known, and with them which sessions there are: back to the page the
+    /// app was last on, or a blank conversation.
+    private func launched() {
+        guard !app.workspaces.isEmpty else { return }
+        if !placeRestored {
+            placeRestored = true
+            restorePlace()
         }
+        if selection == nil { newConversation(in: workspace) }
+    }
+
+    #if DEBUG
+    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew|capabilities|remote`.
+    private func openForChecks() {
+        switch UserDefaults.standard.string(forKey: "dshOpen") {
+        case "drawer": drawerOpen = true
+        case "settings": sheet = .settings
+        case "plugins": sheet = .plugins
+        case "store": openPlugins()
+        case "schedules": sheet = .schedules
+        case "signin": sheet = .signIn
+        case "support": supportDialog = true
+        case "share": sheet = .share
+        case "connectors": sheet = .connectors
+        case "whatsnew": whatsNew = WhatsNew.current
+        case "capabilities": sheet = .capabilities
+        case "remote": sheet = .remote
+        default: break
+        }
+    }
+    #endif
+
+    /// What a sheet of the shell shows.
+    @ViewBuilder
+    private func page(of sheet: Sheet) -> some View {
+        switch sheet {
+        case .settings: SettingsView()
+        // Pages 设置 also holds look the same opened from here: the system's lists.
+        case .plugins: SheetStack { PluginsView() }.environment(\.systemLists, true)
+        case .store: SheetStack { PluginStoreView() }
+        case .schedules: SheetStack { SchedulesView(openSession: open(session:)) }.environment(\.systemLists, true)
+        case .signIn: SignInSheet()
+        case .cordis: CordisPanelView(currentSession: selection)
+        case .share: SheetStack { ShareAppPage() }
+        case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
+        // The services ordinary conversations and Bots both reach; the Bot team's settings hold the same page.
+        case .connectors: SheetStack { BotConnectorsPage() }.settingsStyle()
+        case .remote: SheetStack { RemoteControlPage() }.environment(\.systemLists, true)
+        }
+    }
+
+    var body: some View {
+        shell
+        .sheet(item: $sheet) { page(of: $0).sheetNotices() }
         .sheet(item: $onboarding, onDismiss: onboardingDismissed) { step in
             switch step {
             case .signIn(let ref, let autoStart):
@@ -293,17 +409,17 @@ struct MainView: View {
 
     private var split: some View {
         NavigationSplitView(columnVisibility: $sidebar) {
-            // The system's sidebar button stays. Removed, a split view too narrow for both
-            // columns (iPhone Duo open and held upright) has no way to put the sidebar away,
-            // and its layout never settles: the app hangs there and on the next rotation.
-            // A width that follows the fold hangs it the same way, on the one layout pass
-            // where the window has turned and the width has not. These fit every pose.
+            // A width that follows the fold hangs the split view, on the one layout pass where
+            // the window has turned and the width has not. These fit every pose.
             drawer.navigationSplitViewColumnWidth(min: 280, ideal: 320, max: 360)
                 .toolbar(.hidden, for: .navigationBar)
+                .modifier(SidebarToggle(system: systemSidebarButton))
         } detail: {
             Group {
                 if storeOpen {
                     NavigationStack { PluginStoreView(openSidebar: hideSidebar) }
+                } else if botOpen {
+                    botStack(openDrawer: hideSidebar)
                 } else {
                     NavigationStack { conversation(openDrawer: hideSidebar) }
                 }
@@ -315,10 +431,20 @@ struct MainView: View {
         .navigationSplitViewStyle(.balanced)
     }
 
-    /// Our button puts a shown sidebar away. A hidden one comes back with the system's
-    /// button, which takes the same place in the bar: one of the two at a time.
+    /// Whether the system's sidebar button stays. From iOS 27.1 it has to: removed, a split
+    /// view too narrow for both columns (iPhone Duo open and held upright) has no way to put
+    /// the sidebar away, and its layout never settles: the app hangs there and on the next
+    /// rotation. Before that there is no such device, and the system's button cannot be
+    /// counted on: with the sidebar away, iPadOS 26 shows none in the conversation's bar.
+    private var systemSidebarButton: Bool {
+        if #available(iOS 27.1, *) { true } else { false }
+    }
+
+    /// Our button puts a shown sidebar away. Where the system's button stays, a hidden one
+    /// comes back with it, in the same place in the bar: one of the two at a time. Elsewhere
+    /// ours does both.
     private var hideSidebar: (() -> Void)? {
-        sidebar == .detailOnly ? nil : toggleSidebar
+        systemSidebarButton && sidebar == .detailOnly ? nil : toggleSidebar
     }
 
     private var windowCommands: WindowCommands {
@@ -361,8 +487,14 @@ struct MainView: View {
             let travel = width + geometry.safeAreaInsets.leading
             let progress = min(1, max(0, (drawerOpen ? 1 : 0) + drag / width))
             ZStack(alignment: .leading) {
-                NavigationStack { conversation(openDrawer: { setDrawer(true) }) }
-                    .accessibilityHidden(drawerOpen)
+                Group {
+                    if botOpen {
+                        botStack(openDrawer: { setDrawer(true) })
+                    } else {
+                        NavigationStack { conversation(openDrawer: { setDrawer(true) }) }
+                    }
+                }
+                .accessibilityHidden(drawerOpen)
                 Palette.scrim
                     .opacity(progress)
                     .ignoresSafeArea()
@@ -376,7 +508,6 @@ struct MainView: View {
                     .offset(x: (progress - 1) * travel)
                     .accessibilityHidden(!drawerOpen)
             }
-            .coordinateSpace(.named(DrawerRowFrames.space))
             .background {
                 DrawerEdgePan(enabled: !drawerOpen) { translation in
                     if drag == 0 { dismissKeyboard() }
@@ -385,34 +516,24 @@ struct MainView: View {
                     settleDrawer(predicted: predicted, width: width)
                 }
             }
-            // Only over the open drawer: over the conversation it would run through every scroll.
-            .simultaneousGesture(dragGesture(width: width), including: drawerOpen ? .all : .subviews)
-            // A list that takes over the touch cancels the drag with no end to settle it
-            // (looked at afterwards: a real end settles first).
-            .onChange(of: dragAxis) { _, axis in
-                guard axis == nil else { return }
-                Task { @MainActor in
-                    if drag != 0 { withAnimation(.snappy(duration: 0.25)) { drag = 0 } }
+            // A leftward swipe closes, from the dimmed side or anywhere in the drawer but a session
+            // row (there it reveals the row's actions). It follows the finger and settles by distance
+            // or speed. A recogniser that only begins sideways, not a drag gesture on this view: that
+            // one ran through every scroll of the session list, and redrew this view as each began and ended.
+            .background {
+                DrawerClosePan(enabled: drawerOpen) { start in
+                    start.x > width || !rowFrames.hasRow(atY: start.y)
+                } changed: { translation in
+                    drag = min(0, translation)
+                } ended: { predicted in
+                    if predicted == 0, drag != 0 {
+                        withAnimation(.snappy(duration: 0.25)) { drag = 0 }
+                    } else {
+                        settleDrawer(predicted: predicted, width: width)
+                    }
                 }
             }
         }
-    }
-
-    /// A leftward swipe closes, from the dimmed side or anywhere in the drawer but a session
-    /// row (there it reveals the row's actions). It follows the finger and settles by distance
-    /// or speed; a drag that set off vertically stays a scroll. `DrawerEdgePan` opens.
-    private func dragGesture(width: CGFloat) -> some Gesture {
-        DragGesture(minimumDistance: 12, coordinateSpace: .named(DrawerRowFrames.space))
-            .updating($dragAxis) { value, axis, _ in
-                if axis == nil { axis = abs(value.translation.width) > abs(value.translation.height) ? .horizontal : .vertical }
-            }
-            .onChanged { value in
-                guard dragAxis == .horizontal, value.startLocation.x > width || !rowFrames.hasRow(atY: value.startLocation.y) else { return }
-                drag = min(0, value.translation.width)
-            }
-            .onEnded { value in
-                settleDrawer(predicted: value.predictedEndTranslation.width, width: width)
-            }
     }
 
     private func settleDrawer(predicted: CGFloat, width: CGFloat) {
@@ -428,6 +549,7 @@ struct MainView: View {
     /// Show `id` from wherever it was asked for: over a sheet it closes first.
     private func open(session id: String) {
         sheet = nil
+        botOpen = false
         selection = id
         setDrawer(false)
     }
@@ -449,8 +571,8 @@ struct MainView: View {
             workspace: workspace,
             rowFrames: rowFrames,
             pluginsSelected: storeOpen,
-            select: { id in storeOpen = false; selection = id; setDrawer(false) },
-            newConversation: { workspace in storeOpen = false; workspaceId = workspace.id; newConversation(in: workspace); setDrawer(false) },
+            select: { id in storeOpen = false; botOpen = false; selection = id; setDrawer(false) },
+            newConversation: { workspace in storeOpen = false; botOpen = false; workspaceId = workspace.id; newConversation(in: workspace); setDrawer(false) },
             openSettings: { sheet = .settings },
             openSchedules: { sheet = .schedules },
             openCordis: { sheet = .cordis },
@@ -460,9 +582,25 @@ struct MainView: View {
         )
     }
 
+    /// The Bot list, with a Bot's chat or a group pushed on it.
+    private func botStack(openDrawer: (() -> Void)?) -> some View {
+        NavigationStack(path: $botPath) {
+            BotHomeView(openDrawer: openDrawer)
+                .navigationDestination(for: BotRoute.self) { route in
+                    switch route {
+                    case .bot(let id): BotChatView(botId: id)
+                    case .room(let id): BotRoomView(roomId: id)
+                    }
+                }
+        }
+    }
+
     @ViewBuilder
     private func conversation(openDrawer: (() -> Void)?) -> some View {
-        if let selection {
+        if let selection, let remote = RemoteStore.sessionId(of: selection) {
+            RemoteConversationView(sessionId: remote, selection: $selection, openDrawer: openDrawer)
+                .id(selection)
+        } else if let selection {
             ConversationView(sessionId: selection, selection: $selection, openDrawer: openDrawer, switchWorkspace: { workspace in
                 workspaceId = workspace.id
                 newConversation(in: workspace)
@@ -514,6 +652,15 @@ struct MainView: View {
     }
 }
 
+/// On the sidebar column: the system's sidebar button, kept or removed (`systemSidebarButton`).
+private struct SidebarToggle: ViewModifier {
+    let system: Bool
+
+    func body(content: Content) -> some View {
+        if system { content } else { content.toolbar(removing: .sidebarToggle) }
+    }
+}
+
 /// iPhone Duo held partly open like a book, the sidebar on the near page: the column beside
 /// it starts on the far page, so nothing in it is read across the fold. A column the fold
 /// cuts down the middle (the sidebar is away) stays whole: half a display would be left empty.
@@ -538,6 +685,68 @@ struct SheetStack<Content: View>: View {
 
     var body: some View {
         NavigationStack { content.closeButton(dismiss) }
+    }
+}
+
+/// A leftward swipe over the open drawer, reported as it follows the finger. It begins only for
+/// a swipe that sets off sideways, to the left, from a point `accepts`: a scroll of the session
+/// list never starts it, so nothing here runs while the list scrolls. On the root view, as
+/// `DrawerEdgePan` is: pages presented above keep their own gestures.
+private struct DrawerClosePan: UIViewRepresentable {
+    let enabled: Bool
+    /// Whether a swipe that started here (in the window) may close the drawer.
+    let accepts: (CGPoint) -> Bool
+    let changed: (CGFloat) -> Void
+    /// Where the swipe would come to rest; 0 when it was cancelled.
+    let ended: (CGFloat) -> Void
+
+    func makeUIView(context: Context) -> Catcher { Catcher() }
+
+    func updateUIView(_ view: Catcher, context: Context) {
+        view.enabled = enabled
+        view.accepts = accepts
+        view.changed = changed
+        view.ended = ended
+    }
+
+    final class Catcher: UIView, UIGestureRecognizerDelegate {
+        var enabled = false
+        var accepts: (CGPoint) -> Bool = { _ in true }
+        var changed: (CGFloat) -> Void = { _ in }
+        var ended: (CGFloat) -> Void = { _ in }
+        private lazy var recognizer: UIPanGestureRecognizer = {
+            let recognizer = UIPanGestureRecognizer(target: self, action: #selector(panned))
+            recognizer.maximumNumberOfTouches = 1
+            recognizer.delegate = self
+            return recognizer
+        }()
+
+        override func didMoveToWindow() {
+            recognizer.view?.removeGestureRecognizer(recognizer)
+            window?.rootViewController?.view.addGestureRecognizer(recognizer)
+        }
+
+        override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard enabled, let view = recognizer.view else { return false }
+            let velocity = recognizer.velocity(in: view)
+            guard velocity.x < 0, abs(velocity.x) > abs(velocity.y) else { return false }
+            let now = recognizer.location(in: view), moved = recognizer.translation(in: view)
+            return accepts(CGPoint(x: now.x - moved.x, y: now.y - moved.y))
+        }
+
+        /// The list under the finger keeps its own pan; everything else gives way once this one begins.
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+            other.view is UIScrollView
+        }
+
+        @objc private func panned(_ recognizer: UIPanGestureRecognizer) {
+            let translation = recognizer.translation(in: recognizer.view).x
+            switch recognizer.state {
+            case .began, .changed: changed(translation)
+            case .ended: ended(translation + recognizer.velocity(in: recognizer.view).x * 0.2)
+            default: ended(0)
+            }
+        }
     }
 }
 

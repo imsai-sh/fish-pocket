@@ -243,6 +243,17 @@ private struct GroupedRowStyle: ViewModifier {
 extension View {
     func groupedList() -> some View { modifier(GroupedListStyle()) }
 
+    /// A settings page and everything pushed or presented from it, as 设置 is drawn: the system's
+    /// grouped lists, separators and switches, with the app's ink for what can be tapped. Goes on
+    /// the navigation stack (or the sheet's content), so the pages inside inherit it.
+    func settingsStyle() -> some View {
+        environment(\.systemLists, true).toggleStyle(.mono).tint(Palette.ink)
+    }
+
+    /// A picker's value in the grey of the other rows' values; the page's ink tint would paint it black.
+    /// Only the value: the row's icon keeps the ink.
+    func pickerValueTint() -> some View { tint(.secondary) }
+
     /// The background of a page that puts something of its own (tabs, an empty state) around a `groupedList()`.
     func pageBackground() -> some View { modifier(PageBackground()) }
 
@@ -288,6 +299,22 @@ extension View {
             }
         }
     }
+
+    /// Leaves the page once `done` turns true: pops it, or closes the sheet it is the root of.
+    /// For pushed pages that push further, which must not read `dismiss` themselves: on iOS 17
+    /// that value moves with the navigation stack, so the page's body and the stack kept
+    /// updating each other until the app was killed. Here nothing reads it before it is used.
+    func dismisses(when done: Bool) -> some View {
+        background { if done { Dismissal() } }
+    }
+}
+
+private struct Dismissal: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Color.clear.onAppear { dismiss() }
+    }
 }
 
 extension GeometryProxy {
@@ -331,10 +358,14 @@ func copyToPasteboard(_ text: String) {
     Haptics.success()
 }
 
-/// Hide the keyboard, whichever field (or the terminal) holds it.
+/// Hide the keyboard, whichever field (or the terminal) holds it. Not by sending
+/// `resignFirstResponder` up the responder chain: the terminal answers
+/// `canPerformAction` for its own menu only, so that action passes it by.
 @MainActor
 func dismissKeyboard() {
-    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    for case let scene as UIWindowScene in UIApplication.shared.connectedScenes {
+        scene.windows.forEach { $0.endEditing(true) }
+    }
 }
 
 /// Empty the focused text view in place. Clearing a SwiftUI binding while a Chinese

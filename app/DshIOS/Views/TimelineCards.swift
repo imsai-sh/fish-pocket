@@ -127,6 +127,8 @@ struct QuestionReplyBubble: View {
 /// What woke this turn when no person did (C-52).
 struct TriggerNotice: View {
     let trigger: TurnTrigger
+    @Environment(\.botComposer) private var bot
+    @State private var exchange: BotExchangePair?
 
     var body: some View {
         FoldRow {
@@ -143,11 +145,16 @@ struct TriggerNotice: View {
                 }
                 .frame(maxHeight: 240)
                 .fixedSize(horizontal: false, vertical: true)
+                // In a Bot's chat: everything the two Bots said to each other.
+                if case .bot(let own)? = bot, let sender = trigger.senderId, sender != own {
+                    Button("看它们之间的全部往来") { exchange = BotExchangePair(a: own, b: sender) }.font(.footnote)
+                }
             }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Palette.stroke))
+        .sheet(item: $exchange) { BotExchangeSheet(pair: $0) }
     }
 }
 

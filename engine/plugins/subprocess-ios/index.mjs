@@ -21,6 +21,7 @@ import { BIN, COMMANDS, planArgv, shell, stringEnv } from '../../runtime/shell.m
 import { planDirect } from '../../runtime/direct.mjs';
 import { startNodeWorker } from '../../runtime/node-worker.mjs';
 import { drained, planPython, startPython } from '../../runtime/python/index.mjs';
+import { LineEditor, keys } from '../../runtime/line-editor.mjs';
 
 /** Offset-addressed tail buffer with the collect-mode reader contract. */
 class Collector {
@@ -234,13 +235,11 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
     const output = new PassThrough();
     let cwd = spec.cwd;
     let env = stringEnv({ ...scrubbedParentEnv(), ...spec.env });
-    let line = '';
     let current;
     let revision = 0;
     let closed = false;
     let resolveDone;
     const done = new Promise((r) => { resolveDone = r; });
-    const prompt = () => output.write(`\x1b[32m${path.basename(cwd) || '/'}\x1b[0m $ `);
     const close = (outcome) => {
       if (closed) return;
       closed = true;
@@ -249,7 +248,6 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
       resolveDone(outcome);
     };
     spec.signal?.addEventListener('abort', () => close({ exitCode: null, signal: 'SIGHUP' }), { once: true });
-    prompt();
 
     const run = async (text) => {
       if (text.trim() === 'exit') return close({ exitCode: 0, signal: null });
@@ -268,24 +266,48 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
       }
       current = undefined;
       revision++;
-      if (!closed) prompt();
+      if (!closed) editor.start();
     };
+
+    /** Tab: command names for the first word, otherwise files under the directory the word names. */
+    const complete = (word, first) => {
+      const slash = word.lastIndexOf('/');
+      const dir = word.slice(0, slash + 1);
+      const base = word.slice(slash + 1);
+      if (first && slash < 0) return [...COMMANDS].filter((name) => name.startsWith(base)).sort();
+      try {
+        const real = path.resolve(cwd, dir.startsWith('~/') ? `${env.HOME}${dir.slice(1)}` : dir);
+        return fs.readdirSync(real, { withFileTypes: true })
+          .filter((entry) => entry.name.startsWith(base) && (base.startsWith('.') || !entry.name.startsWith('.')))
+          .map((entry) => `${dir}${entry.name}${entry.isDirectory() ? '/' : ''}`)
+          .sort();
+      } catch {
+        return [];
+      }
+    };
+
+    const editor = new LineEditor({
+      cols: spec.cols,
+      write: (text) => output.write(text),
+      prompt: () => `\x1b[32m${path.basename(cwd) || '/'}\x1b[0m $ `,
+      submit: (text) => { if (text.trim()) void run(text); else editor.start(); },
+      end: () => close({ exitCode: 0, signal: null }),
+      complete,
+    });
+    editor.start();
 
     return {
       pid: 1,
       output,
       done,
       async write(data) {
-        for (const ch of data) {
-          if (current) { if (ch === '\x03') current.abort(); continue; }
-          if (ch === '\r' || ch === '\n') { output.write('\r\n'); const text = line; line = ''; if (text.trim()) void run(text); else prompt(); }
-          else if (ch === '\x7f' || ch === '\b') { if (line) { line = line.slice(0, -1); output.write('\b \b'); } }
-          else if (ch === '\x03') { line = ''; output.write('^C\r\n'); prompt(); }
-          else if (ch === '\x04') { if (!line) close({ exitCode: 0, signal: null }); }
-          else if (ch >= ' ') { line += ch; output.write(ch); }
+        for (const key of keys(data)) {
+          if (closed) return;
+          if (current) { if (key === '\x03') current.abort(); continue; }
+          editor.press(key);
         }
       },
-      async resize() {},
+      async resize(cols) { editor.cols = cols; },
       async inspectForeground() { return current ? { processGroupId: 1, inputWaiting: false } : undefined; },
       async inspectActivity() { return { state: current ? 'busy' : 'idle', revision }; },
       async signalForeground(signal) { if (current) { current.abort(); return 1; } return 0; },

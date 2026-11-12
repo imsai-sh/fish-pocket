@@ -400,6 +400,34 @@ final class TerminalConnection {
     }
 }
 
+/// The workbench's terminal view. Commands are typed in Latin letters, so the keyboard
+/// comes up in English whatever layout was last in use; with a pinyin keyboard the letters
+/// would sit in its candidate bar and nothing reach the terminal. The globe key still
+/// switches, and from then until the keyboard is next raised this reports the layout
+/// really in use, which the emulator reads for its Korean composition fix.
+final class WorkbenchTerminalView: SwiftTerm.TerminalView {
+    private var layoutChosen = false
+    private lazy var watching: Void = NotificationCenter.default.addObserver(
+        self, selector: #selector(layoutChanged), name: UITextInputMode.currentInputModeDidChangeNotification, object: nil)
+
+    override var textInputMode: UITextInputMode? {
+        let current = super.textInputMode
+        if layoutChosen { return current }
+        return UITextInputMode.activeInputModes.first { $0.primaryLanguage?.hasPrefix("en") == true } ?? current
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        _ = watching
+        layoutChosen = false
+        return super.becomeFirstResponder()
+    }
+
+    @objc private func layoutChanged() {
+        guard isFirstResponder else { return }
+        layoutChosen = super.textInputMode?.primaryLanguage?.hasPrefix("en") != true
+    }
+}
+
 struct TerminalHost: UIViewRepresentable {
     let connection: TerminalConnection
     /// The room it was given: the width of a column or a sheet, not of the screen.
@@ -411,7 +439,7 @@ struct TerminalHost: UIViewRepresentable {
     func makeUIView(context: Context) -> SwiftTerm.TerminalView {
         // Not `.zero`: the emulator sizes its grid from the first frame, and the snapshot fed
         // before layout would wrap at two columns (the prompt then reads one letter per line).
-        let view = SwiftTerm.TerminalView(frame: CGRect(x: 0, y: 0, width: max(width, 320), height: 360))
+        let view = WorkbenchTerminalView(frame: CGRect(x: 0, y: 0, width: max(width, 320), height: 360))
         view.terminalDelegate = context.coordinator
         view.font = UIFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
         // Resizing (the keyboard) would otherwise stretch the old contents until the next output.

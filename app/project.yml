@@ -14,6 +14,10 @@ packages:
   SwiftTerm:
     url: https://github.com/migueldeicaza/SwiftTerm
     exactVersion: 1.10.0
+  # Typesets the LaTeX in replies (Views/MathFormula.swift).
+  SwiftMath:
+    url: https://github.com/mgriebling/SwiftMath
+    exactVersion: 1.7.3
 settings:
   base:
     SWIFT_VERSION: "5.0"
@@ -22,7 +26,7 @@ settings:
     # One version everywhere: the app, its extension, the App Store and the `v<version>` release tag.
     # Changing it sends the TestFlight public beta back through review: a beta build bumps the build number.
     # App Store and GitHub releases do bump it, or the update check never sees them.
-    MARKETING_VERSION: "1.1.0"
+    MARKETING_VERSION: "1.2.0"
     CURRENT_PROJECT_VERSION: "12"
     # UI strings: SwiftUI literals and String(localized:) go to the String Catalog at build time.
     SWIFT_EMIT_LOC_STRINGS: YES
@@ -111,6 +115,7 @@ targets:
       - sdk: libz.tbd
       - sdk: libiconv.tbd
       - package: SwiftTerm
+      - package: SwiftMath
       - target: DshLiveActivity
       # The watch app rides inside the iPhone app and is installed with it.
       - target: DshWatch
@@ -147,8 +152,8 @@ targets:
           UIApplicationSupportsMultipleScenes: true
         # ProMotion: without this an iPhone app stays at 60 Hz.
         CADisableMinimumFrameDurationOnPhone: true
-        # 输入框的「拍照」(C-104).
-        NSCameraUsageDescription: 拍照后作为附件发给智能体。
+        # 输入框的「拍照」(C-104)，和远程控制的扫码登录。
+        NSCameraUsageDescription: 拍照后作为附件发给智能体，或扫描电脑上的登录二维码。
         # 本机能力「日历」。这条弹窗是用户在点「允许」前唯一一次被告知的机会，
         # 所以第二句写明数据会随对话发出去（docs/native-services.md §6.2.1）。
         # iOS 17 起读日历必须要 full access，没有只读档。
@@ -173,8 +178,9 @@ targets:
         # 「查看」和「控制」都说在前面。
         NSHomeKitUsageDescription: 让智能体按你的要求查看家里的配件和它们的状态，并按你设的写入方式改状态或执行场景。为回答你的问题，配件名称和状态会随对话发送给你选择的模型服务商。
         # 本机能力「照片」。和上面那条 Add 是两个不同的 access level：Add 是存
-        # 分享海报用的，这条是读。最后一句是实情，这个能力一个写接口都没有。
-        NSPhotoLibraryUsageDescription: 让智能体在你问起时查看相册里有哪些照片，并把你指定的一张导出成文件，用手机本机的识别能力读出里面的文字。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。App 不会添加、修改或删除任何照片。
+        # 分享海报用的，这条是读写。写入受「本机能力」里的写入方式管，删除时
+        # iOS 自己还会弹框，所以最后一句说的是实情。
+        NSPhotoLibraryUsageDescription: 让智能体在你问起时查看相册里有哪些照片、导出照片给本机识别，并按你在「本机能力」里设的写入方式帮你整理相册。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。删除照片前 iOS 会再问你一次。
         # 本机能力「闹钟」。把「穿透静音」写进去：这是用户在授权框上唯一一次
         # 能知道自己批的是什么的机会，而它比通知强得多。
         NSAlarmKitUsageDescription: 让智能体按你的要求设真正的闹钟。闹钟会穿透静音和专注模式，响到你关掉为止。

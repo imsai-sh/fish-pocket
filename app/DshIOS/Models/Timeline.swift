@@ -54,6 +54,8 @@ struct Attachment: Hashable {
     /// Size before the attachment service scaled it down, when it did.
     var originalWidth: Int?
     var originalHeight: Int?
+    /// A `file` block: an uploaded file of any format, kept verbatim.
+    var isFile = false
 
     init(attachmentId: String?, name: String? = nil, mediaType: String? = nil) {
         self.attachmentId = attachmentId
@@ -63,6 +65,7 @@ struct Attachment: Hashable {
 
     /// The ref sits under `attachment`; older logs carried its fields on the block itself.
     init(block: JSON) {
+        isFile = block["type"].string == "file"
         let ref = block["attachment"].isNull ? block : block["attachment"]
         attachmentId = ref["attachmentId"].string
         name = ref["name"].string ?? block["name"].string
@@ -93,8 +96,9 @@ struct Attachment: Hashable {
         return .object(value)
     }
 
-    /// Image blocks render inline; file blocks show as a name.
-    var isImage: Bool { mediaType?.hasPrefix("image/") ?? true }
+    /// Image blocks render inline; file blocks show as a name. A file ref has no
+    /// media type (`{attachmentId, name, bytes}`), so the block's type decides.
+    var isImage: Bool { !isFile && (mediaType?.hasPrefix("image/") ?? true) }
 }
 
 enum TimelineItem: Identifiable, Hashable {
@@ -150,6 +154,10 @@ struct QuestionReply: Hashable {
         raw = text
         let value = (try? JSONDecoder().decode(JSON.self, from: Data(text.utf8))) ?? .null
         let answers = value["answers"].array
+        if value["kind"].string == "answer_to_pending_view" {
+            entries = Self.viewEntries(views: value["views"].array, answers: answers)
+            return
+        }
         entries = value["questions"].array.map { question in
             let answer = answers.first { $0["id"].string == question["id"].string } ?? .null
             let custom = answer["custom"].string?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -162,6 +170,33 @@ struct QuestionReply: Hashable {
                 },
                 values: answer["selected"].array.compactMap(\.string) + (custom.isEmpty ? [] : [custom])
             )
+        }
+    }
+
+    /// A Bot's card answered (ds-bot's `show_view`): what was chosen or filled in, under the card's title.
+    private static func viewEntries(views: [JSON], answers: [JSON]) -> [Entry] {
+        func find(_ id: String, in node: JSON) -> JSON? {
+            if node["id"].string == id { return node }
+            for child in node["children"].array { if let hit = find(id, in: child) { return hit } }
+            return nil
+        }
+        return answers.map { answer in
+            let view = views.first { $0["id"] == answer["id"] } ?? views.first ?? .null
+            let part = answer["action"].string.flatMap { find($0, in: view["view"]) } ?? .null
+            let values = answer["values"]
+            var shown: [String] = values["selected"].array.compactMap(\.string)
+            if let confirmed = values["confirmed"].bool {
+                shown.append(confirmed ? part["confirmLabel"].string ?? String(localized: "确认") : part["cancelLabel"].string ?? String(localized: "取消"))
+            }
+            if values["canceled"].bool == true { shown.append(part["cancelLabel"].string ?? String(localized: "取消")) }
+            let fields = values["fields"].object
+            for field in part["fields"].array {
+                guard let id = field["id"].string, let text = fields[id]?.string else { continue }
+                shown.append("\(field["label"].string ?? id)：\(text)")
+            }
+            if shown.isEmpty, part["type"].string == "submit" { shown.append(part["label"].string ?? String(localized: "提交")) }
+            let title = view["title"].string ?? ""
+            return Entry(header: nil, question: title.isEmpty ? String(localized: "表单") : title, detail: nil, options: [], values: shown)
         }
     }
 
@@ -187,11 +222,34 @@ struct TurnTrigger: Hashable {
     let title: String
     let symbol: String
     let body: String
+    /// ds-bot's handoff package that opens a new part of a Bot's chat (`source.handoff`).
+    var handoff = false
+    /// The Bot that sent it (ds-bot's `source.senderSessionId`), when another Bot did.
+    var senderId: String?
+    var senderName: String?
+    /// A Bot's post into a group chat (`source.role == "post"`): a message of the group, drawn as one.
+    var post = false
+    /// A post the round it landed in already shows, or one that only marks an event of that round.
+    var postShown = false
+    /// A post past what a message holds came as a file with only its start: the file, and the whole length.
+    var file: JSON?
+    var length: Int?
 
-    init(seq: Int, time: Date, source: JSON, body: String) {
+    init(seq: Int, time: Date, source: JSON, body: String, content: JSON = .null) {
         self.seq = seq
         self.time = time
         self.body = body
+        handoff = source["kind"].string == "bot" && source["handoff"].bool == true
+        if source["kind"].string == "bot" {
+            senderId = source["senderSessionId"].string
+            senderName = source["senderName"].string
+            post = source["role"].string == "post"
+            postShown = !source["logged"].isNull || !source["failed"].isNull || source["resumed"].bool == true || source["stopped"].bool == true || source["done"].bool == true
+            if let length = source["length"].int {
+                self.length = length
+                file = content.array.first { $0["type"].string == "file" }?["attachment"]
+            }
+        }
         switch source["kind"].string {
         case "goal": title = String(localized: "继续执行目标"); symbol = "flag"
         case "agent-message": title = String(localized: "收到任务消息"); symbol = "person"
@@ -202,6 +260,32 @@ struct TurnTrigger: Hashable {
         case "schedule": title = String(localized: "自动化任务"); symbol = "clock"
         case "tool-jobs": title = String(localized: "后台任务状态更新"); symbol = "gearshape.2"
         case "cordis-host-runner": title = String(localized: "插件状态更新"); symbol = "puzzlepiece.extension"
+        // ds-bot's Bot team: another Bot's request or reply, the start of work, a handoff.
+        case "bot":
+            let name = source["senderName"].string.flatMap { $0 == "You" ? nil : $0 } ?? String(localized: "其他 Bot")
+            switch source["role"].string {
+            case "kickoff": title = String(localized: "开始工作"); symbol = "sparkles"
+            case "request": title = String(localized: "\(name)交来一件事"); symbol = "arrow.down.message"
+            case "reply": title = String(localized: "\(name)回复了"); symbol = "arrowshape.turn.up.left"
+            case "report": title = String(localized: "\(name)汇报了进展"); symbol = "text.bubble"
+            case "stopped": title = String(localized: "\(name)的工作已停止"); symbol = "stop.circle"
+            // What came of a card the Bot put up, told to it (ds-bot's secrets, connectors and mail).
+            case "secret": title = String(localized: "密钥卡片有了结果"); symbol = "key"
+            case "connector": title = String(localized: "连接服务的请求有了结果"); symbol = "point.3.connected.trianglepath.dotted"
+            case "mail": title = String(localized: "邮件有了结果"); symbol = "envelope"
+            case "update": title = String(localized: "资料改过了"); symbol = "pencil.line"
+            case "resume": title = String(localized: "重启后接着做"); symbol = "arrow.clockwise"
+            case "continue": title = String(localized: "修好后继续"); symbol = "arrow.clockwise"
+            // A group goal's own steps (ds-bot's goals.js): drafted, resumed, or checked on.
+            case "goal":
+                switch source["goal"].string {
+                case "draft": title = String(localized: "设定了群目标")
+                case "resume": title = String(localized: "群目标继续推进")
+                default: title = String(localized: "检查群目标的进度")
+                }
+                symbol = "flag"
+            default: title = source["handoff"].bool == true ? String(localized: "接着上一段对话继续") : String(localized: "收到团队消息"); symbol = "person.2"
+            }
         default: title = String(localized: "收到执行请求"); symbol = "bell"
         }
     }
@@ -623,7 +707,7 @@ struct TimelineBuilder {
         if let kind, kind != "user" {
             let claimed = id.map { nextTurnInbox.claimed.contains($0) } ?? false
             guard claimed || idleSteer(id) || (nextTurnInbox.claimUnknown && TurnTrigger.wakingKinds.contains(kind)) else { return false }
-            items.append(.trigger(TurnTrigger(seq: seq, time: time, source: source, body: text)))
+            items.append(.trigger(TurnTrigger(seq: seq, time: time, source: source, body: text, content: data["content"])))
             return true
         }
         // Taken from the next-step inbox: it joined a running turn.

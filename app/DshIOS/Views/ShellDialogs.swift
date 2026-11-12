@@ -51,6 +51,16 @@ struct ShellDialogs: ViewModifier {
         let title = trimmed
         app.renameRequest = nil
         Task {
+            // A session on a computer is renamed on its own server.
+            if let remote = RemoteStore.sessionId(of: id) {
+                if let failure = await app.remote.rename(session: remote, to: title) {
+                    Haptics.error()
+                    app.showToast(failure, tone: .warning)
+                } else {
+                    Haptics.success()
+                }
+                return
+            }
             do {
                 try await app.rename(session: id, to: title)
                 Haptics.success()

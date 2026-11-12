@@ -20,6 +20,7 @@ struct CandidatePanel: View {
     let pick: (Candidate) -> Void
     let showAll: () -> Void
     @Environment(AppModel.self) private var app
+    @Environment(\.botComposer) private var bot
     @State private var references: [Row] = []
     @State private var searched = false
 
@@ -75,7 +76,7 @@ struct CandidatePanel: View {
         .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .task(id: hit.trigger == "@" ? "\(model.loaded)\(hit.quoted)\(hit.query)" : nil) {
             guard hit.trigger == "@", model.loaded else { return }
-            guard let rows = await Self.loadReferences(app: app, model: model, query: hit.query, quoted: hit.quoted) else { return }
+            guard let rows = await Self.loadReferences(app: app, model: model, query: hit.query, quoted: hit.quoted, bot: bot) else { return }
             references = rows
             searched = true
         }
@@ -87,10 +88,10 @@ struct CandidatePanel: View {
 
     // MARK: `/` (C-99)
 
-    private var commandRows: [Row] { Self.commandRows(context, query: hit.query, leading: hit.leading) }
+    private var commandRows: [Row] { Self.commandRows(context, query: hit.query, leading: hit.leading, bot: bot) }
 
-    static func commandRows(_ context: ComposerContext, query: String, leading: Bool) -> [Row] {
-        context.commandRows(query: query, leading: leading).map { row in
+    static func commandRows(_ context: ComposerContext, query: String, leading: Bool, bot: BotComposer? = nil) -> [Row] {
+        context.commandRows(query: query, leading: leading).filter { bot == nil || !BotComposer.hiddenCommands.contains($0.name) }.map { row in
             Row(id: "cmd-\(row.name)", icon: row.icon, title: row.label ?? row.name,
                 detail: row.description.isEmpty ? nil : row.description, section: row.section, candidate: .command(row))
         }
@@ -100,7 +101,7 @@ struct CandidatePanel: View {
 
     /// Files and sessions in parallel, after a short pause in typing. Nil when a new key
     /// cancelled this load (the caller keeps what it shows).
-    static func loadReferences(app: AppModel, model: SessionModel, query: String, quoted: Bool) async -> [Row]? {
+    static func loadReferences(app: AppModel, model: SessionModel, query: String, quoted: Bool, bot: BotComposer? = nil) async -> [Row]? {
         try? await Task.sleep(for: .milliseconds(120))
         if Task.isCancelled { return nil }
         let client = app.client, sessionId = model.sessionId
@@ -108,7 +109,7 @@ struct CandidatePanel: View {
         async let sessions = quoted ? nil : (try? client.call("sessionReferenceResolver/candidates", ["agentId": .string(sessionId), "query": .string(query)]))
         let (fileList, sessionList) = await (files, sessions)
         if Task.isCancelled { return nil }
-        var rows: [Row] = []
+        var rows: [Row] = quoted ? [] : botRows(app: app, bot: bot, query: query)
         for item in fileList?.array ?? [] {
             guard let path = item["path"].string else { continue }
             let directory = item["kind"].string == "directory"
@@ -134,6 +135,31 @@ struct CandidatePanel: View {
         }
         rows += sessionRows.filter(\.child).map(\.row) + sessionRows.filter { !$0.child }.map(\.row)
         return rows
+    }
+
+    /// In a Bot's chat, the other Bots first; in a group, its members and everyone. Picking one
+    /// writes `@Name `, which ds-bot reads as calling that Bot.
+    @MainActor
+    static func botRows(app: AppModel, bot: BotComposer?, query: String) -> [Row] {
+        guard let bot else { return [] }
+        let team = app.botTeam
+        var names: [(id: String, name: String, everyone: Bool)] = []
+        switch bot {
+        case .bot(let id):
+            names = team.bots.filter { $0.id != id }.map { ($0.id, $0.name, false) }
+        case .room(let id):
+            let members = team.room(id)?.members.compactMap(team.bot) ?? []
+            names = members.map { ($0.id, $0.name, false) }
+            if members.count > 1 { names.append(("everyone", String(localized: "所有人"), true)) }
+        }
+        let needle = query.lowercased()
+        return names
+            .filter { needle.isEmpty || $0.name.lowercased().contains(needle) }
+            .map { entry in
+                Row(id: "bot-\(entry.id)", icon: entry.everyone ? "person.3" : "person.crop.circle", title: entry.name,
+                    detail: entry.everyone ? String(localized: "叫上群里每个 Bot") : nil, section: String(localized: "Bot"),
+                    candidate: .insert("@\(entry.name) ", keepOpen: false))
+            }
     }
 
     /// 刚刚 / 5分钟 / 3小时 / 2天 / 4个月 / 1年, the reference menu's ages.
@@ -203,6 +229,7 @@ struct CandidateList: View {
     @State private var references: [CandidatePanel.Row] = []
     @State private var searched = false
     @Environment(AppModel.self) private var app
+    @Environment(\.botComposer) private var bot
 
     init(model: SessionModel, context: ComposerContext, trigger: Character, query: String = "", quoted: Bool = false, leading: Bool = true, pick: @escaping (Candidate) -> Void) {
         self.model = model
@@ -215,7 +242,7 @@ struct CandidateList: View {
     }
 
     private var rows: [CandidatePanel.Row] {
-        trigger == "/" ? CandidatePanel.commandRows(context, query: query, leading: leading) : references
+        trigger == "/" ? CandidatePanel.commandRows(context, query: query, leading: leading, bot: bot) : references
     }
 
     /// Neighbouring rows of one section.
@@ -255,7 +282,7 @@ struct CandidateList: View {
         .navigationBarTitleDisplayMode(.inline)
         .task(id: trigger == "@" ? "\(quoted)\(query)" : nil) {
             guard trigger == "@" else { return }
-            guard let rows = await CandidatePanel.loadReferences(app: app, model: model, query: query, quoted: quoted) else { return }
+            guard let rows = await CandidatePanel.loadReferences(app: app, model: model, query: query, quoted: quoted, bot: bot) else { return }
             references = rows
             searched = true
         }
@@ -330,7 +357,7 @@ struct AttachmentRail: View {
             Image(uiImage: preview).resizable().scaledToFill()
                 .frame(width: 56, height: 56).clipShape(RoundedRectangle(cornerRadius: 12))
                 .accessibilityLabel(Text("图片 \(attachment.name)"))
-        case .file:
+        case .file, .reading:
             fileCard(attachment)
         }
     }
@@ -340,10 +367,12 @@ struct AttachmentRail: View {
         return Button { composer.retryUpload(attachment.id) } label: {
             HStack(spacing: 10) {
                 Group {
-                    if case .uploading = attachment.upload { ProgressView().controlSize(.small) }
-                    else { Image(systemName: "doc").font(.title3).foregroundStyle(Palette.secondary) }
+                    switch attachment.upload {
+                    case .uploading, .reading: ProgressView().controlSize(.small)
+                    default: FileGlyph(name: attachment.name, height: 36)
+                    }
                 }
-                .frame(width: 24)
+                .frame(width: 32)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(attachment.name).font(.footnote.weight(.medium)).foregroundStyle(Palette.ink).lineLimit(1).truncationMode(.middle)
                     Text(meta(attachment)).font(.caption2).foregroundStyle(failed ? Palette.removed : Palette.secondary).lineLimit(1)
@@ -354,15 +383,20 @@ struct AttachmentRail: View {
             .frame(width: 200)
             .frame(minHeight: 56)
             .overlay(alignment: .bottom) {
-                if case .uploading(let loaded, let total) = attachment.upload {
-                    Group {
+                Group {
+                    switch attachment.upload {
+                    case .uploading(let loaded, let total):
                         if let total, total > 0 { ProgressView(value: Double(loaded), total: Double(total)) } else { ProgressView(value: 0.35) }
+                    case .reading(let fraction?):
+                        ProgressView(value: fraction)
+                    default:
+                        EmptyView()
                     }
-                    .progressViewStyle(.linear)
-                    .tint(Palette.ink)
-                    .padding(.horizontal, 10)
-                    .padding(.bottom, 4)
                 }
+                .progressViewStyle(.linear)
+                .tint(Palette.ink)
+                .padding(.horizontal, 10)
+                .padding(.bottom, 4)
             }
             .background(Palette.background, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(failed ? Palette.removed : Palette.stroke, lineWidth: 0.5))
@@ -374,12 +408,11 @@ struct AttachmentRail: View {
 
     private func meta(_ attachment: DraftAttachment) -> String {
         switch attachment.upload {
+        case .reading(let fraction?): return String(localized: "正在读取 \(Int(fraction * 100))%")
+        case .reading: return String(localized: "正在从相册读取…")
         case .uploading: return String(localized: "上传中…")
         case .failed: return String(localized: "上传失败，轻点重试")
-        default:
-            let ext = (attachment.name as NSString).pathExtension.uppercased().prefix(8)
-            let size = ByteCountFormatter.string(fromByteCount: Int64(attachment.bytes), countStyle: .file)
-            return [String(ext), size].filter { !$0.isEmpty }.joined(separator: " ")
+        default: return FileFormat.caption(attachment.name, bytes: attachment.bytes)
         }
     }
 }

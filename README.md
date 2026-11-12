@@ -29,6 +29,14 @@
 </table>
 
 <p align="center">
+  <img src="docs/assets/demo-bot.gif" width="250" alt="新建一个 Bot，给它挑形象和颜色；在聊天里让它查今天的科技新闻，它的头像边搜索边动，查完把三条新闻发回来；最后打开连接器页面，里面是 GitHub、Notion 等可以连接的服务">
+  <br/>
+  <b>Bot 模式</b>
+  <br/>
+  <sub>建一个 Bot，交代一件事，它自己联网查完再回你；常用的服务在连接器里连一次就行</sub>
+</p>
+
+<p align="center">
   <img src="docs/assets/demo-ipad.gif" width="840" alt="iPad 上两个 Fish Pocket 窗口并排，各自运行一个会话：左边给贪吃蛇加排行榜，右边初始化 Git 仓库并提交">
   <br/>
   <b>iPad 多窗口</b>
@@ -66,8 +74,9 @@
 - **工作台：** 终端、文件预览、内置浏览器和改动查看都放在一个面板里。
 - **iOS 专属体验：** 灵动岛和锁屏 Live Activity，主屏幕和锁屏小组件，控制中心按钮，Siri 和快捷指令，切到后台任务也能继续。
 - **iPad 适配：** 常驻侧栏、右侧工作台、多窗口、拖放文件，外接键盘支持常用快捷键。
+- **也能管电脑上的智能体：** 登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 后，电脑上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在同一个侧边栏里，可以跟进进度、接着聊、回应审批、随时打断。这是可选功能，不登录就和原来一样。
 - **更私密：** 会话和工作区留在设备上。
-- **即将推出：Bot 模式。** 把口袋里的 Agent 变成一直在线的 Bot：在聊天里交代任务，它在手机上跑完，再把结果发回给你。
+- **Bot 模式：** 一支常驻的 Bot 团队。每个 Bot 有自己的形象、记忆和工作文件夹，可以私聊，可以拉群一起商量，也可以到点自己开工。GitHub、Notion 这些服务在连接器里连一次，普通会话和 Bot 都能用。后台是开源的 [DS Bot](https://github.com/Fei2411/DS-Bot)，界面是原生重写的。
 
 模型调用仍然需要联网，用 DeepSeek 账号或 API Key 都可以。
 
@@ -104,7 +113,7 @@
 - **TestFlight（推荐，全球可用）**：在 iPhone 或 iPad 上打开 [TestFlight 公测链接](https://testflight.apple.com/join/2SCftb2M)。新版本最先发到这里，和开源仓库保持同步。
 - **App Store（非中国大陆）**：[在 App Store 下载](https://apps.apple.com/app/id6830703602)。目前只在中国大陆以外的地区上架。App Store 每个版本都要等审核，所以会比 TestFlight 和开源仓库晚一些。
 
-自己编译：你需要 macOS、Xcode 26 或更高版本、Node 24 和 `xcodegen`，构建 libgit2 还需要 `cmake` 或 `uv`。要在 iPhone Duo 上铺满屏幕，需要用 Xcode 27.1 或更高版本编译，更早的版本编出来的包在 Duo 上只按普通 iPhone 的大小显示。
+自己编译：你需要 macOS、Xcode 27 或更高版本、Node 24 和 `xcodegen`，构建 libgit2 还需要 `cmake` 或 `uv`。要在 iPhone Duo 上铺满屏幕，需要用 Xcode 27.1 或更高版本编译，更早的版本编出来的包在 Duo 上只按普通 iPhone 的大小显示。
 
 ```bash
 git clone https://github.com/imsai-sh/fish-pocket.git
@@ -171,6 +180,8 @@ App 免费，代码以 MIT 协议开源，商用需要先取得授权，见[许�
 
 不会传给我们：我们不运营任何服务器。会话和工作区留在你的设备上，模型请求直接发给你选择的服务商，详见[隐私政策](PRIVACY.md)。
 
+远程控制是例外，而且要你自己登录才会开启：电脑上的会话经 Agents Anywhere 的服务器（官方云服务或你自己部署的）转发，本机的会话不受影响。
+
 ### 智能体能看到我的日历、健康数据和照片吗？
 
 只有你在「本机能力」里开启对应的那一项之后才能，没开的它用不了。用到时，读到的内容会随对话发给你选择的模型服务商。健康、通讯录和照片只读不写。
@@ -194,8 +205,9 @@ App 免费，代码以 MIT 协议开源，商用需要先取得授权，见[许�
 - [x] 预置第三方插件商店（[#5](https://github.com/imsai-sh/fish-pocket/issues/5)）
 - [x] 智能体可以使用 iPhone 的本机能力：日历、提醒事项、健康、照片、地图等
 - [x] 内置 Python 3.15，支持 pip 和 venv
+- [x] 远程控制：在手机上管电脑里的 Codex、Claude Code 和 DSH 会话（对接 Agents Anywhere）
 - [ ] bash 解释器移出引擎线程
-- [ ] Bot 模式：在聊天里给口袋里的 Agent 派任务
+- [x] Bot 模式：在聊天里给口袋里的 Agent 派任务
 
 ## 交流群
 
@@ -218,11 +230,13 @@ Fish Pocket 还站在这些优秀项目的肩膀上。
 **直接使用：**
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：引擎本身，一切的基础
+- [DS Bot](https://github.com/Fei2411/DS-Bot)：Bot 功能的后台，常驻的 Bot 团队、群聊、记忆和定时任务都靠它。感谢 Fei2411 和社区贡献者
 - [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) 及其 [digidem 分支](https://github.com/digidem/nodejs-mobile)：让 Node 24 跑在 iOS 上
 - [CPython](https://github.com/python/cpython)：python.org 官方的 iOS 构建，App 内的 Python
 - [just-bash](https://github.com/vercel-labs/just-bash)：TypeScript 写的 bash 解释器
 - [libgit2](https://github.com/libgit2/libgit2)：App 内的 git 能力
 - [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)：终端界面
+- [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere)：远程控制对接的开源工作台，电脑端和服务器都是它的
 
 **参考过的思路：**
 

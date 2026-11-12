@@ -8,7 +8,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { binding, capabilities, invoke } from '../plugins/ios-native/binding.mjs';
 import { TOOLS, toEpochSeconds } from '../plugins/ios-native/tools.mjs';
@@ -52,8 +53,32 @@ test('tool names are unique and stable', () => {
   // change for any skill or plugin that mentions them.
   assert.deepEqual(names.sort(),
     ['alarm', 'calendar', 'clipboard', 'compose', 'contacts', 'device_info', 'files', 'health',
-     'homekit', 'location', 'maps', 'music', 'notify', 'open_url', 'photos', 'read_image',
+     'homekit', 'image_analysis', 'location', 'maps', 'music', 'notify', 'open_url', 'photos',
      'reminders', 'speak', 'text_analysis', 'transcribe_audio', 'weather']);
+});
+
+test('no tool shares a name with one DSH registers itself', () => {
+  // The registry refuses a second global tool with a name it already has, and
+  // the engine only logs that. A clash leaves one of the two tools silently
+  // missing — read_image did, and the model got DSH's (which uploads the
+  // picture) instead of the on-device one. Scan DSH's own definitions, so a DSH
+  // upgrade that adds a clashing name fails here instead of on a phone.
+  const root = fileURLToPath(new URL('../node_modules/@deepseek-ai/', import.meta.url));
+  const builtin = new Set();
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (/\.[cm]?js$/.test(entry.name)) {
+        for (const m of readFileSync(path, 'utf8').matchAll(/defineTool\(\{\s*name:\s*["']([a-z][a-z0-9_]*)["']/g)) builtin.add(m[1]);
+      }
+    }
+  };
+  for (const pkg of readdirSync(root)) if (existsSync(join(root, pkg, 'lib'))) walk(join(root, pkg, 'lib'));
+  // Guards the scan itself: a format change that matches nothing would pass vacuously.
+  assert.ok(builtin.has('read') && builtin.has('bash') && builtin.size > 30, `found only ${[...builtin]}`);
+  const clashes = Object.values(TOOLS).map((tool) => tool.name).filter((name) => builtin.has(name));
+  assert.deepEqual(clashes, []);
 });
 
 test('a reminders write is refused before the addon when it has nothing to act on', async () => {
@@ -223,7 +248,7 @@ test('maps renders distances and durations the way a person says them', () => {
   assert.match(render('search', { places: [], total: 0 }), /No places found/);
 });
 
-test('read_image says what it found, or plainly that it found nothing', () => {
+test('image_analysis says what it found, or plainly that it found nothing', () => {
   const render = (action, value) => TOOLS.vision.output.render({ action }, value)[0].text;
 
   assert.match(render('text', { text: '合计 ¥128.00', lines: [{}], total: 1 }), /合计 ¥128\.00/);
@@ -364,6 +389,18 @@ test('a limited photo library is never reported as the whole library', () => {
   // The note comes first, because a count taken from a handful of shared photos
   // reads exactly like a count of everything they have.
   assert.match(rendered.split('\n')[0], /shared with this app/);
+});
+
+test('a declined photo write is never reported as done', () => {
+  // Declining iOS's own delete sheet, or the app's confirmation, both come back
+  // as `cancelled`. Every write must say nothing changed, whatever it was.
+  for (const action of ['save', 'delete', 'favorite', 'hide', 'createAlbum', 'renameAlbum',
+    'deleteAlbum', 'addToAlbum', 'removeFromAlbum']) {
+    const rendered = TOOLS.photos.output.render({ action }, { action: 'cancelled' })[0].text;
+    assert.match(rendered, /Nothing in the photo library changed/, action);
+  }
+  const deleted = TOOLS.photos.output.render({ action: 'delete' }, { action: 'deleted', count: 3 })[0].text;
+  assert.match(deleted, /Recently Deleted/);
 });
 
 test('a bare date means local midnight, not UTC midnight', () => {
