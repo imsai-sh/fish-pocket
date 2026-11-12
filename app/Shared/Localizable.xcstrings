@@ -2473,6 +2473,38 @@
         }
       }
     },
+    "正在从相册读取…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading from Photos…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leyendo de Fotos…"
+          }
+        }
+      }
+    },
+    "正在读取 %lld%%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading %lld%%"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leyendo %lld%%"
+          }
+        }
+      }
+    },
     "每个 Bot 有自己的样子" : {
       "localizations" : {
         "en" : {
@@ -2533,6 +2565,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vuelve a donde lo dejaste"
+          }
+        }
+      }
+    },
+    "视频" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        }
+      }
+    },
+    "视频读取失败：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the video: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo leer el video: %@"
+          }
+        }
+      }
+    },
+    "视频还在读取，请稍候再发送" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The video is still being read. Send it once it's ready."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El video aún se está leyendo. Envíalo cuando esté listo."
           }
         }
       }

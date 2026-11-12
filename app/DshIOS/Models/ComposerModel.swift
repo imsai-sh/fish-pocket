@@ -1,3 +1,4 @@
+import CoreTransferable
 import Foundation
 import Observation
 import UIKit
@@ -21,8 +22,12 @@ struct DraftAttachment: Identifiable {
     enum Kind {
         case image(mediaType: String, data: String, preview: UIImage)
         case file(url: URL)
+        /// A video still coming out of the photo library: it becomes `.file` when it arrives.
+        case reading
     }
     enum Upload: Equatable {
+        /// Before the upload: the library is handing the video over (nil: how far is unknown).
+        case reading(fraction: Double?)
         case uploading(loaded: Int64, total: Int64?)
         case ready(receiptId: String)
         case failed(String)
@@ -34,6 +39,27 @@ struct DraftAttachment: Identifiable {
     var upload: Upload?
 
     var isImage: Bool { if case .image = kind { true } else { false } }
+}
+
+/// A video picked in the photo library, copied out as a file: the library hands over a
+/// temporary file that is gone once the import returns.
+struct PickedMovie: Transferable, Sendable {
+    let url: URL
+
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(importedContentType: .movie) { received in
+            PickedMovie(url: try stage(received.file))
+        }
+    }
+
+    /// Copy a file into a folder of its own under `tmp/uploads`, keeping its name.
+    static func stage(_ file: URL) throws -> URL {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("uploads/\(UUID().uuidString)", isDirectory: true)
+        let copy = folder.appendingPathComponent(file.lastPathComponent)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try FileManager.default.copyItem(at: file, to: copy)
+        return copy
+    }
 }
 
 /// One `/` command of the session's catalog (`commands/list`).
@@ -142,6 +168,8 @@ final class ComposerModel {
     @ObservationIgnored private var uploadTasks: [UUID: Task<Void, Never>] = [:]
     @ObservationIgnored private var uploadQueue: [UUID] = []
     @ObservationIgnored private var activeUploads = 0
+    /// The library's progress for each video still being read (`readMovie`); cancel stops the read.
+    @ObservationIgnored private var reads: [UUID: Progress] = [:]
     /// `ui-conversation.maxConcurrentFileUploads` (C-150): the web's default, a client config the phone does not receive.
     static let maxConcurrentFileUploads = 2
 
@@ -302,7 +330,10 @@ final class ComposerModel {
         guard !executing, !isEmpty else { return }
         if uploadsPending {
             let failed = attachments.contains { if case .failed = $0.upload { true } else { false } }
-            app.showToast(failed ? String(localized: "文件尚未上传成功，请重新添加后再试") : String(localized: "文件还在上传，请等待上传完成后发送"))
+            let reading = attachments.contains { if case .reading = $0.kind { true } else { false } }
+            app.showToast(failed ? String(localized: "文件尚未上传成功，请重新添加后再试")
+                : reading ? String(localized: "视频还在读取，请稍候再发送")
+                : String(localized: "文件还在上传，请等待上传完成后发送"))
             return
         }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -465,7 +496,7 @@ final class ComposerModel {
             switch attachment.kind {
             case .image(let mediaType, let data, _):
                 return ["type": "image", "mediaType": .string(mediaType), "data": .string(data), "name": .string(attachment.name)]
-            case .file:
+            case .file, .reading:
                 guard case .ready(let receipt) = attachment.upload else {
                     throw EngineError(code: "session/attachment-invalid", message: String(localized: "文件尚未上传成功，请重新添加后再试"), detail: ["details": ["reason": "FILE_NOT_STAGED"]])
                 }
@@ -684,24 +715,72 @@ final class ComposerModel {
                 continue
             }
             // A private copy: the security-scoped URL may not outlive the picker, and retries reread it.
-            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("uploads/\(UUID().uuidString)", isDirectory: true)
-            let copy = folder.appendingPathComponent(url.lastPathComponent)
             do {
-                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-                try FileManager.default.copyItem(at: url, to: copy)
+                addStagedFile(try PickedMovie.stage(url))
             } catch {
                 refusal = error.localizedDescription
-                continue
             }
-            let bytes = (try? copy.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
-            let attachment = DraftAttachment(name: url.lastPathComponent, bytes: bytes, kind: .file(url: copy), upload: .uploading(loaded: 0, total: Int64(bytes)))
-            attachments.append(attachment)
-            enqueueUpload(attachment.id)
         }
         if let refusal { app.showToast(refusal) }
     }
 
+    /// A file already copied into its own `uploads/` folder (`PickedMovie.stage`): it uploads
+    /// now and joins as a plain file, the way the web sends a video (the engine keeps the bytes;
+    /// nothing reads the frames).
+    func addStagedFile(_ copy: URL) {
+        let bytes = (try? copy.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+        let attachment = DraftAttachment(name: copy.lastPathComponent, bytes: bytes, kind: .file(url: copy), upload: .uploading(loaded: 0, total: Int64(bytes)))
+        attachments.append(attachment)
+        enqueueUpload(attachment.id)
+    }
+
+    /// A video picked in the photo library: its card shows at once, saying how far the read
+    /// got (a large or iCloud video can take a while), and turns into the file's card, which
+    /// starts uploading, when the library hands the file over. `load` reports the library's
+    /// progress as soon as the read starts.
+    func readMovie(_ load: @escaping @MainActor (_ started: (Progress) -> Void) async throws -> URL) {
+        let placeholder = DraftAttachment(name: String(localized: "视频"), bytes: 0, kind: .reading, upload: .reading(fraction: nil))
+        attachments.append(placeholder)
+        let id = placeholder.id
+        Task {
+            let watch = Task { [weak self] in
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .milliseconds(250))
+                    guard let self, let progress = self.reads[id], progress.totalUnitCount > 0,
+                          let index = self.attachments.firstIndex(where: { $0.id == id }) else { continue }
+                    let upload = DraftAttachment.Upload.reading(fraction: progress.fractionCompleted)
+                    if self.attachments[index].upload != upload { self.attachments[index].upload = upload }
+                }
+            }
+            defer {
+                watch.cancel()
+                reads[id] = nil
+            }
+            do {
+                let url = try await load { reads[id] = $0 }
+                guard let index = attachments.firstIndex(where: { $0.id == id }) else {
+                    // Removed while it was read.
+                    try? FileManager.default.removeItem(at: url.deletingLastPathComponent())
+                    return
+                }
+                let bytes = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+                attachments[index].name = url.lastPathComponent
+                attachments[index].bytes = bytes
+                attachments[index].kind = .file(url: url)
+                attachments[index].upload = .uploading(loaded: 0, total: Int64(bytes))
+                enqueueUpload(id)
+            } catch {
+                // Gone already: the error is the cancel of its removal.
+                guard let index = attachments.firstIndex(where: { $0.id == id }) else { return }
+                attachments.remove(at: index)
+                app.showToast(String(localized: "视频读取失败：\(error.localizedDescription)"))
+            }
+        }
+    }
+
     func removeAttachment(_ id: UUID) {
+        reads[id]?.cancel()
+        reads[id] = nil
         uploadTasks[id]?.cancel()
         uploadTasks[id] = nil
         uploadQueue.removeAll { $0 == id }
