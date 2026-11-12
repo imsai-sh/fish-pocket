@@ -163,6 +163,11 @@ struct RemoteConversationView: View {
         } message: { enable in
             Text(takeoverMessage(enable, model))
         }
+        .onChange(of: model.notice) { _, text in
+            guard let text else { return }
+            model.notice = nil
+            app.showToast(text, tone: .warning)
+        }
         .alert("出错了", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
             Button("好", role: .cancel) {}
         } message: {
@@ -217,7 +222,7 @@ struct RemoteConversationView: View {
             ForEach(model.notifications) { notice in RemoteNoticeLine(notice: notice, model: model) }
             if let block = model.sendBlock {
                 let failed: Bool = if case .failed = model.link { true } else { false }
-                RemoteBlockBar(text: block, busy: !failed && model.loaded && model.online && model.takeover && !model.current,
+                RemoteBlockBar(text: block,
                                action: failed ? ("重试", { Task { await model.refresh() } })
                                    : model.loaded && model.online && !model.takeover && model.canToggleTakeover ? ("接管", { takeoverAsk = true }) : nil)
             } else if model.loaded {
@@ -324,11 +329,12 @@ private struct RemoteTitleMenu: View {
 
     private var subtitle: String {
         guard let meta = model.meta else { return "" }
+        // A drop that mends itself in a moment is not worth a word: only one that lasts is said.
         switch model.link {
-        case .connecting: return String(localized: "正在连接…")
-        case .reconnecting: return String(localized: "正在重新连接…")
+        case .connecting where model.struggling: return String(localized: "正在连接…")
+        case .reconnecting where model.struggling: return String(localized: "正在重新连接…")
         case .failed: return String(localized: "连接失败")
-        case .live: break
+        default: break
         }
         let place = "\(meta.agentTag) · \(app.remote.deviceName(of: meta))"
         return meta.deviceOnline ? place : String(localized: "\(place) · 离线")
@@ -477,6 +483,13 @@ private struct RemoteUserBubble: View {
                         Button { actions.present(.text(text)) } label: { Label("选择文本", systemImage: "selection.pin.in.out") }
                     }
             }
+            // On its way: said in words, not by dimming the message (which read as a failure).
+            if delivery == .sending {
+                HStack(spacing: 6) {
+                    ProgressView().controlSize(.mini)
+                    Text("发送中…").font(.caption2).foregroundStyle(Palette.faint)
+                }
+            }
             if case .uncertain(let message)? = delivery {
                 HStack(spacing: 10) {
                     Text("不确定是否送达：\(message)").font(.caption).foregroundStyle(Palette.waiting)
@@ -486,7 +499,6 @@ private struct RemoteUserBubble: View {
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.leading, 60)
-        .opacity(delivery == .sending ? 0.55 : 1)
     }
 }
 
@@ -530,12 +542,10 @@ private struct RemoteImageThumb: View {
 /// In the composer's place while nothing can be sent: why, and the one thing to do about it.
 private struct RemoteBlockBar: View {
     let text: String
-    var busy = false
     var action: (title: LocalizedStringKey, perform: () -> Void)?
 
     var body: some View {
         HStack(spacing: 10) {
-            if busy { ProgressView().controlSize(.small) }
             Text(text).font(.subheadline).foregroundStyle(Palette.secondary).fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
             if let action {

@@ -36691,6 +36691,22 @@
         }
       }
     },
+    "连接还没恢复，消息没有发出去" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The connection is not back yet, so the message was not sent"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La conexión aún no ha vuelto, así que el mensaje no se envió"
+          }
+        }
+      }
+    },
     "连接" : {
       "localizations" : {
         "en" : {
@@ -40689,22 +40705,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cargando las opciones del ordenador…"
-          }
-        }
-      }
-    },
-    "正在连接电脑…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connecting to the computer…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Conectando con el ordenador…"
           }
         }
       }
