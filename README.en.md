@@ -172,7 +172,7 @@ The TestFlight beta is available worldwide, including mainland China. The App St
 
 Not to us: we run no servers. Sessions and workspaces stay on your device, and model requests go straight to the provider you choose. See the [privacy policy](PRIVACY.md).
 
-Remote control is the exception, and only once you sign in to it: sessions on your computers travel through an Agents Anywhere server (its cloud service or one you host). Sessions on the device are not affected.
+Remote control is the exception, and only once you sign in to it: sessions on your computers travel through an Agents Anywhere server (its cloud service or one you host). Sessions on the device are not affected. For connecting a computer or a cloud server, see the [remote control guide](docs/remote-control.md) (in Chinese).
 
 ### Can the agent see my calendar, health data and photos?
 
@@ -197,7 +197,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
 - [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more
 - [x] Built-in Python 3.15, with pip and venv
-- [x] Remote control: manage the Codex, Claude Code and DSH sessions on your computers from the phone (through Agents Anywhere)
+- [x] Remote control: manage the Codex, Claude Code and DSH sessions on your computers and servers from the phone, with the same Lock Screen, Dynamic Island and widgets as sessions on the device (through Agents Anywhere)
 - [ ] Move the bash interpreter off the engine thread
 - [x] Bot mode: hand tasks to the agent in your pocket from a chat
 
