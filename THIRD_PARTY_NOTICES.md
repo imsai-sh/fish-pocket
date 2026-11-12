@@ -30,6 +30,7 @@ FFmpeg 按 LGPL 2.1 或更高版本使用，构建方式见 `scripts/build-ffmpe
 - **动态链接。** FFmpeg 的库和 ffmpeg、ffprobe 两个程序编成一个独立的动态框架 `FFmpeg.framework`，App 的其余部分只通过它导出的两个函数调用它。框架里附带 LGPL 2.1 全文（`LICENSE`）。
 - **改动公开。** 为了让两个程序在 App 内作为函数运行，对 FFmpeg 源码做了少量修改：改名入口函数、不安装信号处理、不读终端、`pipe:` 协议改用当次命令的管道，以及每次运行前复位程序的全局变量。改动全部在本仓库的 `native/ffmpeg/`（`ffmpeg.patch`、`fftools-prefix.h`、`tool.c`），任何人都可以用原版或自己修改过的 FFmpeg 源码重新编译出这个框架并替换进 App。
 - **源码。** 官方源码包 <https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz>，构建脚本里钉死了 sha256。许可证全文见源码里的 `COPYING.LGPLv2.1` 和 [FFmpeg 的许可证说明](https://ffmpeg.org/legal.html)。
+- **预编译包。** 为了省去每次构建都编译一遍，本仓库的 GitHub Release（tag 以 `ffmpeg-` 开头）里放着用上面的脚本和改动编好的同一个框架，`scripts/fetch-ffmpeg.sh` 下载它并校验 sha256。它和从源码编出来的框架内容相同，上面几条同样适用。
 
 libgit2 的完整许可证见其仓库的 [COPYING](https://github.com/libgit2/libgit2/blob/main/COPYING)。其中的链接例外允许把未修改的库链接进其他程序并分发，只有修改库本身时才受 GPLv2 约束。
 
