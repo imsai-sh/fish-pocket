@@ -1504,6 +1504,22 @@
         }
       }
     },
+    "%lld 张图片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld images"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld imágenes"
+          }
+        }
+      }
+    },
     "%lld 待处理" : {
       "localizations" : {
         "en" : {
@@ -5394,6 +5410,22 @@
         }
       }
     },
+    "从别的 App 分享进来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share in from other apps"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparte desde otras apps"
+          }
+        }
+      }
+    },
     "从控制中心按钮、Siri 或快捷指令直接开始新对话。" : {
       "localizations" : {
         "en" : {
@@ -7892,6 +7924,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Memoria %@"
+          }
+        }
+      }
+    },
+    "内容会放进输入框，不会自动发送。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It goes into the message box. Nothing is sent until you send it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se coloca en el cuadro de mensaje. No se envía hasta que lo envíes."
           }
         }
       }
@@ -12216,6 +12264,38 @@
         }
       }
     },
+    "在当前工作区开始" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In the current workspace"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En el espacio de trabajo actual"
+          }
+        }
+      }
+    },
+    "在微信、相册、Safari 里点「分享」选 Fish Pocket，文字、链接、图片和文件会放进新对话、某个 Bot 或群聊的输入框，确认后再发送。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap Share in WeChat, Photos or Safari and pick Fish Pocket. Text, links, photos and files go into the message box of a new conversation, a Bot or a group chat, ready for you to send."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca Compartir en WeChat, Fotos o Safari y elige Fish Pocket. El texto, los enlaces, las fotos y los archivos van al cuadro de mensaje de una conversación nueva, un Bot o un chat de grupo, listos para que los envíes."
+          }
+        }
+      }
+    },
     "在打开的网页里粘贴验证码并授权，这里会自动连上。" : {
       "localizations" : {
         "en" : {
@@ -15700,6 +15780,22 @@
         }
       }
     },
+    "已经准备好" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All set"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo listo"
+          }
+        }
+      }
+    },
     "已经有一个叫%@的 Bot 了" : {
       "localizations" : {
         "en" : {
@@ -17799,6 +17895,22 @@
         }
       }
     },
+    "打开 Fish Pocket 就能在输入框里看到，确认后再发送。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Fish Pocket to find it in the message box, ready for you to send."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre Fish Pocket y lo encontrarás en el cuadro de mensaje, listo para enviar."
+          }
+        }
+      }
+    },
     "打开 Fish Pocket，开始一个新对话。" : {
       "localizations" : {
         "en" : {
@@ -18228,6 +18340,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No existe tal complemento."
+          }
+        }
+      }
+    },
+    "找不到这个 Bot 了，内容放进了新对话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That Bot is gone, so it went into a new conversation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese Bot ya no está; se colocó en una conversación nueva"
+          }
+        }
+      }
+    },
+    "找不到这个群聊了，内容放进了新对话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That group chat is gone, so it went into a new conversation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese chat de grupo ya no está; se colocó en una conversación nueva"
           }
         }
       }
@@ -18756,6 +18900,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cambiar valor"
+          }
+        }
+      }
+    },
+    "换一种方式分享，或者在 Fish Pocket 里从文件添加。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try sharing it another way, or add it from Files in Fish Pocket."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prueba a compartirlo de otra forma o añádelo desde Archivos en Fish Pocket."
           }
         }
       }
@@ -27273,6 +27433,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudieron cargar las conversaciones anteriores"
+          }
+        }
+      }
+    },
+    "没能读取分享的内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read what was shared"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo leer lo compartido"
           }
         }
       }
@@ -39697,6 +39873,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Enviar comentarios"
+          }
+        }
+      }
+    },
+    "发送到 Fish Pocket" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send to Fish Pocket"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar a Fish Pocket"
           }
         }
       }

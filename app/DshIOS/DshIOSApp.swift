@@ -23,6 +23,10 @@ struct DshIOSApp: App {
         }
         .commands { ShellCommands() }
         .onChange(of: scenePhase) { _, phase in
+            // Shared from another app, but the link did not bring the app up: it is taken now.
+            if phase == .active, let id = ShareInbox.waiting().first {
+                LinkInbox.shared.request = LinkRequest(link: .share(id))
+            }
             BackgroundKeeper.shared.scenePhaseChanged(to: phase)
             LiveActivityController.shared.scenePhaseChanged(to: phase)
             WatchLink.shared.scenePhaseChanged(to: phase)

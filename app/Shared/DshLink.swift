@@ -5,9 +5,11 @@ import Foundation
 /// - `dsh://session/<id>`: open that session.
 /// - `dsh://new`: a new conversation, focused; `workspace`, `preset` and `draft` are
 ///   optional query items. A draft is placed in the composer, never sent.
+/// - `dsh://share/<id>`: what the share extension left in `ShareInbox`, into the composer it chose.
 enum DshLink: Hashable {
     case session(String)
     case new(workspace: String? = nil, preset: String? = nil, draft: String? = nil)
+    case share(String)
 
     static let scheme = "dsh"
 
@@ -23,6 +25,9 @@ enum DshLink: Hashable {
             self = .session(id)
         case "new":
             self = .new(workspace: item("workspace"), preset: item("preset"), draft: item("draft"))
+        case "share":
+            guard let id = url.pathComponents.dropFirst().first, !id.isEmpty else { return nil }
+            self = .share(id)
         default:
             return nil
         }
@@ -40,6 +45,9 @@ enum DshLink: Hashable {
             let items = [("workspace", workspace), ("preset", preset), ("draft", draft)]
                 .compactMap { name, value in value.map { URLQueryItem(name: name, value: $0) } }
             if !items.isEmpty { components.queryItems = items }
+        case .share(let id):
+            components.host = "share"
+            components.path = "/" + id
         }
         return components.url!
     }

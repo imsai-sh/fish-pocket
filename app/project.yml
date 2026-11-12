@@ -123,6 +123,8 @@ targets:
       - package: SwiftTerm
       - package: SwiftMath
       - target: DshLiveActivity
+      # 系统分享面板里的 Fish Pocket：别的 App 分享的内容进新对话或某个 Bot 的输入框。
+      - target: DshShare
       # The watch app rides inside the iPhone app and is installed with it.
       - target: DshWatch
     postBuildScripts:
@@ -280,6 +282,48 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wsw.dsh-ios.LiveActivity
+  # The share extension: what another app shares (text, links, pictures, files) is copied into
+  # the App Group container and the app is opened on the composer it goes to (Shared/ShareInbox.swift).
+  # No engine here: nothing is sent from the extension.
+  DshShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ShareExtension
+      - path: Shared/ShareInbox.swift
+      - path: Shared/DshLink.swift
+      # Its strings live in the app's catalog: scripts/sync-strings.sh collects them with the app's.
+      - path: Shared/Localizable.xcstrings
+    info:
+      path: ShareExtension/Info.plist
+      properties:
+        CFBundleDisplayName: Fish Pocket
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [zh-Hans, en, es]
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            # Version 2: "file" means any file, whatever else it also is.
+            NSExtensionActivationDictionaryVersion: 2
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsImageWithMaxCount: 20
+              NSExtensionActivationSupportsMovieWithMaxCount: 5
+              NSExtensionActivationSupportsFileWithMaxCount: 20
+              NSExtensionActivationSupportsAttachmentsWithMaxCount: 20
+        DshAppGroup: $(DSH_APP_GROUP)
+    entitlements:
+      path: ShareExtension/DshShare.entitlements
+      properties:
+        com.apple.security.application-groups: ["$(DSH_APP_GROUP)"]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wsw.dsh-ios.Share
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
   # The watch app: draws the snapshot the phone sends over WatchConnectivity (DshIOS/WatchLink.swift)
   # and sends back approvals and 「继续」. No engine, no network of its own.
   DshWatch:

@@ -62,6 +62,12 @@ struct PickedMovie: Transferable, Sendable {
     }
 }
 
+/// Files another app shared, in the folder the app took them into (`ShareInbox.take`).
+struct SharedFiles: Hashable {
+    var urls: [URL]
+    var folder: URL
+}
+
 /// One `/` command of the session's catalog (`commands/list`).
 struct CommandDescriptor: Identifiable, Hashable {
     var name: String

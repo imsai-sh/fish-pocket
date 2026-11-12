@@ -395,14 +395,9 @@ struct BotHomeView: View {
     /// Pinned first, then the main Bots in their order, then the most recently active.
     private var bots: [BotInfo] {
         let team = app.botTeam
-        let main = team.mainBotIds
         let needle = needle
-        return team.bots.filter { (showHidden || !$0.hidden || !needle.isEmpty) && (needle.isEmpty || $0.name.lowercased().contains(needle) || $0.role.lowercased().contains(needle)) }.sorted { a, b in
-            if a.pinned != b.pinned { return a.pinned }
-            let ia = main.firstIndex(of: a.id) ?? .max, ib = main.firstIndex(of: b.id) ?? .max
-            if ia != ib { return ia < ib }
-            return (app.sessions[a.sessionId]?.updatedAt ?? .distantPast) > (app.sessions[b.sessionId]?.updatedAt ?? .distantPast)
-        }
+        return team.bots.filter { (showHidden || !$0.hidden || !needle.isEmpty) && (needle.isEmpty || $0.name.lowercased().contains(needle) || $0.role.lowercased().contains(needle)) }
+            .sorted(by: team.listOrder)
     }
 
     private var rooms: [RoomInfo] {
@@ -412,10 +407,7 @@ struct BotHomeView: View {
             (showHidden || !room.hidden || !needle.isEmpty)
                 && (needle.isEmpty || team.name(of: room).lowercased().contains(needle) || (room.preview ?? "").lowercased().contains(needle)
                     || room.members.contains { team.bot($0)?.name.lowercased().contains(needle) == true })
-        }.sorted { a, b in
-            if a.pinned != b.pinned { return a.pinned }
-            return (app.sessions[a.sessionId]?.updatedAt ?? .distantPast) > (app.sessions[b.sessionId]?.updatedAt ?? .distantPast)
-        }
+        }.sorted(by: team.listOrder)
     }
 
     private var list: some View {

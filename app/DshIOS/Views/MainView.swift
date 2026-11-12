@@ -624,6 +624,12 @@ struct MainView: View {
     /// `dsh://session/<id>` opens the session; `dsh://new` a new conversation with the keyboard up,
     /// once the workspaces are known and the launch's own blank conversation is in place.
     private func follow(_ link: DshLink) async {
+        // Taken already (by another window, or found waiting as the app came to the front): nothing to do.
+        var shared: ShareInbox.Taken?
+        if case .share(let id) = link {
+            shared = ShareInbox.take(id)
+            if shared == nil { return }
+        }
         sheet = nil
         storeOpen = false
         setDrawer(false)
@@ -640,11 +646,59 @@ struct MainView: View {
             let target = workspaceId.flatMap { id in app.workspaces.first { $0.id == id } } ?? workspace
             if let target { self.workspaceId = target.id }
             newConversation(in: target, agentPreset: preset, draft: draft, focus: true)
+        case .share:
+            if let shared { await receive(shared) }
         }
     }
 
+    /// What another app shared (the share extension): into the composer of the Bot, the group or
+    /// the new conversation picked there, keyboard up, nothing sent.
+    private func receive(_ shared: ShareInbox.Taken) async {
+        let files = shared.files.isEmpty ? nil : SharedFiles(urls: shared.files, folder: shared.folder)
+        if files == nil { try? FileManager.default.removeItem(at: shared.folder) }
+        if case .bot(let botId) = shared.target {
+            // A cold launch: the team arrives a moment after the engine.
+            let deadline = ContinuousClock.now + .seconds(10)
+            while app.botTeam.bot(botId) == nil, ContinuousClock.now < deadline {
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+            if let bot = app.botTeam.bot(botId), !bot.sessionId.isEmpty {
+                deliver(text: shared.text, files: files, to: bot.sessionId)
+                app.botTeam.openRequest = BotOpenRequest(route: .bot(botId))
+                return
+            }
+            app.showToast(String(localized: "找不到这个 Bot 了，内容放进了新对话"), tone: .warning)
+        }
+        if case .room(let roomId) = shared.target {
+            let deadline = ContinuousClock.now + .seconds(10)
+            while app.botTeam.room(roomId) == nil, ContinuousClock.now < deadline {
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+            if let room = app.botTeam.room(roomId), !room.sessionId.isEmpty {
+                deliver(text: shared.text, files: files, to: room.sessionId)
+                app.botTeam.openRequest = BotOpenRequest(route: .room(roomId))
+                return
+            }
+            app.showToast(String(localized: "找不到这个群聊了，内容放进了新对话"), tone: .warning)
+        }
+        let deadline = ContinuousClock.now + .seconds(10)
+        while app.workspaces.isEmpty || creating, ContinuousClock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        launchedUnderBot = false
+        botOpen = false
+        newConversation(in: workspace, draft: shared.text, files: files, focus: true)
+    }
+
+    /// Text and files waiting for a session's composer, which takes them when it shows.
+    private func deliver(text: String?, files: SharedFiles?, to id: String) {
+        if let text { app.pendingDrafts[id] = text }
+        if let files { app.pendingFiles[id] = files }
+        app.pendingFocus.insert(id)
+    }
+
     /// Open a blank conversation in `workspace` (the engine reuses a blank one there).
-    private func newConversation(in workspace: Workspace?, agentPreset: String? = nil, draft: String? = nil, prompt: String? = nil, focus: Bool = false) {
+    private func newConversation(in workspace: Workspace?, agentPreset: String? = nil, draft: String? = nil, files: SharedFiles? = nil, prompt: String? = nil, focus: Bool = false) {
         guard let workspace, !creating else { return }
         creating = true
         Task {
@@ -652,11 +706,15 @@ struct MainView: View {
             do {
                 let id = try await app.createSession(in: workspace, agentPreset: agentPreset)
                 if let draft { app.pendingDrafts[id] = draft }
+                if let files { app.pendingFiles[id] = files }
                 if let prompt { app.pendingPrompts[id] = prompt }
                 if focus { app.pendingFocus.insert(id) }
                 selection = id
             }
-            catch { app.showToast(String(localized: "新建会话失败：\(error.localizedDescription)"), tone: .warning, duration: 6) }
+            catch {
+                if let files { try? FileManager.default.removeItem(at: files.folder) }
+                app.showToast(String(localized: "新建会话失败：\(error.localizedDescription)"), tone: .warning, duration: 6)
+            }
         }
     }
 }
