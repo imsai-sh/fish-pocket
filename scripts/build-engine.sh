@@ -36,6 +36,13 @@ rm -rf "$nm"/node-liblzma
 jb_python="$nm/just-bash/vendor/cpython-emscripten"
 [ -d "$jb_python" ] || { echo "build-engine: just-bash no longer has $jb_python; update the prune" >&2; exit 1; }
 rm -rf "$jb_python"
+# sql.js (just-bash's sqlite3) ships a dozen builds; Node's `import "sql.js"` loads
+# only dist/sql-wasm.js, which reads sql-wasm.wasm beside it. The others (asm.js,
+# debug, inline, browser, worker and an archive of them all) are ~13 MB of the
+# compressed download, which has to stay under the App Store's 200 MB cellular limit.
+sqljs="$nm/sql.js/dist"
+[ -f "$sqljs/sql-wasm.js" ] && [ -f "$sqljs/sql-wasm.wasm" ] || { echo "build-engine: sql.js no longer has sql-wasm.js/.wasm; update the prune" >&2; exit 1; }
+find "$sqljs" -type f ! -name sql-wasm.js ! -name sql-wasm.wasm -delete
 # Development-only payload. Licence texts stay: their terms require shipping them.
 find "$nm" -type f \( -name '*.map' -o -name '*.d.ts' -o -name '*.d.mts' -o -name '*.d.cts' -o -name '*.md' -o -name '*.markdown' \) \
   ! -iname 'licen[cs]e*' ! -iname 'notice*' ! -iname 'copying*' -delete
