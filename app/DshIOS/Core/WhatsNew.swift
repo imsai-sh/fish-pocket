@@ -36,10 +36,15 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
-        Release(version: "1.2.0", build: 43, features: [
+        Release(version: "1.2.1", features: [
             Feature(symbol: "square.and.arrow.down",
                     title: "从别的 App 分享进来",
                     detail: "在微信、相册、Safari 里点「分享」选 Fish Pocket，文字、链接、图片和文件会放进新对话、某个 Bot 或群聊的输入框，确认后再发送。"),
+        ]),
+        Release(version: "1.2.0", build: 43, features: [
+            Feature(symbol: "globe",
+                    title: "界面支持日语和韩语",
+                    detail: "跟随系统语言自动切换，也可以在设置 → 语言里选日本語或한국어。"),
         ]),
         Release(version: "1.2.0", build: 42, features: [
             Feature(symbol: "lock.iphone",
