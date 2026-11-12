@@ -321,7 +321,8 @@ private struct RemotePasswordSheet: View {
             }
         }
         .tint(Palette.ink)
-        .presentationDetents([.medium, .large])
+        // Over the remote control sheet on iPad a half-height sheet hangs off its lower edge: a full one there.
+        .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
         .interactiveDismissDisabled(busy)
     }
 
@@ -407,6 +408,13 @@ private struct RemoteDevicesList: View {
 
             Section {
                 Button(role: .destructive) { signingOut = true } label: { Text("退出登录") }
+                    // On the button, not the list: on iPad the dialog is a popover that points at what it is attached to.
+                    .confirmationDialog("退出远程控制？", isPresented: $signingOut, titleVisibility: .visible) {
+                        Button("退出登录", role: .destructive) { remote.signOut() }
+                        Button("取消", role: .cancel) {}
+                    } message: {
+                        Text("电脑上的会话不再显示在这里，电脑上的一切保持原样。本机的会话不受影响。")
+                    }
             }
             .groupedRow()
         }
@@ -425,20 +433,6 @@ private struct RemoteDevicesList: View {
                 Task { if let failure = await remote.rename(device: device.id, to: next) { app.showToast(failure, tone: .warning) } }
             }
             .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-        }
-        .confirmationDialog(Text("移除「\(removing?.name ?? "")」？"), isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }), titleVisibility: .visible, presenting: removing) { device in
-            Button("移除电脑", role: .destructive) {
-                Task { if let failure = await remote.remove(device: device.id) { app.showToast(failure, tone: .warning) } }
-            }
-            Button("取消", role: .cancel) {}
-        } message: { _ in
-            Text("这台电脑会从账号里移除，它的会话不再显示。电脑上的文件和智能体自己的记录不受影响；要再用得在电脑上重新登录。")
-        }
-        .confirmationDialog("退出远程控制？", isPresented: $signingOut, titleVisibility: .visible) {
-            Button("退出登录", role: .destructive) { remote.signOut() }
-            Button("取消", role: .cancel) {}
-        } message: {
-            Text("电脑上的会话不再显示在这里，电脑上的一切保持原样。本机的会话不受影响。")
         }
     }
 
@@ -463,6 +457,14 @@ private struct RemoteDevicesList: View {
                     Button(role: .destructive) { removing = device } label: { Label("移除电脑", systemImage: "trash") }
                 } label: {
                     Image(systemName: "ellipsis").foregroundStyle(Palette.secondary).hitTarget()
+                }
+                .confirmationDialog(Text("移除「\(device.name)」？"), isPresented: Binding(get: { removing?.id == device.id }, set: { if !$0 { removing = nil } }), titleVisibility: .visible) {
+                    Button("移除电脑", role: .destructive) {
+                        Task { if let failure = await remote.remove(device: device.id) { app.showToast(failure, tone: .warning) } }
+                    }
+                    Button("取消", role: .cancel) {}
+                } message: {
+                    Text("这台电脑会从账号里移除，它的会话不再显示。电脑上的文件和智能体自己的记录不受影响；要再用得在电脑上重新登录。")
                 }
             }
             if !agents.isEmpty {

@@ -53,3 +53,36 @@ struct SessionBoard {
         app.sessions.values.filter { !$0.isSubagent && !$0.blank && !app.isArchived($0.id) }
     }
 }
+
+/// The sessions on a computer that the phone answers for (`RemoteSession.followed`), as the
+/// same surfaces list them beside the phone's own.
+extension SessionBoard {
+    struct Away {
+        /// The session as the shell names it (`remote:<id>`): what a link or an answer carries.
+        let id: String
+        let title: String
+        /// nil while it neither waits nor works.
+        let phase: Phase?
+        /// What it waits with.
+        let detail: String?
+        /// The approval one tap answers either way; nil where an answer takes more than that.
+        let approval: (eventId: String, agentId: String)?
+        let updatedAt: Date
+    }
+
+    @MainActor
+    static func away(in app: AppModel) -> [Away] {
+        let remote = app.remote
+        return remote.listed().filter(\.followed).map { session in
+            let id = RemoteStore.selection(session.id)
+            let request = session.waiting ? remote.requests[session.id] : nil
+            // A request not read yet is taken for an approval: that is what a session waits with, nearly always.
+            let phase: Phase? = !session.needsAttention ? nil
+                : !session.waiting ? .running
+                : request?.isApproval == false ? .question : .approval
+            return Away(id: id, title: session.displayTitle, phase: phase, detail: request?.summary,
+                        approval: request?.quickAnswers == nil ? nil : request.map { ($0.id, id) },
+                        updatedAt: session.sortAt)
+        }
+    }
+}

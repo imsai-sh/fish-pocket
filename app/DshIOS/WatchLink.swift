@@ -5,7 +5,8 @@ import WatchConnectivity
 
 /// Keeps the watch app in step with the phone: sends it the snapshot it draws
 /// (`WatchSnapshot`) whenever what it shows changes, and carries out what the
-/// wrist sends back (`WatchCommand`).
+/// wrist sends back (`WatchCommand`). The sessions on a computer that the phone
+/// answers for are in it with the phone's own, and answered the same way.
 ///
 /// The snapshot travels as the application context, so the watch gets the latest
 /// one whenever it next wakes; every command is also answered with it.
@@ -130,7 +131,8 @@ final class WatchLink: NSObject {
         guard let app, phases[id] == .idle else { return }
         guard !(onScreen && app.currentSession == id) else { return }
         completions.removeAll { $0.sessionId == id }
-        completions.append(.init(id: UUID().uuidString, sessionId: id, title: app.title(of: id), at: .now))
+        let title = RemoteStore.sessionId(of: id).map { app.remote.sessions[$0]?.displayTitle ?? String(localized: "新会话") } ?? app.title(of: id)
+        completions.append(.init(id: UUID().uuidString, sessionId: id, title: title, at: .now))
         refresh()
     }
 
@@ -171,7 +173,9 @@ final class WatchLink: NSObject {
         case .refresh:
             break
         case .answer(let answer, let allow):
-            if let approval = app.approvals[answer.agentId]?.first(where: { $0.id == answer.eventId }) {
+            if let remote = RemoteStore.sessionId(of: answer.agentId) {
+                _ = await app.remote.answer(session: remote, request: answer.eventId, allow: allow)
+            } else if let approval = app.approvals[answer.agentId]?.first(where: { $0.id == answer.eventId }) {
                 await app.answerApproval(approval, session: answer.agentId, allow: allow)
             }
         case .seen(let ids):
@@ -193,15 +197,29 @@ final class WatchLink: NSObject {
     private static func snapshot(of app: AppModel) -> WatchSnapshot {
         let board = SessionBoard(app)
         let rank: (WatchSnapshot.Phase) -> Int = { $0.waiting ? 0 : $0 == .running ? 1 : 2 }
-        let sessions = SessionBoard.listed(in: app)
+        func phase(_ phase: SessionBoard.Phase?) -> WatchSnapshot.Phase {
+            switch phase {
+            case .approval: .approval
+            case .question: .question
+            case .running: .running
+            case nil: .idle
+            }
+        }
+        let away = SessionBoard.away(in: app).map { session in
+            WatchSnapshot.Session(
+                id: session.id,
+                title: session.title,
+                phase: phase(session.phase),
+                detail: session.detail,
+                approval: session.approval.map { .init(eventId: $0.eventId, agentId: $0.agentId) },
+                since: nil,
+                updatedAt: session.updatedAt
+            )
+        }
+        let sessions = (SessionBoard.listed(in: app)
             .map { summary in
                 let entry = board.entries[summary.id]
-                let phase: WatchSnapshot.Phase = switch entry?.phase {
-                case .approval: .approval
-                case .question: .question
-                case .running: .running
-                case nil: .idle
-                }
+                let phase = phase(entry?.phase)
                 return WatchSnapshot.Session(
                     id: summary.id,
                     title: app.title(of: summary.id),
@@ -211,7 +229,7 @@ final class WatchLink: NSObject {
                     since: nil,
                     updatedAt: summary.updatedAt
                 )
-            }
+            } + away)
             .sorted { lhs, rhs in
                 let l = rank(lhs.phase), r = rank(rhs.phase)
                 return l != r ? l < r : lhs.updatedAt > rhs.updatedAt
