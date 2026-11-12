@@ -145,7 +145,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         # The fallback when none of the reader's languages is translated: English, not the Chinese source.
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [zh-Hans, en, es]
+        CFBundleLocalizations: [zh-Hans, en, es, ja, ko]
         # Launch: the page colour and the mark, which the engine start-up screen keeps in place.
         UILaunchScreen:
           UIColorName: Background
@@ -295,7 +295,7 @@ targets:
       properties:
         CFBundleDisplayName: Fish Pocket
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [zh-Hans, en, es]
+        CFBundleLocalizations: [zh-Hans, en, es, ja, ko]
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         WKApplication: true

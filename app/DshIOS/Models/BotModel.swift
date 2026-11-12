@@ -380,7 +380,7 @@ final class BotModel {
     }
 
     func refreshState() async {
-        var payload: [String: JSON] = ["locale": .string(AppLanguage.isChinese ? "zh-CN" : "en")]
+        var payload: [String: JSON] = ["locale": .string(AppLanguage.isChinese ? "zh-CN" : AppLanguage.primary)]
         if let revision { payload["since"] = .number(revision) }
         if let liveKey { payload["live"] = .string(liveKey) }
         // The model list changes without a revision (a key added in 设置): its key rides along.
