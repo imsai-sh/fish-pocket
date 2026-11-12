@@ -103,7 +103,7 @@ jobs:
         working-directory: app
         run: |
           xcodebuild -project DshIOS.xcodeproj -scheme DshIOS \
-            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/DerivedData -skipPackagePluginValidation \
             ARCHS=arm64 CODE_SIGNING_ALLOWED=NO \
             build -quiet

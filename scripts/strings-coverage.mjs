@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const catalogs = ['app/Shared/Localizable.xcstrings', 'app/DshIOS/InfoPlist.xcstrings'];
+const catalogs = ['app/Shared/Localizable.xcstrings', 'app/DshIOS/InfoPlist.xcstrings', 'app/Watch/Localizable.xcstrings'];
 const only = process.argv[2];
 
 /** A localization counts when it has a translated value, or plural / device variations that all do. */

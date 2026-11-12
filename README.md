@@ -52,6 +52,14 @@
   <sub>合上时在外屏发起任务，展开后同一个会话接着跑，侧栏和对话并排</sub>
 </p>
 
+<p align="center">
+  <img src="docs/assets/demo-watch.gif" width="840" alt="在 iPhone 上发出任务后回到主屏幕；旁边 Apple Watch 上的大肥鱼先显示正在干活，再提示等你答复，在手表上点开审批并允许后任务继续，跑完时手表弹出完成卡">
+  <br/>
+  <b>Apple Watch</b>
+  <br/>
+  <sub>放下手机，抬腕就知道它干到哪了：审批在手表上点，跑完大肥鱼叫你一声</sub>
+</p>
+
 <p align="center"><sub>以上都是实际运行的录屏，等待的部分剪掉或加了速。</sub></p>
 
 ## 能做什么
