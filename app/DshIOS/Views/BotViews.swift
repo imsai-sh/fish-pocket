@@ -111,8 +111,9 @@ struct RoomAvatar: View {
 
 // MARK: - Drawer entry
 
-/// The Bot entry, under 新会话: one row that opens the Bot pages and says the one thing
-/// that matters most right now — what waits on the user, then who is working, then news.
+/// The Bot entry, first of the drawer's rows: a row like 插件 and the others under it, the
+/// main Bot's face where they have an icon, and on the right the one thing that matters most
+/// right now — what waits on the user, then who is working, then news.
 struct BotDrawerEntry: View {
     @Environment(AppModel.self) private var app
 
@@ -124,38 +125,39 @@ struct BotDrawerEntry: View {
         } label: {
             HStack(spacing: 12) {
                 faces
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Bot").font(.headline).foregroundStyle(Palette.ink)
-                    status
-                }
-                Spacer(minLength: 0)
-                if team.status == .ready, unread { Circle().fill(Palette.ink).frame(width: 8, height: 8) }
-                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.faint)
+                Text("Bot").font(.subheadline).foregroundStyle(Palette.ink).layoutPriority(1)
+                Spacer(minLength: 8)
+                status
             }
-            .padding(.horizontal, 14)
-            .frame(minHeight: 64)
-            .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .frame(minHeight: 46)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 12)
-        .padding(.bottom, 6)
+        .padding(.bottom, 2)
         .accessibilityElement(children: .combine)
         .accessibilityHint("打开 Bot 列表")
     }
 
-    /// The main Bot in front, up to two more tucked behind it: one size, centres on one line.
+    /// The main Bot in front, up to two more tucked behind it, where the rows under it have
+    /// their icon; wider than that icon, so the title sits further in than theirs. Behind it
+    /// go the Bots the status on the right is about: those waiting on the user, then those
+    /// working, then the rest in the team's order.
     private var faces: some View {
         let team = app.botTeam
         let main = team.mainBot
-        let others = team.bots.filter { $0.id != main?.id }.prefix(2)
+        let rest = team.bots.filter { $0.id != main?.id }
+        let waiting = rest.filter { team.pendingCount(of: $0) > 0 }
+        let working = rest.filter { team.pendingCount(of: $0) == 0 && team.isWorking($0.id) }
+        let others = (waiting + working + rest.filter { team.pendingCount(of: $0) == 0 && !team.isWorking($0.id) }).prefix(2)
         let shown = ([main].compactMap { $0 } + others)
-        return HStack(spacing: -12) {
+        return HStack(spacing: -20) {
             if shown.isEmpty {
-                Image("LaunchMark").resizable().scaledToFill().frame(width: 38, height: 38).clipShape(Circle())
+                Image("LaunchMark").resizable().scaledToFill().frame(width: 56, height: 56).clipShape(Circle())
             }
             ForEach(Array(shown.enumerated()), id: \.element.id) { index, bot in
-                BotAvatar(bot: bot, size: 38, live: true, outline: Palette.grouped)
+                BotAvatar(bot: bot, size: 56, live: true, outline: Palette.background)
                     .zIndex(Double(shown.count - index))
             }
         }
@@ -168,20 +170,23 @@ struct BotDrawerEntry: View {
         let pending = waiting.reduce(0) { $0 + team.pendingCount(of: $1) }
         let working = team.bots.filter { team.isWorking($0.id) }
         if team.status != .ready {
-            Text(team.status == .unknown ? String(localized: "正在准备…") : String(localized: "暂时用不了")).font(.caption).foregroundStyle(Palette.secondary)
+            Text(team.status == .unknown ? String(localized: "正在准备…") : String(localized: "暂时用不了")).font(.footnote).foregroundStyle(Palette.secondary)
         } else if let first = waiting.first {
             Text(pending == 1 ? waitingLine(first) : String(localized: "\(pending) 件事等你处理"))
-                .font(.caption).foregroundStyle(Palette.waiting).lineLimit(1)
+                .font(.footnote).foregroundStyle(Palette.waiting).lineLimit(1)
         } else if let first = working.first {
             HStack(spacing: 5) {
                 StatusDot(state: .running, size: 6)
                 Text(working.count == 1 ? String(localized: "\(first.name)在干活") : String(localized: "\(working.count) 个 Bot 在干活"))
-                    .font(.caption).foregroundStyle(Palette.running).lineLimit(1)
+                    .font(.footnote).foregroundStyle(Palette.running).lineLimit(1)
             }
         } else if unread {
-            Text("有新消息").font(.caption).foregroundStyle(Palette.secondary)
+            HStack(spacing: 6) {
+                Circle().fill(Palette.ink).frame(width: 7, height: 7)
+                Text("有新消息").font(.footnote).foregroundStyle(Palette.ink)
+            }
         } else {
-            Text("\(team.bots.count) 个 Bot · \(team.rooms.count) 个群聊").font(.caption).foregroundStyle(Palette.secondary)
+            Text("\(team.bots.count) 个 Bot · \(team.rooms.count) 个群聊").font(.footnote).foregroundStyle(Palette.secondary)
         }
     }
 
