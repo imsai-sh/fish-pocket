@@ -1,7 +1,7 @@
 # Compile the app for the iOS simulator on every PR into main or release, without signing or running it.
 # Pushes to release are not built here: they only carry commits already checked on main or in a PR.
 # The same steps as scripts/run-sim.sh up to `xcodebuild build`: fetch nodejs-mobile
-# and Python, build libgit2, assemble the engine tree, generate the project, compile.
+# and Python, build libgit2 and FFmpeg, assemble the engine tree, generate the project, compile.
 # macOS minutes are dear on a private repo: the downloaded / built vendor/ is
 # cached by the hash of the script that makes it, and docs-only changes skip.
 name: iOS build
