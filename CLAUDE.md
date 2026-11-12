@@ -58,6 +58,13 @@
 ### 注意
 
 - **升级 nodejs-mobile、Python、libgit2、FFmpeg 的版本后**（`scripts/fetch-nodejs-mobile.sh`、`scripts/fetch-python.sh`、`scripts/build-libgit2.sh`、`scripts/build-ffmpeg.sh`），本地从零跑一遍 `app/ci_scripts/ci_post_clone.sh`。升级 FFmpeg 还要确认 `native/ffmpeg/ffmpeg.patch` 能打上，并在模拟器里实测一遍 `ffmpeg`、`ffprobe`。云端每次都重新下载和编译，下载地址或 sha256 写错会直接失败。
+- **FFmpeg 用本仓库 GitHub Release 里预编译好的包。** `scripts/fetch-ffmpeg.sh` 下载 `FFmpeg.xcframework.zip` 并校验 sha256，不再每次从源码编译。Release 的 tag 形如 `ffmpeg-9.0.2-c79aea98`，末尾是构建输入的指纹，构建输入指 `scripts/build-ffmpeg.sh` 和 `native/ffmpeg` 里除 `binding.c` 以外的文件。改了这些文件或升级 FFmpeg 后，指纹对不上，下载脚本会自动改为从源码编译，构建不会坏，只是慢一两分钟。这时补发一个新包：
+  1. 跑 `scripts/fetch-ffmpeg.sh --package`，它从源码编译、打包，并打印 tag、zip 路径和 sha256。
+  2. 照常扫一遍隐私，`strings` 查二进制里有没有家目录等本机路径。
+  3. `gh release create <tag> <zip> --target <包含这些改动的提交> --prerelease --latest=false`。
+  4. 把 tag 末尾的指纹和 sha256 填进 `fetch-ffmpeg.sh` 开头的 `inputs`、`sha256`，和改动一起提交。
+
+  旧的 Release 不要删，旧提交构建时还要下载它。
 - **云端构建只在推 `release` 时跑**，不在分支上手动触发。改构建脚本或 `app/project.yml` 的工程结构时，本地跑通 `ci_post_clone.sh` 并编译一遍就可以合并；云端的签名和上传等下次推 `release` 时再验证。
 - **触发规则按提交看，不按净差异看。** 推到 `release` 的这一批提交里，只要有一个改到上面四个目录就会出包，哪怕后面的提交又把它改回去了。
 - **连续推送 `release` 只跑最新一次**，前一次会被自动取消。但被取消的那次如果已经导出完，包照样会上传并占一个 build 号，所以 build 列表里的号不一定连续，也可能多出包。

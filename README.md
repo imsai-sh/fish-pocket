@@ -124,7 +124,7 @@ git clone https://github.com/imsai-sh/fish-pocket.git
 cd fish-pocket && scripts/run-sim.sh
 ```
 
-脚本会自动下载 nodejs-mobile 和 Python、构建 libgit2 和 FFmpeg、组装引擎，然后装到模拟器上运行。默认设备是 `iPhone 17 Pro`，可以用 `SIM_DEVICE` 指定。
+脚本会自动下载 nodejs-mobile、Python 和预编译的 FFmpeg、构建 libgit2、组装引擎，然后装到模拟器上运行。默认设备是 `iPhone 17 Pro`，可以用 `SIM_DEVICE` 指定。
 
 想装到真机上，先把 `app/project.yml` 和 `scripts/run-device.sh` 里的 `com.wsw.dsh-ios` 换成你自己的 Bundle ID，再运行：
 
@@ -143,7 +143,7 @@ iOS 不允许 App 创建子进程，也不允许运行下载的二进制。所�
 | Node 24（[nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile)） | 预编译的动态框架，引擎跑在它上面；`node`、`pnpm` 各开一个 Worker 线程 | 引擎本身、`node`、`pnpm`、`pnpx` |
 | Python 3.15（python.org 官方 iOS 构建） | 动态框架，每个 Python 进程是一个子解释器，跑在自己的线程上 | `python3`、`pip`、`venv` |
 | [libgit2](https://github.com/libgit2/libgit2) 1.9 | 静态链接，通过 N-API 调用 | `git` |
-| [FFmpeg](https://ffmpeg.org) 9.0 | 从官方源码编译成动态框架（LGPL），每次运行一个线程，同一时间只跑一个 | `ffmpeg`、`ffprobe` |
+| [FFmpeg](https://ffmpeg.org) 9.0 | 从官方源码编译成动态框架（LGPL），预编译包放在本仓库的 Release 里，每次运行一个线程，同一时间只跑一个 | `ffmpeg`、`ffprobe` |
 | 系统框架（ImageIO、Vision、EventKit、HealthKit 等） | 通过 N-API 桥接 | 图片处理和[本机能力](#本机能力) |
 
 iOS 不允许起子进程，所以这些运行时的“进程”都是 App 里的线程：每个有自己的管道、工作目录和退出处理。它们共用一层路径视图（`native/root`），看到的文件和引擎完全一致。
