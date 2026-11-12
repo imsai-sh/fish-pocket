@@ -57,7 +57,7 @@
 
 ### 注意
 
-- **升级 nodejs-mobile、Python、libgit2 的版本后**（`scripts/fetch-nodejs-mobile.sh`、`scripts/fetch-python.sh`、`scripts/build-libgit2.sh`），本地从零跑一遍 `app/ci_scripts/ci_post_clone.sh`。云端每次都重新下载和编译，下载地址或 sha256 写错会直接失败。
+- **升级 nodejs-mobile、Python、libgit2、FFmpeg 的版本后**（`scripts/fetch-nodejs-mobile.sh`、`scripts/fetch-python.sh`、`scripts/build-libgit2.sh`、`scripts/build-ffmpeg.sh`），本地从零跑一遍 `app/ci_scripts/ci_post_clone.sh`。升级 FFmpeg 还要确认 `native/ffmpeg/ffmpeg.patch` 能打上，并在模拟器里实测一遍 `ffmpeg`、`ffprobe`。云端每次都重新下载和编译，下载地址或 sha256 写错会直接失败。
 - **改构建脚本或 `app/project.yml` 的工程结构时**，合并前先在分支上手动触发一次云端构建。本地能验证脚本和编译，验证不了云端的签名和上传。
 - **触发规则按提交看，不按净差异看。** 推到 `release` 的这一批提交里，只要有一个改到上面四个目录就会出包，哪怕后面的提交又把它改回去了。
 - **连续推送 `release` 只跑最新一次**，前一次会被自动取消。但被取消的那次如果已经导出完，包照样会上传并占一个 build 号，所以 build 列表里的号不一定连续，也可能多出包。
@@ -83,6 +83,7 @@
 - Shell 命令增减或行为变化：升级 `just-bash`，改 `engine/runtime/shell.mjs`（自定义命令、`/dev`、挂载）。
 - git：`engine/runtime/git` 里增减子命令或改了限制（同时对齐 `MISSING` 里的替代建议）。
 - Python：`engine/runtime/python`、`scripts/fetch-python.sh`（版本、pip/venv、subprocess 的能力）。
+- FFmpeg：`engine/runtime/ffmpeg`、`native/ffmpeg`、`scripts/build-ffmpeg.sh`（版本、开了哪些编码器和封装格式、同一时间只跑一个）。
 - Node 和包管理：`scripts/fetch-nodejs-mobile.sh` 的 Node 版本、pnpm 版本、`engine/runtime/node-worker.mjs`、`engine/shims`（比如 `sharp` 替身支持的方法）。
 - 文件系统布局：`native/root`、`app/DshIOS/EnginePaths.swift`、`engine/main.mjs` 里的 `HOME`、`TMPDIR`、工作区位置。
 - 插件在原生界面和网页版里的可见范围，以及设置里相关入口的名字（`references/plugins.md`，主文件里的摘要也要对得上）。

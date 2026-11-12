@@ -12,6 +12,7 @@
 | [nodejs-mobile](https://github.com/digidem/nodejs-mobile)（digidem 分支，上游为 [nodejs-mobile/nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile)） | 24.20.0-0 | Node.js 许可证（MIT 及其捆绑组件的各自许可证） | Node.js 贡献者等 | 内嵌 Node 运行时，以预编译的 `NodeMobile.xcframework` 下载 |
 | [just-bash](https://github.com/vercel-labs/just-bash) | 3.6.0 | Apache-2.0 | Copyright 2025 Vercel Inc. | bash 解释器和内置命令 |
 | [CPython](https://github.com/python/cpython)（python.org 的 iOS 构建） | 3.15.2 | PSF 许可证第 2 版（及其捆绑组件的各自许可证） | Copyright (c) 2001 Python Software Foundation 等 | 内嵌 Python 运行时，以预编译的 `Python.xcframework` 下载，含标准库和 `ensurepip` 自带的 pip |
+| [FFmpeg](https://ffmpeg.org) | 9.0.2 | LGPL 2.1 或更高版本（只开 LGPL 组件） | FFmpeg 贡献者 | `ffmpeg`、`ffprobe` 命令，从官方源码编译成动态框架 `FFmpeg.framework`，有少量改动，见下文 |
 | [libgit2](https://github.com/libgit2/libgit2) | 1.9.7 | GPLv2 + 链接例外 | libgit2 贡献者 | git 能力，未修改源码，静态链接 |
 | [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm) | 1.10.0 | MIT | Copyright (c) 2019-2022 Miguel de Icaza 等 | 终端界面 |
 | [SwiftMath](https://github.com/mgriebling/SwiftMath) | 1.7.3 | MIT；随包的数学字体各有许可证（GUST 字体许可证、SIL OFL 等），见其 README 的 Fonts 一节 | Copyright (c) 2023 Computer Inspirations | 回复里的公式排版 |
@@ -22,6 +23,13 @@
 Simple Icons 是上面这句话的例外：用到的 28 个图标以 SVG 文件直接放在仓库里（`app/DshIOS/Assets.xcassets/Connectors`）。CC0 只覆盖图标文件本身，各图标仍是其品牌方的商标，App 里只用来标明连接的是哪家服务。
 
 CPython 的完整许可证及其捆绑组件（OpenSSL、SQLite、libffi、zlib、bzip2、xz、zstd、expat、mpdecimal 等）的许可证见 [Python 文档的许可证页](https://docs.python.org/3.15/license.html)；标准库里的 `LICENSE.txt` 随 App 一起分发。
+
+FFmpeg 按 LGPL 2.1 或更高版本使用，构建方式见 `scripts/build-ffmpeg.sh`：
+
+- **只开 LGPL 组件。** 不加 `--enable-gpl` 和 `--enable-nonfree`，不链接 x264、x265、LAME 等外部库，构建时检查 configure 报告的许可证。H.264、HEVC 编码走系统的 VideoToolbox。
+- **动态链接。** FFmpeg 的库和 ffmpeg、ffprobe 两个程序编成一个独立的动态框架 `FFmpeg.framework`，App 的其余部分只通过它导出的两个函数调用它。框架里附带 LGPL 2.1 全文（`LICENSE`）。
+- **改动公开。** 为了让两个程序在 App 内作为函数运行，对 FFmpeg 源码做了少量修改：改名入口函数、不安装信号处理、不读终端、`pipe:` 协议改用当次命令的管道，以及每次运行前复位程序的全局变量。改动全部在本仓库的 `native/ffmpeg/`（`ffmpeg.patch`、`fftools-prefix.h`、`tool.c`），任何人都可以用原版或自己修改过的 FFmpeg 源码重新编译出这个框架并替换进 App。
+- **源码。** 官方源码包 <https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz>，构建脚本里钉死了 sha256。许可证全文见源码里的 `COPYING.LGPLv2.1` 和 [FFmpeg 的许可证说明](https://ffmpeg.org/legal.html)。
 
 libgit2 的完整许可证见其仓库的 [COPYING](https://github.com/libgit2/libgit2/blob/main/COPYING)。其中的链接例外允许把未修改的库链接进其他程序并分发，只有修改库本身时才受 GPLv2 约束。
 

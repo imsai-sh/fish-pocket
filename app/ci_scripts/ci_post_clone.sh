@@ -2,7 +2,7 @@
 # Xcode Cloud runs this right after cloning, before it looks for the project.
 # The repository holds neither the Xcode project nor what it links, so this does
 # what scripts/run-sim.sh does up to `xcodebuild`: fetch nodejs-mobile and Python,
-# build libgit2, assemble the engine tree, generate the project.
+# build libgit2 and FFmpeg, assemble the engine tree, generate the project.
 # Nothing is cached between cloud builds: every run starts from the clone.
 # It also runs on a Mac as is, for checking a change to it: app/ci_scripts/ci_post_clone.sh
 set -euo pipefail
@@ -27,6 +27,7 @@ command -v npm >/dev/null || { brew_install node@24; export PATH="$(brew --prefi
 "$root/scripts/fetch-nodejs-mobile.sh"
 "$root/scripts/fetch-python.sh"
 "$root/scripts/build-libgit2.sh"
+"$root/scripts/build-ffmpeg.sh"
 "$root/scripts/build-engine.sh"
 
 cd "$root/app"

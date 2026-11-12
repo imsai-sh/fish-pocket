@@ -67,9 +67,10 @@
 - **能用 iPhone 自带的能力：** 智能体直接查日历、建提醒、读健康数据、找联系人、搜地图，每一项都由你自己开启。见[本机能力](#本机能力)。
 - **功能对齐官方 Web UI：** 对话、工具调用、文件编辑、搜索、计划模式、审批、子智能体、定时任务和插件，DSH 官方 Web UI 能做的这里都能做。
 - **完全原生的界面：** 对话、审批、工作台、插件和设置都用 SwiftUI 重写，交互按 iOS 习惯设计，不是把网页塞进 WebView。支持深色模式，可以跟随系统，也可以在设置里手动切换。官方 Web UI 也保留着，需要时可以在设置里打开。
-- **真能用的终端：** 内置 bash、`node`、`pnpm`、`python3`、`pip`、`git`，还有 `rg`、`jq`、`curl`、`sed`、`awk` 等常用命令。
+- **真能用的终端：** 内置 bash、`node`、`pnpm`、`python3`、`pip`、`git`、`ffmpeg`，还有 `rg`、`jq`、`curl`、`sed`、`awk` 等常用命令。
 - **内置 Python：** Python 3.15 直接嵌在 App 里，标准库齐全，`pip install` 能装纯 Python 的包，`venv` 也能用。带编译扩展的包（numpy、pandas 等）暂时装不了。
 - **内置 Git：** 基于静态链接的 libgit2，不靠子进程。`clone`、`commit`、`branch`、`merge`、`stash`、`pull`、`push` 等日常操作都能用，输出和真 git 一致，Agent 照常读懂。私有仓库用 HTTPS 加 Token 认证。
+- **内置 FFmpeg：** `ffmpeg` 和 `ffprobe` 编进 App，能读几乎所有音视频格式（包括 iPhone 拍的 HEVC 视频和 MKV、WebM），能抽帧、抽音轨、剪辑、转码，FFmpeg 自带的滤镜都能用。H.264、HEVC 编码走手机的硬件编码器。没有 x264、VP9、MP3 编码。
 - **内置 DSH 插件商店：** 预置 DSH 生态插件市场，在手机上浏览、搜索，一键安装，装完就能用，不用回到电脑前。也可以在「索引源」里添加自己信任的商店源，或者直接从 npm 安装纯 JavaScript 插件。
 - **工作台：** 终端、文件预览、内置浏览器和改动查看都放在一个面板里。
 - **iOS 专属体验：** 灵动岛和锁屏 Live Activity，主屏幕和锁屏小组件，控制中心按钮，Siri 和快捷指令，切到后台任务也能继续。
@@ -94,7 +95,7 @@
 
 ## 和其他方案的区别
 
-远程客户端要电脑一直开着，Fish Pocket 不用：引擎就在手机里，掏出来随时随地都能用。在手机上直接运行的方案里，它也是目前最快的：Node、Git 和 Python 都是原生代码，不经过模拟器。
+远程客户端要电脑一直开着，Fish Pocket 不用：引擎就在手机里，掏出来随时随地都能用。在手机上直接运行的方案里，它也是目前最快的：Node、Git、Python 和 FFmpeg 都是原生代码，不经过模拟器。
 
 |  | Fish Pocket | 远程客户端 | 手机里跑网页版 | iOS 上的 Linux 模拟器（iSH、UTM SE） |
 |---|---|---|---|---|
@@ -103,8 +104,8 @@
 | 电脑要开着吗 | 不用，有手机就行，随时随地 | 要，电脑得一直开着联网 | 不用 | 不用 |
 | 灵动岛和锁屏状态 | 有 | 看具体项目 | 看具体项目 | 没有 |
 | 调用日历、提醒事项、健康等本机能力 | 能，逐项由你开启 | 看具体项目 | 看具体项目 | 不能 |
-| 完整的 Linux 工具 | 没有，只有内置命令、Node 和 Python | 有 | 看具体项目 | 有 |
-| 运行速度 | 手机上直接运行的方案里最快：Node、Git、Python 都是原生代码 | 取决于那台电脑 | 看具体项目 | 特别慢，CPU 指令要逐条解释执行 |
+| 完整的 Linux 工具 | 没有，只有内置命令、Node、Python 和 FFmpeg | 有 | 看具体项目 | 有 |
+| 运行速度 | 手机上直接运行的方案里最快：Node、Git、Python、FFmpeg 都是原生代码 | 取决于那台电脑 | 看具体项目 | 特别慢，CPU 指令要逐条解释执行 |
 
 ## 快速开始
 
@@ -123,7 +124,7 @@ git clone https://github.com/imsai-sh/fish-pocket.git
 cd fish-pocket && scripts/run-sim.sh
 ```
 
-脚本会自动下载 nodejs-mobile 和 Python、构建 libgit2、组装引擎，然后装到模拟器上运行。默认设备是 `iPhone 17 Pro`，可以用 `SIM_DEVICE` 指定。
+脚本会自动下载 nodejs-mobile 和 Python、构建 libgit2 和 FFmpeg、组装引擎，然后装到模拟器上运行。默认设备是 `iPhone 17 Pro`，可以用 `SIM_DEVICE` 指定。
 
 想装到真机上，先把 `app/project.yml` 和 `scripts/run-device.sh` 里的 `com.wsw.dsh-ios` 换成你自己的 Bundle ID，再运行：
 
@@ -133,7 +134,19 @@ DEVELOPMENT_TEAM=<你的团队 ID> scripts/run-device.sh
 
 ## 怎么做到的
 
-iOS 不允许 App 创建子进程，也不允许运行下载的二进制。所以这里不模拟 Linux 虚拟机，而是把 Node 和 Python 嵌进 App，再用 DSH 自己的服务接缝换掉“执行世界”。引擎文件一行都没改。
+iOS 不允许 App 创建子进程，也不允许运行下载的二进制。所以这里不模拟 Linux 虚拟机，而是把 Node、Python 这些运行时以原生代码嵌进 App，再用 DSH 自己的服务接缝换掉“执行世界”。引擎文件一行都没改。
+
+原生嵌入的组件：
+
+| 组件 | 怎么嵌进 App | 给智能体提供 |
+|---|---|---|
+| Node 24（[nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile)） | 预编译的动态框架，引擎跑在它上面；`node`、`pnpm` 各开一个 Worker 线程 | 引擎本身、`node`、`pnpm`、`pnpx` |
+| Python 3.15（python.org 官方 iOS 构建） | 动态框架，每个 Python 进程是一个子解释器，跑在自己的线程上 | `python3`、`pip`、`venv` |
+| [libgit2](https://github.com/libgit2/libgit2) 1.9 | 静态链接，通过 N-API 调用 | `git` |
+| [FFmpeg](https://ffmpeg.org) 9.0 | 从官方源码编译成动态框架（LGPL），每次运行一个线程，同一时间只跑一个 | `ffmpeg`、`ffprobe` |
+| 系统框架（ImageIO、Vision、EventKit、HealthKit 等） | 通过 N-API 桥接 | 图片处理和[本机能力](#本机能力) |
+
+iOS 不允许起子进程，所以这些运行时的“进程”都是 App 里的线程：每个有自己的管道、工作目录和退出处理。它们共用一层路径视图（`native/root`），看到的文件和引擎完全一致。
 
 <p align="center">
   <picture>
@@ -205,6 +218,7 @@ App 免费，代码以 MIT 协议开源，商用需要先取得授权，见[许�
 - [x] 预置第三方插件商店（[#5](https://github.com/imsai-sh/fish-pocket/issues/5)）
 - [x] 智能体可以使用 iPhone 的本机能力：日历、提醒事项、健康、照片、地图等
 - [x] 内置 Python 3.15，支持 pip 和 venv
+- [x] 内置 FFmpeg：`ffmpeg`、`ffprobe`
 - [x] 远程控制：在手机上管电脑里的 Codex、Claude Code 和 DSH 会话（对接 Agents Anywhere）
 - [ ] bash 解释器移出引擎线程
 - [x] Bot 模式：在聊天里给口袋里的 Agent 派任务
@@ -235,6 +249,7 @@ Fish Pocket 还站在这些优秀项目的肩膀上。
 - [CPython](https://github.com/python/cpython)：python.org 官方的 iOS 构建，App 内的 Python
 - [just-bash](https://github.com/vercel-labs/just-bash)：TypeScript 写的 bash 解释器
 - [libgit2](https://github.com/libgit2/libgit2)：App 内的 git 能力
+- [FFmpeg](https://ffmpeg.org)：App 内的音视频处理，按 LGPL 以动态框架使用
 - [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)：终端界面
 - [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere)：远程控制对接的开源工作台，电脑端和服务器都是它的
 

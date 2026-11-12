@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { COMMANDS } from '../runtime/shell.mjs';
+import { FFMPEG_COMMANDS } from '../runtime/ffmpeg/index.mjs';
 
 const text = fs.readFileSync(new URL('../skills/ios-environment/SKILL.md', import.meta.url), 'utf8');
 
@@ -25,7 +26,9 @@ test('every command listed as existing exists', () => {
   assert.ok(listed.length > 80);
   // Shell builtins are not commands of the world.
   const builtin = new Set(['type', 'command']);
-  assert.deepEqual(listed.filter((name) => !COMMANDS.has(name) && !builtin.has(name)), []);
+  // FFmpeg is linked into the app only: a development machine has no binding for it.
+  const appOnly = new Set(FFMPEG_COMMANDS);
+  assert.deepEqual(listed.filter((name) => !COMMANDS.has(name) && !builtin.has(name) && !appOnly.has(name)), []);
 });
 
 test('every reference the skill points to ships with it, and none is left unmentioned', () => {

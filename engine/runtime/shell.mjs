@@ -1,12 +1,13 @@
 // The in-process "execution world" on iOS: just-bash (a bash interpreter in
 // TypeScript) over the real filesystem, plus the JavaScript CLIs — node, pnpm —
-// run as worker threads, and Python (python/index.mjs) when the app has it.
+// run as worker threads, and the programs the app links (Python, ffmpeg:
+// native-programs.mjs) when it has them.
 // Used by ctx.subprocess and by the child_process shim.
 import path from 'node:path';
 import { Bash, InMemoryFs, MountableFs, OverlayFs, ReadWriteFs, decodeBytesToUtf8, defineCommand, getCommandNames, getNetworkCommandNames } from 'just-bash';
 import { NODE_CLIS, parseNodeArgv, startNodeWorker } from './node-worker.mjs';
 import { gitAvailable, gitCommand } from './git/index.mjs';
-import { PYTHON_COMMANDS, pythonAvailable, pythonCommands } from './python/index.mjs';
+import { nativeCommandNames, nativeShellCommands } from './native-programs.mjs';
 
 export const SHELLS = new Set(['bash', 'sh', 'dash', 'zsh']);
 export const BIN = '/bin';
@@ -100,10 +101,10 @@ const custom = [
   ...Object.entries(NODE_CLIS).map(([name, script]) => nodeLikeCommand(name, script)),
 ];
 
-/** Every command name this world can run (git and python when the app links them). */
+/** Every command name this world can run (git, python and ffmpeg when the app links them). */
 export const COMMANDS = new Set([
   ...getCommandNames(), ...getNetworkCommandNames(), ...custom.map((c) => c.name),
-  ...(gitAvailable() ? ['git'] : []), ...(pythonAvailable() ? PYTHON_COMMANDS : []),
+  ...(gitAvailable() ? ['git'] : []), ...nativeCommandNames(),
 ]);
 
 // just-bash's real-directory filesystems rooted at "/" return realpath()
@@ -153,8 +154,8 @@ export function shell(writable) {
     customCommands: [
       ...custom,
       ...(gitAvailable() ? [gitCommand(defineCommand, decodeBytesToUtf8, writable)] : []),
-      // Python, like node, runs outside the interpreter's filesystem fence.
-      ...(pythonAvailable() ? pythonCommands(defineCommand, decodeBytesToUtf8) : []),
+      // Python and ffmpeg, like node, run outside the interpreter's filesystem fence.
+      ...nativeShellCommands(defineCommand, decodeBytesToUtf8),
     ],
     network: { dangerouslyAllowFullInternetAccess: true },
     executionLimitProfile: 'normal',

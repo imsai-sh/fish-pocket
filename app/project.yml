@@ -60,6 +60,9 @@ targets:
       - path: ../native/python
         # CPython's framework headers include each other with quotes.
         compilerFlags: [-Wno-quoted-include-in-framework-header]
+      # ffmpeg and ffprobe for the engine, one thread per run: linked binding `dsh_ffmpeg`.
+      # Only the binding: tool.c and the rest of native/ffmpeg go into FFmpeg.framework.
+      - path: ../native/ffmpeg/binding.c
     dependencies:
       # First: the app's own libc calls (libgit2) bind to it by link order, as Node's do by its load command.
       - target: DshRoot
@@ -67,6 +70,9 @@ targets:
         embed: true
       # python.org's iOS CPython, pointed at DshRoot (scripts/fetch-python.sh).
       - framework: ../vendor/python/rooted/Python.xcframework
+        embed: true
+      # FFmpeg (LGPL) as a dynamic framework, pointed at DshRoot (scripts/build-ffmpeg.sh).
+      - framework: ../vendor/ffmpeg/FFmpeg.xcframework
         embed: true
       # Static libgit2 (scripts/build-libgit2.sh); HTTPS through Security.framework.
       - framework: ../vendor/libgit2/Libgit2.xcframework

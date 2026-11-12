@@ -1,0 +1,152 @@
+diff -ruN a/fftools/ffmpeg.c b/fftools/ffmpeg.c
+--- a/fftools/ffmpeg.c
++++ b/fftools/ffmpeg.c
+@@ -147,16 +147,20 @@
+ static void
+ sigterm_handler(int sig)
+ {
++#ifndef DSH_EMBEDDED
+     int ret;
++#endif
+     received_sigterm = sig;
+     received_nb_signals++;
+     term_exit_sigsafe();
++#ifndef DSH_EMBEDDED
+     if(received_nb_signals > 3) {
+         ret = write(2/*STDERR_FILENO*/, "Received > 3 system signals, hard exiting\n",
+                     strlen("Received > 3 system signals, hard exiting\n"));
+         if (ret < 0) { /* Do nothing */ };
+         exit(123);
+     }
++#endif
+ }
+ 
+ #if HAVE_SETCONSOLECTRLHANDLER
+@@ -204,6 +208,7 @@
+ 
+ void term_init(void)
+ {
++#ifndef DSH_EMBEDDED
+ #if defined __linux__
+     struct sigaction action = {0};
+     action.sa_handler = sigterm_handler;
+@@ -248,12 +253,13 @@
+ #if HAVE_SETCONSOLECTRLHANDLER
+     SetConsoleCtrlHandler((PHANDLER_ROUTINE) CtrlHandler, TRUE);
+ #endif
++#endif /* DSH_EMBEDDED */
+ }
+ 
+ /* read a key without blocking */
+ static int read_key(void)
+ {
+-#if HAVE_TERMIOS_H
++#if HAVE_TERMIOS_H && !defined(DSH_EMBEDDED)
+     int n = 1;
+     struct timeval tv;
+     fd_set rfds;
+@@ -977,6 +983,16 @@
+     return 0;
+ #endif
+ }
++
++#ifdef DSH_EMBEDDED
++/* Fish Pocket runs ffmpeg on a thread of the app: no signal reaches it, the
++ * host asks it to stop through here instead (native/ffmpeg). */
++void dsh_ffmpeg_signal(int sig)
++{
++    sigterm_handler(sig);
++}
++#define main dsh_ffmpeg_main
++#endif
+ 
+ int main(int argc, char **argv)
+ {
+diff -ruN a/fftools/ffmpeg_opt.c b/fftools/ffmpeg_opt.c
+--- a/fftools/ffmpeg_opt.c
++++ b/fftools/ffmpeg_opt.c
+@@ -68,7 +68,12 @@
+ int exit_on_error     = 0;
+ int abort_on_flags    = 0;
+ int print_stats       = -1;
++#ifdef DSH_EMBEDDED
++/* In the app nobody types at ffmpeg: as with -nostdin (pass -y to overwrite). */
++int stdin_interaction = 0;
++#else
+ int stdin_interaction = 1;
++#endif
+ float max_error_rate  = 2.0/3;
+ char *filter_nbthreads;
+ int filter_complex_nbthreads = 0;
+diff -ruN a/fftools/ffprobe.c b/fftools/ffprobe.c
+--- a/fftools/ffprobe.c
++++ b/fftools/ffprobe.c
+@@ -3363,6 +3363,9 @@
+             do_show_##varname = 1;                                      \
+     } while (0)
+ 
++#ifdef DSH_EMBEDDED
++#define main dsh_ffprobe_main
++#endif
+ int main(int argc, char **argv)
+ {
+     const AVTextFormatter *f;
+diff -ruN a/libavformat/file.c b/libavformat/file.c
+--- a/libavformat/file.c
++++ b/libavformat/file.c
+@@ -444,6 +444,11 @@
+ 
+ #if CONFIG_PIPE_PROTOCOL
+ 
++#ifdef DSH_EMBEDDED
++/* In Fish Pocket pipe:0/1/2 are the running command's pipes, not the app's (native/ffmpeg). */
++int dsh_ffmpeg_fd(int fd);
++#endif
++
+ static int pipe_open(URLContext *h, const char *filename, int flags)
+ {
+     FileContext *c = h->priv_data;
+@@ -467,6 +472,9 @@
+         c->fd = fd;
+     }
+ 
++#ifdef DSH_EMBEDDED
++    c->fd = dsh_ffmpeg_fd(c->fd);
++#endif
+     c->fd = fd_dup(h, c->fd);
+     if (c->fd == -1)
+         return AVERROR(errno);
+diff -ruN a/libavformat/matroskaenc.c b/libavformat/matroskaenc.c
+--- a/libavformat/matroskaenc.c
++++ b/libavformat/matroskaenc.c
+@@ -72,6 +72,13 @@
+ #include "libavcodec/mpeg4audio.h"
+ #include "libavcodec/opus/tab.h"
+ 
++#ifdef DSH_EMBEDDED
++/* Fish Pocket has no x264: H.264 comes from VideoToolbox, and it should still
++ * be what this format writes by default rather than MPEG-4 Part 2. */
++#undef CONFIG_LIBX264_ENCODER
++#define CONFIG_LIBX264_ENCODER CONFIG_H264_VIDEOTOOLBOX_ENCODER
++#endif
++
+ /* Level 1 elements we create a SeekHead entry for:
+  * Info, Tracks, Chapters, Attachments, Tags (potentially twice) and Cues */
+ #define MAX_SEEKHEAD_ENTRIES 7
+diff -ruN a/libavformat/movenc.c b/libavformat/movenc.c
+--- a/libavformat/movenc.c
++++ b/libavformat/movenc.c
+@@ -75,6 +75,13 @@
+ #include "vpcc.h"
+ #include "vvc.h"
+ 
++#ifdef DSH_EMBEDDED
++/* Fish Pocket has no x264: H.264 comes from VideoToolbox, and it should still
++ * be what this format writes by default rather than MPEG-4 Part 2. */
++#undef CONFIG_LIBX264_ENCODER
++#define CONFIG_LIBX264_ENCODER CONFIG_H264_VIDEOTOOLBOX_ENCODER
++#endif
++
+ static const AVOption options[] = {
+     { "brand",    "Override major brand", offsetof(MOVMuxContext, major_brand),   AV_OPT_TYPE_STRING, {.str = NULL}, .flags = AV_OPT_FLAG_ENCODING_PARAM },
+     { "empty_hdlr_name", "write zero-length name string in hdlr atoms within mdia and minf atoms", offsetof(MOVMuxContext, empty_hdlr_name), AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, AV_OPT_FLAG_ENCODING_PARAM},
