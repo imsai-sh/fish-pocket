@@ -38,21 +38,33 @@
 
 ## Xcode Cloud 构建
 
-推送到 `main` 且改到 `app`、`engine`、`native`、`scripts` 任一目录时，Xcode Cloud 会自动归档一次；只改文档不触发。影响打包的东西都放在这四个目录里，新增的也照此放。
+推送到 `release` 分支且改到 `app`、`engine`、`native`、`scripts` 任一目录时，Xcode Cloud 会自动归档一次，发到 TestFlight；只改文档不触发。合进 `main` 不出包。影响打包的东西都放在这四个目录里，新增的也照此放。
 
 - 工程文件不进仓库。Xcode Cloud 克隆后跑 `app/ci_scripts/ci_post_clone.sh`：装工具、下载 nodejs-mobile 和 Python、编译 libgit2、组装引擎、生成工程。这个脚本在 Mac 上也能直接跑，改完先本地跑一遍。
 - build 号由 Xcode Cloud 分配，每次构建加 1，失败的也占号。脚本把它写进生成的工程，`app/project.yml` 里的 `CURRENT_PROJECT_VERSION` 只对本地构建有效。
 - 改了 `app/project.yml` 里 SwiftPM 依赖的版本后，本地构建一次，把 `app/DshIOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` 拷到 `app/ci_scripts/Package.resolved`。Xcode Cloud 不自己解析版本，两边对不上会构建失败。
 
+### 分支
+
+- **`main`**：默认分支，日常开发都在这里。PR 都合进 `main`，合多少次都不会出包。
+- **`release`**：出包用，只从 `main` 往前走。攒够一批要发的改动，确认 `main` 上的 GitHub 编译检查是绿的，再把 `main` 推过去：
+  ```bash
+  git push origin main:release
+  ```
+  这是快进推送，不用开 PR。推上去就开始云端构建，过审后会发给公开测试用户，所以只推真打算发出去的东西。
+- **紧急修复**：从 `release` 开分支修，PR 合进 `release` 出包，然后把 `release` 合回 `main`。这样 `main` 包含了这次修复，下次推 `main:release` 仍然是快进。
+- 不要强推 `release`，也不要直接在 `release` 上提交而不合回 `main`，否则下次推 `main:release` 会因为不是快进被拒。
+
 ### 注意
 
 - **升级 nodejs-mobile、Python、libgit2 的版本后**（`scripts/fetch-nodejs-mobile.sh`、`scripts/fetch-python.sh`、`scripts/build-libgit2.sh`），本地从零跑一遍 `app/ci_scripts/ci_post_clone.sh`。云端每次都重新下载和编译，下载地址或 sha256 写错会直接失败。
 - **改构建脚本或 `app/project.yml` 的工程结构时**，合并前先在分支上手动触发一次云端构建。本地能验证脚本和编译，验证不了云端的签名和上传。
-- **触发规则按提交看，不按净差异看。** 只改文档的 PR，如果分支在合并前同步过 `main`，那个同步提交带着别人的代码改动，照样会触发构建。不想触发，就从最新的 `main` 开分支，合并前不再同步。
-- **连续推送只跑最新一次**，前一次会被自动取消。但被取消的那次如果已经导出完，包照样会上传并占一个 build 号，所以 build 列表里的号不一定连续，也可能多出包。
+- **触发规则按提交看，不按净差异看。** 推到 `release` 的这一批提交里，只要有一个改到上面四个目录就会出包，哪怕后面的提交又把它改回去了。
+- **连续推送 `release` 只跑最新一次**，前一次会被自动取消。但被取消的那次如果已经导出完，包照样会上传并占一个 build 号，所以 build 列表里的号不一定连续，也可能多出包。
 - **归档成功就自动上传**，不用另外操作。构建要等上传的包处理完才算结束，全程二三十分钟，其中真正在构建的只有几分钟；处理完之前包不会出现在 build 列表里，不是没传上去。
 - **某个版本在 App Store 上架后，这个版本号不再接收新包。** 之后的云端构建归档、导出都成功，上传时才失败，报 `90186` 和 `90062`。版本一上架，就把 `app/project.yml` 的 `MARKETING_VERSION` 升到下一个版本，并把「新功能」里还挂在旧版本下、商店用户没看过的 build 条目并进新版本的那一条。
 - **云端构建失败不影响本地**：`scripts/run-sim.sh`、`scripts/run-device.sh` 和 GitHub 上的编译检查走的是各自的流程。
+- **GitHub 的编译检查**在合进 `main` 或 `release` 的 PR 上跑，合进 `main` 后再跑一次；推到 `release` 不跑，因为推上去的都是检查过的提交。
 - **GitHub 的编译检查用 Xcode 27.2**（`.github/workflows/ios-build.yml`，运行器是 `xcode-27`），和本机、Xcode Cloud 是同一代。它停在旧版本时出过一次事：本机和 Xcode Cloud 都能编的代码，旧编译器报「无法在合理时间内完成类型检查」。本机升级 Xcode 后，把工作流里的版本一起改；README「快速开始」里写的最低 Xcode 版本也跟着它走，因为没有别的地方验证更老的版本。
 
 ## 内置 skill：iOS 环境说明
