@@ -29,6 +29,14 @@
 </table>
 
 <p align="center">
+  <img src="docs/assets/demo-bot.gif" width="250" alt="Creating a Bot and picking its look and color; asking it in chat for today's tech news, its avatar moving while it searches, then three stories coming back; finally the connectors page, listing services such as GitHub and Notion">
+  <br/>
+  <b>Bot mode</b>
+  <br/>
+  <sub>Make a Bot, hand it a task, and it searches the web and reports back; connect the services you use once</sub>
+</p>
+
+<p align="center">
   <img src="docs/assets/demo-ipad.gif" width="840" alt="Two Fish Pocket windows side by side on iPad, each running its own session: the left adds a leaderboard to a snake game, the right initializes a Git repository and commits">
   <br/>
   <b>Multiple windows on iPad</b>
@@ -58,8 +66,9 @@
 - **A workbench.** Terminal, file preview, built-in browser and change review in one panel.
 - **Made for iOS.** Dynamic Island and Lock Screen Live Activities, Home Screen and Lock Screen widgets, a Control Center button, Siri and Shortcuts, and tasks that continue in the background.
 - **Made for iPad too.** A persistent sidebar, a side workbench, multiple windows, file drag and drop, and keyboard shortcuts.
+- **Reaches the agents on your computer too.** Sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) and the Codex, Claude Code and DeepSeek Harness sessions on your computers appear in the same sidebar: follow their progress, keep the conversation going, answer approvals, stop a run. It is optional, and nothing changes until you sign in.
 - **More private.** Sessions and workspaces stay on your device.
-- **Coming soon: Bot mode.** Turn the agent in your pocket into an always-on bot: hand it a task in chat, it runs the work on your phone and sends the result back.
+- **Bot mode:** a standing team of Bots. Each Bot has its own look, memory and working folder; chat with one, put several in a group, or let them start work on a schedule. Connect services such as GitHub and Notion once, and both ordinary conversations and Bots can use them. The backend is the open-source [DS Bot](https://github.com/Fei2411/DS-Bot); the interface is rewritten natively.
 
 Model calls still need a network connection. Use a DeepSeek account or an API key.
 
@@ -96,7 +105,7 @@ To install it, you need iOS 17 or later:
 - **TestFlight (recommended, available worldwide)**: open the [TestFlight beta link](https://testflight.apple.com/join/2SCftb2M) on your iPhone or iPad. New versions land here first and stay in step with this repository.
 - **App Store (outside mainland China)**: [download on the App Store](https://apps.apple.com/app/id6830703602). It is currently available outside mainland China only. Every App Store version has to wait for Apple's review, so it lags behind TestFlight and this repository.
 
-To build it yourself, you need macOS, Xcode 26 or later, Node 24 and `xcodegen`, plus `cmake` or `uv` to build libgit2. Filling the screen on iPhone Duo takes Xcode 27.1 or later: a build from an earlier Xcode runs there at the size of an ordinary iPhone.
+To build it yourself, you need macOS, Xcode 27 or later, Node 24 and `xcodegen`, plus `cmake` or `uv` to build libgit2. Filling the screen on iPhone Duo takes Xcode 27.1 or later: a build from an earlier Xcode runs there at the size of an ordinary iPhone.
 
 ```bash
 git clone https://github.com/imsai-sh/fish-pocket.git
@@ -163,6 +172,8 @@ The TestFlight beta is available worldwide, including mainland China. The App St
 
 Not to us: we run no servers. Sessions and workspaces stay on your device, and model requests go straight to the provider you choose. See the [privacy policy](PRIVACY.md).
 
+Remote control is the exception, and only once you sign in to it: sessions on your computers travel through an Agents Anywhere server (its cloud service or one you host). Sessions on the device are not affected.
+
 ### Can the agent see my calendar, health data and photos?
 
 Only after you turn on that capability under Device capabilities. What is off it cannot use. When a capability is used, what it reads is sent with the conversation to the model provider you chose. Health, Contacts and Photos are read-only.
@@ -186,8 +197,9 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
 - [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more
 - [x] Built-in Python 3.15, with pip and venv
+- [x] Remote control: manage the Codex, Claude Code and DSH sessions on your computers from the phone (through Agents Anywhere)
 - [ ] Move the bash interpreter off the engine thread
-- [ ] Bot mode: hand tasks to the agent in your pocket from a chat
+- [x] Bot mode: hand tasks to the agent in your pocket from a chat
 
 ## Contributing
 
@@ -202,11 +214,13 @@ Fish Pocket also stands on the shoulders of these projects.
 **Used directly:**
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): the engine, and the reason any of this exists
+- [DS Bot](https://github.com/Fei2411/DS-Bot): the backend of the Bot feature (the standing team of Bots, group chats, memory and scheduled tasks). Thanks to Fei2411 and the community contributors
 - [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) and its [digidem fork](https://github.com/digidem/nodejs-mobile): Node 24 on iOS
 - [CPython](https://github.com/python/cpython): the official python.org iOS build, Python inside the app
 - [just-bash](https://github.com/vercel-labs/just-bash): a bash interpreter written in TypeScript
 - [libgit2](https://github.com/libgit2/libgit2): git inside the app
 - [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm): the terminal view
+- [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere): the open-source workbench remote control talks to; the desktop side and the server are its own
 
 **Ideas we learned from:**
 

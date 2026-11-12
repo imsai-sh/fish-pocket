@@ -243,6 +243,17 @@ private struct GroupedRowStyle: ViewModifier {
 extension View {
     func groupedList() -> some View { modifier(GroupedListStyle()) }
 
+    /// A settings page and everything pushed or presented from it, as 设置 is drawn: the system's
+    /// grouped lists, separators and switches, with the app's ink for what can be tapped. Goes on
+    /// the navigation stack (or the sheet's content), so the pages inside inherit it.
+    func settingsStyle() -> some View {
+        environment(\.systemLists, true).toggleStyle(.mono).tint(Palette.ink)
+    }
+
+    /// A picker's value in the grey of the other rows' values; the page's ink tint would paint it black.
+    /// Only the value: the row's icon keeps the ink.
+    func pickerValueTint() -> some View { tint(.secondary) }
+
     /// The background of a page that puts something of its own (tabs, an empty state) around a `groupedList()`.
     func pageBackground() -> some View { modifier(PageBackground()) }
 

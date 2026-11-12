@@ -107,6 +107,8 @@ final class AppModel {
     let mux: StreamMux
     let account: AccountModel
     let cordis = CordisModel()
+    /// Agent sessions on the user's computers, through Agents Anywhere; idle until signed in.
+    let remote = RemoteStore()
 
     private(set) var workspaces: [Workspace] = []
     private(set) var pinned: [String] = []
@@ -129,6 +131,10 @@ final class AppModel {
     var archiveRequest: ArchiveRequest?
     var renameRequest: RenameRequest?
     var newSessionRequest: NewSessionRequest?
+    /// Start a session on a computer (the root view presents the sheet).
+    var remoteSessionRequest: RemoteSessionTarget?
+    /// Open the remote-control page: sign in, or the account's computers (the root view consumes it).
+    var remoteRequest: UUID?
     /// Height of the composer area on screen; the toast sits just above it.
     var composerHeight: CGFloat = 0
     /// Composer text waiting for a session to show it (appended to any draft there).
@@ -146,6 +152,8 @@ final class AppModel {
     /// Open the device-capability screen, where the user grants and reviews them
     /// (the root view consumes it).
     var nativeCapabilitiesRequest: UUID?
+    /// Open the connectors (the root view consumes it).
+    var connectorsRequest: UUID?
     /// A credential step to open (set through `requestCredentials`; the root view consumes it).
     var credentialRequest: (step: CredentialStep, token: UUID)?
     /// The session in the main view, kept by the root view (unread completions skip it).
@@ -197,6 +205,7 @@ final class AppModel {
             followRemoteEvents()
             followScheduleCatalog()
             account.follow()
+            botTeam.start()
             BackgroundKeeper.shared.attach { [weak self] in await self?.refreshSessions() }
             LiveActivityController.shared.attach(self)
             WidgetSnapshotWriter.shared.attach(self)
@@ -216,9 +225,12 @@ final class AppModel {
             let grouped = Set(workspaces.flatMap(\.sessionIds))
             members = sessions.values.filter { !grouped.contains($0.id) }
         }
+        // The Bot team's sessions (its Bots' chats, the groups and their members' hidden
+        // sessions) live on the Bot pages.
+        let team = botTeam.teamSessionIds
         return members
             .filter { includeArchived || !archived.contains($0.id) }
-            .filter { !$0.isSubagent && !$0.blank }
+            .filter { !$0.isSubagent && !$0.blank && !team.contains($0.id) }
             .sorted { lhs, rhs in
                 let lp = pinned.firstIndex(of: lhs.id), rp = pinned.firstIndex(of: rhs.id)
                 if (lp != nil) != (rp != nil) { return lp != nil }
@@ -233,6 +245,17 @@ final class AppModel {
     }
 
     func isPinned(_ id: String) -> Bool { pinned.contains(id) }
+
+    /// A completion reminder read elsewhere than the main view (the Bot pages).
+    /// Only a real change is written: a write tells every reader of the set, changed or not.
+    func clearUnread(_ id: String) {
+        if completionUnread.contains(id) { completionUnread.remove(id) }
+    }
+
+    /// The reader's own mark that a conversation still needs a look.
+    func markUnread(_ id: String) {
+        if !completionUnread.contains(id) { completionUnread.insert(id) }
+    }
 
     /// Waiting on the user: a tool approval or an open question.
     func isWaiting(_ id: String) -> Bool {

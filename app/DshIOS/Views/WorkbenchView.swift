@@ -437,7 +437,7 @@ private struct WorkbenchChanges: View {
     }
 }
 
-private struct ChangedFileRow: View {
+struct ChangedFileRow: View {
     let change: FileChange
 
     var body: some View {
@@ -456,7 +456,7 @@ private struct ChangedFileRow: View {
 }
 
 /// `+a −b` in the diff tokens; a side with nothing to report stays out.
-private struct ChangeCounts: View {
+struct ChangeCounts: View {
     let added: Int
     let removed: Int
 

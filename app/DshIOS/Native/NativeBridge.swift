@@ -98,6 +98,14 @@ private extension NativeBridge {
         case ("music", "pause"): return String(localized: "暂停播放？")
         case ("music", "next"): return String(localized: "切到下一首？")
         case ("music", "previous"): return String(localized: "回到上一首？")
+        // 删照片、删相簿、隐藏照片不在这里：iOS 每次都弹自己的确认框，App 不再叠一层。
+        case ("photos", "save"): return String(localized: "把这个文件存进相册？")
+        case ("photos", "favorite"): return String(localized: "收藏这些照片？")
+        case ("photos", "unfavorite"): return String(localized: "取消收藏这些照片？")
+        case ("photos", "addToAlbum"): return String(localized: "把这些照片放进这个相簿？")
+        case ("photos", "removeFromAlbum"): return String(localized: "把这些照片移出这个相簿？照片本身不会删除")
+        case ("photos", "createAlbum"): return String(localized: "新建这个相簿？")
+        case ("photos", "renameAlbum"): return String(localized: "给这个相簿改名？")
         // 新能力忘了加文案时，问句仍然成立，只是不够具体——总好过问错对象。
         default: return destructive ? String(localized: "删除这一条？") : String(localized: "确认这个改动？")
         }
@@ -119,6 +127,13 @@ private extension NativeBridge {
         case "pause": return String(localized: "暂停")
         case "next": return String(localized: "下一首")
         case "previous": return String(localized: "上一首")
+        case "save": return String(localized: "保存")
+        case "favorite": return String(localized: "收藏")
+        case "unfavorite": return String(localized: "取消收藏")
+        case "addToAlbum": return String(localized: "放进相簿")
+        case "removeFromAlbum": return String(localized: "移出")
+        case "createAlbum": return String(localized: "新建")
+        case "renameAlbum": return String(localized: "改名")
         case "delete": return String(localized: "删除")
         default: return destructive ? String(localized: "删除") : String(localized: "修改")
         }

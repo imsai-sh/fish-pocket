@@ -61,7 +61,7 @@
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>让智能体按你的要求查看和安排日程。为回答你的问题，相关日程内容会随对话发送给你选择的模型服务商。</string>
 	<key>NSCameraUsageDescription</key>
-	<string>拍照后作为附件发给智能体。</string>
+	<string>拍照后作为附件发给智能体，或扫描电脑上的登录二维码。</string>
 	<key>NSContactsUsageDescription</key>
 	<string>让智能体在你要求时按名字、电话或邮箱查找联系人，比如替你写邮件前查对方的地址。为回答你的问题，查到的联系人信息会随对话发送给你选择的模型服务商。App 不会添加、修改或删除任何联系人。</string>
 	<key>NSHealthShareUsageDescription</key>
@@ -75,7 +75,7 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>把分享海报保存到相册。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>让智能体在你问起时查看相册里有哪些照片，并把你指定的一张导出成文件，用手机本机的识别能力读出里面的文字。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。App 不会添加、修改或删除任何照片。</string>
+	<string>让智能体在你问起时查看相册里有哪些照片、导出照片给本机识别，并按你在「本机能力」里设的写入方式帮你整理相册。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。删除照片前 iOS 会再问你一次。</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
 	<string>让智能体按你的要求查看和创建提醒。为回答你的问题，相关提醒内容会随对话发送给你选择的模型服务商。</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

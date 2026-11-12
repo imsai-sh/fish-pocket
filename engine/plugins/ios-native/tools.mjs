@@ -890,31 +890,56 @@ const health = defineTool({
   },
 });
 
+const PHOTO_WRITES = new Set([
+  'save', 'delete', 'favorite', 'hide', 'createAlbum', 'renameAlbum', 'deleteAlbum', 'addToAlbum', 'removeFromAlbum',
+]);
+
 const photos = defineTool({
   name: 'photos',
   description:
-    'Read the metadata of the photos and videos on this device, list its albums, or export one '
-    + 'photo to a file. Nothing here returns image data: use `list` or `albums` to find the picture '
-    + 'you mean, then `export` to get a file path and read it with image_analysis — all on the phone, so '
-    + 'a receipt or a screenshot never has to be uploaded.\n'
+    'Read and organise the photo library on this device. Reading: `list` photo metadata, `albums`, '
+    + 'and `export` one photo to a file. Nothing returns image data: find the picture with `list` or '
+    + '`albums`, `export` it, then image_analysis the path — all on the phone, so a receipt or a '
+    + 'screenshot never has to be uploaded.\n'
     + 'Photos come back in the library\'s own order, which is OLDEST FIRST, so ask for a stretch of '
     + 'time with from/to or pass newestFirst when the question is about recent pictures.\n'
+    + 'Organising: `createAlbum`, `renameAlbum`, `deleteAlbum` (the photos in it stay), `addToAlbum` / '
+    + '`removeFromAlbum` (removing only takes them out of that album), `favorite` (value false '
+    + 'undoes), `hide` (one way: iOS hides hidden photos from apps too, so only the Photos app can '
+    + 'unhide them — say so before hiding), `save` an image or video file from the workspace into the library, and `delete` '
+    + 'photos (they go to Recently Deleted for 30 days). Smart albums such as Screenshots cannot be '
+    + 'edited. Every write may stop for the user to confirm, depending on their setting, and iOS '
+    + 'itself asks before deleting photos or albums and before hiding photos. They may decline: the result then has action '
+    + '"cancelled", and nothing changed — never report a write as done without checking.\n'
     + 'If the reply says access is "limited", the user shared a few photos rather than their '
     + 'library: relay that instead of telling them how many photos they have.',
   parameters: {
     action: {
       type: 'string',
-      enum: ['list', 'albums', 'export'],
-      description: 'list photo metadata, list the albums, or export one photo to a file',
+      enum: ['list', 'albums', 'export', ...PHOTO_WRITES],
+      description: 'what to do; see the description',
       required: true,
     },
     from: { type: 'number', description: 'list: earliest creation time, seconds since 1970' },
     to: { type: 'number', description: 'list: latest creation time, seconds since 1970' },
-    album: { type: 'string', description: 'list: restrict to one album, by the id `albums` returned' },
+    album: {
+      type: 'string',
+      description: 'an album id from `albums` — list: restrict to it; addToAlbum, removeFromAlbum, '
+        + 'renameAlbum, deleteAlbum: the album to change; save: also put the new photo in it',
+    },
     newestFirst: { type: 'boolean', description: 'list: newest first instead of the library order; defaults to false' },
     limit: { type: 'number', description: 'list: how many to return, at most 200' },
     id: { type: 'string', description: 'export: which photo, by the id `list` returned' },
     maxPixels: { type: 'number', description: 'export: cap the longest edge in pixels; omit for full resolution' },
+    ids: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'delete, favorite, hide, addToAlbum, removeFromAlbum: photo ids from `list`, at most 200. '
+        + 'If any id does not resolve, nothing is changed',
+    },
+    value: { type: 'boolean', description: 'favorite: true to favorite, false to unfavorite; defaults to true' },
+    title: { type: 'string', description: 'createAlbum, renameAlbum: the album title' },
+    path: { type: 'string', description: 'save: absolute path of an image or video file in the workspace' },
   },
   output: {
     schema: { type: 'json' },
@@ -922,6 +947,22 @@ const photos = defineTool({
       // The limited-access note goes first, every time: a count taken from a
       // handful of shared photos reads exactly like a count of their library.
       const note = value.access === 'limited' ? `${value.note}\n\n` : '';
+      if (PHOTO_WRITES.has(args.action)) {
+        // The user's last word on a write: "cancelled" must never read as done.
+        if (value.action === 'cancelled') return text('They declined. Nothing in the photo library changed.');
+        switch (args.action) {
+          case 'save': return text(`Saved to the photo library as ${value.isVideo ? 'a video' : 'a photo'}, id ${value.id}.`);
+          case 'delete': return text(`Deleted ${value.count}; they stay in Recently Deleted for 30 days.`);
+          case 'favorite': return text(`${value.value ? 'Favorited' : 'Unfavorited'} ${value.count}.`);
+          case 'hide': return text(`Hid ${value.count}. They no longer show up for this app; the user can unhide them in the Photos app.`);
+          case 'addToAlbum': return text(`Added ${value.count} to the album.`);
+          case 'removeFromAlbum': return text(`Removed ${value.count} from the album; they are still in the library.`);
+          case 'createAlbum': return text(`Created album "${value.title}", id ${value.id}.`);
+          case 'renameAlbum': return text(`Renamed the album to "${value.title}".`);
+          case 'deleteAlbum': return text(`Deleted album "${value.title}"; its photos are still in the library.`);
+          default: break;
+        }
+      }
       if (args.action === 'albums') {
         const list = value.albums ?? [];
         if (list.length === 0) return text(`${note}No albums on this device.`);
@@ -939,15 +980,13 @@ const photos = defineTool({
         + (value.truncated ? `\n… ${value.total} in all; narrow it with from/to.` : ''));
     },
   },
-  execute: (args) => invoke('photos', args.action, {
-    ...(args.from === undefined ? {} : { from: args.from }),
-    ...(args.to === undefined ? {} : { to: args.to }),
-    ...(args.album === undefined ? {} : { album: args.album }),
-    ...(args.newestFirst === undefined ? {} : { newestFirst: args.newestFirst }),
-    ...(args.limit === undefined ? {} : { limit: args.limit }),
-    ...(args.id === undefined ? {} : { id: args.id }),
-    ...(args.maxPixels === undefined ? {} : { maxPixels: args.maxPixels }),
-  }),
+  execute: (args) => {
+    const pass = {};
+    for (const key of ['from', 'to', 'album', 'newestFirst', 'limit', 'id', 'maxPixels', 'ids', 'value', 'title', 'path']) {
+      if (args[key] !== undefined) pass[key] = args[key];
+    }
+    return invoke('photos', args.action, pass);
+  },
 });
 
 const homekit = defineTool({
