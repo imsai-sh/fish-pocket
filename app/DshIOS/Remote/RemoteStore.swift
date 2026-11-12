@@ -26,9 +26,14 @@ struct RemoteLoginCode: Hashable {
 /// and off screen for as long as a session the phone answers for is at work or waits (no push
 /// service is involved, as with the phone's own sessions: the app has to be alive to hear).
 /// Nothing happens, and nothing shows, until the user signs in.
+///
+/// One for the app: it does not depend on the phone's own engine, so an engine restart (which
+/// brings a new `AppModel`) leaves the account, its connection and the open sessions as they are.
 @MainActor
 @Observable
 final class RemoteStore {
+    static let shared = RemoteStore()
+
     /// A remote session in the shell's one selection: `remote:<id>` beside the engine's own ids.
     nonisolated static let prefix = "remote:"
     nonisolated static func selection(_ sessionId: String) -> String { prefix + sessionId }
@@ -89,7 +94,7 @@ final class RemoteStore {
 
     var signedIn: Bool { account != nil }
 
-    init() {
+    private init() {
         // The whole app, not a window: on iPad one window can leave while another stays.
         let center = NotificationCenter.default
         observers = [

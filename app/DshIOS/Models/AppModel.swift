@@ -108,7 +108,7 @@ final class AppModel {
     let account: AccountModel
     let cordis = CordisModel()
     /// Agent sessions on the user's computers, through Agents Anywhere; idle until signed in.
-    let remote = RemoteStore()
+    let remote = RemoteStore.shared
 
     private(set) var workspaces: [Workspace] = []
     private(set) var pinned: [String] = []

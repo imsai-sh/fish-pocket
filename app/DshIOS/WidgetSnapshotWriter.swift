@@ -114,19 +114,20 @@ final class WidgetSnapshotWriter {
         }
 
         let rank: (WidgetSnapshot.Phase) -> Int = { $0.waiting ? 0 : $0 == .running ? 1 : 2 }
-        let remote = app.remote
-        let away = remote.listed().filter(\.followed).map { session in
-            let request = session.waiting ? remote.requests[session.id] : nil
-            let phase: WidgetSnapshot.Phase = !session.needsAttention ? .idle
-                : !session.waiting ? .running
-                : request?.isApproval == false ? .question : .approval
+        let away = SessionBoard.away(in: app).map { session in
+            let phase: WidgetSnapshot.Phase = switch session.phase {
+            case .approval: .approval
+            case .question: .question
+            case .running: .running
+            case nil: .idle
+            }
             return WidgetSnapshot.Session(
-                id: RemoteStore.selection(session.id),
-                title: showTitles ? session.displayTitle : nil,
+                id: session.id,
+                title: showTitles ? session.title : nil,
                 phase: phase,
-                detail: showTitles ? request?.summary : nil,
+                detail: showTitles ? session.detail : nil,
                 since: nil,
-                updatedAt: session.sortAt
+                updatedAt: session.updatedAt
             )
         }
         let sessions = (SessionBoard.listed(in: app)
