@@ -182,6 +182,10 @@ struct MainView: View {
         .onChange(of: app.remote.signedIn) { _, signedIn in
             if !signedIn, RemoteStore.sessionId(of: selection) != nil { selection = nil }
         }
+        // Its computer was taken off the account: the same.
+        .onChange(of: app.remote.departed) { _, gone in
+            if let id = RemoteStore.sessionId(of: selection), gone.contains(id) { selection = nil }
+        }
         .onChange(of: app.connectorsRequest) { _, token in
             guard token != nil, scenePhase != .background else { return }
             app.connectorsRequest = nil

@@ -60,6 +60,9 @@ final class RemoteStore {
     /// What each followed session that waits is asking, read as it starts to wait: the lock
     /// screen and the widgets say it, and an approval can be answered from there.
     private(set) var requests: [String: RemoteNotice] = [:]
+    /// Sessions whose computer was taken off the account while they were known here: a
+    /// conversation open on one has nothing behind it any more, and closes.
+    private(set) var departed: Set<String> = []
     /// The list has been read at least once since signing in.
     private(set) var loaded = false
     /// The list is being followed live.
@@ -124,9 +127,12 @@ final class RemoteStore {
         if deviceIndex != self.deviceIndex { self.deviceIndex = deviceIndex }
         let projectIndex = Dictionary(projects.map { ($0.id, $0) }, uniquingKeysWith: { $1 })
         if projectIndex != self.projectIndex { self.projectIndex = projectIndex }
-        let active = sessions.values.filter { !$0.archived }.sorted(by: Self.precedes)
+        // A computer taken off the account takes its sessions with it, whatever a reading still
+        // carries of them: only sessions of a computer the account has are listed.
+        let listed = sessions.values.filter { deviceIndex[$0.deviceId] != nil }
+        let active = listed.filter { !$0.archived }.sorted(by: Self.precedes)
         if active != self.active { self.active = active }
-        let archived = sessions.values.filter(\.archived).sorted(by: Self.precedes)
+        let archived = listed.filter(\.archived).sorted(by: Self.precedes)
         if archived != archivedSessions { archivedSessions = archived }
     }
 
@@ -238,6 +244,7 @@ final class RemoteStore {
         projects = []
         agents = []
         sessions = [:]
+        departed = []
         requests = [:]
         requestSeq = [:]
         requestReads = []
@@ -342,6 +349,7 @@ final class RemoteStore {
     }
 
     private func apply(_ parsed: Parsed) {
+        if loaded { noteDeparture(of: Set(devices.map(\.id)).subtracting(parsed.devices.map(\.id))) }
         if devices != parsed.devices { devices = parsed.devices }
         if projects != parsed.projects { projects = parsed.projects }
         if let agents = parsed.agents, agents != self.agents { self.agents = agents }
@@ -398,6 +406,13 @@ final class RemoteStore {
         if requests[id]?.id == requestId { requests[id] = nil }
         await refresh()
         return true
+    }
+
+    /// Computers that have just left the account: their sessions are remembered as gone.
+    private func noteDeparture(of deviceIds: Set<String>) {
+        guard !deviceIds.isEmpty else { return }
+        let gone = sessions.values.filter { deviceIds.contains($0.deviceId) }.map(\.id)
+        if !gone.isEmpty { departed.formUnion(gone) }
     }
 
     /// The newer of two readings; what has been read stays read.
@@ -493,6 +508,7 @@ final class RemoteStore {
     func remove(device id: String) async -> String? {
         await change { client in
             try await client.delete("/connectors/\(RemoteClient.encode(id))")
+            noteDeparture(of: [id])
             devices.removeAll { $0.id == id }
             projects.removeAll { $0.deviceId == id }
             agents.removeAll { $0.deviceId == id }
