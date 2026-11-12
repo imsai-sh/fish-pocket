@@ -100,6 +100,7 @@ final class WidgetSnapshotWriter {
     }
 
     /// Top-level sessions only: a subagent's approval or question shows on the session it serves.
+    /// With them, the sessions on a computer that the phone answers for.
     private static func snapshot(of app: AppModel) -> WidgetSnapshot {
         let showTitles = UserDefaults.standard.object(forKey: showTitlesKey) as? Bool ?? true
         let board = SessionBoard(app)
@@ -113,7 +114,22 @@ final class WidgetSnapshotWriter {
         }
 
         let rank: (WidgetSnapshot.Phase) -> Int = { $0.waiting ? 0 : $0 == .running ? 1 : 2 }
-        let sessions = SessionBoard.listed(in: app)
+        let remote = app.remote
+        let away = remote.listed().filter(\.followed).map { session in
+            let request = session.waiting ? remote.requests[session.id] : nil
+            let phase: WidgetSnapshot.Phase = !session.needsAttention ? .idle
+                : !session.waiting ? .running
+                : request?.isApproval == false ? .question : .approval
+            return WidgetSnapshot.Session(
+                id: RemoteStore.selection(session.id),
+                title: showTitles ? session.displayTitle : nil,
+                phase: phase,
+                detail: showTitles ? request?.summary : nil,
+                since: nil,
+                updatedAt: session.sortAt
+            )
+        }
+        let sessions = (SessionBoard.listed(in: app)
             .map { summary in
                 WidgetSnapshot.Session(
                     id: summary.id,
@@ -123,7 +139,7 @@ final class WidgetSnapshotWriter {
                     since: nil,
                     updatedAt: summary.updatedAt
                 )
-            }
+            } + away)
             .sorted { lhs, rhs in
                 let l = rank(lhs.phase), r = rank(rhs.phase)
                 return l != r ? l < r : lhs.updatedAt > rhs.updatedAt

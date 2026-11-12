@@ -41,7 +41,7 @@ struct RemoteComposer: View {
                 }
                 HStack(alignment: .bottom, spacing: 6) {
                     plusMenu
-                    TextField(model.busy && !model.canSend ? "智能体正在工作…" : "发消息", text: $model.draft, axis: .vertical)
+                    TextField(placeholder, text: $model.draft, axis: .vertical)
                         .font(.callout)
                         .lineLimit(1...5)
                         .focused($focused)
@@ -66,6 +66,12 @@ struct RemoteComposer: View {
         .fileImporter(isPresented: $showFiles, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
             if case .success(let urls) = result { add(files: urls) }
         }
+    }
+
+    /// Why sending waits, where it does; the draft is taken either way.
+    private var placeholder: LocalizedStringKey {
+        if model.struggling { return "正在连接…" }
+        return model.busy && !model.canSend ? "智能体正在工作…" : "发消息"
     }
 
     // MARK: Parts
@@ -107,7 +113,7 @@ struct RemoteComposer: View {
                 .accessibilityLabel("停止生成")
             }
             if !model.busy || !empty {
-                let ready = !empty && model.canSend && reading.isEmpty
+                let ready = !empty && (model.canSend || model.sendWaits) && reading.isEmpty
                 Button { Haptics.tap(); Task { await model.send() } } label: {
                     Image(systemName: "arrow.up").font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(ready ? Palette.onInk : Palette.faint)

@@ -3,7 +3,8 @@ import Foundation
 import Observation
 import SwiftUI
 
-/// Mirrors agent work onto one Live Activity while the user is away from it.
+/// Mirrors agent work onto one Live Activity while the user is away from it: the phone's own
+/// sessions, and the ones on a computer that the phone answers for (`RemoteStore.attention`).
 /// A turn that starts and ends in front of them shows nothing: the activity is
 /// started as the app leaves the screen (the last moment iOS allows it), or
 /// once work has gone on for a while, then updated as sessions run, wait for
@@ -40,7 +41,12 @@ final class LiveActivityController {
     func attach(_ app: AppModel) {
         self.app = app
         DshActivityBridge.handler = { [weak app] eventId, agentId, allow in
-            guard let app, let approval = app.approvals[agentId]?.first(where: { $0.id == eventId }) else { return }
+            guard let app else { return }
+            if let remote = RemoteStore.sessionId(of: agentId) {
+                _ = await app.remote.answer(session: remote, request: eventId, allow: allow)
+                return
+            }
+            guard let approval = app.approvals[agentId]?.first(where: { $0.id == eventId }) else { return }
             await app.answerApproval(approval, session: agentId, allow: allow)
         }
         if !cleaned {
@@ -97,7 +103,8 @@ final class LiveActivityController {
         if let activity, activity.activityState == .active {
             next.startedAt = last?.startedAt ?? next.startedAt
             guard next != last else { return }
-            let alert = next.phase == .approval && last?.approval != next.approval
+            // A new approval, the phone's own or one a computer sends without buttons to answer it here.
+            let alert = next.phase == .approval && (last?.phase != .approval || last?.approval != next.approval || last?.sessionId != next.sessionId)
                 ? AlertConfiguration(title: "等你允许", body: "\(next.title)：\(next.detail ?? "")", sound: .default)
                 : nil
             last = next
@@ -153,31 +160,53 @@ final class LiveActivityController {
         Task { await finished.end(nil, dismissalPolicy: .immediate) }
     }
 
-    /// The focus: the oldest approval, then an open question, then the latest running session.
+    /// The focus: the oldest approval, then an open question, then the latest running session;
+    /// at each step the phone's own before a computer's.
     private static func state(of app: AppModel) -> State? {
         let running = app.sessions.values.filter { $0.running && !$0.isSubagent }.sorted { $0.updatedAt > $1.updatedAt }
         let approvals = app.approvals.filter { !$0.value.isEmpty }
         let questions = app.sessions.keys.filter { id in
             app.control[id]?["userQuestions"]?["active"].array.isEmpty == false
         }.sorted()
-        var busy = Set(running.map(\.id)).union(approvals.keys).union(questions)
+        let away = app.remote.attention
+        // A request not read yet is taken for an approval: that is what a session waits with, nearly always.
+        let awayApproval = away.first { $0.waiting && app.remote.requests[$0.id]?.isApproval != false }
+        let awayQuestion = away.first { $0.waiting && app.remote.requests[$0.id]?.isApproval == false }
+        let awayRunning = away.first { !$0.waiting }
+        var busy = Set(running.map(\.id)).union(approvals.keys).union(questions).union(away.map { RemoteStore.selection($0.id) })
 
         var state: State
         if let (agentId, pending) = approvals.min(by: { $0.key < $1.key }), let approval = pending.first {
             let reason = approval.reason?.isEmpty == false ? approval.reason! : String(localized: "工具 \(approval.toolName) 请求越权执行")
             state = State(phase: .approval, sessionId: agentId, title: title(agentId, in: app), others: 0, detail: reason,
                           approval: .init(eventId: approval.id, agentId: agentId), startedAt: .now)
+        } else if let session = awayApproval {
+            state = remote(session, phase: .approval, in: app)
         } else if let id = questions.first {
             let question = app.control[id]?["userQuestions"]?["active"].array.first?["questions"].array.first?["question"].string
             state = State(phase: .question, sessionId: id, title: title(id, in: app), others: 0, detail: question, startedAt: .now)
+        } else if let session = awayQuestion {
+            state = remote(session, phase: .question, in: app)
         } else if let session = running.first {
             state = State(phase: .running, sessionId: session.id, title: title(session.id, in: app), others: 0, startedAt: .now)
+        } else if let session = awayRunning {
+            state = remote(session, phase: .running, in: app)
         } else {
             return nil
         }
         busy.remove(state.sessionId)
         state.others = busy.count
         return state
+    }
+
+    /// A session on a computer: what it asks while it waits, else whose it is (the agent and
+    /// the machine). The buttons come with an approval one tap answers.
+    private static func remote(_ session: RemoteSession, phase: State.Phase, in app: AppModel) -> State {
+        let id = RemoteStore.selection(session.id)
+        let request = session.waiting ? app.remote.requests[session.id] : nil
+        let place = "\(session.agentTag) · \(app.remote.deviceName(of: session))"
+        return State(phase: phase, sessionId: id, title: session.displayTitle, others: 0, detail: request?.summary ?? place,
+                     approval: request?.quickAnswers == nil ? nil : request.map { .init(eventId: $0.id, agentId: id) }, startedAt: .now)
     }
 
     /// Approvals may come from a subagent, which has no title of its own.

@@ -82,7 +82,8 @@ struct MainView: View {
         let id = parts.count > 1 ? parts[1] : ""
         switch parts[0] {
         case "session":
-            if app.workspace(of: id) != nil, !app.isArchived(id) { selection = id }
+            // A session on a computer is taken on trust while signed in: its page says so if it has gone.
+            if RemoteStore.sessionId(of: id) != nil ? app.remote.signedIn : app.workspace(of: id) != nil && !app.isArchived(id) { selection = id }
         case "bot": openBots([.bot(id)])
         case "room": openBots([.room(id)])
         case "bots": openBots([])
@@ -181,6 +182,10 @@ struct MainView: View {
         .onChange(of: app.remote.signedIn) { _, signedIn in
             if !signedIn, RemoteStore.sessionId(of: selection) != nil { selection = nil }
         }
+        // Its computer was taken off the account: the same.
+        .onChange(of: app.remote.departed) { _, gone in
+            if let id = RemoteStore.sessionId(of: selection), gone.contains(id) { selection = nil }
+        }
         .onChange(of: app.connectorsRequest) { _, token in
             guard token != nil, scenePhase != .background else { return }
             app.connectorsRequest = nil
@@ -259,6 +264,8 @@ struct MainView: View {
         .onChange(of: app.openRequest?.token) { _, token in
             guard token != nil, scenePhase != .background, let id = app.openRequest?.id else { return }
             app.openRequest = nil
+            // Asked for over a sheet (a toast there): the sheet goes, or the session opens unseen behind it.
+            sheet = nil
             botOpen = false
             selection = id
             setDrawer(false)
@@ -622,6 +629,8 @@ struct MainView: View {
         setDrawer(false)
         switch link {
         case .session(let id):
+            // A computer's session from the lock screen or a widget, after signing out: nothing to open.
+            if RemoteStore.sessionId(of: id) != nil, !app.remote.signedIn { return }
             selection = id
         case .new(let workspaceId, let preset, let draft):
             let deadline = ContinuousClock.now + .seconds(10)

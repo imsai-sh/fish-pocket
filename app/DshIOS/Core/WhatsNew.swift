@@ -36,6 +36,14 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
+        Release(version: "1.2.0", build: 42, features: [
+            Feature(symbol: "lock.iphone",
+                    title: "电脑上的会话也上锁屏和灵动岛",
+                    detail: "从手机发起或接管的远程会话，在进行、等你允许还是已完成，锁屏和灵动岛上都看得到；审批可以直接在锁屏上点允许。"),
+            Feature(symbol: "square.grid.2x2",
+                    title: "小组件里也有远程会话",
+                    detail: "主屏幕和锁屏小组件的会话列表，把电脑上的会话和本机的放在一起。"),
+        ]),
         Release(version: "1.2.0", features: [
             Feature(symbol: "laptopcomputer.and.iphone",
                     title: "在手机上管电脑里的智能体",

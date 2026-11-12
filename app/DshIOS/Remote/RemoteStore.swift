@@ -22,7 +22,9 @@ struct RemoteLoginCode: Hashable {
 
 /// Remote control: the computers of an Agents Anywhere account and the agent sessions on them.
 /// The phone is one more client of that account's server (the cloud one or the user's own); it
-/// keeps the account's list here and follows it over one WebSocket while the app is in front.
+/// keeps the account's list here and follows it over one WebSocket while the app is in front,
+/// and off screen for as long as a session the phone answers for is at work or waits (no push
+/// service is involved, as with the phone's own sessions: the app has to be alive to hear).
 /// Nothing happens, and nothing shows, until the user signs in.
 @MainActor
 @Observable
@@ -55,6 +57,12 @@ final class RemoteStore {
     private(set) var archivedSessions: [RemoteSession] = []
     private var deviceIndex: [String: RemoteDevice] = [:]
     private var projectIndex: [String: RemoteProject] = [:]
+    /// What each followed session that waits is asking, read as it starts to wait: the lock
+    /// screen and the widgets say it, and an approval can be answered from there.
+    private(set) var requests: [String: RemoteNotice] = [:]
+    /// Sessions whose computer was taken off the account while they were known here: a
+    /// conversation open on one has nothing behind it any more, and closes.
+    private(set) var departed: Set<String> = []
     /// The list has been read at least once since signing in.
     private(set) var loaded = false
     /// The list is being followed live.
@@ -66,15 +74,18 @@ final class RemoteStore {
 
     @ObservationIgnored private(set) var client: RemoteClient?
     @ObservationIgnored private var follow: Task<Void, Never>?
-    /// Open conversations by session; a session can be open in more than one window.
-    @ObservationIgnored private var open: [String: [Weak]] = [:]
+    /// The sessions that have been opened, the most recently shown last. A model stays after its
+    /// page closes, so that opening the session again shows at once what it held and only has to
+    /// catch up. In memory, for this run of the app: nothing of a session is written to the phone.
+    @ObservationIgnored private var kept: [RemoteSessionModel] = []
+    /// How many pages show each session now (a session can be open in more than one window).
+    @ObservationIgnored private var showing: [String: Int] = [:]
+    private static let keptLimit = 8
     @ObservationIgnored private var inFront = true
+    /// The state of the session each request was read at; a later one is read again.
+    @ObservationIgnored private var requestSeq: [String: Int] = [:]
+    @ObservationIgnored private var requestReads: Set<String> = []
     @ObservationIgnored private var observers: [NSObjectProtocol] = []
-
-    private final class Weak {
-        weak var model: RemoteSessionModel?
-        init(_ model: RemoteSessionModel) { self.model = model }
-    }
 
     var signedIn: Bool { account != nil }
 
@@ -87,6 +98,9 @@ final class RemoteStore {
             },
             center.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated { self?.setInFront(true) }
+            },
+            center.addObserver(forName: UIApplication.didReceiveMemoryWarningNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.shed() }
             },
         ]
         guard let saved = RemoteKeychain.load() else { return }
@@ -102,6 +116,13 @@ final class RemoteStore {
     /// Pinned first, then by the server's own order of recency.
     func listed(archived: Bool = false) -> [RemoteSession] { archived ? archivedSessions : active }
 
+    /// Followed sessions that wait on the user or are at work, the waiting ones first: what the
+    /// lock screen, the widgets and the background keeper report beside the phone's own sessions.
+    /// It holds what was last heard: a lost connection reads as still at work, not as finished.
+    var attention: [RemoteSession] {
+        active.filter(\.needsAttention).sorted { ($0.waiting ? 0 : 1) < ($1.waiting ? 0 : 1) }
+    }
+
     /// After any change to devices, projects or sessions. Only what differs is assigned:
     /// the server repeats the whole list on every push, and an unchanged one must not redraw anything.
     private func reindex() {
@@ -109,9 +130,17 @@ final class RemoteStore {
         if deviceIndex != self.deviceIndex { self.deviceIndex = deviceIndex }
         let projectIndex = Dictionary(projects.map { ($0.id, $0) }, uniquingKeysWith: { $1 })
         if projectIndex != self.projectIndex { self.projectIndex = projectIndex }
-        let active = sessions.values.filter { !$0.archived }.sorted(by: Self.precedes)
+        // A computer taken off the account takes its sessions with it, whatever a reading still
+        // carries of them: only sessions of a computer the account has are listed.
+        let listed = sessions.values.filter { deviceIndex[$0.deviceId] != nil }
+        // Back with its computer (the computer signed in again): no longer gone.
+        if !departed.isEmpty {
+            let back = departed.intersection(listed.map(\.id))
+            if !back.isEmpty { departed.subtract(back) }
+        }
+        let active = listed.filter { !$0.archived }.sorted(by: Self.precedes)
         if active != self.active { self.active = active }
-        let archived = sessions.values.filter(\.archived).sorted(by: Self.precedes)
+        let archived = listed.filter(\.archived).sorted(by: Self.precedes)
         if archived != archivedSessions { archivedSessions = archived }
     }
 
@@ -214,8 +243,9 @@ final class RemoteStore {
     private func clear() {
         follow?.cancel()
         follow = nil
-        let models = open.values.flatMap { $0 }.compactMap(\.model)
-        open = [:]
+        let models = kept
+        kept = []
+        showing = [:]
         for model in models { model.close() }
         client = nil
         account = nil
@@ -223,6 +253,10 @@ final class RemoteStore {
         projects = []
         agents = []
         sessions = [:]
+        departed = []
+        requests = [:]
+        requestSeq = [:]
+        requestReads = []
         reindex()
         loaded = false
         connected = false
@@ -231,19 +265,24 @@ final class RemoteStore {
 
     // MARK: Following the list
 
-    /// The app came to the front or left it: the list is only followed in front.
+    /// The app came to the front or left it. Conversations are only followed in front; the list
+    /// goes on off screen while a followed session has something to report.
     private func setInFront(_ front: Bool) {
         inFront = front
-        if front { startFollowing() } else {
-            follow?.cancel()
-            follow = nil
-            connected = false
-        }
-        for model in open.values.flatMap({ $0 }).compactMap(\.model) { front ? model.resume() : model.suspend() }
+        if front { startFollowing() } else { settleFollowing() }
+        for model in kept where showing[model.id] != nil { front ? model.resume() : model.suspend() }
+    }
+
+    /// Off screen with nothing left to report: the connection goes until the app is back.
+    private func settleFollowing() {
+        guard !inFront, attention.isEmpty, follow != nil else { return }
+        follow?.cancel()
+        follow = nil
+        connected = false
     }
 
     private func startFollowing() {
-        guard inFront, follow == nil, let client else { return }
+        guard inFront || !attention.isEmpty, follow == nil, let client else { return }
         follow = Task { [weak self] in
             var attempt = 0
             while !Task.isCancelled {
@@ -319,6 +358,7 @@ final class RemoteStore {
     }
 
     private func apply(_ parsed: Parsed) {
+        if loaded { noteDeparture(of: Set(devices.map(\.id)).subtracting(parsed.devices.map(\.id))) }
         if devices != parsed.devices { devices = parsed.devices }
         if projects != parsed.projects { projects = parsed.projects }
         if let agents = parsed.agents, agents != self.agents { self.agents = agents }
@@ -328,9 +368,61 @@ final class RemoteStore {
         if next != sessions { sessions = next }
         if !loaded { loaded = true }
         reindex()
-        for (id, boxes) in open {
-            guard let session = next[id] else { continue }
-            for box in boxes { box.model?.apply(meta: session) }
+        for model in kept {
+            if let session = next[model.id] { model.apply(meta: session) }
+        }
+        readRequests()
+        settleFollowing()
+    }
+
+    // MARK: Requests of followed sessions
+
+    /// Keep `requests` to the followed sessions that wait, reading what each asks once per
+    /// state of its session (the list only says that it waits).
+    private func readRequests() {
+        let waiting = active.filter { $0.followed && $0.waiting }
+        let ids = Set(waiting.map(\.id))
+        if requests.keys.contains(where: { !ids.contains($0) }) { requests = requests.filter { ids.contains($0.key) } }
+        requestSeq = requestSeq.filter { ids.contains($0.key) }
+        guard let client else { return }
+        for session in waiting where requestSeq[session.id] != session.updatedSeq && !requestReads.contains(session.id) {
+            let id = session.id, seq = session.updatedSeq
+            requestReads.insert(id)
+            Task { [weak self] in
+                let value = try? await client.get("/sessions/\(RemoteClient.encode(id))/runtime/notices")
+                guard let self, self.client === client else { return }
+                self.requestReads.remove(id)
+                guard let value, self.sessions[id]?.waiting == true else { return }
+                self.requestSeq[id] = seq
+                let open = value["notices"].array.compactMap(RemoteNotice.init).filter(\.answerable)
+                let request = open.first(where: \.isApproval) ?? open.first
+                if request != self.requests[id] { self.requests[id] = request }
+            }
+        }
+    }
+
+    /// Allow or refuse what a followed session waits with, from outside its conversation
+    /// (the lock screen). False when it cannot be answered from here.
+    func answer(session id: String, request requestId: String, allow: Bool) async -> Bool {
+        guard let client, let request = requests[id], request.id == requestId, let answers = request.quickAnswers else { return false }
+        do {
+            _ = try await client.post("/sessions/\(RemoteClient.encode(id))/runtime/notices/\(RemoteClient.encode(requestId))/respond",
+                                      ["actionId": .string(allow ? answers.allow : answers.refuse)])
+        } catch {
+            return false
+        }
+        if requests[id]?.id == requestId { requests[id] = nil }
+        await refresh()
+        return true
+    }
+
+    /// Computers that have just left the account: their sessions are remembered as gone.
+    private func noteDeparture(of deviceIds: Set<String>) {
+        guard !deviceIds.isEmpty else { return }
+        let gone = sessions.values.filter { deviceIds.contains($0.deviceId) }.map(\.id)
+        if !gone.isEmpty {
+            departed.formUnion(gone)
+            forget(Set(gone))
         }
     }
 
@@ -349,6 +441,7 @@ final class RemoteStore {
         guard next != sessions[session.id] else { return }
         sessions[session.id] = next
         reindex()
+        readRequests()
     }
 
     /// The agents of a device, read from it (the live list only carries them once it has pushed).
@@ -360,14 +453,48 @@ final class RemoteStore {
 
     // MARK: Open sessions
 
-    func register(_ model: RemoteSessionModel) {
-        let boxes = (open[model.id] ?? []).filter { $0.model != nil && $0.model !== model }
-        open[model.id] = boxes + [Weak(model)]
+    /// The session, for a page that shows it: the one kept from the last time it was open,
+    /// which already holds its records, or a new one that reads them. Its channel comes up.
+    func acquire(_ id: String) -> RemoteSessionModel {
+        let model = kept.first { $0.id == id } ?? RemoteSessionModel(id: id, store: self)
+        kept.removeAll { $0 === model }
+        kept.append(model)
+        showing[id, default: 0] += 1
+        if inFront { model.resume() }
+        trim()
+        return model
     }
 
-    func unregister(_ model: RemoteSessionModel) {
-        let boxes = (open[model.id] ?? []).filter { $0.model != nil && $0.model !== model }
-        open[model.id] = boxes.isEmpty ? nil : boxes
+    /// The page went away: the channel closes, what was read stays for the next time.
+    func release(_ id: String) {
+        guard let count = showing[id] else { return }
+        showing[id] = count > 1 ? count - 1 : nil
+        guard showing[id] == nil else { return }
+        kept.first { $0.id == id }?.park()
+        trim()
+    }
+
+    /// Only the last few stay; a session on screen is never dropped.
+    private func trim() {
+        var extra = kept.count - Self.keptLimit
+        for model in kept where extra > 0 && showing[model.id] == nil {
+            model.close()
+            kept.removeAll { $0 === model }
+            extra -= 1
+        }
+    }
+
+    /// The system is short of memory: every session that is not on screen is let go. Opened
+    /// again, it reads from the server as a session opened for the first time does.
+    private func shed() {
+        for model in kept where showing[model.id] == nil { model.close() }
+        kept.removeAll { showing[$0.id] == nil }
+    }
+
+    /// Sessions that are gone (their computer left the account) are not kept either.
+    private func forget(_ ids: Set<String>) {
+        for model in kept where ids.contains(model.id) && showing[model.id] == nil { model.close() }
+        kept.removeAll { ids.contains($0.id) && showing[$0.id] == nil }
     }
 
     // MARK: Changes
@@ -426,6 +553,7 @@ final class RemoteStore {
     func remove(device id: String) async -> String? {
         await change { client in
             try await client.delete("/connectors/\(RemoteClient.encode(id))")
+            noteDeparture(of: [id])
             devices.removeAll { $0.id == id }
             projects.removeAll { $0.deviceId == id }
             agents.removeAll { $0.deviceId == id }

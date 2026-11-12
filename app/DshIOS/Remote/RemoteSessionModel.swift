@@ -59,7 +59,13 @@ final class RemoteSessionModel: Identifiable {
     /// Status, capabilities and requests were read since the channel last came up. Observed:
     /// what can be sent or answered follows it.
     private var fresh = false
+    /// The channel has been down for longer than a moment. A short drop (the app back in
+    /// front, a network change, the server closing an idle socket) reconnects without a word:
+    /// only one that lasts is said, in the title and the composer.
+    private(set) var struggling = false
     var error: String?
+    /// Something to mention in passing (a toast), not a failure to stop for.
+    var notice: String?
     var draft = ""
     var attachments: [RemoteUpload] = []
 
@@ -74,8 +80,15 @@ final class RemoteSessionModel: Identifiable {
     @ObservationIgnored private var barrier = 0.0
     @ObservationIgnored private var rebuildQueued = false
     @ObservationIgnored private var suspended = false
+    @ObservationIgnored private var patience: Task<Void, Never>?
+
+    /// How long the channel may be down before the page says so.
+    private static let quietReconnect = Duration.seconds(5)
 
     private static let windowLimit = 1000
+    /// What a session keeps once its page has closed: enough to show at once when it is opened
+    /// again. Whatever the reader paged back to is let go, and read again if they go back.
+    private static let parkedLimit = 200
     private static let liveKinds: Set<String> = ["session.meta.updated", "runtime.state.updated", "runtime.capability.updated", "runtime.catalog.updated"]
     private static let readKinds: Set<String> = ["runtime.state.updated", "runtime.capability.updated", "runtime.notice.snapshot", "runtime.notice.updated"]
 
@@ -111,6 +124,13 @@ final class RemoteSessionModel: Identifiable {
     var canSend: Bool {
         current && (capabilities.allows("session.send_message") || steers) && !interactions.contains(where: \.blocksSession)
     }
+    /// The channel is coming back and a message could be sent a moment ago. Sending is taken
+    /// and waits for it, rather than being refused over a drop the user was never told about.
+    var sendWaits: Bool {
+        guard loaded, online, takeover, !current, !struggling else { return false }
+        if case .failed = link { return false }
+        return capabilities.allows("session.send_message") && !interactions.contains(where: \.blocksSession)
+    }
     var canAttach: Bool { capabilities.allows("runtime.attachment") }
     /// Approvals can be answered from here (an agent that says nothing about it is taken to allow it).
     var canApprove: Bool { !capabilities.offers("session.interaction.approval") || capabilities.allows("session.interaction.approval") }
@@ -125,7 +145,10 @@ final class RemoteSessionModel: Identifiable {
         if !loaded { return nil }
         if !online { return String(localized: "电脑离线，只能查看历史") }
         if !takeover { return String(localized: "这个会话在电脑上进行，接管后才能从这里发消息") }
-        if link != .live || !fresh { return String(localized: "正在连接电脑…") }
+        // Connecting, or reading the agent's state again: the composer stays and takes what is
+        // typed, only sending waits; the title says what is going on. What follows judges by
+        // facts that are current.
+        guard current else { return nil }
         // While the agent works the composer stays, whatever can be sent: stopping it is there.
         if busy { return nil }
         if interactions.contains(where: \.blocksSession) { return String(localized: "先回应智能体的请求") }
@@ -184,13 +207,13 @@ final class RemoteSessionModel: Identifiable {
 
     func start() {
         guard run == nil, !suspended, let store, let client = store.client else { return }
-        store.register(self)
         run = Task { [weak self] in
             var attempt = 0
             while !Task.isCancelled {
                 guard let self else { return }
                 do {
                     if self.link != .live { self.link = self.loaded ? .reconnecting : .connecting }
+                    self.worry()
                     if !self.loaded { try await self.loadSnapshot(client) }
                     let ticket = try await client.ticket(sessionId: self.id)
                     for try await frame in client.frames("\(self.path)/ws", ticket: ticket) {
@@ -198,6 +221,7 @@ final class RemoteSessionModel: Identifiable {
                             // Subscribed before reading: nothing falls between the read and the stream.
                             try await self.reconcile(client)
                             self.link = .live
+                            self.calm()
                             attempt = 0
                         } else {
                             try await self.receive(frame, client)
@@ -209,11 +233,13 @@ final class RemoteSessionModel: Identifiable {
                     let failure = RemoteError(error)
                     self.fresh = false
                     guard failure.transient else {
+                        self.calm()
                         if failure.kind != .cancelled { self.link = .failed(failure.message) }
                         self.run = nil
                         return
                     }
                     self.link = .reconnecting
+                    self.worry()
                     attempt += 1
                     try? await Task.sleep(for: .seconds(min(pow(2, Double(attempt - 1)), 15)))
                 }
@@ -225,12 +251,39 @@ final class RemoteSessionModel: Identifiable {
         run?.cancel()
         run = nil
         fresh = false
+        calm()
     }
 
-    /// The page went away, or the account did.
+    /// The channel is not up: it is said only if that lasts.
+    private func worry() {
+        guard patience == nil, !struggling, link != .live else { return }
+        patience = Task { [weak self] in
+            try? await Task.sleep(for: Self.quietReconnect)
+            guard !Task.isCancelled, let self else { return }
+            self.patience = nil
+            if self.link != .live { self.struggling = true }
+        }
+    }
+
+    private func calm() {
+        patience?.cancel()
+        patience = nil
+        if struggling { struggling = false }
+    }
+
+    /// The session is no longer kept, or the account went.
     func close() {
         stop()
-        store?.unregister(self)
+    }
+
+    /// The page went away: the channel closes and only the recent end of the timeline stays,
+    /// so that a kept session costs a bounded amount of memory however far back it was read.
+    func park() {
+        suspend()
+        guard items.count > Self.parkedLimit else { return }
+        items.removeFirst(items.count - Self.parkedLimit)
+        hasOlder = true
+        rebuild()
     }
 
     /// The app left the front: the channel closes, what was read stays on screen.
@@ -363,7 +416,10 @@ final class RemoteSessionModel: Identifiable {
             for event in value["events"].array.sorted(by: { ($0["sequence"].int ?? 0) < ($1["sequence"].int ?? 0) }) { apply(event) }
             advance(value["nextCursor"].string)
         }
-        fresh = false
+        // What was read before holds while it is read again: a gap in the channel's numbering
+        // (the server folds and skips events, so they are common) must not take the composer
+        // away for the time of a few requests. A lost channel or an offline computer does.
+        if !online { fresh = false }
         if online {
             let started = Date().timeIntervalSince1970
             async let stateValue = client.get("\(path)/runtime/state")
@@ -516,12 +572,25 @@ final class RemoteSessionModel: Identifiable {
                 return
             }
         }
-        guard canSend else { error = sendBlock ?? String(localized: "这个会话暂时不能接收消息"); return }
+        let waits = !canSend && sendWaits
+        guard canSend || waits else { error = sendBlock ?? String(localized: "这个会话暂时不能接收消息"); return }
         let message = RemotePendingMessage(id: UUID().uuidString, text: text, attachments: files)
         pending.append(message)
         draft = ""
         attachments = []
         rebuild()
+        if waits {
+            // Until the channel is back, or the drop has lasted long enough to be said.
+            while sendWaits, !Task.isCancelled { try? await Task.sleep(for: .milliseconds(100)) }
+            guard canSend else {
+                pending.removeAll { $0.id == message.id }
+                if draft.isEmpty, attachments.isEmpty { draft = text; attachments = files }
+                // The words are back in the input and the title says the rest: a mention is enough.
+                notice = sendBlock ?? String(localized: "连接还没恢复，消息没有发出去")
+                rebuild()
+                return
+            }
+        }
         func settle(_ delivery: RemotePendingMessage.Delivery) {
             guard let index = pending.firstIndex(where: { $0.id == message.id }) else { return }
             pending[index].delivery = delivery

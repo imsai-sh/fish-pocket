@@ -375,7 +375,8 @@ struct DrawerView: View {
 
     private var remoteControlNote: String {
         if remote.expired { return String(localized: "重新登录") }
-        guard remote.signedIn else { return String(localized: "连接电脑") }
+        // Signed in with no computer on the account yet (or the last one removed): the same invitation.
+        guard remote.signedIn, !remote.devices.isEmpty else { return String(localized: "连接电脑") }
         let online = remote.devices.filter(\.online).count
         return online > 0 ? String(localized: "\(online) 台在线") : String(localized: "电脑离线")
     }
@@ -588,7 +589,8 @@ struct DrawerView: View {
     }
 
     /// A row inside a group. What the group already says is left out of the row: under a
-    /// project only the agent, under a computer the agent and the project.
+    /// project nothing more, under a computer the project. Which agent runs a session is not
+    /// said in the list (for most accounts it is the same one on every row): its page says it.
     @ViewBuilder
     private func entryRow(_ entry: Entry, in group: SessionGroup) -> some View {
         switch entry {
@@ -596,7 +598,7 @@ struct DrawerView: View {
             row(session, indent: true, subtitle: group.isPhone ? placeLine(of: session) : nil)
         case .remote(let session):
             remoteRow(session, indent: true, detail: group.project != nil || group.id.hasPrefix("remote-loose:")
-                ? session.agentTag : "\(session.agentTag) · \(remote.place(of: session))")
+                ? nil : remote.place(of: session))
         }
     }
 
@@ -766,7 +768,7 @@ struct DrawerView: View {
         case .local(let session):
             row(session, subtitle: placeLine(of: session), phoneTag: remote.signedIn)
         case .remote(let session):
-            remoteRow(session, machine: true, detail: "\(session.agentTag) · \(remote.place(of: session))")
+            remoteRow(session, machine: true, detail: remote.place(of: session))
         }
     }
 
@@ -842,7 +844,7 @@ struct DrawerView: View {
             if rows.isEmpty, away.isEmpty { emptyRow("暂无已归档会话") }
             ForEach(rows) { session in row(session, subtitle: placeLine(of: session)) }
             ForEach(away) { session in
-                remoteRow(session, machine: true, detail: "\(session.agentTag) · \(remote.place(of: session))")
+                remoteRow(session, machine: true, detail: remote.place(of: session))
             }
         }
         .sessionList()
@@ -899,7 +901,7 @@ struct DrawerView: View {
             row(session, subtitle: place(of: session) + (remoteHits[session.id].map { " · \($0)" } ?? ""))
         }
         ForEach(away) { session in
-            remoteRow(session, machine: true, detail: "\(session.agentTag) · \(remote.place(of: session))")
+            remoteRow(session, machine: true, detail: remote.place(of: session))
         }
         if searching {
             HStack(spacing: 8) {
@@ -1063,7 +1065,7 @@ struct DrawerView: View {
     /// A session on a computer, in the shape of a local row: the same marks, the agent on the
     /// small line and, where the list does not already say it, its machine as a tag. One whose
     /// computer is away is dimmed: it opens, but only to its history.
-    private func remoteRow(_ session: RemoteSession, indent: Bool = false, machine: Bool = false, detail: String) -> some View {
+    private func remoteRow(_ session: RemoteSession, indent: Bool = false, machine: Bool = false, detail: String?) -> some View {
         let id = RemoteStore.selection(session.id)
         let current = id == selection
         return Button {
@@ -1192,7 +1194,8 @@ private struct RemoteRowLabel: View, Equatable {
     let session: RemoteSession
     /// The machine to name on the row; nil where the group above already does.
     let machine: RemoteDevice?
-    let detail: String
+    /// Where it is, as far as the group above does not say; nil for a row of one line.
+    let detail: String?
     let indent: Bool
 
     var body: some View {
@@ -1214,9 +1217,11 @@ private struct RemoteRowLabel: View, Equatable {
             .frame(width: 14, height: 20)
             VStack(alignment: .leading, spacing: 4) {
                 Text(session.displayTitle).font(.subheadline).foregroundStyle(Palette.ink).lineLimit(1)
-                HStack(spacing: 6) {
-                    if let machine { MachineTag(name: machine.name, symbol: machine.symbol, dimmed: !machine.online) }
-                    Text(detail).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1)
+                if machine != nil || detail != nil {
+                    HStack(spacing: 6) {
+                        if let machine { MachineTag(name: machine.name, symbol: machine.symbol, dimmed: !machine.online) }
+                        if let detail { Text(detail).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1) }
+                    }
                 }
             }
             Spacer(minLength: 4)

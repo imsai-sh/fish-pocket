@@ -4850,6 +4850,22 @@
         }
       }
     },
+    "主屏幕和锁屏小组件的会话列表，把电脑上的会话和本机的放在一起。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The session list in the Home Screen and Lock Screen widgets shows sessions on your computer together with the ones on this phone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La lista de sesiones de los widgets de la pantalla de inicio y de bloqueo muestra las sesiones de tu ordenador junto a las de este teléfono."
+          }
+        }
+      }
+    },
     "主 Bot" : {
       "localizations" : {
         "en" : {
@@ -5342,6 +5358,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Háblame del complemento «%@»: qué hace, cómo se usa y si funcionará en este dispositivo. Lee su documentación y su código fuente si hace falta."
+          }
+        }
+      }
+    },
+    "从手机发起或接管的远程会话，在进行、等你允许还是已完成，锁屏和灵动岛上都看得到；审批可以直接在锁屏上点允许。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A remote session you started or took over from the phone shows on the Lock Screen and in the Dynamic Island whether it is running, waiting for your approval or done; approvals can be allowed right from the Lock Screen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una sesión remota que iniciaste o tomaste desde el teléfono muestra en la pantalla de bloqueo y en la Dynamic Island si está en curso, espera tu permiso o ha terminado; puedes permitir las aprobaciones desde la pantalla de bloqueo."
           }
         }
       }
@@ -14132,6 +14164,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Descargar el contenido de esta sesión como archivo ZIP"
+          }
+        }
+      }
+    },
+    "小组件里也有远程会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remote sessions in the widgets too"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las sesiones remotas también en los widgets"
           }
         }
       }
@@ -23102,6 +23150,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Problemas recientes"
+          }
+        }
+      }
+    },
+    "有一个问题等你回答" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A question is waiting for your answer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hay una pregunta esperando tu respuesta"
           }
         }
       }
@@ -33747,6 +33811,22 @@
         }
       }
     },
+    "请求执行一项操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asks to run an action"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pide ejecutar una acción"
+          }
+        }
+      }
+    },
     "请求超时，请重试。" : {
       "localizations" : {
         "en" : {
@@ -36691,6 +36771,22 @@
         }
       }
     },
+    "连接还没恢复，消息没有发出去" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The connection is not back yet, so the message was not sent"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La conexión aún no ha vuelto, así que el mensaje no se envió"
+          }
+        }
+      }
+    },
     "连接" : {
       "localizations" : {
         "en" : {
@@ -39119,6 +39215,38 @@
         }
       }
     },
+    "「%@」等你允许" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is waiting for your approval"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» espera tu permiso"
+          }
+        }
+      }
+    },
+    "「%@」等你回答" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is waiting for your answer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» espera tu respuesta"
+          }
+        }
+      }
+    },
     "「%@」超过 20 MB，没有添加" : {
       "localizations" : {
         "en" : {
@@ -40661,22 +40789,6 @@
         }
       }
     },
-    "正在连接电脑…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connecting to the computer…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Conectando con el ordenador…"
-          }
-        }
-      }
-    },
     "正在重新连接…" : {
       "localizations" : {
         "en" : {
@@ -40785,6 +40897,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Iniciar sesión con correo y contraseña"
+          }
+        }
+      }
+    },
+    "电脑上的会话也上锁屏和灵动岛" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessions on your computer reach the Lock Screen and Dynamic Island"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las sesiones de tu ordenador llegan a la pantalla de bloqueo y a la Dynamic Island"
           }
         }
       }
