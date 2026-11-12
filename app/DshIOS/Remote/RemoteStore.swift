@@ -130,6 +130,11 @@ final class RemoteStore {
         // A computer taken off the account takes its sessions with it, whatever a reading still
         // carries of them: only sessions of a computer the account has are listed.
         let listed = sessions.values.filter { deviceIndex[$0.deviceId] != nil }
+        // Back with its computer (the computer signed in again): no longer gone.
+        if !departed.isEmpty {
+            let back = departed.intersection(listed.map(\.id))
+            if !back.isEmpty { departed.subtract(back) }
+        }
         let active = listed.filter { !$0.archived }.sorted(by: Self.precedes)
         if active != self.active { self.active = active }
         let archived = listed.filter(\.archived).sorted(by: Self.precedes)
