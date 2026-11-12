@@ -214,6 +214,7 @@ App 免费，代码以 MIT 协议开源，商用需要先取得授权，见[许�
 - [x] 抽样测试社区热门插件的兼容性
 - [x] 原生界面支持英文，搭好多语言框架
 - [x] 界面支持西班牙语（[#24](https://github.com/imsai-sh/fish-pocket/issues/24)），设置里可以直接切换界面语言
+- [x] 界面支持日语和韩语（[#120](https://github.com/imsai-sh/fish-pocket/issues/120)）
 - [ ] 确定插件兼容分级和适配规范（[#4](https://github.com/imsai-sh/fish-pocket/issues/4)）
 - [x] 预置第三方插件商店（[#5](https://github.com/imsai-sh/fish-pocket/issues/5)）
 - [x] 智能体可以使用 iPhone 的本机能力：日历、提醒事项、健康、照片、地图等

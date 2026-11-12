@@ -60,7 +60,7 @@
   <sub>Put the phone down and glance at your wrist: approve from the watch, and get a tap when the work is done</sub>
 </p>
 
-<p align="center"><sub>These are recordings of the app running, with waits cut or sped up. They show the Chinese interface; the app also comes in English and Spanish.</sub></p>
+<p align="center"><sub>These are recordings of the app running, with waits cut or sped up. They show the Chinese interface; the app also comes in English, Spanish, Japanese and Korean.</sub></p>
 
 ## What it does
 
@@ -214,6 +214,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Sample-test compatibility of popular community plugins
 - [x] English for the native UI, on a framework ready for more languages
 - [x] Spanish UI ([#24](https://github.com/imsai-sh/fish-pocket/issues/24)), with the UI language switchable in Settings
+- [x] Japanese and Korean UI ([#120](https://github.com/imsai-sh/fish-pocket/issues/120))
 - [ ] Define plugin compatibility tiers and an adaptation guide ([#4](https://github.com/imsai-sh/fish-pocket/issues/4))
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
 - [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more

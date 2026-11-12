@@ -10,12 +10,12 @@ enum AppLanguage {
 
     static var isChinese: Bool { code.lowercased().hasPrefix("zh") }
 
-    static var isSpanish: Bool { code.lowercased().hasPrefix("es") }
-
     static var locale: Locale { Locale(identifier: code) }
 
     /// The languages the settings picker offers: the bundle's localizations, each named in itself.
-    static let choices: [(code: String, name: String)] = [("zh-Hans", "简体中文"), ("en", "English"), ("es", "Español")]
+    static let choices: [(code: String, name: String)] = [
+        ("zh-Hans", "简体中文"), ("en", "English"), ("es", "Español"), ("ja", "日本語"), ("ko", "한국어"),
+    ]
 
     /// The language chosen for this app, `nil` when it follows the system. It is the same
     /// `AppleLanguages` entry that Settings → Fish Pocket → Language writes, read from the app's own

@@ -22,6 +22,18 @@
             "state" : "translated",
             "value" : "Permite que el agente consulte y organice tu agenda cuando se lo pidas. Para responder a tus preguntas, los eventos implicados se envían con la conversación al proveedor de modelos que hayas elegido."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストに応じて、エージェントがカレンダーを確認したり予定を入れたりします。質問に答えるため、関係する予定の内容は会話と一緒に、選択したモデルプロバイダへ送信されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청하면 에이전트가 일정을 확인하고 정리해요. 질문에 답하기 위해 관련 일정 내용이 대화와 함께 선택한 모델 제공업체로 전송돼요."
+          }
         }
       }
     },
@@ -45,6 +57,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permite que el agente consulte y cree recordatorios cuando se lo pidas. Para responder a tus preguntas, los recordatorios implicados se envían con la conversación al proveedor de modelos que hayas elegido."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストに応じて、エージェントがリマインダーを確認したり作成したりします。質問に答えるため、関係するリマインダーの内容は会話と一緒に、選択したモデルプロバイダへ送信されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청하면 에이전트가 미리 알림을 확인하고 만들어요. 질문에 답하기 위해 관련 미리 알림 내용이 대화와 함께 선택한 모델 제공업체로 전송돼요."
           }
         }
       }
@@ -70,6 +94,18 @@
             "state" : "translated",
             "value" : "Las fotos que tomes se envían al agente como archivos adjuntos, y la cámara escanea el código QR de inicio de sesión de tu ordenador."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撮影した写真を添付ファイルとしてエージェントに送ったり、パソコンに表示されたサインイン用QRコードを読み取ったりします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "촬영한 사진을 첨부 파일로 에이전트에게 보내거나, 컴퓨터에 표시된 로그인 QR 코드를 스캔해요."
+          }
         }
       }
     },
@@ -93,6 +129,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permite que el agente lea tu posición una sola vez, cuando preguntas dónde estás o qué hay cerca. Se lee solo cuando se usa, nunca se registra de forma continua. Para responder a tus preguntas, la posición se envía con la conversación al proveedor de modelos que hayas elegido."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「今どこにいる？」「近くに何がある？」と尋ねたときに、エージェントが現在地を1回だけ読み取ります。使うときだけ読み取り、継続して記録することはありません。質問に答えるため、位置情報は会話と一緒に、選択したモデルプロバイダへ送信されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"지금 어디야?\", \"근처에 뭐가 있어?\"라고 물을 때 에이전트가 현재 위치를 한 번 읽어요. 필요할 때만 읽고 계속 기록하지 않아요. 질문에 답하기 위해 위치가 대화와 함께 선택한 모델 제공업체로 전송돼요."
           }
         }
       }
@@ -118,6 +166,18 @@
             "state" : "translated",
             "value" : "Permite que el agente lea tus datos de salud cuando preguntas por ellos: pasos, sueño, frecuencia cardíaca, etc. Para responder a tus preguntas, los valores leídos se envían con la conversación al proveedor de modelos que hayas elegido. La app nunca escribe ni modifica ningún dato de salud."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尋ねたときに、エージェントが歩数、睡眠、心拍数などのヘルスケアデータを読み取ります。質問に答えるため、読み取った値は会話と一緒に、選択したモデルプロバイダへ送信されます。App がヘルスケアデータを書き込んだり変更したりすることはありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "물어볼 때 에이전트가 걸음 수, 수면, 심박수 같은 건강 데이터를 읽어요. 질문에 답하기 위해 읽은 값이 대화와 함께 선택한 모델 제공업체로 전송돼요. 앱은 건강 데이터를 기록하거나 변경하지 않아요."
+          }
         }
       }
     },
@@ -141,6 +201,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Esta versión nunca escribe ni modifica datos de Salud."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このバージョンは「ヘルスケア」にデータを書き込んだり変更したりしません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 버전은 건강 앱에 데이터를 기록하거나 변경하지 않아요."
           }
         }
       }
@@ -166,6 +238,18 @@
             "state" : "translated",
             "value" : "Permite que el agente lea lo que se dice en una grabación cuando se lo pides. El reconocimiento se hace en el teléfono por omisión y la grabación no sale de él; solo si se pide explícitamente el reconocimiento en servidor se envía la grabación a los servidores de Apple. Para responder a tus preguntas, la transcripción se envía con la conversación al proveedor de modelos que hayas elegido. La app no graba ni usa el micrófono."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストに応じて、エージェントが録音ファイルの内容を文字に起こします。認識は標準でこのデバイス上で行い、録音がデバイスの外に出ることはありません。サーバでの認識を明示的に指定した場合のみ、録音が Apple のサーバへ送信されます。質問に答えるため、書き起こしたテキストは会話と一緒に、選択したモデルプロバイダへ送信されます。App が録音したりマイクを使ったりすることはありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청하면 에이전트가 녹음 파일의 내용을 받아 적어요. 기본적으로 기기에서만 인식하며 녹음은 기기 밖으로 나가지 않아요. 서버 인식을 명시적으로 지정한 경우에만 녹음이 Apple 서버로 전송돼요. 질문에 답하기 위해 받아 적은 텍스트가 대화와 함께 선택한 모델 제공업체로 전송돼요. 앱은 녹음하지 않으며 마이크도 사용하지 않아요."
+          }
         }
       }
     },
@@ -189,6 +273,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permite que el agente vea los accesorios de tu casa y su estado cuando lo pides, y que los cambie o ejecute escenas según lo que configures en Funciones del dispositivo. Para responder a tus preguntas, los nombres y estados de los accesorios se envían con la conversación al proveedor de modelos que hayas elegido."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストに応じて、エージェントが家のアクセサリとその状態を確認し、「デバイス機能」で設定した書き込み方法に従って状態を変更したりシーンを実行したりします。質問に答えるため、アクセサリの名前と状態は会話と一緒に、選択したモデルプロバイダへ送信されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청하면 에이전트가 집의 액세서리와 상태를 확인하고, '기기 기능'에서 설정한 쓰기 방식에 따라 상태를 바꾸거나 장면을 실행해요. 질문에 답하기 위해 액세서리 이름과 상태가 대화와 함께 선택한 모델 제공업체로 전송돼요."
           }
         }
       }
@@ -214,6 +310,18 @@
             "state" : "translated",
             "value" : "Permite que el agente vea qué hay en tu fototeca cuando preguntas, exporte fotos para que el teléfono las analice en el propio dispositivo y organice tu fototeca según cómo configures la escritura en Funciones del dispositivo. Para responder a tus preguntas, la información implicada se envía con la conversación al proveedor de modelos que hayas elegido. iOS te pregunta de nuevo antes de eliminar cualquier foto."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尋ねたときに、エージェントが写真ライブラリの内容を確認し、写真を書き出してこのデバイス上で認識し、「デバイス機能」で設定した書き込み方法に従ってライブラリを整理します。質問に答えるため、関係する情報は会話と一緒に、選択したモデルプロバイダへ送信されます。写真を削除する前に iOS がもう一度確認します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "물어볼 때 에이전트가 사진 보관함에 어떤 사진이 있는지 확인하고, 사진을 내보내 기기에서 인식하며, '기기 기능'에서 설정한 쓰기 방식에 따라 보관함을 정리해요. 질문에 답하기 위해 관련 정보가 대화와 함께 선택한 모델 제공업체로 전송돼요. 사진을 삭제하기 전에 iOS가 한 번 더 확인해요."
+          }
         }
       }
     },
@@ -237,6 +345,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permite que el agente ponga una alarma real cuando se la pides. La alarma suena aunque el teléfono esté en silencio o en modo Concentración, y sigue sonando hasta que la apagues."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストに応じて、エージェントが本物のアラームを設定します。アラームは消音モードや集中モード中でも鳴り、止めるまで鳴り続けます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청하면 에이전트가 실제 알람을 설정해요. 알람은 무음 모드와 집중 모드에서도 울리며, 끌 때까지 계속 울려요."
           }
         }
       }
@@ -262,6 +382,18 @@
             "state" : "translated",
             "value" : "Permite que el agente busque un contacto por nombre, teléfono o correo cuando se lo pides, por ejemplo para encontrar la dirección de alguien antes de redactar un correo. Para responderte, los datos del contacto que encuentre se envían con la conversación al proveedor de modelos que hayas elegido. La app nunca añade, modifica ni elimina contactos."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストに応じて、エージェントが名前、電話番号、メールアドレスで連絡先を検索します。たとえばメールを書く前に相手のアドレスを調べます。質問に答えるため、見つかった連絡先情報は会話と一緒に、選択したモデルプロバイダへ送信されます。App が連絡先を追加、変更、削除することはありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청하면 에이전트가 이름, 전화번호, 이메일로 연락처를 찾아요. 예를 들어 이메일을 쓰기 전에 상대방 주소를 찾아요. 질문에 답하기 위해 찾은 연락처 정보가 대화와 함께 선택한 모델 제공업체로 전송돼요. 앱은 연락처를 추가, 변경, 삭제하지 않아요."
+          }
         }
       }
     },
@@ -286,6 +418,18 @@
             "state" : "translated",
             "value" : "Permite que el agente busque canciones y listas en tu biblioteca de música y controle la reproducción cuando se lo pides. Para responderte, los nombres de las canciones y las listas se envían con la conversación al proveedor de modelos que hayas elegido."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストに応じて、エージェントがミュージックライブラリから曲やプレイリストを探し、再生を操作します。質問に答えるため、曲やプレイリストの名前は会話と一緒に、選択したモデルプロバイダへ送信されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청하면 에이전트가 음악 보관함에서 노래와 플레이리스트를 찾고 재생을 제어해요. 질문에 답하기 위해 노래와 플레이리스트 이름이 대화와 함께 선택한 모델 제공업체로 전송돼요."
+          }
         }
       }
     },
@@ -309,6 +453,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Guarda los pósteres para compartir en tu fototeca."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共有用ポスターを写真ライブラリに保存します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유 포스터를 사진 보관함에 저장해요."
           }
         }
       }
