@@ -99,6 +99,9 @@ final class RemoteStore {
             center.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated { self?.setInFront(true) }
             },
+            center.addObserver(forName: UIApplication.didReceiveMemoryWarningNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.shed() }
+            },
         ]
         guard let saved = RemoteKeychain.load() else { return }
         adopt(saved)
@@ -467,7 +470,7 @@ final class RemoteStore {
         guard let count = showing[id] else { return }
         showing[id] = count > 1 ? count - 1 : nil
         guard showing[id] == nil else { return }
-        kept.first { $0.id == id }?.suspend()
+        kept.first { $0.id == id }?.park()
         trim()
     }
 
@@ -479,6 +482,13 @@ final class RemoteStore {
             kept.removeAll { $0 === model }
             extra -= 1
         }
+    }
+
+    /// The system is short of memory: every session that is not on screen is let go. Opened
+    /// again, it reads from the server as a session opened for the first time does.
+    private func shed() {
+        for model in kept where showing[model.id] == nil { model.close() }
+        kept.removeAll { showing[$0.id] == nil }
     }
 
     /// Sessions that are gone (their computer left the account) are not kept either.

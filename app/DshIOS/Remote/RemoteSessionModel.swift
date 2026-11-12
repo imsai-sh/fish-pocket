@@ -86,6 +86,9 @@ final class RemoteSessionModel: Identifiable {
     private static let quietReconnect = Duration.seconds(5)
 
     private static let windowLimit = 1000
+    /// What a session keeps once its page has closed: enough to show at once when it is opened
+    /// again. Whatever the reader paged back to is let go, and read again if they go back.
+    private static let parkedLimit = 200
     private static let liveKinds: Set<String> = ["session.meta.updated", "runtime.state.updated", "runtime.capability.updated", "runtime.catalog.updated"]
     private static let readKinds: Set<String> = ["runtime.state.updated", "runtime.capability.updated", "runtime.notice.snapshot", "runtime.notice.updated"]
 
@@ -273,7 +276,17 @@ final class RemoteSessionModel: Identifiable {
         stop()
     }
 
-    /// The page went away or the app left the front: the channel closes, what was read stays.
+    /// The page went away: the channel closes and only the recent end of the timeline stays,
+    /// so that a kept session costs a bounded amount of memory however far back it was read.
+    func park() {
+        suspend()
+        guard items.count > Self.parkedLimit else { return }
+        items.removeFirst(items.count - Self.parkedLimit)
+        hasOlder = true
+        rebuild()
+    }
+
+    /// The app left the front: the channel closes, what was read stays on screen.
     func suspend() {
         suspended = true
         stop()
