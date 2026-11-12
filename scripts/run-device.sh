@@ -15,6 +15,7 @@ rm -f "$info"
 [ -d "$root/vendor/nodejs-mobile/rooted" ] || "$root/scripts/fetch-nodejs-mobile.sh"
 [ -d "$root/vendor/python/rooted" ] || "$root/scripts/fetch-python.sh"
 [ -d "$root/vendor/libgit2/Libgit2.xcframework" ] || "$root/scripts/build-libgit2.sh"
+[ -d "$root/vendor/ffmpeg/FFmpeg.xcframework" ] || "$root/scripts/build-ffmpeg.sh"
 "$root/scripts/build-engine.sh"
 cd "$root/app"
 xcodegen generate --quiet

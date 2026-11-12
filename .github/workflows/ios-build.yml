@@ -90,6 +90,18 @@ jobs:
         if: steps.libgit2.outputs.cache-hit != 'true'
         run: scripts/build-libgit2.sh
 
+      # Only the xcframework; the source and build trees stay out.
+      - name: Cache FFmpeg
+        id: ffmpeg
+        uses: actions/cache@v5
+        with:
+          path: vendor/ffmpeg/FFmpeg.xcframework
+          key: ffmpeg-${{ runner.os }}-${{ hashFiles('scripts/build-ffmpeg.sh', 'native/ffmpeg/**') }}
+
+      - name: Build FFmpeg
+        if: steps.ffmpeg.outputs.cache-hit != 'true'
+        run: scripts/build-ffmpeg.sh
+
       - name: Assemble engine
         run: scripts/build-engine.sh
 

@@ -59,9 +59,10 @@
 - **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
 - **Everything the official Web UI does.** Chat, tool calls, file editing, search, plan mode, approvals, subagents, scheduled tasks and plugins: what the official DSH Web UI can do, this can do.
 - **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
-- **A terminal that works.** Built-in bash, `node`, `pnpm`, `python3`, `pip` and `git`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
+- **A terminal that works.** Built-in bash, `node`, `pnpm`, `python3`, `pip`, `git` and `ffmpeg`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
 - **Built-in Python.** Python 3.15 is embedded in the app with the full standard library. `pip install` works for pure-Python packages, and so does `venv`. Packages with compiled extensions (numpy, pandas and the like) do not install yet.
 - **Built-in Git.** Statically linked libgit2, no child processes. `clone`, `commit`, `branch`, `merge`, `stash`, `pull`, `push` and the rest of everyday git work, with output that matches real git so the agent reads it as usual. Private repositories authenticate over HTTPS with a token.
+- **Built-in FFmpeg.** `ffmpeg` and `ffprobe` are compiled into the app. They read nearly every audio and video format (iPhone HEVC video, MKV and WebM included), extract frames and audio, cut and convert, and every built-in FFmpeg filter works. H.264 and HEVC encoding uses the phone's hardware encoder. There is no x264, VP9 or MP3 encoding.
 - **A built-in DSH plugin store.** A DSH ecosystem plugin market comes preset: browse and search on the phone, install with one tap, and the plugin is ready to use, no computer involved. Add store sources you trust under Index Sources, or install pure JavaScript plugins straight from npm.
 - **A workbench.** Terminal, file preview, built-in browser and change review in one panel.
 - **Made for iOS.** Dynamic Island and Lock Screen Live Activities, Home Screen and Lock Screen widgets, a Control Center button, Siri and Shortcuts, and tasks that continue in the background.
@@ -86,7 +87,7 @@ The features match the official DSH Web UI: what it can do, this can do, with th
 
 ## Compared with other approaches
 
-Remote clients need a computer left running. Fish Pocket does not: the engine lives on your phone, ready anytime, anywhere. Among approaches that run right on the phone, it is also the fastest today: Node, Git and Python all run as native code, with no emulator in between.
+Remote clients need a computer left running. Fish Pocket does not: the engine lives on your phone, ready anytime, anywhere. Among approaches that run right on the phone, it is also the fastest today: Node, Git, Python and FFmpeg all run as native code, with no emulator in between.
 
 |  | Fish Pocket | Remote clients | Web UI on the phone | Linux emulators on iOS (iSH, UTM SE) |
 |---|---|---|---|---|
@@ -95,8 +96,8 @@ Remote clients need a computer left running. Fish Pocket does not: the engine li
 | Computer must stay on | No: your phone is enough, anytime, anywhere | Yes, it has to stay on and online | No | No |
 | Dynamic Island and Lock Screen status | Yes | Depends on the project | Depends on the project | No |
 | Calendar, Reminders, Health and other device capabilities | Yes, each one turned on by you | Depends on the project | Depends on the project | No |
-| Full Linux tools | No, only built-in commands, Node and Python | Yes | Depends on the project | Yes |
-| Speed | Fastest of the on-phone approaches: Node, Git and Python run as native code | Depends on that computer | Depends on the project | Very slow: CPU instructions are interpreted one by one |
+| Full Linux tools | No, only built-in commands, Node, Python and FFmpeg | Yes | Depends on the project | Yes |
+| Speed | Fastest of the on-phone approaches: Node, Git, Python and FFmpeg run as native code | Depends on that computer | Depends on the project | Very slow: CPU instructions are interpreted one by one |
 
 ## Quick start
 
@@ -115,7 +116,7 @@ git clone https://github.com/imsai-sh/fish-pocket.git
 cd fish-pocket && scripts/run-sim.sh
 ```
 
-The script downloads nodejs-mobile and Python, builds libgit2, assembles the engine, then installs and runs the app on a simulator. The default device is `iPhone 17 Pro`; set `SIM_DEVICE` to choose another.
+The script downloads nodejs-mobile and Python, builds libgit2 and FFmpeg, assembles the engine, then installs and runs the app on a simulator. The default device is `iPhone 17 Pro`; set `SIM_DEVICE` to choose another.
 
 To run on a device, replace `com.wsw.dsh-ios` in `app/project.yml` and `scripts/run-device.sh` with your own bundle ID, then run:
 
@@ -125,7 +126,19 @@ DEVELOPMENT_TEAM=<your team id> scripts/run-device.sh
 
 ## How it works
 
-iOS does not let apps create child processes or run downloaded binaries. Instead of emulating a Linux machine, this project embeds Node and Python in the app and swaps DSH's "execution world" through the engine's own service seams. Not a single engine file is modified.
+iOS does not let apps create child processes or run downloaded binaries. Instead of emulating a Linux machine, this project embeds runtimes such as Node and Python in the app as native code and swaps DSH's "execution world" through the engine's own service seams. Not a single engine file is modified.
+
+What is embedded natively:
+
+| Component | How it is embedded | What the agent gets |
+|---|---|---|
+| Node 24 ([nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile)) | A prebuilt dynamic framework the engine runs on; `node` and `pnpm` each get a worker thread | The engine itself, `node`, `pnpm`, `pnpx` |
+| Python 3.15 (the official python.org iOS build) | A dynamic framework; each Python process is a subinterpreter on a thread of its own | `python3`, `pip`, `venv` |
+| [libgit2](https://github.com/libgit2/libgit2) 1.9 | Statically linked, called through N-API | `git` |
+| [FFmpeg](https://ffmpeg.org) 9.0 | Built from the official source as a dynamic framework (LGPL); each run is a thread, one at a time | `ffmpeg`, `ffprobe` |
+| System frameworks (ImageIO, Vision, EventKit, HealthKit and more) | Bridged through N-API | Image handling and [device capabilities](#device-capabilities) |
+
+iOS allows no child processes, so these runtimes' "processes" are threads in the app, each with its own pipes, working directory and exit handling. They share one view of the filesystem (`native/root`), so they see exactly the files the engine sees.
 
 <p align="center">
   <picture>
@@ -197,6 +210,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
 - [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more
 - [x] Built-in Python 3.15, with pip and venv
+- [x] Built-in FFmpeg: `ffmpeg` and `ffprobe`
 - [x] Remote control: manage the Codex, Claude Code and DSH sessions on your computers from the phone (through Agents Anywhere)
 - [ ] Move the bash interpreter off the engine thread
 - [x] Bot mode: hand tasks to the agent in your pocket from a chat
@@ -219,6 +233,7 @@ Fish Pocket also stands on the shoulders of these projects.
 - [CPython](https://github.com/python/cpython): the official python.org iOS build, Python inside the app
 - [just-bash](https://github.com/vercel-labs/just-bash): a bash interpreter written in TypeScript
 - [libgit2](https://github.com/libgit2/libgit2): git inside the app
+- [FFmpeg](https://ffmpeg.org): audio and video inside the app, used as a dynamic framework under the LGPL
 - [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm): the terminal view
 - [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere): the open-source workbench remote control talks to; the desktop side and the server are its own
 
