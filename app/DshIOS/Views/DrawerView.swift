@@ -163,6 +163,7 @@ struct DrawerView: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             .searchFieldAtBottom()
+            .modifier(SearchPageClose(action: closeSearch))
         }
         .tint(Palette.ink)
         .opacity(searchShown ? 1 : 0)
@@ -1185,6 +1186,24 @@ struct MachineTag: View {
         .padding(.vertical, 2)
         .background(Palette.control, in: Capsule())
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// The way out of the search page on iPad from iOS 26: there the system puts the field in the
+/// bar, and it has no ✕ of its own to leave by as the phone's has (before iOS 26 it has 取消).
+private struct SearchPageClose: ViewModifier {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        content.toolbar {
+            if #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .pad, sizeClass == .regular {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: action) { Image(systemName: "xmark") }
+                        .accessibilityLabel("关闭")
+                }
+            }
+        }
     }
 }
 
