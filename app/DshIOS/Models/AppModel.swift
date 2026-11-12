@@ -210,6 +210,7 @@ final class AppModel {
             LiveActivityController.shared.attach(self)
             WidgetSnapshotWriter.shared.attach(self)
             RemotePresence.shared.attach(self)
+            WatchLink.shared.attach(self)
         } catch {
             lastError = error.localizedDescription
         }

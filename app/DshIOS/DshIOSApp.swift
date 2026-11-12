@@ -12,6 +12,7 @@ struct DshIOSApp: App {
         WhatsNew.noteLaunch()
         // Siri, Shortcuts and the Control Center button: the window in front follows the link.
         DshIntentBridge.open = { LinkInbox.shared.request = LinkRequest(link: $0) }
+        WatchLink.shared.activate()
     }
 
     var body: some Scene {
@@ -24,6 +25,7 @@ struct DshIOSApp: App {
         .onChange(of: scenePhase) { _, phase in
             BackgroundKeeper.shared.scenePhaseChanged(to: phase)
             LiveActivityController.shared.scenePhaseChanged(to: phase)
+            WatchLink.shared.scenePhaseChanged(to: phase)
         }
     }
 }

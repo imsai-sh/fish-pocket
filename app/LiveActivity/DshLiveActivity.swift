@@ -24,11 +24,23 @@ struct DshWidgets: WidgetBundle {
 /// the elapsed time when compact; the session, the step it waits on and the
 /// approval buttons when expanded.
 struct DshLiveActivity: Widget {
-    typealias State = DshActivityAttributes.ContentState
-
     var body: some WidgetConfiguration {
+        // From iOS 18 the activity also shows on a paired Apple Watch (in the Smart Stack):
+        // there it gets a card of its own rather than the compact Dynamic Island.
+        if #available(iOS 18.0, *) {
+            return Self.configuration { FamilyBanner(state: $0) }
+                .supplementalActivityFamilies([.small])
+        } else {
+            return Self.configuration { LockScreenView(state: $0) }
+        }
+    }
+
+    /// The one Live Activity, with `banner` as what the lock screen (and the watch) shows.
+    private static func configuration<Banner: View>(
+        @ViewBuilder banner: @escaping (DshActivityAttributes.ContentState) -> Banner
+    ) -> some WidgetConfiguration {
         ActivityConfiguration(for: DshActivityAttributes.self) { context in
-            LockScreenView(state: context.state)
+            banner(context.state)
                 .widgetURL(context.state.url)
         } dynamicIsland: { context in
             let state = context.state
@@ -83,6 +95,47 @@ struct DshLiveActivity: Widget {
             .widgetURL(state.url)
             .keylineTint(Tint.of(state.phase))
         }
+    }
+}
+
+/// The lock screen banner, or the card on the watch.
+@available(iOS 18.0, *)
+private struct FamilyBanner: View {
+    let state: DshActivityAttributes.ContentState
+    @Environment(\.activityFamily) private var family
+
+    var body: some View {
+        switch family {
+        case .small: WristView(state: state)
+        default: LockScreenView(state: state)
+        }
+    }
+}
+
+/// The card on the watch: whose turn it is, how long it has run, which session and
+/// what it waits on. Answering happens in the watch app, which a tap opens.
+private struct WristView: View {
+    let state: DshActivityAttributes.ContentState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 5) {
+                Dot(phase: state.phase)
+                Text(Label.phase(state))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Tint.of(state.phase))
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                Elapsed(state: state).font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+            }
+            Text(state.title).font(.headline).lineLimit(1)
+            if let detail = state.detail {
+                Text(detail).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+            }
+        }
+        // The Smart Stack gives the card no margins of its own.
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 }
 

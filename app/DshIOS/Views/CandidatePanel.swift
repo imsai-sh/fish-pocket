@@ -357,7 +357,7 @@ struct AttachmentRail: View {
             Image(uiImage: preview).resizable().scaledToFill()
                 .frame(width: 56, height: 56).clipShape(RoundedRectangle(cornerRadius: 12))
                 .accessibilityLabel(Text("图片 \(attachment.name)"))
-        case .file:
+        case .file, .reading:
             fileCard(attachment)
         }
     }
@@ -367,8 +367,10 @@ struct AttachmentRail: View {
         return Button { composer.retryUpload(attachment.id) } label: {
             HStack(spacing: 10) {
                 Group {
-                    if case .uploading = attachment.upload { ProgressView().controlSize(.small) }
-                    else { FileGlyph(name: attachment.name, height: 36) }
+                    switch attachment.upload {
+                    case .uploading, .reading: ProgressView().controlSize(.small)
+                    default: FileGlyph(name: attachment.name, height: 36)
+                    }
                 }
                 .frame(width: 32)
                 VStack(alignment: .leading, spacing: 2) {
@@ -381,15 +383,20 @@ struct AttachmentRail: View {
             .frame(width: 200)
             .frame(minHeight: 56)
             .overlay(alignment: .bottom) {
-                if case .uploading(let loaded, let total) = attachment.upload {
-                    Group {
+                Group {
+                    switch attachment.upload {
+                    case .uploading(let loaded, let total):
                         if let total, total > 0 { ProgressView(value: Double(loaded), total: Double(total)) } else { ProgressView(value: 0.35) }
+                    case .reading(let fraction?):
+                        ProgressView(value: fraction)
+                    default:
+                        EmptyView()
                     }
-                    .progressViewStyle(.linear)
-                    .tint(Palette.ink)
-                    .padding(.horizontal, 10)
-                    .padding(.bottom, 4)
                 }
+                .progressViewStyle(.linear)
+                .tint(Palette.ink)
+                .padding(.horizontal, 10)
+                .padding(.bottom, 4)
             }
             .background(Palette.background, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(failed ? Palette.removed : Palette.stroke, lineWidth: 0.5))
@@ -401,6 +408,8 @@ struct AttachmentRail: View {
 
     private func meta(_ attachment: DraftAttachment) -> String {
         switch attachment.upload {
+        case .reading(let fraction?): return String(localized: "正在读取 \(Int(fraction * 100))%")
+        case .reading: return String(localized: "正在从相册读取…")
         case .uploading: return String(localized: "上传中…")
         case .failed: return String(localized: "上传失败，轻点重试")
         default: return FileFormat.caption(attachment.name, bytes: attachment.bytes)

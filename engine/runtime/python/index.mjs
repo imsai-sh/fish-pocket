@@ -15,11 +15,11 @@
 // its arguments to the python3 command along with its own path, and pip's
 // console scripts are sh launchers (boot.py).
 import fs from 'node:fs';
-import net from 'node:net';
 import path from 'node:path';
 import tls from 'node:tls';
 import { fileURLToPath } from 'node:url';
 import { simpleWords } from '../direct.mjs';
+import { collect, startNativeProcess } from '../native-process.mjs';
 
 const VERSION = '3.15';
 const PYTHON_NAMES = new Set(['python', 'python3', `python${VERSION}`]);
@@ -43,10 +43,6 @@ const STUB = [
 ].join('\n');
 /** The marker line of a console-script launcher (boot.py). */
 const ENTRY_MARK = '# dsh-python-entry: ';
-const SIGNALS = { SIGHUP: 1, SIGINT: 2, SIGQUIT: 3, SIGKILL: 9, SIGTERM: 15 };
-const SIGNAL_NAMES = Object.fromEntries(Object.entries(SIGNALS).map(([name, number]) => [number, name]));
-/** How long a process may take to stop when asked before the engine stops waiting for it. */
-const KILL_GRACE_MS = 3000;
 
 let cached;
 
@@ -180,73 +176,22 @@ export function planPython(argv, { cwd, env }) {
   return { executable, argv: [program, ...shebang.slice(1), file, ...args], env: runEnv };
 }
 
-/**
- * Start a planned Python process. Its stdin/stdout/stderr are streams of the
- * pipes it reads and writes; `exited` settles with { code, signal } once it
- * ends (or, after kill, once it has had KILL_GRACE_MS to).
- */
+/** Start a planned Python process: streams and an exit promise (native-process.mjs). */
 export function startPython({ executable, argv, cwd, env }) {
   const python = binding();
   if (!python) throw new Error('python is not available');
-  let settle;
-  const exited = new Promise((resolve) => { settle = resolve; });
-  let finished = false;
-  const ends = python.spawn({
+  return startNativeProcess(python, {
     argv: argv.map(String),
     executable,
     cwd: path.resolve('/', cwd ?? '/'),
     env: Object.entries(env ?? {}).filter(([, value]) => typeof value === 'string').map(([key, value]) => `${key}=${value}`),
-  }, (code, signal) => {
-    if (finished) return;
-    finished = true;
-    settle({ code, signal: signal == null ? null : (SIGNAL_NAMES[signal] ?? `SIG${signal}`) });
   });
-  const stdin = new net.Socket({ fd: ends.stdin, readable: false, writable: true });
-  const stdout = new net.Socket({ fd: ends.stdout, readable: true, writable: false });
-  const stderr = new net.Socket({ fd: ends.stderr, readable: true, writable: false });
-  // A process that stops reading leaves writes failing with EPIPE: nothing to report.
-  stdin.on('error', () => {});
-  for (const stream of [stdout, stderr]) stream.on('error', () => {});
-  return {
-    pid: ends.pid,
-    stdin,
-    stdout,
-    stderr,
-    exited,
-    kill(signal = 'SIGTERM') {
-      if (finished) return false;
-      const number = typeof signal === 'number' ? signal : (SIGNALS[signal] ?? SIGNALS.SIGTERM);
-      python.kill(ends.pid, number);
-      if (number === SIGNALS.SIGINT) return true;
-      // A program blocked reading its input wakes up on end of input.
-      stdin.destroy();
-      // One blocked elsewhere (sleep, a socket) is left to finish on its own.
-      setTimeout(() => {
-        if (finished) return;
-        finished = true;
-        stdout.destroy();
-        stderr.destroy();
-        settle({ code: null, signal: SIGNAL_NAMES[number] ?? `SIG${number}` });
-      }, KILL_GRACE_MS).unref();
-      return true;
-    },
-  };
-}
-
-/** Wait for both output streams to end (or a moment after exit, as runDirect does). */
-export function drained(child) {
-  const ends = [child.stdout, child.stderr].map((stream) => new Promise((resolve) => {
-    if (stream.readableEnded || stream.destroyed) return resolve();
-    stream.once('end', resolve);
-    stream.once('close', resolve);
-  }));
-  return Promise.all(ends);
 }
 
 /**
  * Python as just-bash commands. Inside a shell script the interpreter takes a
- * command's output when it exits, so this collects it; a top-level `python3 …`
- * goes through planPython instead and streams.
+ * command's output when it exits, so this collects it (native-process.mjs); a
+ * top-level `python3 …` goes through planPython instead and streams.
  */
 export function pythonCommands(defineCommand, decode) {
   return PYTHON_COMMANDS.map((name) => defineCommand(name, async (args, ctx) => {
@@ -257,17 +202,6 @@ export function pythonCommands(defineCommand, decode) {
     delete env.DSH_PYTHON_EXECUTABLE;
     const plan = as ? { executable: path.resolve(cwd, as), argv: [as, ...args], env } : planPython([name, ...args], { cwd, env });
     if (!plan) return { stdout: '', stderr: `${name}: command not found\n`, exitCode: 127 };
-    const child = startPython({ ...plan, cwd });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
-    child.stderr.setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
-    child.stdin.end(decode(ctx.stdin ?? ''));
-    const stop = () => child.kill('SIGTERM');
-    ctx.signal?.addEventListener('abort', stop, { once: true });
-    const { code, signal } = await child.exited;
-    await Promise.race([drained(child), new Promise((resolve) => setTimeout(resolve, 100))]);
-    ctx.signal?.removeEventListener('abort', stop);
-    return { stdout, stderr, exitCode: signal ? 128 + (SIGNALS[signal] ?? 15) : code };
+    return collect(startPython({ ...plan, cwd }), ctx, decode);
   }));
 }

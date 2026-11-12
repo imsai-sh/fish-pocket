@@ -9,10 +9,11 @@ xcrun simctl boot "$device" 2>/dev/null || true
 [ -d "$root/vendor/nodejs-mobile/rooted" ] || "$root/scripts/fetch-nodejs-mobile.sh"
 [ -d "$root/vendor/python/rooted" ] || "$root/scripts/fetch-python.sh"
 [ -d "$root/vendor/libgit2/Libgit2.xcframework" ] || "$root/scripts/build-libgit2.sh"
+[ -d "$root/vendor/ffmpeg/FFmpeg.xcframework" ] || "$root/scripts/build-ffmpeg.sh"
 "$root/scripts/build-engine.sh"
 cd "$root/app"
 xcodegen generate --quiet
-xcodebuild -project DshIOS.xcodeproj -scheme DshIOS -sdk iphonesimulator -destination "platform=iOS Simulator,name=$device" \
+xcodebuild -project DshIOS.xcodeproj -scheme DshIOS -destination "platform=iOS Simulator,name=$device" \
   -derivedDataPath build/DerivedData -skipPackagePluginValidation build -quiet
 app="build/DerivedData/Build/Products/Debug-iphonesimulator/DshIOS.app"
 xcrun simctl install "$device" "$app"

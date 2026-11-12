@@ -21,6 +21,7 @@ Anything not listed here should be assumed missing.
 - **Archives:** `tar gzip gunzip zcat`
 - **Network:** `curl`
 - **Development:** `git node pnpm pnpx`
+- **Video and audio:** `ffmpeg ffprobe` (see the Video and audio section below)
 - **Shell:** `bash sh env printenv which type command date sleep timeout time xargs yes true false expr whoami hostname pwd history alias unalias clear help`
 
 Python and pip also exist: see the Python section below.
@@ -48,7 +49,7 @@ Python and pip also exist: see the Python section below.
 
 Pipes, redirects, `&&`, `||`, variables, arrays, functions, loops, here-documents, `$(...)`, subshells and `[[ ]]` work. Plain bash scripts run. The differences that matter:
 
-- **No live output.** A command's output appears only when it finishes. A single `node`, `pnpm run` or `python3` command is the exception and streams.
+- **No live output.** A command's output appears only when it finishes. A single `node`, `pnpm run`, `python3` or `ffmpeg` command is the exception and streams.
 - **Nothing is interactive.** There is no TTY. Commands that prompt or open an editor fail or wait forever: pass flags that avoid the prompt.
 - **`trap` does nothing.** It is accepted, but no signal arrives and `EXIT` traps do not run. Do not rely on them for cleanup.
 - **Heavy shell work blocks the app.** The interpreter shares a thread with the agent. Long `while` loops or a big `sort` or `rg` freeze everything until they finish. Do heavy work in a Node script: it runs on its own thread.
@@ -85,6 +86,19 @@ Python 3.15 is built into the app: `python`, `python3`, `python3.15`, `pip`, `pi
 - **`subprocess` runs only Python.** From Python, `subprocess.run([sys.executable, …])` and `python3 …` work; any other program (`git`, `ls`, a shell) raises `FileNotFoundError`. So does `multiprocessing`. Use Python's own modules (`shutil`, `pathlib`, `glob`) instead of shelling out.
 - **No interactive Python.** `python3` with no script reads its program from stdin; there is no prompt, and `input()` gets only what was piped in.
 - `uv`, `poetry` and `conda` are native programs and do not exist: use `pip` and `venv`.
+
+## Video and audio
+
+FFmpeg 9.0 is built into the app: `ffmpeg` and `ffprobe` work as on a desktop for inspecting, cutting, converting and analysing media files.
+
+- **Reads nearly everything:** MP4 and MOV (iPhone HEVC included), MKV, WebM, AVI, MPEG-TS, FLV, WAV, MP3, FLAC, Ogg, Opus, images and subtitle files. All of FFmpeg's built-in filters work: `scale`, `crop`, `fps`, `select`, `tile`, `volumedetect`, `silencedetect`, `loudnorm` and the rest. `-f null -` works for analysis.
+- **H.264 and HEVC come from the phone's hardware encoder:** `-c:v h264_videotoolbox -b:v 4M`, or `hevc_videotoolbox`. H.264 is the default for `.mp4`, `.mov` and `.mkv`. Set a bitrate: `-crf` and `-preset` do not apply. `mjpeg`, `png`, `gif`, `mpeg4`, `prores_ks` and `ffv1` also encode. Audio: `aac`, `flac`, `alac`, `pcm_s16le` (WAV).
+- **Not built in:** `libx264`, `libx265`, `libvpx`, `libaom`, `libmp3lame`. So there is no VP8, VP9, AV1 or MP3 encoding, and `.webm` and `.mp3` cannot be written. Write H.264 MP4 and AAC `.m4a` instead. Filters that need outside libraries do not exist either: `subtitles`/`ass` (burning in subtitles) and `drawtext`. Neither does `-f lavfi` as an input.
+- **Work with files, by path.** There is no network input: download with `curl` first. Do not pipe media through the shell: in a pipe or a `<` redirect, binary data is corrupted. Writing to stdout (`-f wav -`) works only as a whole command on its own.
+- **Pass `-y` to overwrite.** Nothing prompts. Without it ffmpeg stops at an existing file, and still exits 0.
+- **One at a time.** A second `ffmpeg` or `ffprobe` waits until the running one finishes. Stopping a command stops `ffmpeg` cleanly; `ffprobe` runs to its end.
+- **Only from the shell.** Python's `subprocess` cannot run it, so packages that call `ffmpeg` (`moviepy`, `pydub`) do not work. Run `ffmpeg` in a command instead.
+- Decoding runs on the CPU. For long or 4K videos, limit the work with `-ss`, `-t` and `fps=`.
 
 ## Packages
 
@@ -130,7 +144,7 @@ Services the user has connected under 连接器 in the sidebar (GitHub, Notion a
 
 ## Device capabilities
 
-You have tools onto the phone itself. They are not shell commands: `device_info`, `notify`, `open_url`, `text_analysis`, `maps`, `read_image`, `clipboard`, `location`, `speak`, `calendar`, `reminders`, `transcribe_audio`, `health`, `photos`, `homekit`, `alarm`, `contacts`, `compose`, `files`, `music`, `weather`. **Before using one for the first time in a session, read `references/device-capabilities.md`**: which tool fits which request, what each returns, how writes and permissions work, and what is not built.
+You have tools onto the phone itself. They are not shell commands: `device_info`, `notify`, `open_url`, `text_analysis`, `maps`, `image_analysis`, `clipboard`, `location`, `speak`, `calendar`, `reminders`, `transcribe_audio`, `health`, `photos`, `homekit`, `alarm`, `contacts`, `compose`, `files`, `music`, `weather`. **Before using one for the first time in a session, read `references/device-capabilities.md`**: which tool fits which request, what each returns, how writes and permissions work, and what is not built.
 
 Three rules hold even before you read it:
 

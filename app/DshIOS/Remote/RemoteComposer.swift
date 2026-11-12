@@ -13,6 +13,15 @@ struct RemoteComposer: View {
     @State private var showPhotos = false
     @State private var showFiles = false
     @State private var photos: [PhotosPickerItem] = []
+    /// Videos still coming out of the photo library: each shows as a reading chip until it
+    /// joins the attachments (or is refused for its size).
+    @State private var reading: [ReadingMovie] = []
+
+    private struct ReadingMovie: Identifiable {
+        let id = UUID()
+        var progress: Progress?
+        var fraction: Double?
+    }
 
     private static let maxFiles = 10
     private static let maxBytes = 20 << 20
@@ -26,7 +35,7 @@ struct RemoteComposer: View {
         VStack(alignment: .leading, spacing: 8) {
             if !suggestions.isEmpty { commandPanel(suggestions) }
             VStack(alignment: .leading, spacing: 8) {
-                if !model.attachments.isEmpty { rail }
+                if !model.attachments.isEmpty || !reading.isEmpty { rail }
                 if let hint = commandHint {
                     Text(hint).font(.footnote).foregroundStyle(Palette.secondary).padding(.horizontal, 17).padding(.top, 4)
                 }
@@ -48,7 +57,7 @@ struct RemoteComposer: View {
         .task(id: model.draft.hasPrefix("/") && model.canCommand) {
             if model.draft.hasPrefix("/"), model.commands.isEmpty { await model.loadCommands() }
         }
-        .photosPicker(isPresented: $showPhotos, selection: $photos, maxSelectionCount: max(1, Self.maxFiles - model.attachments.count), matching: .images)
+        .photosPicker(isPresented: $showPhotos, selection: $photos, maxSelectionCount: max(1, Self.maxFiles - model.attachments.count - reading.count), matching: .any(of: [.images, .videos]), preferredItemEncoding: .current)
         .onChange(of: photos) { _, items in
             guard !items.isEmpty else { return }
             photos = []
@@ -104,7 +113,7 @@ struct RemoteComposer: View {
                 .accessibilityLabel("停止生成")
             }
             if !model.busy || !empty {
-                let ready = !empty && (model.canSend || model.sendWaits)
+                let ready = !empty && (model.canSend || model.sendWaits) && reading.isEmpty
                 Button { Haptics.tap(); Task { await model.send() } } label: {
                     Image(systemName: "arrow.up").font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(ready ? Palette.onInk : Palette.faint)
@@ -136,6 +145,23 @@ struct RemoteComposer: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(Text("移除 \(file.name)"))
+                    }
+                    .padding(.leading, 8)
+                    .background(Palette.bubble, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+                ForEach(reading) { movie in
+                    HStack(spacing: 6) {
+                        ProgressView().controlSize(.mini)
+                        Text(movie.fraction.map { String(localized: "正在读取 \(Int($0 * 100))%") } ?? String(localized: "正在从相册读取…"))
+                            .font(.caption).foregroundStyle(Palette.secondary).lineLimit(1).monospacedDigit()
+                        Button {
+                            movie.progress?.cancel()
+                            reading.removeAll { $0.id == movie.id }
+                        } label: {
+                            Image(systemName: "xmark").font(.caption2.weight(.bold)).foregroundStyle(Palette.secondary).hitTarget(30)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(Text("移除 \(String(localized: "视频"))"))
                     }
                     .padding(.leading, 8)
                     .background(Palette.bubble, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -193,7 +219,14 @@ struct RemoteComposer: View {
 
     private func add(photos items: [PhotosPickerItem]) async {
         for item in items {
-            guard model.attachments.count < Self.maxFiles else { break }
+            guard model.attachments.count + reading.count < Self.maxFiles else { break }
+            if item.isMovie {
+                // A video goes as a file, under the same size limit as one from Files; a chip shows while it is read.
+                let movie = ReadingMovie()
+                reading.append(movie)
+                Task { await read(item, as: movie.id) }
+                continue
+            }
             guard let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) else { continue }
             // JPEG at a size any model takes: the original can be tens of megabytes of HEIC.
             let side = max(image.size.width, image.size.height)
@@ -204,6 +237,33 @@ struct RemoteComposer: View {
             let scaled = UIGraphicsImageRenderer(size: size, format: format).image { _ in image.draw(in: CGRect(origin: .zero, size: size)) }
             guard let jpeg = scaled.jpegData(compressionQuality: 0.85) else { continue }
             model.attachments.append(RemoteUpload(name: "photo-\(model.attachments.count + 1).jpg", mediaType: "image/jpeg", data: jpeg))
+        }
+    }
+
+    /// Read one picked video; its chip follows the library's progress and leaves when the file
+    /// joins the attachments. A chip removed meanwhile cancels the read.
+    private func read(_ item: PhotosPickerItem, as id: UUID) async {
+        let watch = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(250))
+                guard let index = reading.firstIndex(where: { $0.id == id }), let progress = reading[index].progress,
+                      progress.totalUnitCount > 0 else { continue }
+                reading[index].fraction = progress.fractionCompleted
+            }
+        }
+        defer { watch.cancel() }
+        do {
+            let url = try await item.loadMovie { progress in
+                if let index = reading.firstIndex(where: { $0.id == id }) { reading[index].progress = progress }
+            }
+            defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+            guard reading.contains(where: { $0.id == id }) else { return }
+            reading.removeAll { $0.id == id }
+            add(files: [url])
+        } catch {
+            guard reading.contains(where: { $0.id == id }) else { return }
+            reading.removeAll { $0.id == id }
+            app.showToast(String(localized: "视频读取失败：\(error.localizedDescription)"))
         }
     }
 

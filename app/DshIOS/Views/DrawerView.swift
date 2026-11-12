@@ -69,12 +69,9 @@ struct DrawerView: View {
     var body: some View {
         NavigationStack {
             List {
-                // The Bot card keeps its own margins: wider than the rows under it.
                 BotDrawerEntry()
                     .padding(.top, 4)
-                    .listRowInsets(EdgeInsets())
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
+                    .plainRow()
                 pluginsRow
                 connectorsRow
                 capabilitiesRow
