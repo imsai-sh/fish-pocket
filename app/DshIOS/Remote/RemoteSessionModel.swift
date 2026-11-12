@@ -204,7 +204,6 @@ final class RemoteSessionModel: Identifiable {
 
     func start() {
         guard run == nil, !suspended, let store, let client = store.client else { return }
-        store.register(self)
         run = Task { [weak self] in
             var attempt = 0
             while !Task.isCancelled {
@@ -269,13 +268,12 @@ final class RemoteSessionModel: Identifiable {
         if struggling { struggling = false }
     }
 
-    /// The page went away, or the account did.
+    /// The session is no longer kept, or the account went.
     func close() {
         stop()
-        store?.unregister(self)
     }
 
-    /// The app left the front: the channel closes, what was read stays on screen.
+    /// The page went away or the app left the front: the channel closes, what was read stays.
     func suspend() {
         suspended = true
         stop()

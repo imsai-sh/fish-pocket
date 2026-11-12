@@ -74,18 +74,18 @@ final class RemoteStore {
 
     @ObservationIgnored private(set) var client: RemoteClient?
     @ObservationIgnored private var follow: Task<Void, Never>?
-    /// Open conversations by session; a session can be open in more than one window.
-    @ObservationIgnored private var open: [String: [Weak]] = [:]
+    /// The sessions that have been opened, the most recently shown last. A model stays after its
+    /// page closes, so that opening the session again shows at once what it held and only has to
+    /// catch up. In memory, for this run of the app: nothing of a session is written to the phone.
+    @ObservationIgnored private var kept: [RemoteSessionModel] = []
+    /// How many pages show each session now (a session can be open in more than one window).
+    @ObservationIgnored private var showing: [String: Int] = [:]
+    private static let keptLimit = 8
     @ObservationIgnored private var inFront = true
     /// The state of the session each request was read at; a later one is read again.
     @ObservationIgnored private var requestSeq: [String: Int] = [:]
     @ObservationIgnored private var requestReads: Set<String> = []
     @ObservationIgnored private var observers: [NSObjectProtocol] = []
-
-    private final class Weak {
-        weak var model: RemoteSessionModel?
-        init(_ model: RemoteSessionModel) { self.model = model }
-    }
 
     var signedIn: Bool { account != nil }
 
@@ -240,8 +240,9 @@ final class RemoteStore {
     private func clear() {
         follow?.cancel()
         follow = nil
-        let models = open.values.flatMap { $0 }.compactMap(\.model)
-        open = [:]
+        let models = kept
+        kept = []
+        showing = [:]
         for model in models { model.close() }
         client = nil
         account = nil
@@ -266,7 +267,7 @@ final class RemoteStore {
     private func setInFront(_ front: Bool) {
         inFront = front
         if front { startFollowing() } else { settleFollowing() }
-        for model in open.values.flatMap({ $0 }).compactMap(\.model) { front ? model.resume() : model.suspend() }
+        for model in kept where showing[model.id] != nil { front ? model.resume() : model.suspend() }
     }
 
     /// Off screen with nothing left to report: the connection goes until the app is back.
@@ -364,9 +365,8 @@ final class RemoteStore {
         if next != sessions { sessions = next }
         if !loaded { loaded = true }
         reindex()
-        for (id, boxes) in open {
-            guard let session = next[id] else { continue }
-            for box in boxes { box.model?.apply(meta: session) }
+        for model in kept {
+            if let session = next[model.id] { model.apply(meta: session) }
         }
         readRequests()
         settleFollowing()
@@ -417,7 +417,10 @@ final class RemoteStore {
     private func noteDeparture(of deviceIds: Set<String>) {
         guard !deviceIds.isEmpty else { return }
         let gone = sessions.values.filter { deviceIds.contains($0.deviceId) }.map(\.id)
-        if !gone.isEmpty { departed.formUnion(gone) }
+        if !gone.isEmpty {
+            departed.formUnion(gone)
+            forget(Set(gone))
+        }
     }
 
     /// The newer of two readings; what has been read stays read.
@@ -447,14 +450,41 @@ final class RemoteStore {
 
     // MARK: Open sessions
 
-    func register(_ model: RemoteSessionModel) {
-        let boxes = (open[model.id] ?? []).filter { $0.model != nil && $0.model !== model }
-        open[model.id] = boxes + [Weak(model)]
+    /// The session, for a page that shows it: the one kept from the last time it was open,
+    /// which already holds its records, or a new one that reads them. Its channel comes up.
+    func acquire(_ id: String) -> RemoteSessionModel {
+        let model = kept.first { $0.id == id } ?? RemoteSessionModel(id: id, store: self)
+        kept.removeAll { $0 === model }
+        kept.append(model)
+        showing[id, default: 0] += 1
+        if inFront { model.resume() }
+        trim()
+        return model
     }
 
-    func unregister(_ model: RemoteSessionModel) {
-        let boxes = (open[model.id] ?? []).filter { $0.model != nil && $0.model !== model }
-        open[model.id] = boxes.isEmpty ? nil : boxes
+    /// The page went away: the channel closes, what was read stays for the next time.
+    func release(_ id: String) {
+        guard let count = showing[id] else { return }
+        showing[id] = count > 1 ? count - 1 : nil
+        guard showing[id] == nil else { return }
+        kept.first { $0.id == id }?.suspend()
+        trim()
+    }
+
+    /// Only the last few stay; a session on screen is never dropped.
+    private func trim() {
+        var extra = kept.count - Self.keptLimit
+        for model in kept where extra > 0 && showing[model.id] == nil {
+            model.close()
+            kept.removeAll { $0 === model }
+            extra -= 1
+        }
+    }
+
+    /// Sessions that are gone (their computer left the account) are not kept either.
+    private func forget(_ ids: Set<String>) {
+        for model in kept where ids.contains(model.id) && showing[model.id] == nil { model.close() }
+        kept.removeAll { ids.contains($0.id) && showing[$0.id] == nil }
     }
 
     // MARK: Changes

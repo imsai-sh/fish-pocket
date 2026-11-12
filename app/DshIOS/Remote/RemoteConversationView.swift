@@ -38,11 +38,14 @@ struct RemoteConversationView: View {
         }
         .task(id: app.remote.signedIn) {
             guard model == nil, app.remote.signedIn else { return }
-            let session = RemoteSessionModel(id: sessionId, store: app.remote)
-            model = session
-            session.start()
+            // Kept from the last time it was open, it shows at once and catches up behind.
+            model = app.remote.acquire(sessionId)
         }
-        .onDisappear { model?.close() }
+        .onDisappear {
+            guard model != nil else { return }
+            model = nil
+            app.remote.release(sessionId)
+        }
     }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = true) {
