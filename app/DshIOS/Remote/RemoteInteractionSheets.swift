@@ -275,8 +275,8 @@ struct RemoteNoticeSheet: View {
         } else if let questions {
             questionFooter(questions)
         } else {
-            let primary = notice.actions.first { $0.style == "primary" } ?? notice.actions.first { !["reject", "cancel", "dismiss"].contains($0.id) }
-            let negative = notice.actions.first { $0.id == "reject" } ?? notice.actions.first { ["cancel", "dismiss"].contains($0.id) && $0.id != primary?.id }
+            let primary = notice.approveAction
+            let negative = notice.rejectAction
             let rest = notice.actions.filter { $0.id != primary?.id && $0.id != negative?.id }
             VStack(spacing: 6) {
                 HStack(spacing: 10) {

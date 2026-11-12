@@ -22,7 +22,9 @@ struct RemoteLoginCode: Hashable {
 
 /// Remote control: the computers of an Agents Anywhere account and the agent sessions on them.
 /// The phone is one more client of that account's server (the cloud one or the user's own); it
-/// keeps the account's list here and follows it over one WebSocket while the app is in front.
+/// keeps the account's list here and follows it over one WebSocket while the app is in front,
+/// and off screen for as long as a session the phone answers for is at work or waits (no push
+/// service is involved, as with the phone's own sessions: the app has to be alive to hear).
 /// Nothing happens, and nothing shows, until the user signs in.
 @MainActor
 @Observable
@@ -55,6 +57,9 @@ final class RemoteStore {
     private(set) var archivedSessions: [RemoteSession] = []
     private var deviceIndex: [String: RemoteDevice] = [:]
     private var projectIndex: [String: RemoteProject] = [:]
+    /// What each followed session that waits is asking, read as it starts to wait: the lock
+    /// screen and the widgets say it, and an approval can be answered from there.
+    private(set) var requests: [String: RemoteNotice] = [:]
     /// The list has been read at least once since signing in.
     private(set) var loaded = false
     /// The list is being followed live.
@@ -69,6 +74,9 @@ final class RemoteStore {
     /// Open conversations by session; a session can be open in more than one window.
     @ObservationIgnored private var open: [String: [Weak]] = [:]
     @ObservationIgnored private var inFront = true
+    /// The state of the session each request was read at; a later one is read again.
+    @ObservationIgnored private var requestSeq: [String: Int] = [:]
+    @ObservationIgnored private var requestReads: Set<String> = []
     @ObservationIgnored private var observers: [NSObjectProtocol] = []
 
     private final class Weak {
@@ -101,6 +109,13 @@ final class RemoteStore {
 
     /// Pinned first, then by the server's own order of recency.
     func listed(archived: Bool = false) -> [RemoteSession] { archived ? archivedSessions : active }
+
+    /// Followed sessions that wait on the user or are at work, the waiting ones first: what the
+    /// lock screen, the widgets and the background keeper report beside the phone's own sessions.
+    /// It holds what was last heard: a lost connection reads as still at work, not as finished.
+    var attention: [RemoteSession] {
+        active.filter(\.needsAttention).sorted { ($0.waiting ? 0 : 1) < ($1.waiting ? 0 : 1) }
+    }
 
     /// After any change to devices, projects or sessions. Only what differs is assigned:
     /// the server repeats the whole list on every push, and an unchanged one must not redraw anything.
@@ -223,6 +238,9 @@ final class RemoteStore {
         projects = []
         agents = []
         sessions = [:]
+        requests = [:]
+        requestSeq = [:]
+        requestReads = []
         reindex()
         loaded = false
         connected = false
@@ -231,19 +249,24 @@ final class RemoteStore {
 
     // MARK: Following the list
 
-    /// The app came to the front or left it: the list is only followed in front.
+    /// The app came to the front or left it. Conversations are only followed in front; the list
+    /// goes on off screen while a followed session has something to report.
     private func setInFront(_ front: Bool) {
         inFront = front
-        if front { startFollowing() } else {
-            follow?.cancel()
-            follow = nil
-            connected = false
-        }
+        if front { startFollowing() } else { settleFollowing() }
         for model in open.values.flatMap({ $0 }).compactMap(\.model) { front ? model.resume() : model.suspend() }
     }
 
+    /// Off screen with nothing left to report: the connection goes until the app is back.
+    private func settleFollowing() {
+        guard !inFront, attention.isEmpty, follow != nil else { return }
+        follow?.cancel()
+        follow = nil
+        connected = false
+    }
+
     private func startFollowing() {
-        guard inFront, follow == nil, let client else { return }
+        guard inFront || !attention.isEmpty, follow == nil, let client else { return }
         follow = Task { [weak self] in
             var attempt = 0
             while !Task.isCancelled {
@@ -332,6 +355,49 @@ final class RemoteStore {
             guard let session = next[id] else { continue }
             for box in boxes { box.model?.apply(meta: session) }
         }
+        readRequests()
+        settleFollowing()
+    }
+
+    // MARK: Requests of followed sessions
+
+    /// Keep `requests` to the followed sessions that wait, reading what each asks once per
+    /// state of its session (the list only says that it waits).
+    private func readRequests() {
+        let waiting = active.filter { $0.followed && $0.waiting }
+        let ids = Set(waiting.map(\.id))
+        if requests.keys.contains(where: { !ids.contains($0) }) { requests = requests.filter { ids.contains($0.key) } }
+        requestSeq = requestSeq.filter { ids.contains($0.key) }
+        guard let client else { return }
+        for session in waiting where requestSeq[session.id] != session.updatedSeq && !requestReads.contains(session.id) {
+            let id = session.id, seq = session.updatedSeq
+            requestReads.insert(id)
+            Task { [weak self] in
+                let value = try? await client.get("/sessions/\(RemoteClient.encode(id))/runtime/notices")
+                guard let self, self.client === client else { return }
+                self.requestReads.remove(id)
+                guard let value, self.sessions[id]?.waiting == true else { return }
+                self.requestSeq[id] = seq
+                let open = value["notices"].array.compactMap(RemoteNotice.init).filter(\.answerable)
+                let request = open.first(where: \.isApproval) ?? open.first
+                if request != self.requests[id] { self.requests[id] = request }
+            }
+        }
+    }
+
+    /// Allow or refuse what a followed session waits with, from outside its conversation
+    /// (the lock screen). False when it cannot be answered from here.
+    func answer(session id: String, request requestId: String, allow: Bool) async -> Bool {
+        guard let client, let request = requests[id], request.id == requestId, let answers = request.quickAnswers else { return false }
+        do {
+            _ = try await client.post("/sessions/\(RemoteClient.encode(id))/runtime/notices/\(RemoteClient.encode(requestId))/respond",
+                                      ["actionId": .string(allow ? answers.allow : answers.refuse)])
+        } catch {
+            return false
+        }
+        if requests[id]?.id == requestId { requests[id] = nil }
+        await refresh()
+        return true
     }
 
     /// The newer of two readings; what has been read stays read.
@@ -349,6 +415,7 @@ final class RemoteStore {
         guard next != sessions[session.id] else { return }
         sessions[session.id] = next
         reindex()
+        readRequests()
     }
 
     /// The agents of a device, read from it (the live list only carries them once it has pushed).

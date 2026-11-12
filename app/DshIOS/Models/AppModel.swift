@@ -209,6 +209,7 @@ final class AppModel {
             BackgroundKeeper.shared.attach { [weak self] in await self?.refreshSessions() }
             LiveActivityController.shared.attach(self)
             WidgetSnapshotWriter.shared.attach(self)
+            RemotePresence.shared.attach(self)
         } catch {
             lastError = error.localizedDescription
         }
@@ -366,10 +367,16 @@ final class AppModel {
         }
     }
 
+    /// What keeps the app alive off screen: the engine's running sessions, and the sessions on
+    /// a computer that the phone answers for while they work or wait (to hear how they end).
     private func reportRunning() {
         let running = sessions.values.filter(\.running)
-        BackgroundKeeper.shared.update(running: running.map { $0.isSubagent ? String(localized: "子智能体") : title(of: $0.id) })
+        BackgroundKeeper.shared.update(running: running.map { $0.isSubagent ? String(localized: "子智能体") : title(of: $0.id) }
+            + remote.attention.map(\.displayTitle))
     }
+
+    /// The followed sessions on a computer started or stopped working (`RemotePresence`).
+    func remoteWorkChanged() { reportRunning() }
 
     /// Rows without cached projections carry no title; read them once (no agent is resumed).
     private func loadMissingTitles() async {

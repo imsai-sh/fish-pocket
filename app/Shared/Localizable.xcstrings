@@ -23026,6 +23026,22 @@
         }
       }
     },
+    "有一个问题等你回答" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A question is waiting for your answer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hay una pregunta esperando tu respuesta"
+          }
+        }
+      }
+    },
     "有一封邮件等你确认" : {
       "localizations" : {
         "en" : {
@@ -33667,6 +33683,22 @@
         }
       }
     },
+    "请求执行一项操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asks to run an action"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pide ejecutar una acción"
+          }
+        }
+      }
+    },
     "请求超时，请重试。" : {
       "localizations" : {
         "en" : {
@@ -39035,6 +39067,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Agents Anywhere para iOS"
+          }
+        }
+      }
+    },
+    "「%@」等你允许" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is waiting for your approval"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» espera tu permiso"
+          }
+        }
+      }
+    },
+    "「%@」等你回答" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is waiting for your answer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» espera tu respuesta"
           }
         }
       }

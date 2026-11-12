@@ -187,6 +187,13 @@ struct RemoteSession: Identifiable, Hashable {
     var waiting: Bool { status == .waitingApproval }
     var working: Bool { [.running, .waiting, .pending].contains(status) }
     var hasUnread: Bool { unread && status == .idle }
+
+    /// Driven from here or another remote client, not from the agent's own window on the
+    /// computer: the sessions this phone answers for. Their work and their requests show
+    /// outside the app too (lock screen, Dynamic Island, widgets), as the phone's own do.
+    var followed: Bool { takeover && !archived }
+    /// A followed session with something to report: it waits on the user, or it is at work.
+    var needsAttention: Bool { followed && deviceOnline && (waiting || working) }
 }
 
 enum RemoteAgentKind {
@@ -379,6 +386,30 @@ struct RemoteNotice: Identifiable, Hashable {
     }
 
     var isApproval: Bool { interaction == "approval" }
+
+    /// The answer that lets it go on, and the one that refuses.
+    var approveAction: Action? {
+        actions.first { $0.style == "primary" } ?? actions.first { !["reject", "cancel", "dismiss"].contains($0.id) }
+    }
+    var rejectAction: Action? {
+        let approve = approveAction
+        return actions.first { $0.id == "reject" } ?? actions.first { ["cancel", "dismiss"].contains($0.id) && $0.id != approve?.id }
+    }
+
+    /// An approval that one tap answers either way, so it can be answered from outside the
+    /// conversation; nil when an answer takes input.
+    var quickAnswers: (allow: String, refuse: String)? {
+        guard isApproval, answerable, let allow = approveAction, let refuse = rejectAction, !allow.required, !refuse.required else { return nil }
+        return (allow.id, refuse.id)
+    }
+
+    /// What it asks, in a line.
+    var summary: String {
+        for text in [message, title] {
+            if let text = text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty { return text }
+        }
+        return isApproval ? String(localized: "请求执行一项操作") : String(localized: "有一个问题等你回答")
+    }
     /// The timeline record it is about (the tool call waiting to run).
     var targetItemId: String? { source["timelineItemId"].string ?? context["timelineItemId"].string }
     var failure: String? {
