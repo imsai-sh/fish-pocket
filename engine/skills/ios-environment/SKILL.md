@@ -130,7 +130,7 @@ Services the user has connected under 连接器 in the sidebar (GitHub, Notion a
 
 ## Device capabilities
 
-You have tools onto the phone itself. They are not shell commands: `device_info`, `notify`, `open_url`, `text_analysis`, `maps`, `read_image`, `clipboard`, `location`, `speak`, `calendar`, `reminders`, `transcribe_audio`, `health`, `photos`, `homekit`, `alarm`, `contacts`, `compose`, `files`, `music`, `weather`. **Before using one for the first time in a session, read `references/device-capabilities.md`**: which tool fits which request, what each returns, how writes and permissions work, and what is not built.
+You have tools onto the phone itself. They are not shell commands: `device_info`, `notify`, `open_url`, `text_analysis`, `maps`, `image_analysis`, `clipboard`, `location`, `speak`, `calendar`, `reminders`, `transcribe_audio`, `health`, `photos`, `homekit`, `alarm`, `contacts`, `compose`, `files`, `music`, `weather`. **Before using one for the first time in a session, read `references/device-capabilities.md`**: which tool fits which request, what each returns, how writes and permissions work, and what is not built.
 
 Three rules hold even before you read it:
 
