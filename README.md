@@ -237,25 +237,17 @@ App 免费，代码以 MIT 协议开源，商用需要先取得授权，见[许�
 欢迎提 issue 和 PR，让你的 Agent 看 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 致谢
-
-**特别感谢 [DSH Go](https://github.com/ccch1mneyyy/dsh-go)**，是它启发我们做了这个 iOS 版本，但他只支持Android版本。
-
-Fish Pocket 还站在这些优秀项目的肩膀上。
-
-**直接使用：**
-
-- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：引擎本身，一切的基础
+Fish Pocket 站在这些优秀项目的肩膀上:
+- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：引擎本身，一切的基础，Agent时代的操作系统
+- [DSH Go](https://github.com/ccch1mneyyy/dsh-go)，Android上的DSH引擎，是它启发我们做了这个 iOS 版本
 - [DS Bot](https://github.com/Fei2411/DS-Bot)：Bot 功能的后台，常驻的 Bot 团队、群聊、记忆和定时任务都靠它。感谢 Fei2411 和社区贡献者
+- [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere)：远程控制对接的开源工作台，电脑端和服务器都是它的
 - [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) 及其 [digidem 分支](https://github.com/digidem/nodejs-mobile)：让 Node 24 跑在 iOS 上
 - [CPython](https://github.com/python/cpython)：python.org 官方的 iOS 构建，App 内的 Python
 - [just-bash](https://github.com/vercel-labs/just-bash)：TypeScript 写的 bash 解释器
 - [libgit2](https://github.com/libgit2/libgit2)：App 内的 git 能力
 - [FFmpeg](https://ffmpeg.org)：App 内的音视频处理，按 LGPL 以动态框架使用
 - [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)：终端界面
-- [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere)：远程控制对接的开源工作台，电脑端和服务器都是它的
-
-**参考过的思路：**
-
 - [dsh-mobile](https://github.com/saya-ch/dsh-mobile)：DSH 的远程访问方案
 - [a-Shell](https://github.com/holzschu/a-shell)：证明了 iOS 上可以有真正好用的本地终端
 - [OpenMinis](https://github.com/OpenMinis/OpenMinis)：跑在手机上的 AI Agent，本机能力的分类和权限档位参考了它的设计
