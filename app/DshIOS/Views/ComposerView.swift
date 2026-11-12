@@ -277,7 +277,7 @@ struct ComposerView: View {
             focused = true
             consumeFocus()
         }
-        .photosPicker(isPresented: $showPhotos, selection: $photos, maxSelectionCount: max(1, composer.remainingImageSlots), matching: .images)
+        .photosPicker(isPresented: $showPhotos, selection: $photos, maxSelectionCount: max(1, composer.remainingImageSlots), matching: .any(of: [.images, .videos]), preferredItemEncoding: .current)
         .onChange(of: photos) { _, items in
             Task { await loadPhotos(items) }
         }
@@ -690,11 +690,35 @@ struct ComposerView: View {
     private func loadPhotos(_ items: [PhotosPickerItem]) async {
         var refusal: String?
         for item in items {
+            if item.isMovie {
+                // Videos go up as files, the way the web sends them; the card shows while the library reads one.
+                composer.readMovie { started in try await item.loadMovie(started: started) }
+                continue
+            }
             guard let data = try? await item.loadTransferable(type: Data.self) else { continue }
             if let reason = composer.addImage(data: data) { refusal = reason }
         }
         photos = []
         if let refusal { app.showToast(refusal) }
+    }
+}
+
+extension PhotosPickerItem {
+    /// A video from the library: it joins the draft as a file (`PickedMovie`), not an image.
+    var isMovie: Bool { supportedContentTypes.contains { $0.conforms(to: .movie) } }
+
+    /// Read a video out of the library into a file of its own (`PickedMovie.stage`).
+    /// `started` gets the library's progress at once: how far an iCloud download or the
+    /// copy is, and `cancel()` to stop it.
+    @MainActor
+    func loadMovie(started: (Progress) -> Void) async throws -> URL {
+        try await withCheckedThrowingContinuation { continuation in
+            started(loadTransferable(type: PickedMovie.self) { result in
+                continuation.resume(with: result.flatMap { movie in
+                    movie.map { .success($0.url) } ?? .failure(CocoaError(.fileReadUnknown))
+                })
+            })
+        }
     }
 }
 
