@@ -36,13 +36,21 @@ docker run --rm -it \
   agents-anywhere-connector:agents-ubuntu2404
 ```
 
-容器会打印一个配对码。在 Agents Anywhere 的网页或桌面应用里添加设备、填入这个配对码，这台服务器就挂到你的账号下了。配对结果存在 `/data` 卷里，之后重启容器不用再配对。
+接下来三步：
+
+1. 容器会打印一个配对码（`Pairing code: …`）。在 Agents Anywhere 的网页或桌面应用里添加设备、填入这个配对码，这台服务器就挂到你的账号下了。配对结果存在 `/data` 卷里，之后重启容器不用再配对。
+2. 在 Agents Anywhere 里给这台服务器添加智能体，比如 Claude Code。服务器上装了哪些，它会自己列出来。
+3. 打开 Fish Pocket，侧边栏的「新会话」里就能选这台服务器，填上服务器上的项目路径（比如 `/workspace/项目名`）开始。
 
 智能体自己的账号和密钥要在服务器上配好，和在电脑上用它们时一样：比如给 Claude Code 设置它的 API 地址和密钥的环境变量，用 `-e` 传进容器。
+
+构建镜像时如果报 `useradd: UID 1000 is not unique`，是因为新版 Ubuntu 24.04 基础镜像自带一个占用这个编号的 `ubuntu` 用户。在 Dockerfile 里 `useradd` 那一行前面加一行 `&& (userdel -r ubuntu 2>/dev/null || true) \` 再构建。
 
 不用 Docker 也可以：在服务器上直接运行 Connector 的命令行，见 Agents Anywhere 的 [Connector 说明](https://github.com/anywhere-labs/Agents-Anywhere/blob/main/connector/README.md)。
 
 手机这边不用区分电脑和服务器：登录同一个账号，服务器就作为一台设备出现在列表里。
+
+这条路实测过：用上面的镜像起一台没有图形界面的 Linux 容器，装 Claude Code，从 Fish Pocket 新建会话、让它跑测试并修一个 bug，审批在手机锁屏上逐条批准，全程走通。
 
 DeepSeek Harness 目前要在它自己的界面里登录 Agents Anywhere，更适合有桌面的电脑；没有图形界面的服务器上建议用 Codex 或 Claude Code。
 
