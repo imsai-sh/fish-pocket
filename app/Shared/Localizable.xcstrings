@@ -10642,30 +10642,30 @@
         }
       }
     },
-    "介绍一下插件「%@」：它是做什么的、怎么用、装到这台设备上能不能正常用。需要的话去读它的说明文档和源代码。" : {
+    "简单介绍一下插件「%@」：它是做什么的、怎么用、在这台设备上能不能用。先根据下面的信息简短回答，不用一上来就读源代码；信息不够再去看它的说明文档。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tell me about the plugin “%@”: what it does, how to use it, and whether it will work on this device. Read its documentation and source code if you need to."
+            "value" : "Briefly tell me about the plugin “%@”: what it does, how to use it, and whether it works on this device. Answer from the information below first and keep it short; don't start by reading the source code. Check its documentation only if that isn't enough."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Háblame del complemento «%@»: qué hace, cómo se usa y si funcionará en este dispositivo. Lee su documentación y su código fuente si hace falta."
+            "value" : "Cuéntame brevemente sobre el complemento «%@»: qué hace, cómo se usa y si funciona en este dispositivo. Responde primero con la información de abajo y sé breve; no empieces leyendo el código fuente. Consulta su documentación solo si no basta."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プラグイン「%@」について教えてください：何をするものか、どう使うか、このデバイスにインストールして正常に使えるか。必要ならドキュメントやソースコードを読んでください。"
+            "value" : "プラグイン「%@」について簡単に教えてください：何をするものか、どう使うか、このデバイスで使えるか。まず下の情報をもとに短く答えてください。いきなりソースコードを読む必要はありません。足りないときだけドキュメントを見てください。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "플러그인 “%@”에 대해 알려 주세요: 무엇을 하는지, 어떻게 쓰는지, 이 기기에 설치하면 제대로 작동하는지. 필요하면 문서와 소스 코드를 읽어 보세요."
+            "value" : "플러그인 ‘%@’을(를) 간단히 소개해 주세요: 무엇을 하는지, 어떻게 쓰는지, 이 기기에서 쓸 수 있는지. 먼저 아래 정보로 짧게 답해 주세요. 처음부터 소스 코드를 읽을 필요는 없어요. 정보가 부족할 때만 문서를 확인해 주세요."
           }
         }
       }
@@ -27874,30 +27874,30 @@
         }
       }
     },
-    "已启用，正在运行。它的界面可在网页版中查看。" : {
+    "已启用，正在运行" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enabled and running. Its interface is available in the Web UI."
+            "value" : "Enabled and running"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habilitado y en ejecución. Su interfaz se puede ver en la versión web."
+            "value" : "Habilitado y en ejecución"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "有効で、実行中です。インターフェイスは Web 版で表示できます。"
+            "value" : "有効で、実行中です"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "활성화되어 실행 중이에요. 인터페이스는 웹 버전에서 볼 수 있어요."
+            "value" : "활성화되어 실행 중이에요"
           }
         }
       }
@@ -32327,30 +32327,30 @@
         }
       }
     },
-    "我装了插件「%@」，但找不到它，也不知道怎么用。告诉我它在哪里、怎么用；如果它没有生效，帮我查出原因。" : {
+    "插件「%@」我已经装好了，它是做什么的、在哪里用？先根据下面的信息简短回答，不用一上来就读源代码；如果状态显示它没在运行，再帮我查原因。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I installed the plugin “%@” but can't find it and don't know how to use it. Tell me where it is and how to use it. If it isn't working, find out why."
+            "value" : "I've installed the plugin “%@”. What does it do, and where do I use it? Answer briefly from the information below first; don't start by reading the source code. If its status says it isn't running, then help me find out why."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Instalé el complemento «%@» pero no lo encuentro ni sé cómo usarlo. Dime dónde está y cómo se usa. Si no funciona, averigua por qué."
+            "value" : "Ya instalé el complemento «%@». ¿Qué hace y dónde lo uso? Responde primero brevemente con la información de abajo; no empieces leyendo el código fuente. Si su estado indica que no está en ejecución, ayúdame a averiguar por qué."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プラグイン「%@」をインストールしましたが、見つからず、使い方もわかりません。どこにあって、どう使うのか教えてください。動作していない場合は原因を調べてください。"
+            "value" : "プラグイン「%@」をインストールしました。何をするもので、どこで使えますか？まず下の情報をもとに短く答えてください。いきなりソースコードを読む必要はありません。状態が実行中でなければ、その原因を調べてください。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "플러그인 ‘%@’을(를) 설치했는데 어디 있는지, 어떻게 쓰는지 모르겠어요. 위치와 사용법을 알려 주세요. 작동하지 않는다면 원인을 찾아 주세요."
+            "value" : "플러그인 ‘%@’을(를) 설치했어요. 무엇을 하는지, 어디서 쓰는지 알려 주세요. 먼저 아래 정보로 짧게 답해 주세요. 처음부터 소스 코드를 읽을 필요는 없어요. 상태가 실행 중이 아니라고 나오면 그때 원인을 찾아 주세요."
           }
         }
       }
@@ -42254,30 +42254,30 @@
         }
       }
     },
-    "有新版本，查看已安装" : {
+    "说明：插件自带的界面不在 App 的原生界面里显示，要在网页版里看（设置 → 高级 → 网页版）。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Update Available · View Installed"
+            "value" : "Note: a plugin's own interface doesn't appear in the app's native UI; it's in the Web UI (Settings → Advanced → Web UI)."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Actualización disponible · Ver instalados"
+            "value" : "Nota: la interfaz propia de un complemento no aparece en la interfaz nativa de la app; está en la versión web (Configuración → Avanzado → Versión web)."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アップデートあり · インストール済みを表示"
+            "value" : "補足：プラグイン独自の画面は App のネイティブ画面には表示されず、Web 版で見られます（設定 → 詳細 → Web 版）。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "업데이트 있음 · 설치된 항목 보기"
+            "value" : "참고: 플러그인 자체 화면은 앱의 기본 화면에 표시되지 않고, 웹 버전에서 볼 수 있어요(설정 → 고급 → 웹 버전)."
           }
         }
       }
