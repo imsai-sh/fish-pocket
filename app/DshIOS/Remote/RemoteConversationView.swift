@@ -99,18 +99,17 @@ struct RemoteConversationView: View {
         }
         .background(Palette.background)
         .overlay { placeholder(model) }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+        .conversationDock {
             dock(model)
                 .padding(.horizontal, 12)
                 .padding(.top, 6)
                 .padding(.bottom, 8)
                 .readableWidth()
-                .background(Palette.background)
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { app.composerHeight = $0 }
         }
         .navigationTitle(model.meta?.displayTitle ?? "")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Palette.background, for: .navigationBar)
+        .conversationBar()
         .toolbar(.visible, for: .navigationBar)
         .toolbar {
             if let openDrawer {

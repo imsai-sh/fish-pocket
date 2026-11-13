@@ -206,6 +206,21 @@ enum BotInk {
         guard let key else { return nil }
         return colors[key] ?? Color(hex: key)
     }
+
+    /// Text that reads on `color(key)`: white, black on a light ink (yellow, the dark page's light greys).
+    static func textOn(_ key: String?) -> Color? {
+        guard let key, let light = hexes[key] ?? (Color(hex: key) != nil ? key : nil) else { return nil }
+        let onLight = textOn(hex: light), onDarkPage = textOn(hex: onDark[key] ?? light)
+        return Color(UIColor { $0.userInterfaceStyle == .dark ? onDarkPage : onLight })
+    }
+
+    private static func textOn(hex: String) -> UIColor {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0
+        UIColor(Color(hex: hex)!).getRed(&r, green: &g, blue: &b, alpha: nil)
+        func linear(_ c: CGFloat) -> CGFloat { c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4) }
+        let luminance = 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+        return luminance > 0.4 ? .black : .white
+    }
 }
 
 /// What a Bot is doing, which picks how its mark moves.

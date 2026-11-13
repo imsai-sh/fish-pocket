@@ -51,7 +51,7 @@ struct RemoteComposer: View {
                 }
             }
             .padding(5)
-            .background(Palette.field, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .composerSurface()
         }
         // The command list is read the first time a draft could name one.
         .task(id: model.draft.hasPrefix("/") && model.canCommand) {

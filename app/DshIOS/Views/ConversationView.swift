@@ -176,7 +176,7 @@ struct ConversationView: View {
         }
         .background(Palette.background)
         .overlay { if blank { hero(model) } }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+        .conversationDock {
             VStack(alignment: .leading, spacing: 0) {
                 if blank && !composerFocused && model.composer.isEmpty {
                     suggestions(model).padding(.bottom, 10)
@@ -212,7 +212,6 @@ struct ConversationView: View {
             .padding(.top, 6)
             .padding(.bottom, 8)
             .readableWidth()
-            .background(Palette.background)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { app.composerHeight = $0 }
         }
         .modifier(ComposerDrop(composer: model.composer, enabled: model.subagentReadOnly(parentAvailable: parentAvailable(model)) == nil))
@@ -228,7 +227,7 @@ struct ConversationView: View {
         // item; with the title moved aside for the workbench it would show as a second one.
         .navigationTitle(titleBesideWorkbench ? "" : app.durableTitle(of: sessionId) ?? "")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Palette.background, for: .navigationBar)
+        .conversationBar()
         // Stated, not left to the default: the workbench's files and changes hide the bar of
         // their own stacks, and without this closing the sheet takes this bar along.
         .toolbar(.visible, for: .navigationBar)
@@ -616,6 +615,14 @@ struct TimelineScroll {
 
 extension EnvironmentValues {
     @Entry var timelineScroll = TimelineScroll()
+    /// The user's own messages in a Bot's chat, in the Bot's colour; nil keeps the plain bubble.
+    @Entry var userBubbleTint: BubbleTint?
+}
+
+/// A bubble's fill and the text that reads on it.
+struct BubbleTint: Equatable {
+    var fill: Color
+    var text: Color
 }
 
 /// Actions a reply offers below it, provided by the conversation.
@@ -987,6 +994,7 @@ private struct UserBubble: View {
     @State private var fullHeight: CGFloat = 0
     @State private var foldedHeight: CGFloat = 0
     @Environment(\.conversationActions) private var actions
+    @Environment(\.userBubbleTint) private var tint
 
     private static let foldedLines = 8
 
@@ -1019,7 +1027,9 @@ private struct UserBubble: View {
                 .lineSpacing(3)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .background(Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                // `.primary` is the inherited style: a plain bubble stays as it was.
+                .foregroundStyle(tint.map { AnyShapeStyle($0.text) } ?? AnyShapeStyle(.primary))
+                .background(tint?.fill ?? Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .contextMenu {
                     Button { copyToPasteboard(text) } label: { Label("复制", systemImage: "doc.on.doc") }
                     // Masked text stays masked until the reader asks: this would show it whole.

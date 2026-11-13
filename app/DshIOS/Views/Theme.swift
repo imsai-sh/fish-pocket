@@ -257,6 +257,40 @@ extension View {
     /// The background of a page that puts something of its own (tabs, an empty state) around a `groupedList()`.
     func pageBackground() -> some View { modifier(PageBackground()) }
 
+    /// A conversation's top bar. From iOS 26 it is the system's see-through bar: the messages
+    /// run up under its buttons and soften at the edge. Before, a bar in the page colour.
+    @ViewBuilder
+    func conversationBar() -> some View {
+        if #available(iOS 26.0, *) {
+            scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+        } else {
+            toolbarBackground(Palette.background, for: .navigationBar)
+        }
+    }
+
+    /// A conversation's composer at the bottom. From iOS 26 it floats as the top bar does:
+    /// the messages run on under it and soften at the edge. Before, on the page colour.
+    @ViewBuilder
+    func conversationDock(@ViewBuilder _ dock: () -> some View) -> some View {
+        if #available(iOS 26.0, *) {
+            safeAreaBar(edge: .bottom, spacing: 0, content: dock)
+        } else {
+            safeAreaInset(edge: .bottom, spacing: 0) { dock().background(Palette.background) }
+        }
+    }
+
+    /// The composer's own surface. From iOS 26 the system's glass, so the messages it floats
+    /// over show through it as they do through the bars. Before, the field's fill.
+    @ViewBuilder
+    func composerSurface() -> some View {
+        let shape = RoundedRectangle(cornerRadius: 28, style: .continuous)
+        if #available(iOS 26.0, *) {
+            glassEffect(.regular, in: shape)
+        } else {
+            background(Palette.field, in: shape)
+        }
+    }
+
     /// A small control keeps its look; the tappable area grows to the 44 pt a thumb needs.
     func hitTarget(_ size: CGFloat = 44) -> some View {
         frame(minWidth: size, minHeight: size)
