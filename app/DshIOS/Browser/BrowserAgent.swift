@@ -26,6 +26,8 @@ import WebKit
         }
         let browser = BrowserModel.session(owner(of: session, in: app), origin: app.client.origin)
         return try await browser.serially {
+            browser.presence.began(op, driver: session)
+            defer { browser.presence.ended() }
             switch op {
             case "open": return try await browser.agentOpen(args["url"] as? String ?? "")
             case "read": return try await browser.agentRead()

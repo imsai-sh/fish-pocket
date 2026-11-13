@@ -30,6 +30,8 @@ final class BrowserModel: NSObject {
     @ObservationIgnored private(set) var loadFailure: NSError?
     /// The agent's operations, one after another: two at once would read a page the other is changing.
     @ObservationIgnored private var tail: Task<Void, Never>?
+    /// The agent at work on this page, drawn over it in the workbench.
+    @ObservationIgnored let presence = BrowserPresence()
 
     // MARK: One per conversation
 
@@ -71,9 +73,12 @@ final class BrowserModel: NSObject {
         configuration.websiteDataStore = Self.store
         configuration.allowsInlineMediaPlayback = true
         if let script = Self.controllerScript { configuration.userContentController.addUserScript(script) }
+        configuration.userContentController.add(
+            BrowserPresence.Listener(presence), contentWorld: Self.agentWorld, name: BrowserPresence.Listener.name)
         webView = WKWebView(frame: .zero, configuration: configuration)
         lastURL = UserDefaults.standard.string(forKey: storageKey)
         super.init()
+        webView.addGestureRecognizer(BrowserPresence.TouchWatcher { [weak self] in self?.presence.dismiss() })
         webView.isInspectable = true
         webView.allowsBackForwardNavigationGestures = true
         webView.navigationDelegate = self
@@ -141,6 +146,7 @@ final class BrowserModel: NSObject {
     }
 
     private func close() {
+        presence.dismiss()
         webView.stopLoading()
         if webView.superview === webView.window { webView.removeFromSuperview() }
     }
@@ -227,7 +233,9 @@ struct WorkbenchBrowser: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                BrowserWebView(webView: model.webView).opacity(model.started ? 1 : 0)
+                BrowserWebView(webView: model.webView)
+                    .overlay { BrowserAgentOverlay(model: model) }
+                    .opacity(model.started ? 1 : 0)
                 if !model.started { start }
             }
             if let error = model.addressError {
@@ -249,8 +257,8 @@ struct WorkbenchBrowser: View {
     /// Under the thumb, as in Safari; it rides up on the keyboard while typing an address.
     private var bar: some View {
         HStack(spacing: 0) {
-            button("chevron.backward", "后退", enabled: model.canGoBack) { model.back() }
-            button("chevron.forward", "前进", enabled: model.canGoForward) { model.forward() }
+            button("chevron.backward", "后退", enabled: model.canGoBack) { model.presence.dismiss(); model.back() }
+            button("chevron.forward", "前进", enabled: model.canGoForward) { model.presence.dismiss(); model.forward() }
             HStack(spacing: 6) {
                 TextField("输入 HTTP(S) 地址", text: $model.address)
                     .font(.subheadline)
@@ -260,7 +268,7 @@ struct WorkbenchBrowser: View {
                     .autocorrectionDisabled()
                     .submitLabel(.go)
                     .focused($editing)
-                    .onSubmit { model.go() }
+                    .onSubmit { model.presence.dismiss(); model.go() }
                 if model.loading { ProgressView().controlSize(.small) }
             }
             .padding(.horizontal, 12)
@@ -275,7 +283,7 @@ struct WorkbenchBrowser: View {
 
     private var more: some View {
         Menu {
-            Button { model.reload() } label: {
+            Button { model.presence.dismiss(); model.reload() } label: {
                 Label(model.loading ? "停止" : "刷新", systemImage: model.loading ? "xmark" : "arrow.clockwise")
             }
             .disabled(!model.started && model.lastURL == nil)
