@@ -37,7 +37,11 @@ struct TurnMenu: ViewModifier {
             ShareLink(item: MarkdownFile(name: String(closing.prefix(24)), text: closing), preview: SharePreview(String(closing.prefix(40)))) {
                 Label("存为 Markdown 文件", systemImage: "arrow.down.doc")
             }
-            Button { ReadAloud.shared.toggle(closing) } label: { Label("朗读", systemImage: "speaker.wave.2") }
+        }
+        if !closing.isEmpty {
+            Button { ReadAloud.shared.toggle(closing) } label: {
+                ReadAloud.shared.speaking ? Label("停止朗读", systemImage: "speaker.slash") : Label("朗读", systemImage: "speaker.wave.2")
+            }
         }
         if let regeneratePrompt, bot == nil {
             Button { actions.regenerate(regeneratePrompt) } label: { Label("重新生成", systemImage: "arrow.clockwise") }

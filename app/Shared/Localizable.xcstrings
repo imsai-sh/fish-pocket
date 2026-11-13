@@ -4725,6 +4725,34 @@
         }
       }
     },
+    "扫码加群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan to Join"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear para unirse"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スキャンして参加"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스캔해서 참여"
+          }
+        }
+      }
+    },
     "截图" : {
       "localizations" : {
         "en" : {
@@ -5393,7 +5421,36 @@
         }
       }
     },
+    "按住输入栏说话，松手把识别出的文字发出去。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold the input bar and speak; let go to send the recognized text."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén pulsada la barra de entrada y habla; suelta para enviar el texto reconocido."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "入力バーを押したまま話し、指を離すと認識されたテキストを送信します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "입력창을 누른 채 말하고, 손을 떼면 인식된 텍스트를 보냅니다."
+          }
+        }
+      }
+    },
     "按住输入栏说话，松手把识别出的文字发出去。识别用的是火山引擎的豆包语音，需要你自己开通并填写 API Key，费用由火山引擎按你的用量收取。\n\nAPI Key 只保存在这台设备本地，只用来连接火山引擎，不会上传到其他任何地方。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6477,6 +6534,34 @@
         }
       }
     },
+    "试听" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escuchar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試聴"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "미리 듣기"
+          }
+        }
+      }
+    },
     "语音识别出错（%@）：%@" : {
       "localizations" : {
         "en" : {
@@ -7247,6 +7332,152 @@
         }
       }
     },
+    "DeepSeek 没有接受当前的 API Key" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek did not accept the current API key"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek no aceptó la clave de API actual"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek は現在の API キーを受け付けませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek에서 현재 API 키를 받아들이지 않았습니다"
+          }
+        }
+      }
+    },
+    "DeepSeek 语音暂不支持账号登录，请在「设置 → 模型」里填写 DeepSeek API Key" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek voice doesn't support account sign-in yet. Enter a DeepSeek API key in Settings → Model"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La voz de DeepSeek aún no admite el inicio de sesión de cuenta. Introduce una clave de API de DeepSeek en Configuración → Modelo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek の音声はまだアカウントのログインに対応していません。「設定 → モデル」で DeepSeek API キーを入力してください"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 음성은 아직 계정 로그인을 지원하지 않습니다. 「설정 → 모델」에서 DeepSeek API 키를 입력하세요"
+          }
+        }
+      }
+    },
+    "DeepSeek 语音服务出错（%@）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek speech service error (%@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error del servicio de voz de DeepSeek (%@)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 音声サービスのエラー（%@）"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 음성 서비스 오류(%@)"
+          }
+        }
+      }
+    },
+    "DeepSeek 语音服务出错（%@）：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek speech service error (%1$@): %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error del servicio de voz de DeepSeek (%1$@): %2$@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 音声サービスのエラー（%1$@）：%2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 음성 서비스 오류(%1$@): %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 语音服务出错（%1$@）：%2$@"
+          }
+        }
+      }
+    },
+    "DeepSeek 语音服务繁忙，请稍后再试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek speech service is busy. Try again later."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servicio de voz de DeepSeek está ocupado. Inténtalo de nuevo más tarde."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 音声サービスが混み合っています。しばらくしてからもう一度お試しください"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 음성 서비스가 혼잡합니다. 잠시 후 다시 시도하세요"
+          }
+        }
+      }
+    },
     "DeepSeek 账号" : {
       "localizations" : {
         "en" : {
@@ -7355,6 +7586,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DeepSeek 계정에 다시 로그인해야 해요. 설정 › 계정에서 로그인한 다음 다시 시도하세요."
+          }
+        }
+      }
+    },
+    "DeepSeek 账户余额不足" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not enough balance in your DeepSeek account"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saldo insuficiente en tu cuenta de DeepSeek"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek アカウントの残高が不足しています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 계정 잔액이 부족합니다"
           }
         }
       }
@@ -12936,6 +13195,34 @@
         }
       }
     },
+    "你好，我会用这个声音为你朗读。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hi, this is the voice I will read to you in."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hola, esta es la voz con la que te leeré."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "こんにちは。この声で読み上げます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "안녕하세요, 이 목소리로 읽어 드릴게요."
+          }
+        }
+      }
+    },
     "你用一条消息回答了" : {
       "localizations" : {
         "en" : {
@@ -13968,6 +14255,146 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "‘%@’을(를) 중지하고 보관할까요?"
+          }
+        }
+      }
+    },
+    "停止朗读" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Reading Aloud"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dejar de leer"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み上げを停止"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽기 중지"
+          }
+        }
+      }
+    },
+    "继续朗读" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resume Reading"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reanudar lectura"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み上げを再開"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽기 계속"
+          }
+        }
+      }
+    },
+    "暂停朗读" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause Reading"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausar lectura"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み上げを一時停止"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽기 일시정지"
+          }
+        }
+      }
+    },
+    "朗读已暂停" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading Paused"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lectura en pausa"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み上げを一時停止中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽기 일시정지됨"
+          }
+        }
+      }
+    },
+    "正在朗读" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading Aloud"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leyendo en voz alta"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み上げ中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽는 중"
           }
         }
       }
@@ -24136,6 +24563,34 @@
         }
       }
     },
+    "声音" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voz"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목소리"
+          }
+        }
+      }
+    },
     "处理代码、文件和资料，适合大多数任务。Agent 会按需使用检索、编辑和终端等工具。" : {
       "localizations" : {
         "en" : {
@@ -25056,6 +25511,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아바타는 PNG, JPEG, WebP, GIF 이미지여야 해요"
+          }
+        }
+      }
+    },
+    "女声" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Female"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Femenina"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "女性"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여성"
           }
         }
       }
@@ -32091,6 +32574,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "현재: %@"
+          }
+        }
+      }
+    },
+    "录音太长，DeepSeek 一次最多识别两分钟" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recording too long. DeepSeek recognizes up to two minutes at a time."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La grabación es demasiado larga. DeepSeek reconoce hasta dos minutos cada vez."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "録音が長すぎます。DeepSeek が一度に認識できるのは 2 分までです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "녹음이 너무 깁니다. DeepSeek는 한 번에 최대 2분까지 인식합니다"
           }
         }
       }
@@ -43114,6 +43625,34 @@
         }
       }
     },
+    "朗读回复和 Agent 念出来的话都用 DeepSeek 的声音，同样用「模型」里的 DeepSeek API Key，费用由 DeepSeek 按字数收取。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replies read aloud and anything the agent says out loud use DeepSeek's voice, paid with the same DeepSeek API key under Model. DeepSeek bills by the number of characters."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las respuestas leídas en voz alta y lo que el agente dice en voz alta usan la voz de DeepSeek, con la misma clave de API de DeepSeek de Modelo. DeepSeek cobra según el número de caracteres."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み上げる返信も、Agent が声に出す内容も DeepSeek の声を使い、「モデル」の DeepSeek API キーを使います。料金は文字数に応じて DeepSeek が請求します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽어 주는 답변과 Agent가 소리 내어 말하는 내용 모두 DeepSeek 목소리를 사용하며, 「모델」의 DeepSeek API 키를 똑같이 사용합니다. 요금은 글자 수에 따라 DeepSeek에서 청구합니다."
+          }
+        }
+      }
+    },
     "未分组" : {
       "localizations" : {
         "en" : {
@@ -51785,6 +52324,34 @@
         }
       }
     },
+    "用你在「模型」里填写的 DeepSeek API Key，没有 Key 时用登录的 DeepSeek 账号（DeepSeek 目前还不支持账号登录使用语音），费用由 DeepSeek 按录音时长收取。松手后整段识别，说话时不显示文字。录音直接发给 DeepSeek 识别，App 不保存录音。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uses the DeepSeek API key you entered under Model, or your DeepSeek account sign-in when there is no key (DeepSeek doesn't support account sign-in for voice yet). DeepSeek bills by recording length. The whole recording is recognized after you let go; no text appears while you speak. Recordings go straight to DeepSeek for recognition, and the app does not keep them."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa la clave de API de DeepSeek que introdujiste en Modelo, o tu cuenta de DeepSeek con sesión iniciada si no hay clave (DeepSeek aún no admite el inicio de sesión de cuenta para la voz). DeepSeek cobra según la duración de la grabación. La grabación completa se reconoce al soltar; no aparece texto mientras hablas. Las grabaciones van directamente a DeepSeek para su reconocimiento y la app no las guarda."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「モデル」で入力した DeepSeek API キーを使い、キーがないときはログイン中の DeepSeek アカウントを使います（DeepSeek は音声でのアカウントログインにまだ対応していません）。料金は録音の長さに応じて DeepSeek が請求します。指を離してからまとめて認識するため、話している間はテキストが表示されません。録音は DeepSeek に直接送られて認識され、App には保存されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「모델」에 입력한 DeepSeek API 키를 사용하고, 키가 없으면 로그인한 DeepSeek 계정을 사용합니다(DeepSeek는 아직 음성에 계정 로그인을 지원하지 않습니다). 요금은 녹음 길이에 따라 DeepSeek에서 청구합니다. 손을 뗀 뒤 한 번에 인식하므로 말하는 동안에는 텍스트가 표시되지 않습니다. 녹음은 DeepSeek로 바로 전송되어 인식되며, 앱에는 저장되지 않습니다."
+          }
+        }
+      }
+    },
     "用另一台手机上的微信扫码，确认后这个微信号就成了 Bot 的入口。" : {
       "localizations" : {
         "en" : {
@@ -60311,6 +60878,34 @@
         }
       }
     },
+    "识别服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recognition Service"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servicio de reconocimiento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "認識サービス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인식 서비스"
+          }
+        }
+      }
+    },
     "试试其他方式" : {
       "localizations" : {
         "en" : {
@@ -60619,6 +61214,34 @@
         }
       }
     },
+    "语音" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voz"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音声"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성"
+          }
+        }
+      }
+    },
     "语音转写" : {
       "localizations" : {
         "en" : {
@@ -60699,6 +61322,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지침"
+          }
+        }
+      }
+    },
+    "说话时文字就会出现。需要你自己开通火山引擎的豆包语音并填写 API Key，费用由火山引擎按你的用量收取。API Key 只保存在这台设备本地，只用来连接火山引擎，不会上传到其他任何地方。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text appears while you speak. Enable Doubao Speech from Volcengine yourself and enter your API key; Volcengine bills you for what you use. Your API key is stored only on this device, is used only to connect to Volcengine, and is never uploaded anywhere else."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El texto aparece mientras hablas. Activa tú mismo Doubao Speech de Volcengine e introduce tu clave de API; Volcengine te cobra según tu uso. Tu clave de API se guarda solo en este dispositivo, solo se usa para conectar con Volcengine y nunca se sube a ningún otro sitio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話している間にテキストが表示されます。Volcengine の Doubao Speech を自分で有効にして API キーを入力する必要があり、料金は使用量に応じて Volcengine が請求します。API キーはこのデバイスにのみ保存され、Volcengine への接続にのみ使われ、ほかの場所にアップロードされることはありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "말하는 동안 텍스트가 나타납니다. Volcengine의 Doubao Speech를 직접 활성화하고 API 키를 입력해야 하며, 요금은 사용량에 따라 Volcengine에서 청구합니다. API 키는 이 기기에만 저장되고 Volcengine 연결에만 사용되며, 다른 곳에 업로드되지 않습니다."
           }
         }
       }
@@ -66891,6 +67542,62 @@
         }
       }
     },
+    "连不上 DeepSeek 语音服务" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach the DeepSeek speech service"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede conectar con el servicio de voz de DeepSeek"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 音声サービスに接続できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 음성 서비스에 연결할 수 없습니다"
+          }
+        }
+      }
+    },
+    "连不上 DeepSeek 语音服务：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach the DeepSeek speech service: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede conectar con el servicio de voz de DeepSeek: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 音声サービスに接続できません：%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 음성 서비스에 연결할 수 없습니다: %@"
+          }
+        }
+      }
+    },
     "这里只管 Bot。普通会话一直可以用。" : {
       "localizations" : {
         "en" : {
@@ -69430,6 +70137,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anthropic Messages 프로토콜과 호환되어야 해요."
+          }
+        }
+      }
+    },
+    "需要 DeepSeek API Key：请在「设置 → 模型」里填写，只登录 DeepSeek 账号不能用语音" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A DeepSeek API key is needed: enter one in Settings → Model. Signing in to a DeepSeek account isn't enough for voice"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se necesita una clave de API de DeepSeek: introdúcela en Configuración → Modelo. Iniciar sesión con una cuenta de DeepSeek no basta para la voz"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek API キーが必要です。「設定 → モデル」で入力してください。DeepSeek アカウントのログインだけでは音声は使えません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek API 키가 필요합니다. 「설정 → 모델」에서 입력하세요. DeepSeek 계정 로그인만으로는 음성을 사용할 수 없습니다"
           }
         }
       }
@@ -74343,6 +75078,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "컴퓨터가 오프라인이라 기록만 볼 수 있어요"
+          }
+        }
+      }
+    },
+    "男声" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Male"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masculina"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "男性"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "남성"
           }
         }
       }

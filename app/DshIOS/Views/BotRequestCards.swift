@@ -311,34 +311,3 @@ struct BotSideChatSheet: View {
         }
     }
 }
-
-import AVFoundation
-
-/// A Bot's reply read aloud, in the voice of the language it is written in.
-@MainActor
-final class ReadAloud {
-    static let shared = ReadAloud()
-    private let synthesizer = AVSpeechSynthesizer()
-
-    func toggle(_ text: String) {
-        if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate); return }
-        enqueue(text)
-    }
-
-    func stop() { synthesizer.stopSpeaking(at: .immediate) }
-
-    /// Read after whatever is being read now.
-    func enqueue(_ text: String) {
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        let plain = text
-            .replacingOccurrences(of: #"```[\s\S]*?```"#, with: " ", options: .regularExpression)
-            .replacingOccurrences(of: #"\[([^\]]*)\]\([^)]*\)"#, with: "$1", options: .regularExpression)
-            .replacingOccurrences(of: #"[`*_#>|~]"#, with: "", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !plain.isEmpty else { return }
-        let utterance = AVSpeechUtterance(string: plain)
-        let chinese = plain.unicodeScalars.contains { (0x4E00...0x9FFF).contains($0.value) }
-        utterance.voice = AVSpeechSynthesisVoice(language: chinese ? "zh-CN" : AVSpeechSynthesisVoice.currentLanguageCode())
-        synthesizer.speak(utterance)
-    }
-}

@@ -55,23 +55,30 @@ final class VoiceInput {
     /// Shorter than this is a tap, not speech.
     static let minDuration: TimeInterval = 0.6
 
-    /// Volcengine with the user's key; nil until one is saved.
+    /// The service chosen in 设置 → 语音输入: DeepSeek with the models' key, or Volcengine with
+    /// the user's own key (nil until one is saved).
     @ObservationIgnored var makeTranscriber: () -> SpeechTranscriber? = {
         #if DEBUG
         // Made-up levels and text, to look at the UI without a key or a microphone.
         if ProcessInfo.processInfo.arguments.contains("-dshVoiceDemo") { return DemoTranscriber() }
         #endif
-        let speech = VolcSpeech.shared
-        guard let key = speech.key, !key.isEmpty else { return nil }
-        return VolcTranscriber(key: key, resource: speech.resource)
+        switch VoicePreferences.shared.source {
+        case .deepseek:
+            return DeepSeekTranscriber()
+        case .volcengine:
+            let speech = VolcSpeech.shared
+            guard let key = speech.key, !key.isEmpty else { return nil }
+            return VolcTranscriber(key: key, resource: speech.resource)
+        }
     }
 
-    /// A recognizer is set up: the microphone button goes straight to voice mode.
+    /// A recognizer is set up: the microphone button goes straight to voice mode. DeepSeek counts
+    /// as set up; a missing key shows as the press's error.
     static var ready: Bool {
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-dshVoiceDemo") { return true }
         #endif
-        return VolcSpeech.shared.configured
+        return VoicePreferences.shared.source == .deepseek || VolcSpeech.shared.configured
     }
     @ObservationIgnored private var transcriber: SpeechTranscriber?
     @ObservationIgnored private var limit: Task<Void, Never>?
@@ -83,6 +90,8 @@ final class VoiceInput {
     func begin(reachedLimit: @escaping @MainActor () -> Void, failed: @escaping @MainActor (String) -> Void) async -> String? {
         guard phase == .idle else { return nil }
         guard let transcriber = makeTranscriber() else { return String(localized: "语音输入还没有设置") }
+        // The microphone and a reply being read do not share the audio session.
+        ReadAloud.shared.stop()
         self.transcriber = transcriber
         transcript = ""
         levels = Array(repeating: 0, count: Self.barCount)

@@ -202,7 +202,9 @@ struct RoomMessage: View {
             Button { actions.quote(text) } label: { Label("引用回复", systemImage: "arrowshape.turn.up.left") }
             ShareLink(item: text) { Label("分享", systemImage: "square.and.arrow.up") }
             ShareLink(item: MarkdownFile(name: name, text: text), preview: SharePreview(name)) { Label("存为 Markdown 文件", systemImage: "arrow.down.doc") }
-            Button { ReadAloud.shared.toggle(text) } label: { Label("朗读", systemImage: "speaker.wave.2") }
+            Button { ReadAloud.shared.toggle(text) } label: {
+                ReadAloud.shared.speaking ? Label("停止朗读", systemImage: "speaker.slash") : Label("朗读", systemImage: "speaker.wave.2")
+            }
             if let bot {
                 Button { app.botTeam.openRequest = BotOpenRequest(route: .bot(bot.id), push: true) } label: { Label("打开\(bot.name)的私聊", systemImage: "bubble.left") }
             }

@@ -155,8 +155,8 @@ extension SessionModel {
 
 // MARK: - Reading replies aloud
 
-/// A Bot's replies read aloud as they arrive, for a chat the user follows by ear. Speaking
-/// to the Bot is the keyboard's own dictation: the app itself never uses the microphone.
+/// A Bot's replies read aloud as they arrive, for a chat the user follows by ear: only while
+/// that chat is the one on screen.
 @MainActor
 @Observable
 final class BotAutoRead {
@@ -180,7 +180,8 @@ final class BotAutoRead {
             self.listener = nil
         } else if listener == nil, !sessions.isEmpty {
             listener = team.addListener { [weak self] sessionId, item in
-                guard let self, self.sessions.contains(sessionId), item["kind"].string == "bot", let text = item["text"].string else { return }
+                guard let self, self.sessions.contains(sessionId), ReadAloud.shared.scope == sessionId,
+                      item["kind"].string == "bot", let text = item["text"].string else { return }
                 ReadAloud.shared.enqueue(text)
             }
         }
