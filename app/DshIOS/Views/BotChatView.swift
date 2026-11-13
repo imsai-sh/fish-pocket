@@ -28,8 +28,13 @@ struct BotChatView: View {
             .environment(\.botComposer, .bot(bot.id))
             .environment(\.userBubbleTint, team.bubbleTint(of: bot))
             .openingOtherSessions($selection, from: bot.sessionId)
-            .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) { BotDetailView(botId: botId, tab: detailTab) }
-            .sheet(isPresented: $sideChatOpen) { BotSideChatSheet(botId: botId) }
+            // Sheets over the chat: their links open in the Bot's own browser too, as in the chat.
+            .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) {
+                BotDetailView(botId: botId, tab: detailTab).environment(\.browserLinks, BrowserLinks(sessionId: bot.sessionId, origin: app.client.origin))
+            }
+            .sheet(isPresented: $sideChatOpen) {
+                BotSideChatSheet(botId: botId).environment(\.browserLinks, BrowserLinks(sessionId: bot.sessionId, origin: app.client.origin))
+            }
             .onChange(of: team.memoryRequest) { _, request in
                 guard request == botId else { return }
                 team.memoryRequest = nil

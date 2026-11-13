@@ -167,7 +167,9 @@ struct BotRoomView: View {
             // The round's replies as each member speaks.
             .task(id: room.id) { await team.followRounds(of: room.id) }
             .openingOtherSessions($selection, from: room.sessionId)
-            .sheet(isPresented: $detailOpen) { RoomDetailView(roomId: roomId) }
+            .sheet(isPresented: $detailOpen) {
+                RoomDetailView(roomId: roomId).environment(\.browserLinks, BrowserLinks(sessionId: room.sessionId, origin: app.client.origin))
+            }
             .onChange(of: team.scheduleRequest) { _, request in
                 guard request == .room(roomId) else { return }
                 team.scheduleRequest = nil
