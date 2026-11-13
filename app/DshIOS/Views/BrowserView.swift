@@ -511,8 +511,71 @@ struct WorkbenchBrowser: View {
     }
 }
 
+/// The browser opened from the chat: the page alone, full screen, without the workbench's other tabs.
+struct FullScreenBrowser: View {
+    let model: BrowserModel
+    let close: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            WorkbenchBrowser(model: model)
+                .navigationTitle(Self.site(model.page) ?? String(localized: "浏览器"))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar(.visible, for: .navigationBar)
+                .closeButton(action: close)
+        }
+    }
+
+    /// `www.` says nothing; the rest of the host is the site.
+    static func site(_ url: URL?) -> String? {
+        guard let host = url?.host(), !host.isEmpty else { return nil }
+        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+    }
+}
+
+/// A conversation has one web view, and it can be on screen in one place at a time: the workbench, or
+/// the browser opened full screen from the chat. The holder that comes into a window takes it; the one
+/// that leaves gives it back to another still on screen, so the workbench has its page again.
 private struct BrowserWebView: UIViewRepresentable {
     let webView: WKWebView
-    func makeUIView(context: Context) -> WKWebView { webView }
-    func updateUIView(_ view: WKWebView, context: Context) {}
+    func makeUIView(context: Context) -> Holder { Holder(webView) }
+    func updateUIView(_ view: Holder, context: Context) {}
+
+    final class Holder: UIView {
+        let webView: WKWebView
+        private static let all = NSHashTable<Holder>.weakObjects()
+
+        init(_ webView: WKWebView) {
+            self.webView = webView
+            super.init(frame: .zero)
+            Self.all.add(self)
+            adopt()
+        }
+
+        required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            if window != nil {
+                adopt()
+            } else if webView.superview === self,
+                      let other = Self.all.allObjects.last(where: { $0 !== self && $0.webView === webView && $0.window != nil }) {
+                other.adopt()
+            }
+        }
+
+        /// Whatever size the page was in elsewhere, here it is this holder's.
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            if webView.superview === self, webView.frame != bounds { webView.frame = bounds }
+        }
+
+        private func adopt() {
+            guard webView.superview !== self else { return }
+            webView.removeFromSuperview()
+            webView.frame = bounds
+            addSubview(webView)
+            setNeedsLayout()
+        }
+    }
 }

@@ -54,11 +54,7 @@ struct ConversationActivity: View {
         .animation(.snappy(duration: 0.18), value: jobs.visibleCount)
     }
 
-    /// `www.` says nothing; the rest of the host is the site.
-    private static func host(_ url: URL?) -> String? {
-        guard let host = url?.host(), !host.isEmpty else { return nil }
-        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
-    }
+    private static func host(_ url: URL?) -> String? { FullScreenBrowser.site(url) }
 
     private func chip(icon: String, text: Text, running: Bool, label: Text?, action: @escaping () -> Void) -> some View {
         Button {
