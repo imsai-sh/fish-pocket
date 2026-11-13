@@ -51,6 +51,7 @@ struct ConversationView: View {
     @State private var inputSheetUp = false
     #if DEBUG
     @State private var demoApproval: PendingApproval?
+    @State private var demoQuestion: PendingQuestion?
     #endif
 
     var body: some View {
@@ -84,6 +85,20 @@ struct ConversationView: View {
             switch UserDefaults.standard.string(forKey: "dshOpen") {
             case "workbench": workbenchOpen = true
             case "approval": demoApproval = PendingApproval(id: "demo", toolName: "bash", callId: nil, reason: "允许本次操作使用 danger-full-access 权限：当前处于 workspace-write 模式，写不到工作区以外。这条命令会删除 build/ 下约 1.4 GB 的文件，再重新下载依赖，失败时不会自动恢复，需要手动重新构建一次才能继续。")
+            case "question":
+                // `-dshDelay <s>` leaves time to focus the composer first.
+                try? await Task.sleep(for: .seconds(UserDefaults.standard.double(forKey: "dshDelay") + 1))
+                demoQuestion = PendingQuestion(QuestionRequest(eventId: "demo", request: [
+                    "questions": [[
+                        "id": "q", "header": "抖音需要登录",
+                        "question": "抖音网页版现在不给未登录用户看搜索结果（页面直接弹「登录后即可搜索更多精彩视频」，手机版还跳验证码）。搜索得先登录，这一步只能你来做。你想怎么办？",
+                        "options": [
+                            ["label": "我来登录，你接着搜 (推荐)", "description": "在右边的浏览器里扫码或用验证码登录，登录好告诉我。"],
+                            ["label": "改看精选页", "description": "精选页（/jingxuan）不登录也能看，但那是频道推荐流，不是搜索结果的第 2 页。"],
+                            ["label": "换一个平台搜，比如 B 站或小红书", "description": "离开抖音，用不需要登录的站完成「搜索 + 第 2 页」这件事。"],
+                        ],
+                    ]],
+                ]))
             case "timeline":
                 try? await Task.sleep(for: .seconds(2))
                 model?.debugLoadFixture(TimelineFixture.events)
@@ -92,6 +107,9 @@ struct ConversationView: View {
         }
         .sheet(item: $demoApproval) { approval in
             ApprovalSheet(approval: approval, call: ToolCall(id: "demo", name: "bash", arguments: ["command": .string((1...30).map { "rm -rf build/cache-\($0)" }.joined(separator: " &&\n"))], rawArguments: ""), position: (1, 3)) { _ in demoApproval = nil }
+        }
+        .sheet(item: $demoQuestion) { question in
+            if let model { QuestionSheet(model: model, question: question) }
         }
         #endif
     }

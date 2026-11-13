@@ -209,7 +209,7 @@ struct RemoteNoticeSheet: View {
     private var enabled: Bool { model.current && notice.answerable && !answered && !model.working && !approvalBlocked }
 
     var body: some View {
-        PinnedActionsSheet {
+        PinnedActionsSheet(typing: typing) {
             VStack(alignment: .leading, spacing: 14) {
                 if let questions, !unsupported {
                     questionPage(questions)
@@ -593,7 +593,7 @@ struct RemotePlanSheet: View {
     @FocusState private var typing: Bool
 
     var body: some View {
-        PinnedActionsSheet {
+        PinnedActionsSheet(typing: typing) {
             VStack(alignment: .leading, spacing: 14) {
                 Text("计划待确认").font(.footnote).foregroundStyle(Palette.secondary)
                 if !plan.title.isEmpty { Text(plan.title).font(.title3.weight(.semibold)).accessibilityAddTraits(.isHeader) }
