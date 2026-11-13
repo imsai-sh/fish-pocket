@@ -4134,6 +4134,18 @@
             "state" : "translated",
             "value" : "Abre páginas web en el navegador del área de trabajo de la conversación, las lee, hace capturas, pulsa botones y rellena formularios mientras lo ves en el área de trabajo. Los sitios en los que inicias sesión la mantienen, aparte de Safari"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話のワークベンチのブラウザで Web ページを開き、内容を読み取り、スクリーンショットを撮り、ボタンを押したりフォームに入力したりします。操作はワークベンチで見ていられます。サインインしたサイトは記憶され、Safari とは別に保存されます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대화 작업대의 브라우저에서 웹 페이지를 열고, 내용을 읽고, 스크린샷을 찍고, 버튼을 누르거나 양식을 채웁니다. 작업대에서 그 과정을 지켜볼 수 있습니다. 로그인한 사이트는 계속 기억되며 Safari와는 따로 저장됩니다"
+          }
         }
       }
     },
@@ -4149,6 +4161,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Captura"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリーンショット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스크린샷"
           }
         }
       }
@@ -4166,6 +4190,18 @@
             "state" : "translated",
             "value" : "El navegador de todas las conversaciones cerrará sesión y se borrarán las cookies y el almacenamiento de los sitios web."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての会話のブラウザがサインアウトされ、Cookie と Webサイトのストレージも削除されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 대화의 브라우저에서 로그아웃되고, 쿠키와 웹사이트 저장 공간도 함께 삭제됩니다."
+          }
         }
       }
     },
@@ -4181,6 +4217,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ver"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보기"
           }
         }
       }
@@ -4394,6 +4442,18 @@
             "state" : "translated",
             "value" : "Borrar datos de sitios web"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webサイトデータを消去"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "웹사이트 데이터 지우기"
+          }
         }
       }
     },
@@ -4409,6 +4469,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Borrar los datos de sitios web?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webサイトデータを消去しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "웹사이트 데이터를 지울까요?"
           }
         }
       }
@@ -4426,6 +4498,18 @@
             "state" : "translated",
             "value" : "Desplazar"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクロール"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스크롤"
+          }
         }
       }
     },
@@ -4441,6 +4525,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clic"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タップ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭"
           }
         }
       }
@@ -4542,6 +4638,18 @@
             "state" : "translated",
             "value" : "Leer página"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ページを読み取る"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페이지 읽기"
+          }
         }
       }
     },
@@ -4558,6 +4666,18 @@
             "state" : "translated",
             "value" : "Ejecutar script"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリプトを実行"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스크립트 실행"
+          }
         }
       }
     },
@@ -4573,6 +4693,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seleccionar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택"
           }
         }
       }
