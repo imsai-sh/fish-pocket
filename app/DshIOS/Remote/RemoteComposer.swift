@@ -92,7 +92,9 @@ struct RemoteComposer: View {
                 } label: { Label("指令", systemImage: "command") }
             }
         } label: {
-            Image(systemName: "plus").font(.system(size: 19, weight: .regular)).foregroundStyle(Palette.ink).hitTarget()
+            Image(systemName: "plus").font(.system(size: 17, weight: .medium)).foregroundStyle(Palette.ink)
+                .frame(width: 38, height: 38).background(Palette.control, in: Circle())
+                .hitTarget()
         }
         .disabled(!model.canAttach && !model.canChoose && !model.canCommand)
         .accessibilityLabel("添加附件、调用指令、切换模型")

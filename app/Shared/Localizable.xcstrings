@@ -1574,6 +1574,22 @@
         }
       }
     },
+    "%lld 秒后自动发送" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending in %lld s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se enviará en %lld s"
+          }
+        }
+      }
+    },
     "%lld 运行中" : {
       "localizations" : {
         "en" : {
@@ -2473,6 +2489,246 @@
         }
       }
     },
+    "保存并测试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save and test"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar y probar"
+          }
+        }
+      }
+    },
+    "切换到语音输入" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to voice input"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar a entrada de voz"
+          }
+        }
+      }
+    },
+    "切换到键盘输入" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to keyboard"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar al teclado"
+          }
+        }
+      }
+    },
+    "删除 Key" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete key"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar clave"
+          }
+        }
+      }
+    },
+    "在「API Key 管理」里创建一个 Key 并复制，回到这里粘贴到上面。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a key under API Key Management, copy it, and paste it above."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crea una clave en la gestión de claves de API, cópiala y pégala arriba."
+          }
+        }
+      }
+    },
+    "小时版" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hourly"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por horas"
+          }
+        }
+      }
+    },
+    "并发版" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Concurrent"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por concurrencia"
+          }
+        }
+      }
+    },
+    "开通「豆包流式语音识别模型 2.0」。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable “Doubao Streaming Speech Recognition Model 2.0”."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activa «Doubao Streaming Speech Recognition Model 2.0»."
+          }
+        }
+      }
+    },
+    "所选计费方式没有可用额度：可能没有开通，或额度已用完。请到控制台确认，或换成你开通的计费方式" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected billing option has no quota: it may not be enabled, or it may be used up. Check the console, or switch to the option you enabled."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La modalidad de facturación elegida no tiene cuota: puede que no esté activada o que se haya agotado. Revísalo en la consola o cambia a la modalidad que activaste."
+          }
+        }
+      }
+    },
+    "打开豆包语音控制台" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the Doubao Speech console"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir la consola de Doubao Speech"
+          }
+        }
+      }
+    },
+    "按住说话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold to talk"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén pulsado para hablar"
+          }
+        }
+      }
+    },
+    "按住说话需要用麦克风，请在系统设置里打开。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold to talk needs the microphone. Turn it on in Settings."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener pulsado para hablar necesita el micrófono. Actívalo en Ajustes."
+          }
+        }
+      }
+    },
+    "按住输入栏说话，松手把识别出的文字发出去。识别用的是火山引擎的豆包语音，需要你自己开通并填写 API Key，费用由火山引擎按你的用量收取。\n\nAPI Key 只保存在这台设备本地，只用来连接火山引擎，不会上传到其他任何地方。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold the input bar and speak; let go to send the recognized text. Recognition uses Doubao Speech from Volcengine: enable it yourself and enter your API key. Volcengine bills you for what you use.\n\nYour API key is stored only on this device, is used only to connect to Volcengine, and is never uploaded anywhere else."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén pulsada la barra de entrada y habla; suelta para enviar el texto reconocido. El reconocimiento usa Doubao Speech de Volcengine: actívalo tú mismo e introduce tu clave de API. Volcengine te cobra según tu uso.\n\nTu clave de API se guarda solo en este dispositivo, solo se usa para conectar con Volcengine y nunca se sube a ningún otro sitio."
+          }
+        }
+      }
+    },
+    "松手发送，上移取消" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release to send, slide up to cancel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suelta para enviar, desliza hacia arriba para cancelar"
+          }
+        }
+      }
+    },
+    "松手取消" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release to cancel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suelta para cancelar"
+          }
+        }
+      }
+    },
     "正在从相册读取…" : {
       "localizations" : {
         "en" : {
@@ -2485,6 +2741,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Leyendo de Fotos…"
+          }
+        }
+      }
+    },
+    "正在听…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listening…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escuchando…"
+          }
+        }
+      }
+    },
+    "正在识别…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcribing…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcribiendo…"
           }
         }
       }
@@ -2569,6 +2857,134 @@
         }
       }
     },
+    "没有可用的麦克风" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No microphone available"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay micrófono disponible"
+          }
+        }
+      }
+    },
+    "没有听清，请再说一次" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Didn't catch that. Please try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No te he entendido. Inténtalo de nuevo."
+          }
+        }
+      }
+    },
+    "没有麦克风权限，请在系统设置里打开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No microphone access. Turn it on in Settings."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin acceso al micrófono. Actívalo en Ajustes."
+          }
+        }
+      }
+    },
+    "测试连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test connection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probar conexión"
+          }
+        }
+      }
+    },
+    "火山引擎" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volcengine"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volcengine"
+          }
+        }
+      }
+    },
+    "火山引擎没有接受这个 API Key，请检查 Key 和开通的计费方式" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volcengine did not accept this API key. Check the key and the billing option you enabled."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volcengine no aceptó esta clave de API. Revisa la clave y la modalidad de facturación que activaste."
+          }
+        }
+      }
+    },
+    "登录火山引擎的豆包语音控制台，没有账号先注册并完成实名认证。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to the Doubao Speech console on Volcengine. Without an account, sign up and complete identity verification first."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inicia sesión en la consola de Doubao Speech de Volcengine. Si no tienes cuenta, regístrate y completa la verificación de identidad."
+          }
+        }
+      }
+    },
+    "粘贴或输入 API Key" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste or enter API key"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pega o introduce la clave de API"
+          }
+        }
+      }
+    },
     "视频" : {
       "localizations" : {
         "en" : {
@@ -2613,6 +3029,198 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El video aún se está leyendo. Envíalo cuando esté listo."
+          }
+        }
+      }
+    },
+    "计费方式" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Billing"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facturación"
+          }
+        }
+      }
+    },
+    "识别服务繁忙，请稍后再试" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The recognition service is busy. Try again later."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servicio de reconocimiento está ocupado. Inténtalo más tarde."
+          }
+        }
+      }
+    },
+    "识别用的是豆包流式语音识别模型 2.0。计费方式要和你在控制台开通的一致，没特别选过就用「小时版」。录音直接发给火山引擎识别，App 不保存录音。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recognition uses Doubao Streaming Speech Recognition Model 2.0. The billing option must match the one you enabled in the console; if you didn't pick one, use “Hourly”. Recordings go straight to Volcengine for recognition, and the app does not keep them."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El reconocimiento usa Doubao Streaming Speech Recognition Model 2.0. La modalidad de facturación debe coincidir con la que activaste en la consola; si no elegiste ninguna, usa «Por horas». Las grabaciones van directamente a Volcengine para su reconocimiento y la app no las guarda."
+          }
+        }
+      }
+    },
+    "识别超时，请再说一次" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recognition timed out. Please say it again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El reconocimiento tardó demasiado. Dilo otra vez."
+          }
+        }
+      }
+    },
+    "语音识别出错（%@）：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speech recognition failed (%1$@): %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error de reconocimiento de voz (%1$@): %2$@"
+          }
+        }
+      }
+    },
+    "语音输入" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice input"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrada de voz"
+          }
+        }
+      }
+    },
+    "语音输入还没有设置" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice input isn't set up yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La entrada de voz aún no está configurada"
+          }
+        }
+      }
+    },
+    "说话时间太短" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too short"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiado corto"
+          }
+        }
+      }
+    },
+    "还没有 API Key？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No API key yet?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Aún no tienes clave de API?"
+          }
+        }
+      }
+    },
+    "连不上火山引擎：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach Volcengine: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede conectar con Volcengine: %@"
+          }
+        }
+      }
+    },
+    "连接成功，可以按住说话了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected. You can hold to talk now."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectado. Ya puedes mantener pulsado para hablar."
+          }
+        }
+      }
+    },
+    "配置语音转文字" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set up speech to text"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar voz a texto"
           }
         }
       }
@@ -38761,6 +39369,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avanzado"
+          }
+        }
+      }
+    },
+    "麦克风权限已关闭" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone access is off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El acceso al micrófono está desactivado"
           }
         }
       }
