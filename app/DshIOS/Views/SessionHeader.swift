@@ -43,9 +43,12 @@ struct SessionTitleMenu: View {
                 Button { app.copySessionId(sessionId) } label: { Label("复制会话 ID", systemImage: "doc.on.doc") }
             }
         } label: {
-            HStack(spacing: 4) {
-                Text(title).font(.callout.weight(.semibold)).foregroundStyle(Palette.ink).lineLimit(1)
-                Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(Palette.secondary)
+            VStack(spacing: 0) {
+                HStack(spacing: 4) {
+                    Text(title).font(.callout.weight(.semibold)).foregroundStyle(Palette.ink).lineLimit(1)
+                    Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(Palette.secondary)
+                }
+                AIContentLabel()
             }
             .padding(.horizontal, 8)
             .frame(maxWidth: crowded && sizeClass == .compact ? 176 : 240)
