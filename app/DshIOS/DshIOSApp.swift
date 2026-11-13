@@ -262,16 +262,9 @@ private struct EngineTrouble: View {
     /// `iPhone18,1` and the like. The marketing name is what someone writes by hand and
     /// gets wrong; this is what tells one model from another.
     private func deviceModel() -> String {
-        // A simulator's `machine` is the Mac's architecture, which would name the wrong
-        // device in a report; it says which one it stands in for in the environment.
-        if let simulated = ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"] {
-            return String(localized: "\(simulated)（模拟器）")
-        }
-        var system = utsname()
-        uname(&system)
-        return withUnsafeBytes(of: &system.machine) {
-            String(cString: $0.baseAddress!.assumingMemoryBound(to: CChar.self))
-        }
+        // A simulator would otherwise pass for the device it stands in for.
+        if let simulated = ThisDevice.simulatedModel { return String(localized: "\(simulated)（模拟器）") }
+        return ThisDevice.model
     }
 
     /// The tail is enough to see the failure repeat, and keeps a paste pasteable.
