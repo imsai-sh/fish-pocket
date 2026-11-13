@@ -613,7 +613,7 @@ final class AppModel {
         if let string = value.string { return string }
         let object = value.object
         guard !object.isEmpty else { return nil }
-        if AppLanguage.isChinese, let zh = object.first(where: { $0.key.lowercased().hasPrefix("zh") })?.value.string { return zh }
+        if AppLanguage.isChinese, let zh = AppLanguage.chinese(in: object) { return zh }
         return object[AppLanguage.primary]?.string ?? object["en"]?.string ?? object[""]?.string ?? object.values.first?.string
     }
 
