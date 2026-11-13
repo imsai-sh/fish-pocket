@@ -42,6 +42,9 @@ enum ShareSuggestions {
         let interaction = INInteraction(intent: intent, response: nil)
         interaction.direction = .outgoing
         interaction.groupIdentifier = intent.conversationIdentifier
-        interaction.donate(completion: nil)
+        let id = intent.conversationIdentifier ?? ""
+        interaction.donate { error in
+            if let error { NSLog("[ShareSuggestions] donate %@ failed: %@", id, String(describing: error)) }
+        }
     }
 }
