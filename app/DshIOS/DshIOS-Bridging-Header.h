@@ -8,3 +8,5 @@
 // what the Swift providers register against. Node-free like the rest of this list.
 #import "DshAlarmBridge.h"
 #import "DshWeatherBridge.h"
+// The browser's native half is Swift too: it is the workbench's WKWebView.
+#import "DshBrowserBridge.h"

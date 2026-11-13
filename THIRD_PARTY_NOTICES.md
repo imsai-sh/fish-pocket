@@ -19,8 +19,11 @@
 | [pnpm](https://github.com/pnpm/pnpm) | 11.28.5 | MIT | Rico Sta. Cruz、Zoltan Kochan 及贡献者 | 插件安装 |
 | [DS Bot](https://github.com/Fei2411/DS-Bot)（`ds-bot`） | 0.3.1 | Apache-2.0 | Copyright 2026 Fei2411 and the DS Bot contributors | Bot 功能的后台，内置在引擎里 |
 | [Simple Icons](https://github.com/simple-icons/simple-icons) | 16.37.0 | CC0-1.0 | Simple Icons 贡献者 | Bot 连接器页面的品牌图标 |
+| [page-agent](https://github.com/alibaba/page-agent)（`@page-agent/page-controller`） | 1.12.4 | MIT | Copyright (c) 2026 SimonLuvRamen, Copyright (c) 2026 Alibaba Group Holding Limited | 智能体操作浏览器时读网页、点击和输入 |
 
 Simple Icons 是上面这句话的例外：用到的 28 个图标以 SVG 文件直接放在仓库里（`app/DshIOS/Assets.xcassets/Connectors`）。CC0 只覆盖图标文件本身，各图标仍是其品牌方的商标，App 里只用来标明连接的是哪家服务。
+
+page-agent 也是例外：`scripts/build-page-controller.sh` 把它的 page controller 和本仓库的一小段包装打成一个脚本，提交在 `app/DshIOS/Browser/PageController.js`，文件开头保留了它的 MIT 许可证全文。没有改动它的源码，只是没打包它的遮罩层（自动操作时挡住页面的那层）。它的页面结构提取移植自 [browser-use](https://github.com/browser-use/browser-use)（MIT）。
 
 CPython 的完整许可证及其捆绑组件（OpenSSL、SQLite、libffi、zlib、bzip2、xz、zstd、expat、mpdecimal 等）的许可证见 [Python 文档的许可证页](https://docs.python.org/3.15/license.html)；标准库里的 `LICENSE.txt` 随 App 一起分发。
 
