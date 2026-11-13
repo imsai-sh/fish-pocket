@@ -100,7 +100,6 @@ private struct BotPending: View {
     var body: some View {
         let team = app.botTeam
         VStack(spacing: 8) {
-            BotMemoryNotice(id: bot.id)
             if bot.waiting { BotModelPicker(bot: bot) }
             if let question = team.question(of: bot) { BotQuestionCard(bot: bot, question: question) }
             if let view = team.pendingView(of: bot) { BotViewCard(bot: bot, pending: view).id(view["id"].string) }
@@ -260,46 +259,6 @@ private struct BotModelPicker: View {
                 .buttonStyle(.plain)
                 .disabled(saving)
             }
-        }
-    }
-}
-
-/// The memory of this Bot or group just changed (the Bot remembered something on its own):
-/// one line above the composer until it is read or closed.
-struct BotMemoryNotice: View {
-    @Environment(AppModel.self) private var app
-    /// A Bot's id or a group's.
-    let id: String
-
-    var body: some View {
-        let team = app.botTeam
-        if let news = team.memoryNews(id) {
-            HStack(spacing: 8) {
-                Image(systemName: "brain").font(.footnote).foregroundStyle(Palette.secondary)
-                Text(Self.line(news)).font(.footnote).foregroundStyle(Palette.ink).lineLimit(2)
-                Spacer(minLength: 0)
-                if team.bot(id) != nil {
-                    Button("看看") { team.dismissMemoryNews(id); team.memoryRequest = id }.font(.footnote.weight(.semibold))
-                }
-                Button { team.dismissMemoryNews(id) } label: {
-                    Image(systemName: "xmark").font(.caption2.weight(.semibold)).foregroundStyle(Palette.secondary).hitTarget(30)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("知道了")
-            }
-            .padding(.leading, 14).padding(.trailing, 6)
-            .frame(minHeight: 38)
-            .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .transition(.opacity)
-        }
-    }
-
-    private static func line(_ news: JSON) -> String {
-        let text = news["text"].string ?? ""
-        return switch news["op"].string {
-        case "remove", "forget": String(localized: "忘掉了：\(text)")
-        case "replace", "update": String(localized: "改了一条记忆：\(text)")
-        default: String(localized: "记住了：\(text)")
         }
     }
 }

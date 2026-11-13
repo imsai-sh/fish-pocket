@@ -62,6 +62,8 @@ struct BotActivityLine: View {
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     Text(TimelineFormat.duration(max(1, Int(context.date.timeIntervalSince(since)))))
                         .font(.caption).monospacedDigit().foregroundStyle(Palette.faint)
+                        // A long phrase gives way, not the time.
+                        .fixedSize()
                 }
             }
         }
@@ -83,6 +85,12 @@ struct BotActivityLine: View {
         return Line(stage: stage, phrase: phrase(stage, team) + "…")
     }
 
+    /// The blocks of the attempt at work: the streamed one, else the turn's last durable message.
+    private var workingBlocks: [AssistantBlock] {
+        if model.live.isEmpty, case .assistant(_, let turn, _, _)? = model.items.last { return turn }
+        return model.live
+    }
+
     private func stage(_ team: BotModel) -> Stage {
         switch team.doing(botId) {
         case .approval: return .held(.alert)
@@ -90,9 +98,7 @@ struct BotActivityLine: View {
         default: break
         }
         if case .text? = model.live.last { return .typing }
-        var blocks = model.live
-        if blocks.isEmpty, case .assistant(_, let turn, _, _)? = model.items.last { blocks = turn }
-        if case .tool(let call)? = blocks.last, !call.finished { return .tool(call.displayName) }
+        if case .tool(let call)? = workingBlocks.last, !call.finished { return .tool(call.displayName) }
         return .thinking
     }
 
@@ -100,12 +106,21 @@ struct BotActivityLine: View {
     private func phrase(_ stage: Stage, _ team: BotModel) -> String {
         switch stage {
         case .typing: return String(localized: "正在输入")
-        case .thinking: return String(localized: "正在琢磨")
+        case .thinking:
+            // The headline of the reasoning being written, so the line moves on with it.
+            if case .reasoning(_, let text)? = model.live.last {
+                let summary = ReasoningSummary.make(text, live: true)
+                if !summary.isEmpty { return summary }
+            }
+            return String(localized: "正在琢磨")
         case .held: return team.doingText(botId) ?? String(localized: "正在处理")
         case .tool(let name):
             if Stage.teamTools.contains(name) { return String(localized: "正在联系其他 Bot") }
             let kind = StepKind(tool: name)
-            return kind == .tools ? String(localized: "正在处理") : kind.running
+            let doing = kind == .tools ? String(localized: "正在处理") : kind.running
+            // What it works on: the search, the page, the file.
+            guard case .tool(let call)? = workingBlocks.last else { return doing }
+            return [doing, call.summary].filter { !$0.isEmpty }.joined(separator: " · ")
         }
     }
 }

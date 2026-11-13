@@ -93,9 +93,9 @@ final class BotModel {
     /// What changes without a revision: `activity` (per Bot) and `work`.
     private(set) var activity: [String: JSON] = [:]
     private(set) var work: JSON = .null
-    /// The other live fields: `connectors`, `capabilityStatuses`, `learning`, `memoryNews`, `imStatus`…
+    /// The other live fields: `connectors`, `capabilityStatuses`, `learning`, `imStatus`…
     private(set) var live: [String: JSON] = [:]
-    private static let liveKeys = ["connectors", "capabilityStatuses", "learning", "learningSettled", "memoryNews", "memoryReviews", "imStatus", "imVia"]
+    private static let liveKeys = ["connectors", "capabilityStatuses", "learning", "learningSettled", "memoryReviews", "imStatus", "imVia"]
     /// The route answered: the plugin is loaded in this engine.
     private(set) var reachable = false
     /// Replies being written, by Session: the text so far.
@@ -115,8 +115,6 @@ final class BotModel {
     var memoryRequest: String?
     /// Show the Bot pages (the root view consumes it).
     var openRequest: BotOpenRequest?
-    /// Memory changes already shown and closed, by Bot or group: the time of the change.
-    private(set) var seenMemoryNews: [String: Double] = [:]
     /// Approvals already announced, so each rings once.
     @ObservationIgnored private var announcedApprovals: Set<String> = []
     /// The chat on screen (a Bot's or a group's id): what waits there needs no announcement.
@@ -303,16 +301,6 @@ final class BotModel {
     var showsThinking: Bool { prefs["thinking"].bool == true }
     /// Deleted private Bots whose folders stay closed to the others: `{id, name, workDir?}`.
     var privateArchives: [JSON] { team["privateArchives"].array }
-    /// The latest memory change of a Bot or group the user has not seen: `{at, op, text}`.
-    func memoryNews(_ id: String) -> JSON? {
-        guard let news = live["memoryNews"]?[id].nonNull, let at = news["at"].double, at > (seenMemoryNews[id] ?? 0) else { return nil }
-        return news
-    }
-
-    func dismissMemoryNews(_ id: String) {
-        if let at = live["memoryNews"]?[id]["at"].double { seenMemoryNews[id] = at }
-    }
-
     var workingCount: Int { bots.filter { isWorking($0.id) }.count }
 
     /// The turns of the Bot's own chat that answered another Bot: ds-bot's window leaves them out.
