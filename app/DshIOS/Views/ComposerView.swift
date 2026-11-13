@@ -260,7 +260,7 @@ struct ComposerView: View {
                 CandidatePanel(model: model, context: context, hit: trigger, pick: { pick($0, over: trigger) }, showAll: { refocus = true; browsing = trigger })
             }
             field
-                .background(Palette.field, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .composerSurface()
         }
         .task(id: pendingDraft) {
             guard let pendingDraft else { return }

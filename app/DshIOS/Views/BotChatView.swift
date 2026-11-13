@@ -25,6 +25,7 @@ struct BotChatView: View {
             .id(bot.sessionId)
             .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot), earlierFrom: bot.parts.isEmpty ? nil : bot.sessionId, showsThinking: team.showsThinking, sessionId: bot.sessionId))
             .environment(\.botComposer, .bot(bot.id))
+            .environment(\.userBubbleTint, team.bubbleTint(of: bot))
             .openingOtherSessions($selection, from: bot.sessionId)
             .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) { BotDetailView(botId: botId, tab: detailTab) }
             .sheet(isPresented: $sideChatOpen) { BotSideChatSheet(botId: botId) }

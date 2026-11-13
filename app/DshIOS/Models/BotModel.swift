@@ -332,6 +332,12 @@ final class BotModel {
     /// A form the Bot sent that waits for an answer (`show_view`): `{id, title, view}`.
     func pendingView(of bot: BotInfo) -> JSON? { team["views"][bot.sessionId].nonNull }
 
+    /// The user's messages in the Bot's chat take the colour the Bot was given; with none, the plain bubble.
+    func bubbleTint(of bot: BotInfo) -> BubbleTint? {
+        guard let fill = BotInk.color(bot.colorKey), let text = BotInk.textOn(bot.colorKey) else { return nil }
+        return BubbleTint(fill: fill, text: text)
+    }
+
     /// The Bot's display colour: one of the plugin's colour names, or a hex; with neither, one its id picks.
     func color(of bot: BotInfo) -> Color {
         if let color = BotInk.color(bot.colorKey) { return color }
