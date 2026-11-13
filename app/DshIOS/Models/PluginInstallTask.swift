@@ -113,6 +113,9 @@ final class PluginInstallTask {
     @ObservationIgnored private var registryRead: Task<Void, Never>?
     /// A market entry chose the registry: this dialog only, never remembered.
     @ObservationIgnored private var transientRegistry = false
+    /// A market update installs over a package it just removed: the new version keeps the old
+    /// one's switch instead of asking for 立即启用.
+    @ObservationIgnored private var keptSelection: Bool?
     @ObservationIgnored private var listener: UUID?
 
     init(app: AppModel) {
@@ -146,10 +149,12 @@ final class PluginInstallTask {
         Task { await reconcile() }
     }
 
-    /// MK-08: install a market version straight from the check, without the form.
-    func installFrom(spec: String, registry: String?, title: String, version: String) {
+    /// MK-08: install a market version straight from the check, without the form. `enabled`
+    /// is the switch an update keeps from the version it replaced.
+    func installFrom(spec: String, registry: String?, title: String, version: String, enabled: Bool? = nil) {
         guard requestId == nil && !busy else { show(); return }
         reset()
+        keptSelection = enabled
         show()
         self.spec = spec
         confirmed = (title, version)
@@ -229,6 +234,7 @@ final class PluginInstallTask {
         enabling = false
         detailsOpen = false
         mirrorRecovery = false
+        keptSelection = nil
         requestId = nil
     }
 
@@ -395,7 +401,9 @@ final class PluginInstallTask {
                     keepRecord()
                     return
                 }
-                await startInstall(answer.setting(["spec"], .string(trimmed)))
+                var accepted = answer.setting(["spec"], .string(trimmed))
+                if let keptSelection { accepted = accepted.setting(["selection"], .bool(keptSelection)) }
+                await startInstall(accepted)
             } catch {
                 guard !Task.isCancelled, phase == .checking else { return }
                 phase = .idle
