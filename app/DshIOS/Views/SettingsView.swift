@@ -14,7 +14,6 @@ struct SettingsView: View {
     @EnvironmentObject private var engine: NodeEngine
     @Environment(\.dismiss) private var dismiss
     @State private var defaultModel: String?
-    @State private var pluginCount: Int?
     @State private var engineVersion: String?
     @State private var permissionOptions: [JSON] = []
     /// What new sessions start with until the user picks: the setting's value is empty then.
@@ -58,12 +57,6 @@ struct SettingsView: View {
                         row("语音", "mic", VoicePreferences.shared.source == .volcengine && !VolcSpeech.shared.configured ? String(localized: "未设置") : VoicePreferences.shared.source.title)
                     }
                     if mirror.serves("permission") { permissionPicker }
-                }
-
-                Section {
-                    NavigationLink { PluginsView() } label: {
-                        row("插件", "puzzlepiece.extension", pluginCount.map { String(localized: "\($0) 个") } ?? "")
-                    }
                 }
 
                 Section {
@@ -263,7 +256,6 @@ struct SettingsView: View {
     private func load() async {
         if let value = try? await app.client.call("pluginManager/listBundles") {
             let bundles = value.array
-            pluginCount = bundles.filter { $0["enabled"].bool == true && !PluginManagerModel.builtInProfileBundles.contains($0["name"].string ?? "") }.count
             engineVersion = bundles.first { $0["name"].string == "@deepseek-ai/dsh-base" }?["version"].string
         }
         await app.account.refresh()
@@ -300,7 +292,6 @@ struct SettingsView: View {
 private struct AdvancedSettingsPage: View {
     @Environment(AppModel.self) private var app
     @EnvironmentObject private var engine: NodeEngine
-    @State private var showWeb = false
     @State private var showCordis = false
 
     var body: some View {
@@ -319,15 +310,11 @@ private struct AdvancedSettingsPage: View {
                     NavigationLink("配置文件") { ConfigDocumentView() }
                 }
                 NavigationLink("引擎日志") { EngineLogView(file: engine.logFile) }
-                Button("网页版") { showWeb = true }
-            } footer: {
-                Text("网页版用于只有网页界面的插件，设置与这里共用同一份配置。")
             }
         }
         .sheet(isPresented: $showCordis) { CordisPanelView(currentSession: nil) }
         .navigationTitle("高级")
         .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $showWeb) { WebFallbackView() }
     }
 }
 
@@ -442,7 +429,7 @@ private struct AllSettingsPage: View {
                     }
                 }
             } footer: {
-                Text("这些设置和网页版、桌面版共用同一份配置。")
+                Text("这些设置和 DSH 网页、桌面版共用同一份配置。")
             }
         }
         .navigationTitle("全部设置")

@@ -184,7 +184,7 @@ struct PluginsView: View {
 
     var body: some View {
         content
-            .navigationTitle("插件")
+            .navigationTitle("DSH 插件")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if !showingMarket {

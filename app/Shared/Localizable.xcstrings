@@ -5629,6 +5629,74 @@
         }
       }
     },
+    "可交互内容 · 在 DSH 网页中操作" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interactive content · use it in DSH Web"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contenido interactivo · úsalo en DSH Web"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インタラクティブコンテンツ · DSH Web で操作"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인터랙티브 콘텐츠 · DSH 웹에서 사용"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可互動內容 · 在 DSH 網頁中操作"
+          }
+        }
+      }
+    },
+    "在 DSH 网页中打开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in DSH Web"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir en DSH Web"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH Web で開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH 웹에서 열기"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 DSH 網頁中打開"
+          }
+        }
+      }
+    },
     "在「我的手表」里往下滑" : {
       "localizations" : {
         "en" : {
@@ -5969,6 +6037,40 @@
         }
       }
     },
+    "开启后可以在这里浏览和安装插件。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn it on to browse and install plugins here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actívalo para explorar e instalar complementos aquí."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンにすると、ここでプラグインを探してインストールできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켜면 여기에서 플러그인을 둘러보고 설치할 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟後可以在這裡瀏覽和安裝外掛。"
+          }
+        }
+      }
+    },
     "微信交流群" : {
       "localizations" : {
         "en" : {
@@ -5999,6 +6101,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "微信交流群"
+          }
+        }
+      }
+    },
+    "打开 DSH 网页" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open DSH Web"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir DSH Web"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH Web を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH 웹 열기"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟 DSH 網頁"
+          }
+        }
+      }
+    },
+    "打开后，Bot 回复的步骤里会带上它的思考和用时。这两项和 DSH 网页共用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When on, a Bot's steps include its reasoning and how long it took. Both settings are shared with DSH Web."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si se activa, los pasos de un Bot incluyen su razonamiento y cuánto tardó. Ambos ajustes se comparten con DSH Web."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンにすると、Bot の返信のステップに思考内容と所要時間が表示されます。この2つの設定は DSH Web と共通です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켜면 Bot 답변의 단계에 생각 내용과 소요 시간이 표시돼요. 이 두 설정은 DSH 웹과 공유돼요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟後，Bot 回覆的步驟裡會附上它的思考和用時。這兩項和 DSH 網頁共用。"
           }
         }
       }
@@ -6513,6 +6683,40 @@
         }
       }
     },
+    "按 App Store 审核要求，插件自带的界面不会出现在 App 的原生界面中，但插件本身可能仍在运行。要查看它的界面，请打开侧边栏的「DSH 网页」。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Under App Store review rules, a plugin’s own interface doesn’t appear in the app’s native UI, though the plugin itself may still be running. To see its interface, open DSH Web in the sidebar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Según los requisitos de revisión de la App Store, la interfaz propia de un complemento no aparece en la interfaz nativa de la app, aunque el complemento en sí puede seguir en ejecución. Para ver su interfaz, abre DSH Web en la barra lateral."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store の審査要件により、プラグイン独自の画面は App のネイティブ画面には表示されませんが、プラグイン自体は動作している場合があります。画面を表示するには、サイドバーの「DSH Web」を開いてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store 심사 규정에 따라 플러그인 자체 화면은 앱의 기본 화면에 표시되지 않지만, 플러그인은 계속 실행 중일 수 있어요. 화면을 보려면 사이드바의 ‘DSH 웹’을 여세요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "依 App Store 審查規定，外掛自帶的介面不會出現在 App 的原生介面中，但外掛本身可能仍在執行。要查看它的介面，請開啟側邊欄的「DSH 網頁」。"
+          }
+        }
+      }
+    },
     "按下面的步骤装上，装好后这里会自动更新。" : {
       "localizations" : {
         "en" : {
@@ -6577,6 +6781,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "提醒"
+          }
+        }
+      }
+    },
+    "插件自带的界面不会在 App 里显示，可在 DSH 网页中查看。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A plugin’s own interface isn’t shown in the app. You can view it in DSH Web."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La interfaz propia de un complemento no se muestra en la app. Puedes verla en DSH Web."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プラグイン独自の画面は App には表示されません。DSH Web で確認できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "플러그인 자체 화면은 앱에 표시되지 않아요. DSH 웹에서 볼 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外掛自帶的介面不會在 App 裡顯示，可在 DSH 網頁中查看。"
           }
         }
       }
@@ -8600,6 +8838,40 @@
         }
       }
     },
+    "说明：插件自带的界面不在 App 的原生界面里显示，要在侧边栏的「DSH 网页」里看。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note: a plugin's own interface doesn't appear in the app's native UI; it's in DSH Web in the sidebar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota: la interfaz propia de un complemento no aparece en la interfaz nativa de la app; está en DSH Web, en la barra lateral."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "補足：プラグイン独自の画面は App のネイティブ画面には表示されず、サイドバーの「DSH Web」で見られます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "참고: 플러그인 자체 화면은 앱의 기본 화면에 표시되지 않고, 사이드바의 ‘DSH 웹’에서 볼 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "說明：外掛自帶的介面不會在 App 的原生介面裡顯示，要在側邊欄的「DSH 網頁」裡看。"
+          }
+        }
+      }
+    },
     "读取页面" : {
       "localizations" : {
         "en" : {
@@ -8766,6 +9038,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "還沒有提醒"
+          }
+        }
+      }
+    },
+    "这些设置和 DSH 网页、桌面版共用同一份配置。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These settings share one configuration with DSH Web and the desktop version."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta configuración se comparte con DSH Web y la versión de escritorio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらの設定は DSH Web、デスクトップ版と同じ構成を共有しています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 설정은 DSH 웹, 데스크톱 버전과 같은 구성을 공유해요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這些設定和 DSH 網頁、桌面版共用同一份設定檔。"
           }
         }
       }
@@ -11653,47 +11959,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "npm 官方來源"
-          }
-        }
-      }
-    },
-    "schedules.title" : {
-      "comment" : "The list page; the same words on a timeline card name one task",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automations"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatizaciones"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動化タスク"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "자동화 작업"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自动化任务"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動化任務"
           }
         }
       }
@@ -27297,40 +27562,6 @@
         }
       }
     },
-    "可交互内容 · 在网页版中操作" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Interactive content · use it in the Web UI"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contenido interactivo · úsalo en la app web"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "インタラクティブコンテンツ · Web 版で操作"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인터랙티브 콘텐츠 · 웹 버전에서 사용"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "可互動內容 · 在網頁版中操作"
-          }
-        }
-      }
-    },
     "可以关闭此页，安装会在后台继续，结果会提示你。" : {
       "localizations" : {
         "en" : {
@@ -30629,40 +30860,6 @@
         }
       }
     },
-    "在网页版中打开" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open in Web UI"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abrir en la versión web"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Web 版で開く"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "웹 버전에서 열기"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在網頁版中打開"
-          }
-        }
-      }
-    },
     "在群里发言" : {
       "localizations" : {
         "en" : {
@@ -32903,40 +33100,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "它留下的檔案不會刪除，但別的 Bot 之後可以在那個資料夾裡工作、讀到裡面的內容。"
-          }
-        }
-      }
-    },
-    "它的开关在「设置 → 插件 → 实验性插件」" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Turn it on in “Settings → Plugins → Experimental Plugins”."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Su interruptor está en «Configuración → Complementos → Complementos experimentales»."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「設定 → プラグイン → 実験的なプラグイン」でオンにできます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“설정 → 플러그인 → 실험적 플러그인”에서 켤 수 있어요."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "它的開關在「設定 → 外掛 → 實驗性外掛」"
           }
         }
       }
@@ -42713,40 +42876,6 @@
         }
       }
     },
-    "打开后，Bot 回复的步骤里会带上它的思考和用时。这两项和网页版共用。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When on, a Bot's steps include its reasoning and how long it took. Both settings are shared with the Web UI."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si se activa, los pasos de un Bot incluyen su razonamiento y cuánto tardó. Ambos ajustes se comparten con la versión web."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "オンにすると、Bot の返信のステップに思考内容と所要時間が表示されます。この2つの設定は Web 版と共通です。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "켜면 Bot 답변의 단계에 생각 내용과 소요 시간이 표시돼요. 이 두 설정은 웹 버전과 공유돼요."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開啟後，Bot 回覆的步驟裡會附上它的思考和用時。這兩項和網頁版共用。"
-          }
-        }
-      }
-    },
     "打开插件页" : {
       "localizations" : {
         "en" : {
@@ -42947,40 +43076,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "開啟系統設定"
-          }
-        }
-      }
-    },
-    "打开网页版" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open Web UI"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abrir versión web"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Web 版を開く"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "웹 버전 열기"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開啟網頁版"
           }
         }
       }
@@ -44262,40 +44357,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "指令執行失敗"
-          }
-        }
-      }
-    },
-    "按 App Store 审核要求，插件自带的界面不会出现在 App 的原生界面中，但插件本身可能仍在运行。要查看它的界面，请打开网页版（设置 → 高级 → 网页版）。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Under App Store review rules, a plugin’s own interface doesn’t appear in the app’s native UI, though the plugin itself may still be running. To see its interface, open the Web UI (Settings → Advanced → Web UI)."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Según los requisitos de revisión de la App Store, la interfaz propia de un complemento no aparece en la interfaz nativa de la app, aunque el complemento en sí puede seguir en ejecución. Para ver su interfaz, abre la versión web (Configuración → Avanzado → Versión web)."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App Store の審査要件により、プラグイン独自の画面は App のネイティブ画面には表示されませんが、プラグイン自体は動作している場合があります。画面を表示するには Web 版を開いてください（設定 → 詳細 → Web 版）。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App Store 심사 규정에 따라 플러그인 자체 화면은 앱의 기본 화면에 표시되지 않지만, 플러그인은 계속 실행 중일 수 있어요. 화면을 보려면 웹 버전을 여세요(설정 → 고급 → 웹 버전)."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "依 App Store 審查規定，外掛自帶的介面不會出現在 App 的原生介面中，但外掛本身可能仍在執行。要查看它的介面，請開啟網頁版（設定 → 進階 → 網頁版）。"
           }
         }
       }
@@ -46139,40 +46200,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "外掛管理所需，無法停用或解除安裝"
-          }
-        }
-      }
-    },
-    "插件自带的界面不会在 App 里显示，可在网页版中查看。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A plugin’s own interface isn’t shown in the app. You can view it in the Web UI."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La interfaz propia de un complemento no se muestra en la app. Puedes verla en la versión web."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "プラグイン独自の画面は App には表示されません。Web 版で確認できます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "플러그인 자체 화면은 앱에 표시되지 않아요. 웹 버전에서 볼 수 있어요."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "外掛自帶的介面不會在 App 裡顯示，可在網頁版中查看。"
           }
         }
       }
@@ -54093,40 +54120,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "有新版本"
-          }
-        }
-      }
-    },
-    "说明：插件自带的界面不在 App 的原生界面里显示，要在网页版里看（设置 → 高级 → 网页版）。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Note: a plugin's own interface doesn't appear in the app's native UI; it's in the Web UI (Settings → Advanced → Web UI)."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nota: la interfaz propia de un complemento no aparece en la interfaz nativa de la app; está en la versión web (Configuración → Avanzado → Versión web)."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "補足：プラグイン独自の画面は App のネイティブ画面には表示されず、Web 版で見られます（設定 → 詳細 → Web 版）。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "참고: 플러그인 자체 화면은 앱의 기본 화면에 표시되지 않고, 웹 버전에서 볼 수 있어요(설정 → 고급 → 웹 버전)."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有新版本，查看已安裝"
           }
         }
       }
@@ -71115,40 +71108,6 @@
         }
       }
     },
-    "网页版用于只有网页界面的插件，设置与这里共用同一份配置。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The Web UI is for plugins that only have a web interface. It shares the same configuration as these settings."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La versión web es para complementos que solo tienen interfaz web. Comparte la misma configuración que estos ajustes."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Web 版は Web 画面しかないプラグイン用で、ここと同じ設定を共有します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "웹 버전은 웹 화면만 있는 플러그인용이며, 여기와 같은 설정을 공유해요."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "網頁版用於只有網頁介面的外掛，和這裡共用同一份設定。"
-          }
-        }
-      }
-    },
     "网页获取" : {
       "localizations" : {
         "en" : {
@@ -82014,40 +81973,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "這個問題已結束，無法再回答。"
-          }
-        }
-      }
-    },
-    "这些设置和网页版、桌面版共用同一份配置。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "These settings share one configuration with the web and desktop versions."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta configuración se comparte con las versiones web y de escritorio."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "これらの設定はWeb版、デスクトップ版と同じ構成を共有しています。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 설정은 웹 버전, 데스크톱 버전과 같은 구성을 공유해요."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "這些設定和網頁版、桌面版共用同一份設定檔。"
           }
         }
       }

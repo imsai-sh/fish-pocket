@@ -56,7 +56,7 @@ private struct GenUINode: View {
                     .frame(maxHeight: 240)
             }
         case "TinyButton", "button", "TinyInput", "TinyForm", "TinySelect":
-            Label("可交互内容 · 在网页版中操作", systemImage: "hand.tap").font(.caption).foregroundStyle(.secondary)
+            Label("可交互内容 · 在 DSH 网页中操作", systemImage: "hand.tap").font(.caption).foregroundStyle(.secondary)
         default:
             if node["children"].array.isEmpty && !text.isEmpty { Text(text) } else { children(spacing: 8) }
         }

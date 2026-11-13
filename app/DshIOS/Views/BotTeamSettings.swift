@@ -47,7 +47,7 @@ struct BotTeamSettingsView: View {
             } header: {
                 Text("偏好")
             } footer: {
-                Text("打开后，Bot 回复的步骤里会带上它的思考和用时。这两项和网页版共用。")
+                Text("打开后，Bot 回复的步骤里会带上它的思考和用时。这两项和 DSH 网页共用。")
             }
             .groupedRow()
             if !team.privateArchives.isEmpty {

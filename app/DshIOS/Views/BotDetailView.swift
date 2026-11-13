@@ -203,7 +203,7 @@ struct BotDetailView: View {
         }
         Section {
             Button { dismiss(); app.webRequest = UUID() } label: {
-                Text("在网页版中打开").font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
+                Text("在 DSH 网页中打开").font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
             }
             Link(destination: BotModel.websiteURL) {
                 HStack(spacing: 4) {

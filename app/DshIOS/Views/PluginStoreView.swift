@@ -24,7 +24,7 @@ struct PluginStoreView: View {
         }
         .background(Palette.background)
         .animation(.snappy(duration: 0.2), value: searching)
-        .navigationTitle("插件")
+        .navigationTitle("DSH 插件")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if let openSidebar { ToolbarItem(placement: .topBarLeading) { DrawerButton(action: openSidebar) } }
@@ -144,7 +144,7 @@ private struct StoreDiscoverPage: View {
                 ContentUnavailableView {
                     Label("插件市场已关闭", systemImage: "storefront")
                 } description: {
-                    Text("它的开关在「设置 → 插件 → 实验性插件」")
+                    Text("开启后可以在这里浏览和安装插件。")
                 } actions: {
                     Button("开启") { Task { await model.enable(app) } }.buttonStyle(.capsule(height: 44, fill: false))
                 }

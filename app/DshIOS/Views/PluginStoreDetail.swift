@@ -31,7 +31,7 @@ struct StoreEntryDetail: View {
         if onDevice {
             // A finished install's log answers nothing here and only makes the reply slower.
             let listed = app.plugins.package(listing.name)?.questionDetails ?? [String(localized: "插件：\(entry.name)")]
-            let interface = String(localized: "说明：插件自带的界面不在 App 的原生界面里显示，要在网页版里看（设置 → 高级 → 网页版）。")
+            let interface = String(localized: "说明：插件自带的界面不在 App 的原生界面里显示，要在侧边栏的「DSH 网页」里看。")
             return ("找不到或用不了？新开会话问问", PluginQuestion.installed(entry.displayName, details: listed + facts + [interface]))
         }
         if let record = records.first(where: { $0.outcome != .done }) {
@@ -467,21 +467,21 @@ struct StoreWebUINote: View {
         HStack(alignment: compact ? .center : .top, spacing: 10) {
             Image(systemName: "info.circle").font(.subheadline).foregroundStyle(Palette.secondary)
             if compact {
-                Text("插件自带的界面不会在 App 里显示，可在网页版中查看。")
+                Text("插件自带的界面不会在 App 里显示，可在 DSH 网页中查看。")
                     .font(.footnote)
                     .foregroundStyle(Palette.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Button("网页版") { showWeb = true }
+                Button("DSH 网页") { showWeb = true }
                     .font(.footnote.weight(.medium))
                     .foregroundStyle(Palette.ink)
             } else {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("插件界面不在 App 里显示").font(.subheadline.weight(.medium)).foregroundStyle(Palette.ink)
-                    Text("按 App Store 审核要求，插件自带的界面不会出现在 App 的原生界面中，但插件本身可能仍在运行。要查看它的界面，请打开网页版（设置 → 高级 → 网页版）。")
+                    Text("按 App Store 审核要求，插件自带的界面不会出现在 App 的原生界面中，但插件本身可能仍在运行。要查看它的界面，请打开侧边栏的「DSH 网页」。")
                         .font(.footnote)
                         .foregroundStyle(Palette.secondary)
                         .lineSpacing(3)
-                    Button("打开网页版") { showWeb = true }
+                    Button("打开 DSH 网页") { showWeb = true }
                         .font(.footnote.weight(.medium))
                         .foregroundStyle(Palette.ink)
                         .padding(.top, 2)
@@ -533,7 +533,7 @@ private struct StoreWebButton: ViewModifier {
         content
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showWeb = true } label: { Label("网页版", systemImage: "globe") }
+                    Button { showWeb = true } label: { Label("DSH 网页", systemImage: "globe") }
                 }
             }
             .fullScreenCover(isPresented: $showWeb) { WebFallbackView() }

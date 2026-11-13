@@ -108,7 +108,7 @@ struct SchedulesView: View {
             }
         }
         .searchable(text: $query, prompt: kind == .tasks ? Text("搜索自动化任务") : Text("搜索提醒"))
-        .navigationTitle(String(localized: "schedules.title", defaultValue: "自动化任务", comment: "The list page; the same words on a timeline card name one task"))
+        .navigationTitle("自动化")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if sessionId == nil {
@@ -800,7 +800,7 @@ struct WebFallbackView: View {
         NavigationStack {
             EngineWebView(url: app.client.launchURL)
                 .ignoresSafeArea(edges: .bottom)
-                .navigationTitle("网页版")
+                .navigationTitle("DSH 网页")
                 .navigationBarTitleDisplayMode(.inline)
                 .closeButton(dismiss)
         }
