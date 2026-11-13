@@ -182,7 +182,6 @@ private struct RoomMentions: View {
         let team = app.botTeam
         let members = room.members.compactMap(team.bot)
         VStack(alignment: .leading, spacing: 8) {
-            BotMemoryNotice(id: room.id)
             ForEach(team.approvals(inRoom: room.id), id: \.["id"]) { approval in RoomApprovalCard(approval: approval) }
             if let goal = room.json["goal"].nonNull, goal["status"].string != "complete", goal["status"].string != "stopped" {
                 Button { team.scheduleRequest = .room(room.id) } label: {

@@ -31768,6 +31768,7 @@
       }
     },
     "忘掉了：%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37162,6 +37163,7 @@
       }
     },
     "改了一条记忆：%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -52270,6 +52272,7 @@
       }
     },
     "看看" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -52382,6 +52385,7 @@
       }
     },
     "知道了" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
