@@ -212,12 +212,22 @@ final class BrowserModel: NSObject {
     static func asksForDesktop(_ url: URL) -> Bool? {
         guard let site = site(of: url) else { return nil }
         let modes = UserDefaults.standard.dictionary(forKey: contentModesKey) as? [String: Bool] ?? [:]
-        var labels = site.split(separator: ".")
+        // A one-word host such as `localhost` is a site of its own.
+        if let desktop = modes[site] { return desktop }
+        // A domain's choice holds under it too (`docs.example.com` under `example.com`). An address has
+        // nothing above it: `127.0.0.1` is not under `0.0.1`.
+        guard !isAddress(site) else { return nil }
+        var labels = site.split(separator: ".").dropFirst()
         while labels.count >= 2 {
             if let desktop = modes[labels.joined(separator: ".")] { return desktop }
             labels.removeFirst()
         }
         return nil
+    }
+
+    /// An IP address rather than a name: IPv6 has colons, IPv4 is all numbers.
+    private static func isAddress(_ host: String) -> Bool {
+        host.contains(":") || host.split(separator: ".").allSatisfy { $0.allSatisfy(\.isNumber) }
     }
 
     static func setDesktop(_ desktop: Bool, for url: URL) {
