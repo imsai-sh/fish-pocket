@@ -21,7 +21,8 @@ struct ConversationView: View {
     @State private var model: SessionModel?
     @State private var context = ComposerContext()
     @State private var workbenchOpen = false
-    @State private var workbenchTab = WorkbenchTab.terminal
+    /// The tab last looked at, in any conversation: the workbench opens where it was left.
+    @AppStorage("dsh.workbench.tab") private var workbenchTab = WorkbenchTab.terminal
     /// Interactions swiped away; they stay answerable from the 「等你允许」 line.
     @State private var deferred: Set<String> = []
     @State private var showNewWorkspace = false
@@ -79,7 +80,7 @@ struct ConversationView: View {
         #if DEBUG
         .task {
             switch UserDefaults.standard.string(forKey: "dshOpen") {
-            case "workbench": openWorkbench(.terminal)
+            case "workbench": workbenchOpen = true
             case "approval": demoApproval = PendingApproval(id: "demo", toolName: "bash", callId: nil, reason: "允许本次操作使用 danger-full-access 权限：当前处于 workspace-write 模式，写不到工作区以外。这条命令会删除 build/ 下约 1.4 GB 的文件，再重新下载依赖，失败时不会自动恢复，需要手动重新构建一次才能继续。")
             case "timeline":
                 try? await Task.sleep(for: .seconds(2))
@@ -119,7 +120,8 @@ struct ConversationView: View {
             ScrollView {
                 TimelineList(model: model)
                     .modifier(LinkOpening())
-                Color.clear.frame(height: 1).id(Self.bottomId)
+                // Room for the floating chips, so they never sit on the last row.
+                Color.clear.frame(height: activityShown(blank) ? 48 : 1).id(Self.bottomId)
             }
             .environment(\.timelineScroll, TimelineScroll(keep: { id in
                 Task { @MainActor in
@@ -161,6 +163,19 @@ struct ConversationView: View {
                     }
                 }
                 .animation(.snappy(duration: 0.18), value: atBottom)
+            }
+            // Opposite the scroll buttons: the agent's page and its background jobs, one tap from the chat.
+            .overlay(alignment: .bottomLeading) {
+                if !blank && bot == nil {
+                    ConversationActivity(
+                        sessionId: sessionId, jobs: jobs,
+                        browserShown: browserBeside,
+                        openBrowser: { openWorkbench(.browser) },
+                        openJobs: { headerSheet = .jobs }
+                    )
+                    .padding(.leading, 16)
+                    .padding(.bottom, 12)
+                }
             }
             .sheet(isPresented: $showTurns) {
                 TurnJumpSheet(outline: model.turnOutline) { entry in
@@ -275,7 +290,7 @@ struct ConversationView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     // A Bot runs no subagents or background jobs of DSH's, and its scheduled
                     // tasks are on its own page.
-                    if bot == nil { SessionHeaderActions(sessionId: sessionId, jobs: jobs) { headerSheet = $0 } }
+                    if bot == nil { SessionHeaderActions(sessionId: sessionId) { headerSheet = $0 } }
                     if let menu = bot?.menu { menu(model) }
                     // A Bot works in its own folder and reports in the chat: its pages have no way into the workbench.
                     if bot == nil {
@@ -364,13 +379,20 @@ struct ConversationView: View {
 
     private var titleBesideWorkbench: Bool { sizeClass == .regular && workbenchOpen }
 
+    /// The workbench's browser is already on screen beside the conversation.
+    private var browserBeside: Bool { sizeClass == .regular && workbenchOpen && workbenchTab == .browser }
+
+    private func activityShown(_ blank: Bool) -> Bool {
+        !blank && bot == nil && ConversationActivity.shows(sessionId: sessionId, jobs: jobs, browserShown: browserBeside, in: app)
+    }
+
     private func openWorkbench(_ tab: WorkbenchTab) {
         workbenchTab = tab
         workbenchOpen = true
     }
 
     private func toggleWorkbench() {
-        if workbenchOpen { workbenchOpen = false } else { openWorkbench(.terminal) }
+        workbenchOpen.toggle()
     }
 
     /// One state, shown in whichever place the width calls for.
