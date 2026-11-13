@@ -20,7 +20,8 @@ struct BotChatView: View {
                     .buttonStyle(.plain)
                     .accessibilityHint("查看 Bot 详情")),
                 accessory: AnyView(BotPending(bot: bot)),
-                menu: { model in AnyView(BotChatMenu(target: .bot(bot.id), model: model)) }
+                menu: { model, tools in AnyView(BotChatMenu(target: .bot(bot.id), model: model, tools: tools)) },
+                tools: true
             ))
             .id(bot.sessionId)
             .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot), earlierFrom: bot.parts.isEmpty ? nil : bot.sessionId, showsThinking: team.showsThinking, sessionId: bot.sessionId))
@@ -308,10 +309,19 @@ struct BotChatMenu: View {
     @Environment(AppModel.self) private var app
     let target: BotComposer
     let model: SessionModel
+    /// The conversation's tools, for a chat that has them.
+    var tools: BotChatTools?
 
     var body: some View {
         let team = app.botTeam
         Menu {
+            if let tools {
+                // The browser has a line of its own besides the workbench's tab: it opens full screen, the page alone.
+                Section {
+                    Button(action: tools.toggleWorkbench) { Label("工作台", systemImage: "apple.terminal") }
+                    Button(action: tools.openBrowser) { Label("浏览器", systemImage: "globe") }
+                }
+            }
             switch target {
             case .bot(let id):
                 if let bot = team.bot(id) {

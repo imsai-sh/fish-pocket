@@ -6,8 +6,19 @@ import SwiftUI
 struct BotChrome {
     var title: AnyView
     var accessory: AnyView?
-    /// The chat's own menu in the bar, given the conversation it is for.
-    var menu: ((SessionModel) -> AnyView)?
+    /// The chat's own menu in the bar, given the conversation it is for and how to reach its tools.
+    var menu: ((SessionModel, BotChatTools?) -> AnyView)?
+    /// The chat has the conversation's tools: the workbench, the browser and the background jobs
+    /// floating over its foot. A Bot's own chat does; a group's session only relays its members' replies.
+    var tools = false
+}
+
+/// What a Bot's chat menu opens of the conversation's tools.
+struct BotChatTools {
+    /// Shows or hides the workbench, where the tab last looked at is.
+    let toggleWorkbench: () -> Void
+    /// The browser alone, full screen.
+    let openBrowser: () -> Void
 }
 
 /// How a Bot's timeline differs: turns that answered another Bot stay out (ds-bot's own
@@ -149,7 +160,7 @@ struct BotRoomView: View {
                 .buttonStyle(.plain)
                 .accessibilityHint("查看群聊设置")),
                 accessory: AnyView(RoomMentions(room: room)),
-                menu: { model in AnyView(BotChatMenu(target: .room(room.id), model: model)) }
+                menu: { model, _ in AnyView(BotChatMenu(target: .room(room.id), model: model)) }
             ))
             .environment(\.botTimeline, BotTimeline(room: true, earlierFrom: room.json["ownParts"].array.isEmpty ? nil : room.sessionId, showsThinking: team.showsThinking, sessionId: room.sessionId))
             .environment(\.botComposer, .room(room.id))

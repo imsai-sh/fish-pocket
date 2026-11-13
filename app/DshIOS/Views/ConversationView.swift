@@ -168,7 +168,7 @@ struct ConversationView: View {
             }
             // Opposite the scroll buttons: the agent's page and its background jobs, one tap from the chat.
             .overlay(alignment: .bottomLeading) {
-                if !blank && bot == nil {
+                if !blank && hasTools {
                     ConversationActivity(
                         sessionId: sessionId, jobs: jobs,
                         browserShown: browserBeside,
@@ -253,7 +253,7 @@ struct ConversationView: View {
                 ToolbarItem(placement: .topBarLeading) { DrawerButton(action: openDrawer) }
             }
             if let bot {
-                ToolbarItem(placement: .principal) { bot.title }
+                ToolbarItem(placement: titlePlacement) { bot.title }
             }
             // As the web keeps 新会话 in its sidebar, the bar keeps it one tap away: no drawer
             // first. A blank conversation is already a new one, so it only shows on a started one.
@@ -290,11 +290,13 @@ struct ConversationView: View {
             }
             if !blank {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    // A Bot runs no subagents or background jobs of DSH's, and its scheduled
-                    // tasks are on its own page.
+                    // A Bot runs no subagents of DSH's, its scheduled tasks are on its own page, and
+                    // its background jobs float over the chat's foot.
                     if bot == nil { SessionHeaderActions(sessionId: sessionId) { headerSheet = $0 } }
-                    if let menu = bot?.menu { menu(model) }
-                    // A Bot works in its own folder and reports in the chat: its pages have no way into the workbench.
+                    if let menu = bot?.menu {
+                        menu(model, hasTools ? BotChatTools(toggleWorkbench: toggleWorkbench, openBrowser: openBrowser) : nil)
+                    }
+                    // A Bot's chat keeps its bar to the title and its menu: the workbench is in the menu.
                     if bot == nil {
                         Button(action: toggleWorkbench) { Image(systemName: "apple.terminal") }
                             .accessibilityLabel("工作台")
@@ -334,7 +336,7 @@ struct ConversationView: View {
             if let fullBrowser { FullScreenBrowser(model: fullBrowser) { self.fullBrowser = nil } }
         }
         .onChange(of: workbenchOpen) { _, open in if open, sizeClass == .regular { makeRoomForWorkbench() } }
-        .focusedSceneValue(\.workbenchCommands, WorkbenchCommands(available: !blank && bot == nil, toggle: toggleWorkbench, open: openWorkbench))
+        .focusedSceneValue(\.workbenchCommands, WorkbenchCommands(available: !blank && hasTools, toggle: toggleWorkbench, open: openWorkbench))
         // The sheet leaves the background live, so the composer keeps its focus and the
         // keyboard would stay over the sheet; an answer comes first.
         .onChange(of: presentedInteractionId(model)) { _, id in if id != nil { dismissKeyboard() } }
@@ -387,8 +389,12 @@ struct ConversationView: View {
     /// The workbench's browser is already on screen beside the conversation.
     private var browserBeside: Bool { sizeClass == .regular && workbenchOpen && workbenchTab == .browser }
 
+    /// The conversation's tools (workbench, browser, background jobs) are reachable here: DSH's own
+    /// conversations and a Bot's chat, not a group's session.
+    private var hasTools: Bool { bot?.tools ?? true }
+
     private func activityShown(_ blank: Bool) -> Bool {
-        !blank && bot == nil && ConversationActivity.shows(sessionId: sessionId, jobs: jobs, browserShown: browserBeside, in: app)
+        !blank && hasTools && ConversationActivity.shows(sessionId: sessionId, jobs: jobs, browserShown: browserBeside, in: app)
     }
 
     /// From the chat the browser opens full screen, the page alone: the workbench's other tabs are not
