@@ -5722,6 +5722,12 @@
             "state" : "translated",
             "value" : "스캔해서 참여"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "掃碼加入群組"
+          }
         }
       }
     },
@@ -6735,6 +6741,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "입력창을 누른 채 말하고, 손을 떼면 인식된 텍스트를 보냅니다."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住輸入列說話，放開後把辨識出的文字送出。"
           }
         }
       }
@@ -8409,6 +8421,12 @@
             "state" : "translated",
             "value" : "미리 듣기"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試聽"
+          }
         }
       }
     },
@@ -9489,6 +9507,12 @@
             "state" : "translated",
             "value" : "DeepSeek에서 현재 API 키를 받아들이지 않았습니다"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 沒有接受目前的 API Key"
+          }
         }
       }
     },
@@ -9517,6 +9541,12 @@
             "state" : "translated",
             "value" : "DeepSeek 음성은 아직 계정 로그인을 지원하지 않습니다. 「설정 → 모델」에서 DeepSeek API 키를 입력하세요"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 語音暫不支援帳號登入，請在「設定 → 模型」中填寫 DeepSeek API Key"
+          }
         }
       }
     },
@@ -9544,6 +9574,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DeepSeek 음성 서비스 오류(%@)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 語音服務發生錯誤（%@）"
           }
         }
       }
@@ -9579,6 +9615,12 @@
             "state" : "translated",
             "value" : "DeepSeek 语音服务出错（%1$@）：%2$@"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 語音服務發生錯誤（%1$@）：%2$@"
+          }
         }
       }
     },
@@ -9606,6 +9648,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DeepSeek 음성 서비스가 혼잡합니다. 잠시 후 다시 시도하세요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 語音服務忙碌中，請稍後再試"
           }
         }
       }
@@ -9770,6 +9818,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DeepSeek 계정 잔액이 부족합니다"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DeepSeek 帳戶餘額不足"
           }
         }
       }
@@ -16558,6 +16612,12 @@
             "state" : "translated",
             "value" : "안녕하세요, 이 목소리로 읽어 드릴게요."
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你好，我會用這個聲音為你朗讀。"
+          }
         }
       }
     },
@@ -17844,6 +17904,12 @@
             "state" : "translated",
             "value" : "읽기 중지"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止朗讀"
+          }
         }
       }
     },
@@ -17871,6 +17937,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽기 계속"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "繼續朗讀"
           }
         }
       }
@@ -17900,6 +17972,12 @@
             "state" : "translated",
             "value" : "읽기 일시정지"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暫停朗讀"
+          }
         }
       }
     },
@@ -17928,6 +18006,12 @@
             "state" : "translated",
             "value" : "읽기 일시정지됨"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "朗讀已暫停"
+          }
         }
       }
     },
@@ -17955,6 +18039,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽는 중"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在朗讀"
           }
         }
       }
@@ -30326,6 +30416,12 @@
             "state" : "translated",
             "value" : "목소리"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "聲音"
+          }
         }
       }
     },
@@ -31475,6 +31571,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "여성"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "女聲"
           }
         }
       }
@@ -40050,6 +40152,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "녹음이 너무 깁니다. DeepSeek는 한 번에 최대 2분까지 인식합니다"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "錄音太長，DeepSeek 一次最多辨識兩分鐘"
           }
         }
       }
@@ -53468,6 +53576,12 @@
             "state" : "translated",
             "value" : "읽어 주는 답변과 Agent가 소리 내어 말하는 내용 모두 DeepSeek 목소리를 사용하며, 「모델」의 DeepSeek API 키를 똑같이 사용합니다. 요금은 글자 수에 따라 DeepSeek에서 청구합니다."
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "朗讀回覆和 AI 代理念出來的話都使用 DeepSeek 的聲音，同樣使用「模型」中的 DeepSeek API Key，費用由 DeepSeek 依字數收取。"
+          }
         }
       }
     },
@@ -64027,6 +64141,12 @@
             "state" : "translated",
             "value" : "「모델」에 입력한 DeepSeek API 키를 사용하고, 키가 없으면 로그인한 DeepSeek 계정을 사용합니다(DeepSeek는 아직 음성에 계정 로그인을 지원하지 않습니다). 요금은 녹음 길이에 따라 DeepSeek에서 청구합니다. 손을 뗀 뒤 한 번에 인식하므로 말하는 동안에는 텍스트가 표시되지 않습니다. 녹음은 DeepSeek로 바로 전송되어 인식되며, 앱에는 저장되지 않습니다."
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用你在「模型」中填寫的 DeepSeek API Key，沒有 Key 時使用已登入的 DeepSeek 帳號（DeepSeek 目前還不支援以帳號登入使用語音），費用由 DeepSeek 依錄音長度收取。放開後整段辨識，說話時不顯示文字。錄音直接傳給 DeepSeek 辨識，App 不儲存錄音。"
+          }
         }
       }
     },
@@ -74405,6 +74525,12 @@
             "state" : "translated",
             "value" : "인식 서비스"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "辨識服務"
+          }
         }
       }
     },
@@ -74807,6 +74933,12 @@
             "state" : "translated",
             "value" : "음성"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "語音"
+          }
         }
       }
     },
@@ -74936,6 +75068,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "말하는 동안 텍스트가 나타납니다. Volcengine의 Doubao Speech를 직접 활성화하고 API 키를 입력해야 하며, 요금은 사용량에 따라 Volcengine에서 청구합니다. API 키는 이 기기에만 저장되고 Volcengine 연결에만 사용되며, 다른 곳에 업로드되지 않습니다."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "說話時文字就會出現。需要你自己開通火山引擎的豆包語音並填寫 API Key，費用由火山引擎依你的用量收取。API Key 只儲存在這台裝置上，只用來連線火山引擎，不會上傳到其他任何地方。"
           }
         }
       }
@@ -82479,6 +82617,12 @@
             "state" : "translated",
             "value" : "DeepSeek 음성 서비스에 연결할 수 없습니다"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法連線到 DeepSeek 語音服務"
+          }
         }
       }
     },
@@ -82506,6 +82650,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DeepSeek 음성 서비스에 연결할 수 없습니다: %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法連線到 DeepSeek 語音服務：%@"
           }
         }
       }
@@ -85629,6 +85779,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DeepSeek API 키가 필요합니다. 「설정 → 모델」에서 입력하세요. DeepSeek 계정 로그인만으로는 음성을 사용할 수 없습니다"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要 DeepSeek API Key：請在「設定 → 模型」中填寫，只登入 DeepSeek 帳號無法使用語音"
           }
         }
       }
@@ -91632,6 +91788,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "남성"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "男聲"
           }
         }
       }
