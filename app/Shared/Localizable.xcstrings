@@ -3813,6 +3813,34 @@
         }
       }
     },
+    "Agent 等你确认或做完一轮，手腕上轻轻提醒。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A gentle tap on your wrist when the agent needs you or finishes a turn."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un toque suave en la muñeca cuando el agente te necesita o termina un turno."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エージェントが確認を待つときや1ターン終えたとき、手首にそっと知らせます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트가 확인을 기다리거나 한 턴을 마치면 손목에 살짝 알려 줘요."
+          }
+        }
+      }
+    },
     "Agent 预设" : {
       "localizations" : {
         "en" : {
@@ -3837,6 +3865,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "에이전트 프리셋"
+          }
+        }
+      }
+    },
+    "App Store 版" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store 版"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store 버전"
           }
         }
       }
@@ -3893,6 +3949,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "앱 버전"
+          }
+        }
+      }
+    },
+    "Apple Watch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch"
           }
         }
       }
@@ -4093,6 +4177,34 @@
         }
       }
     },
+    "TestFlight 版" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TestFlight"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TestFlight"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TestFlight 版"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TestFlight 버전"
+          }
+        }
+      }
+    },
     "一支常驻的 Bot 团队：可以私聊，可以拉群一起商量，也能到点自己开工。入口在侧边栏。" : {
       "localizations" : {
         "en" : {
@@ -4121,6 +4233,230 @@
         }
       }
     },
+    "也可以直接在手表上装" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Or install it right on the watch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También puedes instalarla en el reloj"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch から直接入れることもできます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워치에서 바로 설치할 수도 있어요"
+          }
+        }
+      }
+    },
+    "你的 Fish Pocket 来自 App Store，按这一页操作。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Fish Pocket came from the App Store. Follow these steps."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu Fish Pocket viene del App Store. Sigue estos pasos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Fish Pocket は App Store から入れたものです。この手順で進めてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Fish Pocket은 App Store에서 설치했어요. 이 단계를 따라 하세요."
+          }
+        }
+      }
+    },
+    "你的 Fish Pocket 来自 App Store，这一页是给 TestFlight 用户的。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Fish Pocket came from the App Store. These steps are for TestFlight users."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu Fish Pocket viene del App Store. Estos pasos son para usuarios de TestFlight."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Fish Pocket は App Store から入れたものです。このページは TestFlight 利用者向けです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Fish Pocket은 App Store에서 설치했어요. 이 페이지는 TestFlight 사용자용이에요."
+          }
+        }
+      }
+    },
+    "你的 Fish Pocket 来自 TestFlight，按这一页操作。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Fish Pocket came from TestFlight. Follow these steps."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu Fish Pocket viene de TestFlight. Sigue estos pasos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Fish Pocket は TestFlight から入れたものです。この手順で進めてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Fish Pocket은 TestFlight에서 설치했어요. 이 단계를 따라 하세요."
+          }
+        }
+      }
+    },
+    "你的 Fish Pocket 来自 TestFlight，这一页是给 App Store 用户的。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Fish Pocket came from TestFlight. These steps are for App Store users."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu Fish Pocket viene de TestFlight. Estos pasos son para usuarios del App Store."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Fish Pocket は TestFlight から入れたものです。このページは App Store 利用者向けです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Fish Pocket은 TestFlight에서 설치했어요. 이 페이지는 App Store 사용자용이에요."
+          }
+        }
+      }
+    },
+    "先在 iPhone 的 Watch App 里配对手表，再按下面的步骤安装。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pair your watch in the Watch app on iPhone first, then follow the steps below."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Primero enlaza el reloj en la app Watch del iPhone y luego sigue los pasos de abajo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まず iPhone の Watch App で Apple Watch をペアリングしてから、下の手順でインストールしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "먼저 iPhone의 Watch 앱에서 워치를 페어링한 다음 아래 단계대로 설치하세요."
+          }
+        }
+      }
+    },
+    "先确认 TestFlight 里的 Fish Pocket 已经装好，详情页里「Apple Watch」一项写着「是」，手表系统是 watchOS 10 或更高版本。仍然没有的话，打开 iPhone 上的 Watch App，在「可用 App」里也能装。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make sure Fish Pocket is installed from TestFlight, its page shows Apple Watch: Yes, and the watch runs watchOS 10 or later. If it still isn't there, open the Watch app on iPhone and install it from Available Apps."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprueba que Fish Pocket esté instalada desde TestFlight, que su página indique Apple Watch: Sí y que el reloj tenga watchOS 10 o posterior. Si sigue sin aparecer, abre la app Watch del iPhone e instálala desde Apps disponibles."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TestFlight で Fish Pocket がインストール済みか、詳細ページの「Apple Watch」が「はい」になっているか、Apple Watch が watchOS 10 以降かを確認してください。それでも表示されない場合は、iPhone の Watch App の「利用可能な App」からもインストールできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TestFlight에서 Fish Pocket이 설치되어 있는지, 상세 페이지의 'Apple Watch' 항목이 '예'인지, 워치가 watchOS 10 이상인지 확인하세요. 그래도 없다면 iPhone의 Watch 앱 '사용 가능한 앱'에서도 설치할 수 있어요."
+          }
+        }
+      }
+    },
+    "在「我的手表」里往下滑" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scroll down in My Watch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desliza hacia abajo en Mi reloj"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「マイウォッチ」を下にスクロール"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'나의 시계'에서 아래로 스크롤"
+          }
+        }
+      }
+    },
     "在会话工作台的浏览器里打开网页、读内容、截图、点按钮和填表，你可以在工作台里看着它操作。登录过的网站会一直记住，和 Safari 分开" : {
       "localizations" : {
         "en" : {
@@ -4145,6 +4481,202 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "대화 작업대의 브라우저에서 웹 페이지를 열고, 내용을 읽고, 스크린샷을 찍고, 버튼을 누르거나 양식을 채웁니다. 작업대에서 그 과정을 지켜볼 수 있습니다. 로그인한 사이트는 계속 기억되며 Safari와는 따로 저장됩니다"
+          }
+        }
+      }
+    },
+    "在手腕上看会话、做确认" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessions and approvals on your wrist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesiones y aprobaciones en la muñeca"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手首でセッションの確認と承認"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손목에서 세션 확인과 승인"
+          }
+        }
+      }
+    },
+    "在手表上打开 App Store 搜索 Fish Pocket。想让以后的 App 自动装到手表上，在 Watch App 的「通用」里打开「自动安装 App」。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the App Store on the watch and search for Fish Pocket. To have apps land on the watch automatically, turn on Automatic App Install under General in the Watch app."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre el App Store en el reloj y busca Fish Pocket. Para que las apps se instalen solas en el reloj, activa Instalación automática de apps en General, en la app Watch."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch で App Store を開き、Fish Pocket を検索します。今後 App を自動で入れるには、Watch App の「一般」で「App を自動インストール」をオンにします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워치에서 App Store를 열고 Fish Pocket을 검색하세요. 앞으로 앱이 워치에 자동으로 설치되게 하려면 Watch 앱의 '일반'에서 '앱 자동 설치'를 켜세요."
+          }
+        }
+      }
+    },
+    "在手表上打开 Fish Pocket 就能看到会话。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Fish Pocket on the watch to see your sessions."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre Fish Pocket en el reloj para ver tus sesiones."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch で Fish Pocket を開くとセッションが見られます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워치에서 Fish Pocket을 열면 세션을 볼 수 있어요."
+          }
+        }
+      }
+    },
+    "在详情页下方，和「自动更新」在同一组。打开后手表就开始安装，装好后在手表上打开一次就连上了。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It's lower on the app's page, in the same group as Automatic Updates. Turning it on starts the install on the watch; once it's there, open it once to connect."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Está más abajo en la página de la app, en el mismo grupo que Actualizaciones automáticas. Al activarla, empieza la instalación en el reloj; cuando termine, ábrela una vez para conectarla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "詳細ページの下の方、「自動アップデート」と同じグループにあります。オンにすると Apple Watch へのインストールが始まり、入ったら一度開けばつながります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상세 페이지 아래쪽 '자동 업데이트'와 같은 그룹에 있어요. 켜면 워치에 설치가 시작되고, 설치되면 한 번 열어 연결하세요."
+          }
+        }
+      }
+    },
+    "就是用来配对手表的那个 App。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app you used to pair your watch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La app con la que enlazaste el reloj."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch のペアリングに使った App です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워치를 페어링할 때 쓴 그 앱이에요."
+          }
+        }
+      }
+    },
+    "已安装在手表上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed on your watch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalada en el reloj"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch にインストール済み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워치에 설치됨"
+          }
+        }
+      }
+    },
+    "已经装在 Apple Watch 上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed on Apple Watch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalada en el Apple Watch"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch にインストール済み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch에 설치됨"
           }
         }
       }
@@ -4201,6 +4733,398 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "모든 대화의 브라우저에서 로그아웃되고, 쿠키와 웹사이트 저장 공간도 함께 삭제됩니다."
+          }
+        }
+      }
+    },
+    "手腕上允许或拒绝" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow or deny from your wrist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permite o rechaza desde la muñeca"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手首で許可・拒否"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손목에서 허용 또는 거부"
+          }
+        }
+      }
+    },
+    "手表上不跑引擎，内容都由 iPhone 发过去：iPhone 在身边、Fish Pocket 在运行时才会更新。需要 watchOS 10 或更高版本。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The engine doesn't run on the watch; everything comes from the iPhone, so it updates only while the iPhone is nearby and Fish Pocket is running. Requires watchOS 10 or later."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El motor no se ejecuta en el reloj; todo llega desde el iPhone, así que solo se actualiza cuando el iPhone está cerca y Fish Pocket está en marcha. Requiere watchOS 10 o posterior."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch ではエンジンは動かず、内容はすべて iPhone から送られます。iPhone が近くにあり、Fish Pocket が動いているときだけ更新されます。watchOS 10 以降が必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워치에서는 엔진이 돌지 않고 모든 내용은 iPhone에서 보내요. iPhone이 가까이 있고 Fish Pocket이 실행 중일 때만 업데이트돼요. watchOS 10 이상이 필요해요."
+          }
+        }
+      }
+    },
+    "手表上还没装 Fish Pocket" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket isn't on your watch yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket aún no está en el reloj"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch にまだ Fish Pocket がありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워치에 아직 Fish Pocket이 없어요"
+          }
+        }
+      }
+    },
+    "打开 TestFlight" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open TestFlight"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir TestFlight"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TestFlight を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TestFlight 열기"
+          }
+        }
+      }
+    },
+    "打开 Watch App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the Watch App"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir la app Watch"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch App を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch 앱 열기"
+          }
+        }
+      }
+    },
+    "打开 iPhone 上的 TestFlight" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open TestFlight on iPhone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre TestFlight en el iPhone"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone で TestFlight を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 TestFlight 열기"
+          }
+        }
+      }
+    },
+    "打开 iPhone 上的「Watch」App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the Watch app on iPhone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre la app Watch en el iPhone"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone で Watch App を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 Watch 앱 열기"
+          }
+        }
+      }
+    },
+    "打开「在 Apple Watch 上显示 App」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on Show App on Apple Watch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activa Mostrar app en el Apple Watch"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「Apple Watch に App を表示」をオン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'Apple Watch에 앱 표시' 켜기"
+          }
+        }
+      }
+    },
+    "找到「可用 App」一栏里的 Fish Pocket。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find Fish Pocket under Available Apps."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Busca Fish Pocket en Apps disponibles."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「利用可能な App」にある Fish Pocket を探します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'사용 가능한 앱'에서 Fish Pocket을 찾으세요."
+          }
+        }
+      }
+    },
+    "把 Fish Pocket 戴在手腕上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket on your wrist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket en tu muñeca"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket を手首に"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손목 위의 Fish Pocket"
+          }
+        }
+      }
+    },
+    "抬腕看会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessions at a glance"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesiones de un vistazo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手首でセッションを確認"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손목에서 세션 확인"
+          }
+        }
+      }
+    },
+    "抬腕看会话进度，等你确认时轻轻一震，允许或拒绝不用掏手机。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check on sessions with a raise of the wrist, feel a tap when something needs you, and allow or deny without reaching for your phone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mira tus sesiones con solo levantar la muñeca, siente un toque cuando algo te necesita y permite o rechaza sin sacar el teléfono."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手首を上げればセッションの進み具合がわかり、確認が必要なときはそっと振動。許可も拒否も iPhone を出さずに済みます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손목을 들면 세션 진행 상황이 보이고, 확인이 필요하면 살짝 진동해요. 허용이나 거부도 휴대폰을 꺼낼 필요 없어요."
+          }
+        }
+      }
+    },
+    "按下面的步骤装上，装好后这里会自动更新。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow the steps below; this updates on its own once it's installed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sigue los pasos de abajo; esto se actualizará solo cuando esté instalada."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下の手順でインストールしてください。インストールされるとここは自動で更新されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래 단계대로 설치하세요. 설치되면 여기가 자동으로 바뀌어요."
+          }
+        }
+      }
+    },
+    "有事找你时震动" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A tap when you're needed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un toque cuando te necesitan"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用があるときは振動で"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "필요할 때 진동으로 알림"
           }
         }
       }
@@ -4289,6 +5213,34 @@
         }
       }
     },
+    "正在查看手表…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking your watch…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprobando el reloj…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch を確認中…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워치 확인 중…"
+          }
+        }
+      }
+    },
     "正在读取 %lld%%" : {
       "localizations" : {
         "en" : {
@@ -4313,6 +5265,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽는 중 %lld%%"
+          }
+        }
+      }
+    },
+    "正在跑的、等你答复的、刚做完的，一眼就清楚。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What's running, what's waiting on you, and what just finished, all at a glance."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo que está en marcha, lo que espera tu respuesta y lo que acaba de terminar, de un vistazo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行中のもの、返事を待っているもの、終わったばかりのものがひと目でわかります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 중인 것, 답을 기다리는 것, 방금 끝난 것을 한눈에 볼 수 있어요."
           }
         }
       }
@@ -4429,6 +5409,90 @@
         }
       }
     },
+    "没有配对的 Apple Watch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No paired Apple Watch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay ningún Apple Watch enlazado"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ペアリング済みの Apple Watch がありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링된 Apple Watch가 없어요"
+          }
+        }
+      }
+    },
+    "没看到这个开关？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don't see this switch?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿No ves este interruptor?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このスイッチが見当たらない場合"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 스위치가 안 보이나요?"
+          }
+        }
+      }
+    },
+    "没能打开，请在主屏幕上找到它" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't open it. Find it on the Home Screen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo abrir. Búscala en la pantalla de inicio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開けませんでした。ホーム画面から開いてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "열 수 없어요. 홈 화면에서 찾아 주세요."
+          }
+        }
+      }
+    },
     "清除网站数据" : {
       "localizations" : {
         "en" : {
@@ -4537,6 +5601,118 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "탭"
+          }
+        }
+      }
+    },
+    "稍等一下。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Just a moment."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un momento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "少々お待ちください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잠시만 기다려 주세요."
+          }
+        }
+      }
+    },
+    "装好之后" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Once it's installed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una vez instalada"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インストールすると"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설치하고 나면"
+          }
+        }
+      }
+    },
+    "装好后手表上会出现 Fish Pocket 的图标，打开一次就连上了。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket's icon then appears on the watch. Open it once to connect."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después aparece el icono de Fish Pocket en el reloj. Ábrela una vez para conectarla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インストールすると Apple Watch に Fish Pocket のアイコンが現れます。一度開けばつながります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설치하면 워치에 Fish Pocket 아이콘이 나타나요. 한 번 열면 연결돼요."
+          }
+        }
+      }
+    },
+    "要和装 Fish Pocket 的是同一台 iPhone。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The same iPhone that has Fish Pocket."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En el mismo iPhone que tiene Fish Pocket."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket を入れたのと同じ iPhone で開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket이 설치된 같은 iPhone이어야 해요."
           }
         }
       }
@@ -4653,6 +5829,62 @@
         }
       }
     },
+    "轻点 Fish Pocket" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap Fish Pocket"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca Fish Pocket"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket をタップ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket 탭"
+          }
+        }
+      }
+    },
+    "轻点「安装」" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap Install"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca Instalar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「インストール」をタップ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'설치' 탭"
+          }
+        }
+      }
+    },
     "运行脚本" : {
       "localizations" : {
         "en" : {
@@ -4677,6 +5909,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스크립트 실행"
+          }
+        }
+      }
+    },
+    "进入这个 App 的详情页。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This opens the app's page."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se abre la página de la app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App の詳細ページが開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱 상세 페이지가 열려요."
           }
         }
       }
@@ -67450,6 +68710,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "필수 입력: %@"
+          }
+        }
+      }
+    },
+    "需要授权的操作直接在手表上放行，不用掏手机。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approve actions that need permission right on the watch, phone in pocket."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aprueba las acciones que necesitan permiso desde el reloj, con el teléfono en el bolsillo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可が必要な操作は Apple Watch でそのまま通せます。iPhone を出す必要はありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "권한이 필요한 작업을 워치에서 바로 허용할 수 있어요. 휴대폰을 꺼낼 필요 없어요."
           }
         }
       }

@@ -6,7 +6,7 @@ import SwiftUI
 /// regular width it is the split view's sidebar. With nothing selected — at
 /// launch, after archiving — a blank session in the current workspace opens.
 struct MainView: View {
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities, connectors, remote; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, watch, capabilities, connectors, remote; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -308,7 +308,7 @@ struct MainView: View {
     }
 
     #if DEBUG
-    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew|capabilities|remote`.
+    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|watch|connectors|whatsnew|capabilities|remote`.
     private func openForChecks() {
         switch UserDefaults.standard.string(forKey: "dshOpen") {
         case "drawer": drawerOpen = true
@@ -319,6 +319,7 @@ struct MainView: View {
         case "signin": sheet = .signIn
         case "support": supportDialog = true
         case "share": sheet = .share
+        case "watch": sheet = .watch
         case "connectors": sheet = .connectors
         case "whatsnew": whatsNew = WhatsNew.current
         case "capabilities": sheet = .capabilities
@@ -340,6 +341,7 @@ struct MainView: View {
         case .signIn: SignInSheet()
         case .cordis: CordisPanelView(currentSession: selection)
         case .share: SheetStack { ShareAppPage() }
+        case .watch: SheetStack { WatchSetupPage() }
         case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
         // The services ordinary conversations and Bots both reach; the Bot team's settings hold the same page.
         case .connectors: SheetStack { BotConnectorsPage() }.settingsStyle()
