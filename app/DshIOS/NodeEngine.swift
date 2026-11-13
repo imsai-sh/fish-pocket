@@ -21,22 +21,42 @@ final class NodeEngine: ObservableObject {
     @Published private(set) var runningSince: Date?
     /// Start-up has run far past a normal launch and still has no URL. `main.mjs`
     /// restarts an engine worker that dies, so a boot that keeps failing never ends
-    /// the process and so never reaches `.exited`: without this the launch screen
-    /// stays up forever. A launch that hangs is not a crash either, so nothing about
-    /// it reaches App Store Connect — the device's own log is the only account of it.
+    /// the process and so never reaches `.exited`, and neither does one a plugin
+    /// keeps from finishing: without this the launch screen stays up forever. A launch
+    /// that hangs is not a crash either, so nothing about it reaches App Store Connect —
+    /// the device's own log is the only account of it.
     @Published private(set) var stalled = false
     /// When `start()` ran, for the counter on that screen.
     @Published private(set) var startedAt: Date?
     private var started = false
 
     /// A cold start is a few seconds, and far less once the engine is warm. What this
-    /// brings up says the engine is still being retried and leaves on its own if it
+    /// brings up says the engine is still being waited for and leaves on its own if it
     /// does come up, so waiting any longer would only hide the problem.
     private static let stallAfter: TimeInterval = 20
 
     private init() {}
 
     var logFile: URL { EnginePaths.real(EnginePaths.shared + "/engine.log") }
+
+    /// Safe mode (engine/runtime/safe-mode.mjs): `main.mjs` switches off every
+    /// third-party plugin and restarts the engine. It is asked by file, since an
+    /// engine that never came up answers no HTTP; `main.mjs` looks every second.
+    private static let safeModeRequest = EnginePaths.real(EnginePaths.shared + "/safe-mode-request")
+    private static let safeModeReport = EnginePaths.real(EnginePaths.shared + "/safe-mode.json")
+
+    func requestSafeMode() {
+        FileManager.default.createFile(atPath: Self.safeModeRequest.path, contents: nil)
+    }
+
+    /// The plugins safe mode switched off, once: the record goes as it is read.
+    func takeSafeModeReport() -> [String]? {
+        guard let data = try? Data(contentsOf: Self.safeModeReport) else { return nil }
+        try? FileManager.default.removeItem(at: Self.safeModeReport)
+        struct Report: Decodable { let disabled: [String] }
+        guard let names = (try? JSONDecoder().decode(Report.self, from: data))?.disabled, !names.isEmpty else { return nil }
+        return names
+    }
 
     func start() {
         guard !started else { return }
@@ -59,6 +79,9 @@ final class NodeEngine: ObservableObject {
         let urlFile = EnginePaths.real(EnginePaths.shared + "/web-url")
         try? FileManager.default.createDirectory(at: urlFile.deletingLastPathComponent(), withIntermediateDirectories: true)
         try? FileManager.default.removeItem(at: urlFile)
+        // A request left from a launch that ended before the engine saw it: a new launch
+        // has not been asked.
+        try? FileManager.default.removeItem(at: Self.safeModeRequest)
         setenv("DSH_IOS_HOME", EnginePaths.home, 1)
         setenv("DSH_IOS_DATA", EnginePaths.shared, 1)
         setenv("DSH_IOS_DOCUMENTS", EnginePaths.documents, 1)

@@ -11824,6 +11824,34 @@
         }
       }
     },
+    "停用第三方插件并重启" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn Off Third-Party Plugins and Restart"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivar complementos de terceros y reiniciar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サードパーティ製プラグインをオフにして再起動"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서드파티 플러그인 끄고 다시 시작"
+          }
+        }
+      }
+    },
     "健康" : {
       "localizations" : {
         "en" : {
@@ -17168,6 +17196,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "둘러보기"
+          }
+        }
+      }
+    },
+    "去插件页" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Plugins"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ir a Complementos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プラグインを開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "플러그인 열기"
           }
         }
       }
@@ -22604,6 +22660,34 @@
         }
       }
     },
+    "如果是第三方插件卡住了引擎，可以先把它们全部停用。插件不会被卸载，进去后可以在插件页逐个重新打开。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If a third-party plugin is holding up the engine, you can turn them all off. They stay installed, and once you are in you can turn them back on one at a time in Plugins."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si un complemento de terceros está bloqueando el motor, puedes desactivarlos todos. Seguirán instalados y, una vez dentro, podrás volver a activarlos uno a uno en Complementos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サードパーティ製プラグインがエンジンを止めている場合は、まとめてオフにできます。アンインストールはされないので、起動後にプラグイン画面で 1 つずつオンに戻せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서드파티 플러그인 때문에 엔진이 멈췄다면 모두 끌 수 있어요. 삭제되지는 않으니, 들어간 뒤 플러그인 화면에서 하나씩 다시 켤 수 있어요."
+          }
+        }
+      }
+    },
     "子任务状态更新" : {
       "localizations" : {
         "en" : {
@@ -22908,6 +22992,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아직 서로 대화한 적이 없어요."
+          }
+        }
+      }
+    },
+    "它们仍然装着。可以在插件页逐个重新打开，找出是哪个卡住了引擎。\n\n%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They are still installed. Turn them back on one at a time in Plugins to find the one that held up the engine.\n\n%@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siguen instalados. Vuelve a activarlos uno a uno en Complementos para encontrar el que bloqueaba el motor.\n\n%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プラグインはインストールされたままです。プラグイン画面で 1 つずつオンに戻すと、どれがエンジンを止めていたか分かります。\n\n%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "플러그인은 그대로 설치되어 있어요. 플러그인 화면에서 하나씩 다시 켜 보면 어떤 것이 엔진을 멈췄는지 알 수 있어요.\n\n%@"
           }
         }
       }
@@ -25596,6 +25708,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "비활성화됨"
+          }
+        }
+      }
+    },
+    "已停用 %lld 个第三方插件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Third-Party Plugins Turned Off: %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complementos de terceros desactivados: %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サードパーティ製プラグインを %lld 個オフにしました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서드파티 플러그인 %lld개를 껐어요"
           }
         }
       }
@@ -45029,6 +45169,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "연결 중…"
+          }
+        }
+      }
+    },
+    "正在重启引擎…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restarting the engine…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reiniciando el motor…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エンジンを再起動しています…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "엔진을 다시 시작하는 중…"
           }
         }
       }
@@ -67673,30 +67841,30 @@
         }
       }
     },
-    "，还在重试" : {
+    "，还在等" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : ", still retrying"
+            "value" : ", still waiting"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : ", aún reintentando"
+            "value" : ", aún esperando"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "、再試行中"
+            "value" : "、待機中"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : ", 재시도 중"
+            "value" : ", 기다리는 중"
           }
         }
       }
