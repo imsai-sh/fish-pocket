@@ -87,6 +87,9 @@ final class BrowserModel: NSObject {
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = Self.store
         configuration.allowsInlineMediaPlayback = true
+        // As in Safari, a pinch zooms every page, including one that asks not to be zoomed
+        // (`user-scalable=no`, `maximum-scale=1`), as most mobile sites do.
+        configuration.ignoresViewportScaleLimits = true
         if let script = Self.controllerScript { configuration.userContentController.addUserScript(script) }
         configuration.userContentController.add(
             BrowserPresence.Listener(presence), contentWorld: Self.agentWorld, name: BrowserPresence.Listener.name)
