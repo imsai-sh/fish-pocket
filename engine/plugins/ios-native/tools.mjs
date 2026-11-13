@@ -1115,8 +1115,10 @@ const alarm = defineTool({
     'Set a real alarm clock on the user\'s device, or list and cancel ones you set. Unlike '
     + '`notify`, an alarm breaks through silent mode and Focus and keeps ringing until they stop '
     + 'it — so use it only for things they must not sleep through or miss, and use `notify` for '
-    + 'ordinary reminders. Needs iOS 26 or later, and they must switch alarms on under Device '
-    + 'capabilities first.',
+    + 'ordinary reminders. These alarms belong to this app, not to the Clock app: they never show '
+    + 'up in Clock\'s alarm list, so never tell the user to look for them there — `list` is the '
+    + 'only place to see them, and they appear on screen only when they ring. Needs iOS 26 or '
+    + 'later, and they must switch alarms on under Device capabilities first.',
   parameters: {
     action: {
       type: 'string',
