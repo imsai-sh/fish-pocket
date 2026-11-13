@@ -17,11 +17,12 @@
 #import "DshNativeCapabilities.h"
 #import "DshNativeAudit.h"
 #import "eventkit_shared.h"
-// alarm and weather are the capabilities ObjC cannot implement (AlarmKit and
-// WeatherKit have no ObjC surface at all), so their declarations live with
+// alarm, weather and browser are the capabilities implemented in Swift (AlarmKit and
+// WeatherKit have no ObjC surface; the browser is a SwiftUI view), so their declarations live with
 // their bridges, not in the shared header the other capabilities use.
 #import "DshAlarmBridge.h"
 #import "DshWeatherBridge.h"
+#import "DshBrowserBridge.h"
 #import <node_api.h>
 
 /// A capability may put a one-line account of what it did under this key. The
@@ -137,6 +138,15 @@ static const dsh_capability CAPABILITIES[] = {
   // the user's position — "weather here" is `location` first, then this — so
   // there is no permission to grant. Swift behind DshWeatherBridge.h.
   {"weather",  dsh_native_weather,  {"current", "hourly", "daily", NULL}, NULL, {NULL}, false},
+  // The conversation's own browser (Workbench → Browser): open a page, read it,
+  // click and type, look at it. It reaches nothing of the user's own: the
+  // browser keeps its sign-ins in a store of its own, apart from Safari and
+  // from the engine's web view — so no permission and no write policy. Swift
+  // behind DshBrowserBridge.h.
+  {"browser",  dsh_native_browser,
+   {"open", "read", "click", "type", "select", "scroll", "back", "forward", "reload", "evaluate",
+    "screenshot", NULL},
+   NULL, {NULL}, false},
 };
 static const size_t CAPABILITY_COUNT = sizeof(CAPABILITIES) / sizeof(CAPABILITIES[0]);
 

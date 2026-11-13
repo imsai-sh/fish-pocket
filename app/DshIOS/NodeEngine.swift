@@ -52,6 +52,8 @@ final class NodeEngine: ObservableObject {
         // 同样要在引擎起来之前登记。
         AlarmProvider.install()
         WeatherProvider.install()
+        // 浏览器能力驱动的是工作台里那个 WKWebView，也在 Swift 侧。
+        BrowserAgent.install()
         guard EnginePaths.install() else {
             phase = .exited(-1)
             return

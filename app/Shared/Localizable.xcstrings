@@ -2473,6 +2473,70 @@
         }
       }
     },
+    "在会话工作台的浏览器里打开网页、读内容、截图、点按钮和填表，你可以在工作台里看着它操作。登录过的网站会一直记住，和 Safari 分开" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens web pages in the conversation's workbench browser, reads them, takes screenshots, taps buttons and fills in forms while you watch in the workbench. Sites you sign in to stay signed in, separately from Safari"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre páginas web en el navegador del área de trabajo de la conversación, las lee, hace capturas, pulsa botones y rellena formularios mientras lo ves en el área de trabajo. Los sitios en los que inicias sesión la mantienen, aparte de Safari"
+          }
+        }
+      }
+    },
+    "截图" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screenshot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Captura"
+          }
+        }
+      }
+    },
+    "所有会话的浏览器都会退出登录，Cookie 和网站存储一并删除。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every conversation's browser will be signed out, and cookies and website storage will be deleted."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El navegador de todas las conversaciones cerrará sesión y se borrarán las cookies y el almacenamiento de los sitios web."
+          }
+        }
+      }
+    },
+    "查看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver"
+          }
+        }
+      }
+    },
     "正在从相册读取…" : {
       "localizations" : {
         "en" : {
@@ -2569,6 +2633,70 @@
         }
       }
     },
+    "清除网站数据" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Website Data"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar datos de sitios web"
+          }
+        }
+      }
+    },
+    "清除网站数据？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear website data?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Borrar los datos de sitios web?"
+          }
+        }
+      }
+    },
+    "滚动" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scroll"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desplazar"
+          }
+        }
+      }
+    },
+    "点击" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clic"
+          }
+        }
+      }
+    },
     "视频" : {
       "localizations" : {
         "en" : {
@@ -2613,6 +2741,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El video aún se está leyendo. Envíalo cuando esté listo."
+          }
+        }
+      }
+    },
+    "读取页面" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read page"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer página"
+          }
+        }
+      }
+    },
+    "运行脚本" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run script"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejecutar script"
+          }
+        }
+      }
+    },
+    "选择" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar"
           }
         }
       }

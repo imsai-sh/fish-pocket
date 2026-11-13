@@ -1,9 +1,12 @@
 import SwiftUI
 import WebKit
 
-/// The workbench browser (S-87): one WKWebView that lives as long as the conversation
-/// (closing the workbench keeps the page), its address, and the last page of the session. There is no proxy and no RPC;
-/// the engine runs in this app, so `localhost` reaches a dev server the agent started.
+/// The workbench browser (S-87): one WKWebView per conversation, its address, and the last page of the session.
+/// There is no proxy and no RPC; the engine runs in this app, so `localhost` reaches a dev server the agent started.
+///
+/// The agent drives this same page through the browser capability (`BrowserAgent.swift`), so the user can watch it
+/// and take over. That is why the page belongs to `session(_:origin:)` rather than to a view: the agent can open one
+/// before the user ever looks at the workbench.
 @MainActor
 @Observable
 final class BrowserModel: NSObject {
@@ -21,16 +24,53 @@ final class BrowserModel: NSObject {
 
     @ObservationIgnored let webView: WKWebView
     @ObservationIgnored private let storageKey: String
-    @ObservationIgnored private let origin: URL
+    @ObservationIgnored let origin: URL
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
+    /// Why the last load failed, as WebKit said it, for the agent; `failure` is the user's sentence.
+    @ObservationIgnored private(set) var loadFailure: NSError?
+    /// The agent's operations, one after another: two at once would read a page the other is changing.
+    @ObservationIgnored private var tail: Task<Void, Never>?
 
-    init(sessionId: String, origin: URL) {
+    // MARK: One per conversation
+
+    /// The open conversations' browsers. A few at most: each page is a web process of its own.
+    private static var open: [String: BrowserModel] = [:]
+    private static var recent: [String] = []
+    private static let kept = 3
+
+    /// This conversation's browser, made on first use by either the workbench or the agent.
+    static func session(_ sessionId: String, origin: URL) -> BrowserModel {
+        recent.removeAll { $0 == sessionId }
+        recent.append(sessionId)
+        if let model = open[sessionId] { return model }
+        let model = BrowserModel(sessionId: sessionId, origin: origin)
+        open[sessionId] = model
+        // The least recently used page that is not on screen goes; its address stays for "恢复页面".
+        while open.count > kept, let stale = recent.first(where: { open[$0]?.onScreen == false && $0 != sessionId }) {
+            recent.removeAll { $0 == stale }
+            open.removeValue(forKey: stale)?.close()
+        }
+        return model
+    }
+
+    /// Every conversation's browser shares one store of its own, kept across launches, so a site signed in
+    /// to once stays signed in, for the user and for the agent. It is apart from the default store, where the
+    /// engine's web view keeps its session cookie, and from Safari, which no app can read.
+    private static let store = WKWebsiteDataStore(forIdentifier: UUID(uuidString: "8E4C2D1A-5B7F-4A3E-9C6D-2F1B0A9E7D45")!)
+
+    /// Sign out of every site: cookies, storage and caches of all the conversations' browsers.
+    static func clearWebsiteData() async {
+        await store.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: .distantPast)
+        for model in open.values where model.webView.url != nil { model.webView.reload() }
+    }
+
+    private init(sessionId: String, origin: URL) {
         storageKey = "dsh.browser.last.\(sessionId)"
         self.origin = origin
         let configuration = WKWebViewConfiguration()
-        // Pages stay away from the store the engine's web view keeps its session cookie in.
-        configuration.websiteDataStore = .nonPersistent()
+        configuration.websiteDataStore = Self.store
         configuration.allowsInlineMediaPlayback = true
+        if let script = Self.controllerScript { configuration.userContentController.addUserScript(script) }
         webView = WKWebView(frame: .zero, configuration: configuration)
         lastURL = UserDefaults.standard.string(forKey: storageKey)
         super.init()
@@ -60,6 +100,7 @@ final class BrowserModel: NSObject {
         case .success(let url):
             addressError = nil
             failure = nil
+            loadFailure = nil
             started = true
             address = url.absoluteString
             webView.load(URLRequest(url: url))
@@ -73,6 +114,37 @@ final class BrowserModel: NSObject {
         if webView.url == nil, let lastURL { go(lastURL) } else if loading { webView.stopLoading() } else { webView.reload() }
     }
 
+    /// Run the agent's operations in the order they came.
+    func serially<T>(_ work: @escaping @MainActor () async throws -> T) async throws -> T {
+        let previous = tail
+        let task = Task { @MainActor in
+            await previous?.value
+            return try await work()
+        }
+        tail = Task { _ = try? await task.value }
+        return try await task.value
+    }
+
+    /// In a SwiftUI page now, rather than parked or nowhere.
+    private var onScreen: Bool { webView.window != nil && webView.superview !== webView.window }
+
+    /// A page off screen still has to lay out and run its scripts for the agent to read it, which WebKit does
+    /// only for a view in a window. So until the workbench shows it, it waits behind the window's content, the
+    /// size of the window. The workbench takes it from here by adding it to its own page.
+    func attachIfDetached() {
+        guard webView.window == nil else { return }
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let windows = scenes.flatMap(\.windows)
+        guard let window = windows.first(where: \.isKeyWindow) ?? windows.first else { return }
+        webView.frame = window.bounds
+        window.insertSubview(webView, at: 0)
+    }
+
+    private func close() {
+        webView.stopLoading()
+        if webView.superview === webView.window { webView.removeFromSuperview() }
+    }
+
     func back() { webView.goBack() }
     func forward() { webView.goForward() }
 
@@ -80,10 +152,14 @@ final class BrowserModel: NSObject {
         let error = error as NSError
         // A newer navigation replaced this one.
         if error.domain == NSURLErrorDomain, error.code == NSURLErrorCancelled { return }
+        loadFailure = error
         failure = String(localized: "页面加载失败 (\(error.code)): \(error.localizedDescription)")
     }
 
-    fileprivate func clearFailure() { failure = nil }
+    fileprivate func clearFailure() {
+        failure = nil
+        loadFailure = nil
+    }
 
     enum Refusal: Error {
         case empty, invalid, credentials, applicationOrigin, unsupportedScheme
@@ -143,6 +219,7 @@ extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
 struct WorkbenchBrowser: View {
     @Bindable var model: BrowserModel
     @FocusState private var editing: Bool
+    @State private var confirmingClear = false
 
     /// Where dev servers usually listen; the agent's own port goes in the bar.
     private static let commonPorts = [3000, 5173, 8000, 8080]
@@ -161,6 +238,12 @@ struct WorkbenchBrowser: View {
             bar
         }
         .background(Palette.background)
+        // On the page rather than the menu: a dialog hung on a Menu can fail to present.
+        .confirmationDialog("清除网站数据？", isPresented: $confirmingClear, titleVisibility: .visible) {
+            Button("清除", role: .destructive) { Task { await BrowserModel.clearWebsiteData() } }
+        } message: {
+            Text("所有会话的浏览器都会退出登录，Cookie 和网站存储一并删除。")
+        }
     }
 
     /// Under the thumb, as in Safari; it rides up on the keyboard while typing an address.
@@ -203,6 +286,10 @@ struct WorkbenchBrowser: View {
             }
             .disabled(model.page == nil)
             if let url = model.page { ShareLink("分享", item: url) }
+            Divider()
+            Button(role: .destructive) { confirmingClear = true } label: {
+                Label("清除网站数据", systemImage: "trash")
+            }
         } label: {
             Image(systemName: "ellipsis")
                 .font(.body)

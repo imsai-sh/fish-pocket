@@ -34,9 +34,33 @@ struct ToolPresentation {
         if call.displayName == "present" {
             return call.arguments["files"].array.compactMap { $0["path"].string }.map { ($0 as NSString).lastPathComponent }.joined(separator: " · ")
         }
+        // Failed and stopped rows show this alone, so it says the action the way the row does.
+        if call.displayName == "browser" { return browserLine }
         let base = call.rowSummary(cwd: cwd)
         if ToolStyle.hasOwnTitle(call) { return base }
         return base.isEmpty ? call.displayName : "\(call.displayName) · \(base)"
+    }
+
+    /// 「浏览器 · 打开 example.com」「浏览器 · 点击 [3]」: the action and what it was on.
+    private var browserLine: String {
+        let arguments = call.arguments
+        let element = arguments["index"].int.map { " [\($0)]" } ?? ""
+        let what: String = switch arguments["action"].string {
+        case "open": String(localized: "打开") + " " + (arguments["url"].string.map(ToolCall.firstLine) ?? "")
+        case "read": String(localized: "读取页面")
+        case "click": String(localized: "点击") + element
+        case "type": String(localized: "输入") + element
+        case "select": String(localized: "选择") + element
+        case "scroll": String(localized: "滚动")
+        case "back": String(localized: "后退")
+        case "forward": String(localized: "前进")
+        case "reload": String(localized: "刷新")
+        case "evaluate": String(localized: "运行脚本")
+        case "screenshot": String(localized: "截图")
+        default: ""
+        }
+        let name = String(localized: "浏览器")
+        return what.isEmpty ? name : "\(name) · \(what)"
     }
 
     /// For a call that failed or stopped: just what it acted on, next to `outcome`.
@@ -49,6 +73,8 @@ struct ToolPresentation {
             return TodoDiff(call: call).rowSummary
         case "skill" where state == .preparing:
             return String(localized: "准备加载技能")
+        case "browser":
+            return browserLine
         case "present":
             let status: String = switch state {
             case .preparing: String(localized: "准备交付")

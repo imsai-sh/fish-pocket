@@ -34,8 +34,13 @@ test('invoking without the addon fails with a reason a model can relay', async (
   await assert.rejects(invoke('device', 'info'), /only available in the iOS app/);
 });
 
+// What index.mjs registers: a definition, or one made from the context.
+const fakeCtx = (services = {}) => ({ get: (name) => services[name] });
+const DEFINITIONS = Object.fromEntries(Object.entries(TOOLS)
+  .map(([capability, tool]) => [capability, typeof tool === 'function' ? tool(fakeCtx()) : tool]));
+
 test('every tool declares the schema the registry requires', () => {
-  for (const [capability, tool] of Object.entries(TOOLS)) {
+  for (const [capability, tool] of Object.entries(DEFINITIONS)) {
     assert.equal(typeof tool.name, 'string', `${capability}: name`);
     assert.ok(tool.description.length > 40, `${capability}: description is too thin to guide a model`);
     assert.equal(typeof tool.execute, 'function', `${capability}: execute`);
@@ -47,12 +52,12 @@ test('every tool declares the schema the registry requires', () => {
 });
 
 test('tool names are unique and stable', () => {
-  const names = Object.values(TOOLS).map((tool) => tool.name);
+  const names = Object.values(DEFINITIONS).map((tool) => tool.name);
   assert.deepEqual(names, [...new Set(names)]);
   // Pinned because they reach the model's prompt and a rename is a breaking
   // change for any skill or plugin that mentions them.
   assert.deepEqual(names.sort(),
-    ['alarm', 'calendar', 'clipboard', 'compose', 'contacts', 'device_info', 'files', 'health',
+    ['alarm', 'browser', 'calendar', 'clipboard', 'compose', 'contacts', 'device_info', 'files', 'health',
      'homekit', 'image_analysis', 'location', 'maps', 'music', 'notify', 'open_url', 'photos',
      'reminders', 'speak', 'text_analysis', 'transcribe_audio', 'weather']);
 });
@@ -77,7 +82,7 @@ test('no tool shares a name with one DSH registers itself', () => {
   for (const pkg of readdirSync(root)) if (existsSync(join(root, pkg, 'lib'))) walk(join(root, pkg, 'lib'));
   // Guards the scan itself: a format change that matches nothing would pass vacuously.
   assert.ok(builtin.has('read') && builtin.has('bash') && builtin.size > 30, `found only ${[...builtin]}`);
-  const clashes = Object.values(TOOLS).map((tool) => tool.name).filter((name) => builtin.has(name));
+  const clashes = Object.values(DEFINITIONS).map((tool) => tool.name).filter((name) => builtin.has(name));
   assert.deepEqual(clashes, []);
 });
 
@@ -1048,4 +1053,53 @@ test('weather renders a daily forecast and warns that a day is stamped in UTC', 
     `No daily forecast came back for that point.\n${WEATHER_CREDIT}`,
   );
   assert.doesNotThrow(() => render({ days: [{}] }));
+});
+
+test('browser needs a conversation, and says so before reaching the addon', async () => {
+  await assert.rejects(
+    DEFINITIONS.browser.execute({ action: 'read' }, { signal: new AbortController().signal }),
+    /not part of a conversation/,
+  );
+});
+
+test('browser renders the page with what was done first, and says when it cut it', () => {
+  const render = (args, value) => DEFINITIONS.browser.output.render(args, value)[0].text;
+  const page = render({ action: 'click', index: 2 }, {
+    action: '✅ Clicked element (2).',
+    header: 'Current Page: [登录](https://example.com/)',
+    content: '[0]<input placeholder=用户名 />\n[1]<button >提交 />',
+    footer: '[End of page]',
+    loading: false,
+  });
+  assert.match(page, /^✅ Clicked element \(2\)\.\n\nCurrent Page/);
+  assert.match(page, /\[1\]<button >提交 \/>\n\[End of page\]$/);
+
+  const long = render({ action: 'read' }, { header: 'h', content: 'x'.repeat(30000), footer: '', loading: true });
+  assert.match(long, /page cut at 24000 of 30000 characters/);
+  assert.match(long, /still loading/);
+
+  assert.match(render({ action: 'evaluate' }, { result: null }), /returned nothing/);
+  assert.equal(render({ action: 'evaluate' }, { result: '{"a":1}' }), '{"a":1}');
+});
+
+test('a screenshot is refused before anything is taken when the model cannot see images', async () => {
+  const tool = TOOLS.browser(fakeCtx({
+    attachments: { saveImage: () => assert.fail('nothing should be stored') },
+    llm: { resolveModelInfo: async () => ({ inputModalities: ['text'] }) },
+  }));
+  const exec = {
+    signal: new AbortController().signal,
+    agent: { session: { id: 's1', requestHeader: () => undefined }, options: { provider: 'p', model: 'text-only' } },
+  };
+  await assert.rejects(tool.execute({ action: 'screenshot' }, exec), /cannot look at images.*`read`/s);
+});
+
+test('a screenshot renders as the image with a line saying what it shows', () => {
+  const blocks = DEFINITIONS.browser.output.render({ action: 'screenshot' }, {
+    url: 'https://example.com/', title: 'Example',
+    image: { attachmentId: 'a1', mediaType: 'image/jpeg', bytes: 1000, width: 804, height: 1556 },
+  });
+  assert.equal(blocks.length, 2);
+  assert.match(blocks[0].text, /Screenshot of \[Example\]\(https:\/\/example\.com\/\).*804x1556 px/);
+  assert.deepEqual(blocks[1], { type: 'image', attachment: { attachmentId: 'a1', mediaType: 'image/jpeg', bytes: 1000, width: 804, height: 1556 } });
 });

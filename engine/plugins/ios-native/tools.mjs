@@ -1734,6 +1734,142 @@ const weather = defineTool({
   },
 });
 
+// The page as the model reads it. Long pages are cut, and the cut is said, so a
+// model never mistakes the first part of a page for all of it.
+const PAGE_LIMIT = 24000;
+const SCRIPT_RESULT_LIMIT = 12000;
+
+function cut(value, limit, what) {
+  if (typeof value !== 'string' || value.length <= limit) return value ?? '';
+  return `${value.slice(0, limit)}\n… ${what} cut at ${limit} of ${value.length} characters`;
+}
+
+const BROWSER_ACTIONS = ['open', 'read', 'click', 'type', 'select', 'scroll', 'back', 'forward', 'reload', 'evaluate', 'screenshot'];
+
+/**
+ * Refuse a screenshot the model on this route could not look at. Same test
+ * DSH's own read_image makes: the image would otherwise be stored and sent to
+ * a model that rejects it, and the whole turn would fail instead of this call.
+ */
+async function assertSeesImages(ctx, exec) {
+  const routed = exec.agent?.session.requestHeader?.()?.config;
+  const provider = routed?.provider ?? exec.agent?.options?.provider;
+  const model = routed?.model ?? exec.agent?.options?.model;
+  const llm = ctx.get('llm');
+  if (provider === undefined || model === undefined || llm === undefined) {
+    throw new Error('browser: could not tell which model this conversation uses, so no screenshot was taken');
+  }
+  const info = await llm.resolveModelInfo(provider, model, exec.signal);
+  if (!info.inputModalities?.includes('image')) {
+    throw new Error(`browser: model "${model}" cannot look at images, so no screenshot was taken. `
+      + 'Use `read` for the text, or `evaluate` to measure layout and styles.');
+  }
+}
+
+/**
+ * The browser tool. Unlike the other tools here it needs the engine: a
+ * screenshot goes into the attachment store, which is how an image reaches
+ * the model.
+ * @param ctx - the context the tool is registered in.
+ */
+const browser = (ctx) => defineTool({
+  name: 'browser',
+  description:
+    'Use the web browser of this conversation — the one the user sees under Workbench → Browser — '
+    + 'to open a page, read it, look at it, and click, type and choose on it like a person would. '
+    + 'Use it for pages that need JavaScript, a login or several steps, and to check a site you are '
+    + 'building (open it on localhost). For a plain page whose text is all you need, fetching it is '
+    + 'cheaper. `open` and every action return the page again: its URL and title, then its text with '
+    + 'every element you can act on numbered like [3]. Pass that number as `index`; numbers change '
+    + 'whenever the page does, so always use the ones from the latest result. `screenshot` shows '
+    + 'what is on screen, for layout, images and charts the text cannot tell you. Sign-ins are kept '
+    + 'across app launches. The user can watch and take over at any time. Never type a password, '
+    + 'card number or other secret into a page — ask the user to do that part in the workbench.',
+  parameters: {
+    action: {
+      type: 'string',
+      enum: BROWSER_ACTIONS,
+      description: 'open a URL; read the current page; click, type into or select in a numbered '
+        + 'element; scroll; go back, forward or reload; evaluate a script in the page; take a '
+        + 'screenshot of what is on screen',
+      required: true,
+    },
+    url: { type: 'string', description: 'open: the address; a bare host means https, localhost means http' },
+    index: { type: 'number', description: 'click, type, select: the element\'s number from the latest result; scroll: optionally the scrollable element to scroll inside' },
+    text: { type: 'string', description: 'type: what to put in the field; it replaces what is there' },
+    option: { type: 'string', description: 'select: the visible text of the option to choose' },
+    direction: { type: 'string', enum: ['down', 'up'], description: 'scroll: which way; defaults to down' },
+    pages: { type: 'number', description: 'scroll: how many screens; defaults to 1' },
+    script: {
+      type: 'string',
+      description: 'evaluate: the body of an async function run in the page, with access to its '
+        + 'globals; `return` a JSON-serialisable value to see it. For checking a page you are building '
+        + '— prefer the other actions for using a site',
+    },
+  },
+  output: {
+    schema: { type: 'json' },
+    render: (args, value) => {
+      if (args.action === 'screenshot') {
+        return [
+          {
+            type: 'text',
+            text: `Screenshot of [${value.title ?? ''}](${value.url ?? ''}): the visible part of the page, `
+              + `${value.image.width}x${value.image.height} px, as the user sees it in the workbench.`,
+          },
+          { type: 'image', attachment: value.image },
+        ];
+      }
+      if (args.action === 'evaluate') {
+        return text(value.result === null
+          ? 'The script ran and returned nothing.'
+          : cut(value.result, SCRIPT_RESULT_LIMIT, 'result'));
+      }
+      const lines = [];
+      if (value.action) lines.push(value.action, '');
+      lines.push(value.header ?? `Current Page: [${value.title ?? ''}](${value.url ?? ''})`);
+      lines.push(cut(value.content, PAGE_LIMIT, 'page'));
+      if (value.footer) lines.push(value.footer);
+      if (value.loading) lines.push('(The page is still loading; `read` again to see the rest.)');
+      return text(lines.join('\n'));
+    },
+  },
+  execute: async (args, exec) => {
+    // The browser belongs to a conversation, so a call from outside one has
+    // nowhere to go.
+    const session = exec?.agent?.session?.id;
+    if (typeof session !== 'string' || session.length === 0) {
+      throw new Error('browser: this call is not part of a conversation, so there is no browser to use');
+    }
+    const { action, ...rest } = args;
+    if (action !== 'screenshot') return invoke('browser', action, { ...rest, session });
+
+    const attachments = ctx.get('attachments');
+    if (attachments === undefined) throw new Error('browser: this engine has no attachment store, so it cannot show images');
+    await assertSeesImages(ctx, exec);
+    const shot = await invoke('browser', 'screenshot', { session });
+    const ref = await attachments.saveImage({
+      data: Buffer.from(shot.data, 'base64'),
+      mediaType: shot.mediaType,
+      name: 'browser-screenshot.jpg',
+    });
+    return {
+      url: shot.url,
+      title: shot.title,
+      image: {
+        attachmentId: ref.attachmentId,
+        mediaType: ref.mediaType,
+        bytes: ref.bytes,
+        width: ref.width,
+        height: ref.height,
+        ...(ref.originalDimensions === undefined ? {} : { originalDimensions: { ...ref.originalDimensions } }),
+      },
+    };
+  },
+});
+
+// A tool is a definition, or a function of the registering context for the
+// few that need the engine itself.
 export const TOOLS = {
   device: device,
   notify: notify,
@@ -1756,4 +1892,5 @@ export const TOOLS = {
   music: music,
   files: files,
   weather: weather,
+  browser: browser,
 };
