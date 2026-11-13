@@ -15,6 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 import { PRELOAD } from './runtime/real-paths.mjs';
+import { disableThirdParty } from './runtime/safe-mode.mjs';
 
 const data = process.env.DSH_IOS_DATA;
 if (!data) throw new Error('DSH_IOS_DATA is not set');
@@ -52,6 +53,18 @@ process.chdir(dirs.workspace);
 const urlFile = path.join(data, 'web-url');
 const log = fs.createWriteStream(path.join(data, 'engine.log'), { flags: 'a', mode: 0o600 });
 const redact = (text) => text.replace(/token=[A-Za-z0-9_-]+/g, 'token=…');
+// Each line of the log starts with the time it was written: without it a launch
+// that is slow and one that is stuck read the same. Output comes in chunks that
+// need not end at a line, so only a chunk's line starts get one.
+const pad = (n, width = 2) => String(n).padStart(width, '0');
+let lineStart = true;
+function stamped(text) {
+  const now = new Date();
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}.${pad(now.getMilliseconds(), 3)} `;
+  const out = (lineStart ? time : '') + text.replace(/\n(?=[^])/g, `\n${time}`);
+  lineStart = text.endsWith('\n');
+  return out;
+}
 let published = false;
 // Worker output reaches the process through these streams, so the tee sees both.
 for (const name of ['stdout', 'stderr']) {
@@ -59,7 +72,7 @@ for (const name of ['stdout', 'stderr']) {
   const write = stream.write.bind(stream);
   stream.write = (chunk, ...rest) => {
     const text = typeof chunk === 'string' ? chunk : Buffer.from(chunk).toString('utf8');
-    log.write(redact(text));
+    if (text) log.write(stamped(redact(text)));
     const match = !published && /dsh web: (http:\/\/\S+)/.exec(text);
     if (match) {
       published = true;
@@ -70,11 +83,13 @@ for (const name of ['stdout', 'stderr']) {
   };
 }
 const jitless = String(process.config.variables.node_v8_options ?? '').includes('--jitless') || process.execArgv.includes('--jitless');
-console.log(`[dsh-ios] node ${process.version} ${process.platform}/${process.arch} jitless=${jitless} data=${data}`);
+console.log(`[dsh-ios] node ${process.version} ${process.platform}/${process.arch} jitless=${jitless} data=${data} at ${new Date().toISOString()}`);
 
 let engine;
 let restarting = false;
 let crashes = 0;
+/// The start a crashed worker waits for, which a restart replaces.
+let retry;
 
 function start() {
   fs.rmSync(urlFile, { force: true });
@@ -96,17 +111,37 @@ function start() {
     crashes = Date.now() - startedAt > 60_000 ? 1 : crashes + 1;
     const delay = Math.min(30_000, 1000 * 2 ** (crashes - 1));
     console.error(`[dsh-ios] engine exited (${code}); restarting in ${delay} ms`);
-    setTimeout(start, delay);
+    retry = setTimeout(start, delay);
   });
 }
 
 async function restart(reason) {
   if (restarting) return;
   restarting = true;
+  clearTimeout(retry);
   console.log(`[dsh-ios] restarting engine${reason ? ` (${reason})` : ''}`);
   await engine.terminate();
   restarting = false;
   start();
 }
+
+// Safe mode (runtime/safe-mode.mjs), asked for by the launch screen. A stuck engine
+// answers no HTTP, and nothing else reaches this thread, so the request is a file.
+// This thread is not the worker's, so a worker that hangs does not hold it up.
+const safeModeRequest = path.join(data, 'safe-mode-request');
+const safeModeReport = path.join(data, 'safe-mode.json');
+setInterval(async () => {
+  if (restarting || !fs.existsSync(safeModeRequest)) return;
+  fs.rmSync(safeModeRequest, { force: true });
+  try {
+    const disabled = await disableThirdParty(path.join(dirs.DSH_HOME, 'profiles', 'web'));
+    console.log(`[dsh-ios] safe mode: switched off ${disabled.length ? disabled.join(', ') : 'nothing'}`);
+    // What the app tells the user once it is in (NodeEngine.takeSafeModeReport).
+    fs.writeFileSync(safeModeReport, JSON.stringify({ disabled }), { mode: 0o600 });
+  } catch (error) {
+    console.error('[dsh-ios] safe mode failed', error);
+  }
+  await restart('safe mode');
+}, 1000).unref();
 
 start();

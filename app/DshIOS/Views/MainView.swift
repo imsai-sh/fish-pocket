@@ -41,6 +41,8 @@ struct MainView: View {
     @State private var supportDialog = false
     /// 「新功能」 after an update (`WhatsNew`).
     @State private var whatsNew: WhatsNew.Release?
+    /// The plugins safe mode switched off on the launch screen (NodeEngine.requestSafeMode).
+    @State private var safeModeDisabled: [String]?
     /// It was shown: no update toast on top of it this time.
     @State private var newsShown = false
     /// 「在电脑上新建会话」, once whatever sheet asked for it has gone.
@@ -224,6 +226,10 @@ struct MainView: View {
         .task { await AppDistribution.refresh() }
         .task(id: canAnnounce) {
             guard canAnnounce else { return }
+            if let names = NodeEngine.shared.takeSafeModeReport() {
+                safeModeDisabled = names
+                return
+            }
             if let release = WhatsNew.take() {
                 newsShown = true
                 whatsNew = release
@@ -375,6 +381,12 @@ struct MainView: View {
             }
         } message: {
             Text("充值后才能开始新会话，也可稍后在「设置 → 账号与余额」充值。")
+        }
+        .alert("已停用 \(safeModeDisabled?.count ?? 0) 个第三方插件", isPresented: Binding(get: { safeModeDisabled != nil }, set: { if !$0 { safeModeDisabled = nil } })) {
+            Button("去插件页") { sheet = .plugins }
+            Button("好", role: .cancel) {}
+        } message: {
+            Text("它们仍然装着。可以在插件页逐个重新打开，找出是哪个卡住了引擎。\n\n\((safeModeDisabled ?? []).joined(separator: "\n"))")
         }
         .onChange(of: app.lastError) { _, error in if error != nil { Haptics.error() } }
         .alert("出错了", isPresented: Binding(get: { app.lastError != nil }, set: { if !$0 { app.lastError = nil } })) {
