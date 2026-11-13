@@ -190,10 +190,16 @@ final class PluginManagerModel {
         "@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "@deepseek-ai/dsh-headless",
         "@deepseek-ai/dsh-sdk-app", "@deepseek-ai/dsh-acp-app", "@deepseek-ai/dsh-sdk-minimal",
     ]
+    /// Official bundles that cannot run on iOS, kept off the page unless the profile
+    /// already enables them (then they stay, so the user can turn them off).
+    /// voice-input: its SenseVoice half only supports desktop platforms and needs
+    /// the sherpa-onnx addon, which build-engine.sh prunes.
+    static let unavailableBundles: Set<String> = [
+        "@deepseek-ai/dsh-experimental-voice-input-bundle",
+    ]
     /// Optional bundles the main list always holds, in this order.
     static let extensionBundles = [
         "@deepseek-ai/dsh-experimental-agent-team-profile",
-        "@deepseek-ai/dsh-experimental-voice-input-bundle",
         "@deepseek-ai/dsh-experimental-auto-review",
         "@deepseek-ai/dsh-experimental-inspector-profile",
     ]
@@ -232,9 +238,14 @@ final class PluginManagerModel {
 
     // MARK: Derived lists
 
-    /// What the page lists: no built-in profile bundles; installed, official or broken ones.
+    /// What the page lists: no built-in profile bundles, nor ones iOS cannot run unless
+    /// enabled; installed, official or broken ones.
     var listed: [PluginPackage] {
-        packages.filter { !Self.builtInProfileBundles.contains($0.name) && ($0.installed || $0.official || $0.problem) }
+        packages.filter {
+            !Self.builtInProfileBundles.contains($0.name)
+                && (!Self.unavailableBundles.contains($0.name) || $0.enabled)
+                && ($0.installed || $0.official || $0.problem)
+        }
     }
 
     /// 实验性插件 (main list): the always-held optional bundles and any held-back one the profile enabled.

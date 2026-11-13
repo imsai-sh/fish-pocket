@@ -23,6 +23,10 @@ struct DshIOSApp: App {
         }
         .commands { ShellCommands() }
         .onChange(of: scenePhase) { _, phase in
+            // Shared from another app, but the link did not bring the app up: it is taken now.
+            if phase == .active, let id = ShareInbox.waiting().first {
+                LinkInbox.shared.request = LinkRequest(link: .share(id))
+            }
             BackgroundKeeper.shared.scenePhaseChanged(to: phase)
             LiveActivityController.shared.scenePhaseChanged(to: phase)
             WatchLink.shared.scenePhaseChanged(to: phase)
@@ -98,7 +102,7 @@ struct RootView: View {
             // A `dsh://` link goes to a window that is already open. Any window may also take a plain
             // launch: unless one allows it, iPadOS opens another window on every tap of the app's icon.
             // `preferring` stays narrow, so `openWindow` still gets its new window.
-            .handlesExternalEvents(preferring: ["dsh://"], allowing: ["*"])
+            .handlesExternalEvents(preferring: ["\(DshLink.scheme)://"], allowing: ["*"])
     }
 
     @ViewBuilder

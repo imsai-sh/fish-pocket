@@ -197,6 +197,8 @@ struct ConversationView: View {
                     ComposerView(
                         model: model, context: context, pendingDraft: app.pendingDrafts[sessionId],
                         consumeDraft: { app.pendingDrafts[sessionId] = nil },
+                        pendingFiles: app.pendingFiles[sessionId],
+                        consumeFiles: { app.pendingFiles[sessionId] = nil },
                         pendingPrompt: app.pendingPrompts[sessionId],
                         consumePrompt: { app.pendingPrompts[sessionId] = nil },
                         focusOnAppear: app.pendingFocus.contains(sessionId),
