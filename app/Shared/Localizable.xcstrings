@@ -45313,6 +45313,34 @@
         }
       }
     },
+    "此 Bot 由 DS Bot 驱动" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Bot is powered by DS Bot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este Bot funciona con DS Bot"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Bot は DS Bot で動いています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Bot은 DS Bot으로 구동됩니다"
+          }
+        }
+      }
+    },
     "此会话属于子 agent，永远不会收到投递的提醒" : {
       "localizations" : {
         "en" : {
