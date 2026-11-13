@@ -219,6 +219,8 @@ targets:
         # Shared/WidgetSnapshot.swift reads the group from here.
         DshAppGroup: $(DSH_APP_GROUP)
         DshURLScheme: $(DSH_URL_SCHEME)
+        # The messages it reports sending to Bots and groups (DshIOS/ShareSuggestions.swift).
+        NSUserActivityTypes: [INSendMessageIntent]
     entitlements:
       path: DshIOS/DshIOS.entitlements
       properties:
@@ -311,6 +313,8 @@ targets:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
           NSExtensionAttributes:
+            # The share sheet's top row: Bots and groups the app reported as sent to (DshIOS/ShareSuggestions.swift).
+            IntentsSupported: [INSendMessageIntent]
             # Version 2: "file" means any file, whatever else it also is.
             NSExtensionActivationDictionaryVersion: 2
             NSExtensionActivationRule:

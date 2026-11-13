@@ -85,6 +85,11 @@ final class ShareTargetsWriter {
             drawn[name] = nil
         }
         guard targets != written else { return }
+        // Bots and groups no longer listed (gone or hidden) leave the share sheet's top row too.
+        let before = written ?? ShareTargets.read()
+        let listedNow = Set(targets.bots.map { ShareInbox.Target.bot($0.id) } + targets.rooms.map { ShareInbox.Target.room($0.id) })
+        ShareSuggestions.forget((before.bots.map { ShareInbox.Target.bot($0.id) } + before.rooms.map { ShareInbox.Target.room($0.id) })
+            .filter { !listedNow.contains($0) })
         written = targets
         targets.write()
     }

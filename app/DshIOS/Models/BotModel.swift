@@ -477,7 +477,9 @@ final class BotModel {
 
     /// Send a message to a Bot's own chat.
     func send(_ text: String, to bot: BotInfo) async -> Bool {
-        await app.perform { try await self.call("send", ["sessionId": .string(bot.sessionId), "text": .string(text)]) }
+        let sent = await app.perform { try await self.call("send", ["sessionId": .string(bot.sessionId), "text": .string(text)]) }
+        if sent { ShareSuggestions.didSend(in: bot.sessionId, app: app) }
+        return sent
     }
 
     /// Stop what the Bot does in its own chat.

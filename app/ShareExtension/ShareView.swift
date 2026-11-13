@@ -31,6 +31,15 @@ struct ShareView: View {
         case .waitingForApp:
             ContentUnavailableView("已经准备好", systemImage: "checkmark.circle",
                                    description: Text("打开 Fish Pocket 就能在输入框里看到，确认后再发送。"))
+        case .reading where model.preset != nil, .ready where model.preset != nil:
+            // From the top row: nothing to pick, just a moment to read what was shared.
+            VStack(spacing: 10) {
+                ProgressView()
+                if let name = model.preset?.name, !name.isEmpty {
+                    Text("正在打开 \(name)…").foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .reading, .ready:
             List {
                 Section {

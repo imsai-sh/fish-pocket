@@ -399,6 +399,7 @@ final class ComposerModel {
                 var content = try Self.content(for: sent)
                 if !trimmed.isEmpty { content.append(["type": "text", "text": .string(expandMentions(trimmed))]) }
                 try await session.prompt(content: content, steer: steer, requestId: requestId)
+                ShareSuggestions.didSend(in: sessionId, app: app)
                 mentions = [:]
                 // Receipts now stand for the files: the private copies are done with.
                 for attachment in sent { if case .file(let url) = attachment.kind { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) } }

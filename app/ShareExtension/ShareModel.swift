@@ -25,6 +25,8 @@ final class ShareModel {
     /// The first image, small.
     private(set) var thumbnail: UIImage?
     let targets = ShareTargets.read()
+    /// Chosen in the share sheet's top row: it goes there as soon as it is read.
+    var preset: (target: ShareInbox.Target, name: String)?
 
     @ObservationIgnored var finish: () -> Void = {}
     @ObservationIgnored var cancel: () -> Void = {}
@@ -54,6 +56,7 @@ final class ShareModel {
                 }
             }
             phase = texts.isEmpty && files.isEmpty ? .empty : .ready
+            if phase == .ready, let preset { send(to: preset.target) }
         }
     }
 

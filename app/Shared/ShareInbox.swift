@@ -16,6 +16,25 @@ enum ShareInbox {
         case bot(String)
         /// A group chat, by the group's id.
         case room(String)
+
+        /// Its key in the share sheet's suggestions (`INSendMessageIntent.conversationIdentifier`).
+        var conversation: String {
+            switch self {
+            case .newConversation: "new"
+            case .bot(let id): "bot:\(id)"
+            case .room(let id): "room:\(id)"
+            }
+        }
+
+        init?(conversation: String) {
+            let parts = conversation.split(separator: ":", maxSplits: 1).map(String.init)
+            guard parts.count == 2, !parts[1].isEmpty else { return nil }
+            switch parts[0] {
+            case "bot": self = .bot(parts[1])
+            case "room": self = .room(parts[1])
+            default: return nil
+            }
+        }
     }
 
     struct Delivery: Codable {

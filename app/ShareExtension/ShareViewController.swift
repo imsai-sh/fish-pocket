@@ -1,3 +1,4 @@
+import Intents
 import SwiftUI
 import UIKit
 
@@ -21,6 +22,11 @@ final class ShareViewController: UIViewController {
         view.addSubview(host.view)
         host.didMove(toParent: self)
 
+        // Opened from the share sheet's top row: the Bot or group is already chosen.
+        if let intent = extensionContext?.intent as? INSendMessageIntent,
+           let target = intent.conversationIdentifier.flatMap(ShareInbox.Target.init(conversation:)) {
+            model.preset = (target, intent.speakableGroupName?.spokenPhrase ?? intent.recipients?.first?.displayName ?? "")
+        }
         let items = extensionContext?.inputItems.compactMap { $0 as? NSExtensionItem } ?? []
         model.load(items.flatMap { $0.attachments ?? [] })
     }
