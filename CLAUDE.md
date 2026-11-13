@@ -172,7 +172,9 @@ Bot 没有照片时显示的角色是 App 自己画的，形状和动作都写�
 
 ## 微信交流群二维码
 
-群二维码只放在 README 和官网，App 里不放，设置页底部只有一个「官网」链接。二维码 7 天过期，有两份，换图时一起换：
+群二维码在 README、官网和 App 设置页底部都有。二维码 7 天过期，有两份，换图时一起换：
 
 - 主仓库的 `docs/assets/wechat-group.png`：README 的「交流群」一节引用它。
 - 官网 `fish-pocket-site` 的 `web/public/wechat-group.png`：中文页页脚显示它，合进官网的 `main` 就自动部署。
+
+App 不内置图片，设置页底部（`Views/WeChatGroupSection.swift`）每次打开都从官网加载 `https://fish.deepseek1024.com/wechat-group.png`（`AppLinks.wechatGroupCode`）。所以换二维码只要更新官网，不用发版；反过来，官网上这个文件的名字和路径不能改，否则已经装好的 App 都会显示「二维码加载失败」。

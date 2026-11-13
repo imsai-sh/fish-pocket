@@ -440,31 +440,31 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saves share posters to your photo library."
+            "value" : "Saves share posters and the community group's QR code to your photo library."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "把分享海报保存到相册。"
+            "value" : "把分享海报和交流群二维码保存到相册。"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Guarda los pósteres para compartir en tu fototeca."
+            "value" : "Guarda en tu fototeca los pósteres para compartir y el código QR del grupo de la comunidad."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "共有用ポスターを写真ライブラリに保存します。"
+            "value" : "共有用ポスターとコミュニティグループのQRコードを写真ライブラリに保存します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "공유 포스터를 사진 보관함에 저장해요."
+            "value" : "공유 포스터와 커뮤니티 그룹 QR 코드를 사진 보관함에 저장해요."
           }
         }
       }
