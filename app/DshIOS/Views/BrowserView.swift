@@ -34,6 +34,8 @@ final class BrowserModel: NSObject {
     @ObservationIgnored private(set) var loadFailure: NSError?
     /// The agent's operations, one after another: two at once would read a page the other is changing.
     @ObservationIgnored private var tail: Task<Void, Never>?
+    /// The agent at work on this page, drawn over it in the workbench.
+    @ObservationIgnored let presence = BrowserPresence()
 
     // MARK: One per conversation
 
@@ -85,7 +87,12 @@ final class BrowserModel: NSObject {
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = Self.store
         configuration.allowsInlineMediaPlayback = true
+        // As in Safari, a pinch zooms every page, including one that asks not to be zoomed
+        // (`user-scalable=no`, `maximum-scale=1`), as most mobile sites do.
+        configuration.ignoresViewportScaleLimits = true
         if let script = Self.controllerScript { configuration.userContentController.addUserScript(script) }
+        configuration.userContentController.add(
+            BrowserPresence.Listener(presence), contentWorld: Self.agentWorld, name: BrowserPresence.Listener.name)
         configuration.userContentController.addUserScript(Self.desktopViewport)
         webView = WKWebView(frame: .zero, configuration: configuration)
         lastURL = UserDefaults.standard.string(forKey: storageKey)
@@ -159,8 +166,32 @@ final class BrowserModel: NSObject {
     }
 
     private func close() {
+        presence.finish()
         webView.stopLoading()
         if webView.superview === webView.window { webView.removeFromSuperview() }
+    }
+
+    /// What page-agent's effects on the page should be (`entry.js`'s `presence`).
+    struct PageEffects: Equatable {
+        var shown: Bool
+        var action: String?
+        var done: Bool
+    }
+
+    /// The effects as last asked for; a page that loads afresh gets them again.
+    @ObservationIgnored private var effects = PageEffects(shown: false, action: nil, done: true)
+
+    func showEffects(_ effects: PageEffects) {
+        self.effects = effects
+        sendEffects()
+    }
+
+    fileprivate func sendEffects() {
+        guard webView.url != nil else { return }
+        let state: [String: Any] = ["shown": effects.shown, "action": effects.action ?? NSNull(), "done": effects.done]
+        webView.callAsyncJavaScript(
+            "await globalThis.__dshBrowser?.presence(state)", arguments: ["state": state], in: nil, in: Self.agentWorld
+        ) { _ in }
     }
 
     // MARK: Desktop or mobile version
@@ -184,12 +215,22 @@ final class BrowserModel: NSObject {
     static func asksForDesktop(_ url: URL) -> Bool? {
         guard let site = site(of: url) else { return nil }
         let modes = UserDefaults.standard.dictionary(forKey: contentModesKey) as? [String: Bool] ?? [:]
-        var labels = site.split(separator: ".")
+        // A one-word host such as `localhost` is a site of its own.
+        if let desktop = modes[site] { return desktop }
+        // A domain's choice holds under it too (`docs.example.com` under `example.com`). An address has
+        // nothing above it: `127.0.0.1` is not under `0.0.1`.
+        guard !isAddress(site) else { return nil }
+        var labels = site.split(separator: ".").dropFirst()
         while labels.count >= 2 {
             if let desktop = modes[labels.joined(separator: ".")] { return desktop }
             labels.removeFirst()
         }
         return nil
+    }
+
+    /// An IP address rather than a name: IPv6 has colons, IPv4 is all numbers.
+    private static func isAddress(_ host: String) -> Bool {
+        host.contains(":") || host.split(separator: ".").allSatisfy { $0.allSatisfy(\.isNumber) }
     }
 
     static func setDesktop(_ desktop: Bool, for url: URL) {
@@ -315,6 +356,7 @@ extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
         }
         decisionHandler(.allow, preferences)
     }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { sendEffects() }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { failed(error) }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { failed(error) }
 
@@ -336,7 +378,9 @@ struct WorkbenchBrowser: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                BrowserWebView(webView: model.webView).opacity(model.started ? 1 : 0)
+                BrowserWebView(webView: model.webView)
+                    .overlay { BrowserAgentOverlay(model: model) }
+                    .opacity(model.started ? 1 : 0)
                 if !model.started { start }
             }
             if let error = model.addressError {
@@ -358,8 +402,8 @@ struct WorkbenchBrowser: View {
     /// Under the thumb, as in Safari; it rides up on the keyboard while typing an address.
     private var bar: some View {
         HStack(spacing: 0) {
-            button("chevron.backward", "后退", enabled: model.canGoBack) { model.back() }
-            button("chevron.forward", "前进", enabled: model.canGoForward) { model.forward() }
+            button("chevron.backward", "后退", enabled: model.canGoBack) { model.presence.dismiss(); model.back() }
+            button("chevron.forward", "前进", enabled: model.canGoForward) { model.presence.dismiss(); model.forward() }
             HStack(spacing: 6) {
                 TextField("输入 HTTP(S) 地址", text: $model.address)
                     .font(.subheadline)
@@ -369,7 +413,7 @@ struct WorkbenchBrowser: View {
                     .autocorrectionDisabled()
                     .submitLabel(.go)
                     .focused($editing)
-                    .onSubmit { model.go() }
+                    .onSubmit { model.presence.dismiss(); model.go() }
                 if model.loading { ProgressView().controlSize(.small) }
             }
             .padding(.horizontal, 12)
@@ -384,7 +428,7 @@ struct WorkbenchBrowser: View {
 
     private var more: some View {
         Menu {
-            Button { model.reload() } label: {
+            Button { model.presence.dismiss(); model.reload() } label: {
                 Label(model.loading ? "停止" : "刷新", systemImage: model.loading ? "xmark" : "arrow.clockwise")
             }
             .disabled(!model.started && model.lastURL == nil)
@@ -467,8 +511,71 @@ struct WorkbenchBrowser: View {
     }
 }
 
+/// The browser opened from the chat: the page alone, full screen, without the workbench's other tabs.
+struct FullScreenBrowser: View {
+    let model: BrowserModel
+    let close: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            WorkbenchBrowser(model: model)
+                .navigationTitle(Self.site(model.page) ?? String(localized: "浏览器"))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar(.visible, for: .navigationBar)
+                .closeButton(action: close)
+        }
+    }
+
+    /// `www.` says nothing; the rest of the host is the site.
+    static func site(_ url: URL?) -> String? {
+        guard let host = url?.host(), !host.isEmpty else { return nil }
+        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+    }
+}
+
+/// A conversation has one web view, and it can be on screen in one place at a time: the workbench, or
+/// the browser opened full screen from the chat. The holder that comes into a window takes it; the one
+/// that leaves gives it back to another still on screen, so the workbench has its page again.
 private struct BrowserWebView: UIViewRepresentable {
     let webView: WKWebView
-    func makeUIView(context: Context) -> WKWebView { webView }
-    func updateUIView(_ view: WKWebView, context: Context) {}
+    func makeUIView(context: Context) -> Holder { Holder(webView) }
+    func updateUIView(_ view: Holder, context: Context) {}
+
+    final class Holder: UIView {
+        let webView: WKWebView
+        private static let all = NSHashTable<Holder>.weakObjects()
+
+        init(_ webView: WKWebView) {
+            self.webView = webView
+            super.init(frame: .zero)
+            Self.all.add(self)
+            adopt()
+        }
+
+        required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            if window != nil {
+                adopt()
+            } else if webView.superview === self,
+                      let other = Self.all.allObjects.last(where: { $0 !== self && $0.webView === webView && $0.window != nil }) {
+                other.adopt()
+            }
+        }
+
+        /// Whatever size the page was in elsewhere, here it is this holder's.
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            if webView.superview === self, webView.frame != bounds { webView.frame = bounds }
+        }
+
+        private func adopt() {
+            guard webView.superview !== self else { return }
+            webView.removeFromSuperview()
+            webView.frame = bounds
+            addSubview(webView)
+            setNeedsLayout()
+        }
+    }
 }

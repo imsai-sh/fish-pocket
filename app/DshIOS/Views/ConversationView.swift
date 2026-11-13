@@ -23,6 +23,8 @@ struct ConversationView: View {
     @State private var workbenchOpen = false
     /// The tab last looked at, in any conversation: the workbench opens where it was left.
     @AppStorage("dsh.workbench.tab") private var workbenchTab = WorkbenchTab.terminal
+    /// The browser opened full screen from the chat.
+    @State private var fullBrowser: BrowserModel?
     /// Interactions swiped away; they stay answerable from the 「等你允许」 line.
     @State private var deferred: Set<String> = []
     @State private var showNewWorkspace = false
@@ -170,7 +172,7 @@ struct ConversationView: View {
                     ConversationActivity(
                         sessionId: sessionId, jobs: jobs,
                         browserShown: browserBeside,
-                        openBrowser: { openWorkbench(.browser) },
+                        openBrowser: openBrowser,
                         openJobs: { headerSheet = .jobs }
                     )
                     .padding(.leading, 16)
@@ -302,7 +304,7 @@ struct ConversationView: View {
         }
         .environment(\.conversationActions, ConversationActions(
             openChanges: { openWorkbench(.changes) },
-            openBrowser: { openWorkbench(.browser) },
+            openBrowser: openBrowser,
             regenerate: { text in Task { await model.send(text: text) } },
             fork: { turn in
                 Task { await app.fork(session: sessionId, atSeq: model.forkBoundary(turn: turn), from: .turn) }
@@ -327,6 +329,9 @@ struct ConversationView: View {
                 .presentationCornerRadius(36)
                 // A pull over the terminal is meant for its scrollback; ✕ closes the sheet.
                 .interactiveDismissDisabled(workbenchTab == .terminal)
+        }
+        .fullScreenCover(isPresented: Binding(get: { fullBrowser != nil }, set: { if !$0 { fullBrowser = nil } })) {
+            if let fullBrowser { FullScreenBrowser(model: fullBrowser) { self.fullBrowser = nil } }
         }
         .onChange(of: workbenchOpen) { _, open in if open, sizeClass == .regular { makeRoomForWorkbench() } }
         .focusedSceneValue(\.workbenchCommands, WorkbenchCommands(available: !blank && bot == nil, toggle: toggleWorkbench, open: openWorkbench))
@@ -384,6 +389,13 @@ struct ConversationView: View {
 
     private func activityShown(_ blank: Bool) -> Bool {
         !blank && bot == nil && ConversationActivity.shows(sessionId: sessionId, jobs: jobs, browserShown: browserBeside, in: app)
+    }
+
+    /// From the chat the browser opens full screen, the page alone: the workbench's other tabs are not
+    /// what the user came for. A subagent's page is its parent conversation's.
+    private func openBrowser() {
+        dismissKeyboard()
+        fullBrowser = BrowserModel.session(BrowserAgent.owner(of: sessionId, in: app), origin: app.client.origin)
     }
 
     private func openWorkbench(_ tab: WorkbenchTab) {
