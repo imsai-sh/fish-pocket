@@ -7,7 +7,8 @@ import WebKit
 /// `scripts/build-page-controller.sh` 打包）。它整个跑在网页里，是 iOS 上唯一走得通
 /// 的浏览器自动化办法：这里没有 Chromium，靠 CDP、WebDriver 的方案都用不了。
 ///
-/// 参数在 `caps_browser.m` 里查过了，这里只做事。发给模型的话都是英文，和其他能力一致。
+/// 有哪些动作、各要什么参数，在 `BrowserCatalog` 里登记；这里先按它检查参数，再做事。
+/// 发给模型的话都是英文，和其他能力一致。
 @objc final class BrowserAgent: NSObject {
     @objc static let shared = BrowserAgent()
 
@@ -21,6 +22,7 @@ import WebKit
     @MainActor
     private static func perform(_ op: String, _ args: [String: Any]) async throws -> [String: Any] {
         guard let session = args["session"] as? String else { throw BrowserAgentError("missing session") }
+        try BrowserCatalog.check(op, args)
         guard let app = EngineConnection.shared.app else {
             throw BrowserAgentError("the app is still connecting to its engine; try again in a moment")
         }
@@ -39,8 +41,25 @@ import WebKit
             case "click", "type", "select", "scroll": return try await browser.agentAct(op, args)
             case "back", "forward", "reload": return try await browser.agentNavigate(op, desktop: args["desktop"] as? Bool)
             case "evaluate": return try await browser.agentEvaluate(args["script"] as? String ?? "")
-            case "screenshot": return try await browser.agentScreenshot()
-            default: throw BrowserAgentError("browser has no operation '\(op)'")
+            case "screenshot":
+                return try await (args["fullPage"] as? Bool == true ? browser.agentFullPageScreenshot() : browser.agentScreenshot())
+            case "pdf": return try await browser.agentPDF(path: args["path"] as? String, caller: session)
+            case "addScript": return browser.agentAddScript(args["script"] as? String ?? "", name: args["name"] as? String)
+            case "scripts": return browser.agentScripts()
+            case "removeScript": return try browser.agentRemoveScript(args["id"] as? String ?? "")
+            case "logs":
+                return browser.agentLogs(
+                    kind: args["kind"] as? String ?? "all", limit: (args["limit"] as? NSNumber)?.intValue ?? 100,
+                    clear: args["clear"] as? Bool ?? false)
+            case "request": return try await browser.agentRequest(args, caller: session)
+            case "cookies": return try await browser.agentCookies(url: args["url"] as? String, domain: args["domain"] as? String)
+            case "setCookie": return try await browser.agentSetCookie(args)
+            case "deleteCookie": return try await browser.agentDeleteCookie(name: args["name"] as? String ?? "", domain: args["domain"] as? String)
+            case "downloads": return browser.agentDownloads()
+            case "keys": return try await browser.agentKeys(index: (args["index"] as? NSNumber)?.intValue, text: args["text"] as? String ?? "")
+            case "upload": return try await browser.agentUpload(index: (args["index"] as? NSNumber)?.intValue ?? 0, paths: args["paths"] as? [String] ?? [], caller: session)
+            // Listed in the catalog but not handled here: a slip that shows at once, not a silent no-op.
+            default: throw BrowserAgentError("browser has no implementation for '\(op)' in this build")
             }
         }
     }
@@ -58,6 +77,11 @@ extension BrowserAgent {
 }
 
 extension BrowserAgent: DshBrowserProviding {
+    /// Read by the dispatcher on every call and by the engine once, from any thread: a constant.
+    func catalog() -> [String: Any] {
+        BrowserCatalog.dictionary as? [String: Any] ?? [:]
+    }
+
     func performOperation(
         _ op: String,
         arguments args: [String: Any],
@@ -269,8 +293,7 @@ extension BrowserModel {
             throw BrowserAgentError("The screenshot could not be encoded.")
         }
         return [
-            "data": data.base64EncodedString(),
-            "mediaType": "image/jpeg",
+            "image": ["data": data.base64EncodedString(), "mediaType": "image/jpeg"],
             "url": webView.url?.absoluteString ?? "",
             "title": webView.title ?? "",
         ]
@@ -280,7 +303,7 @@ extension BrowserModel {
 
     /// 等页面安静下来，有上限。导航可能在点击之后才开始，所以先给它一点时间冒头；
     /// 加载完再留一小段，让脚本渲染的页面把内容画出来。
-    private func settle(navigating: Bool) async {
+    func settle(navigating: Bool) async {
         if !navigating { try? await Task.sleep(for: .milliseconds(300)) }
         let deadline = ContinuousClock.now + .seconds(20)
         while webView.isLoading, ContinuousClock.now < deadline {
@@ -291,7 +314,7 @@ extension BrowserModel {
 
     /// 调一段脚本，最多等 `timeout` 秒。网页卡住、App 被切到后台时脚本可能永远不返回，
     /// 引擎那头的调用不能跟着挂死，所以到点就先回一个错误；脚本之后的结果丢掉。
-    private func run(
+    func run(
         _ body: String,
         arguments: [String: Any] = [:],
         in world: WKContentWorld? = nil,
@@ -327,7 +350,7 @@ extension BrowserModel {
 
 /// 两条路谁先到谁说了算，另一条什么都不做。
 @MainActor
-private final class Once {
+final class Once {
     private var claimed = false
     func claim() -> Bool {
         if claimed { return false }

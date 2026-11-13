@@ -53,6 +53,12 @@ typedef struct {
   /// for it. Then this app's own switch is the only gate there can be, and the
   /// dispatcher enforces it exactly where it enforces everything else.
   bool appGated;
+  /// For a capability whose operations the app lists itself (the browser): its
+  /// catalog, `{description, actions: [{name, …}], params: […]}`. Then `ops` is
+  /// empty and the actions' names are the operations, read from here by every
+  /// reader of this table — the check, the dispatch and the engine's tool all
+  /// see the one list. NULL for the rest.
+  NSDictionary<NSString *, id> *(*catalog)(void);
 } dsh_capability;
 
 // `calendar` is the first entry that reaches personal data, and the only one so
@@ -139,14 +145,12 @@ static const dsh_capability CAPABILITIES[] = {
   // there is no permission to grant. Swift behind DshWeatherBridge.h.
   {"weather",  dsh_native_weather,  {"current", "hourly", "daily", NULL}, NULL, {NULL}, false},
   // The conversation's own browser (Workbench → Browser): open a page, read it,
-  // click and type, look at it. It reaches nothing of the user's own: the
-  // browser keeps its sign-ins in a store of its own, apart from Safari and
-  // from the engine's web view — so no permission and no write policy. Swift
-  // behind DshBrowserBridge.h.
-  {"browser",  dsh_native_browser,
-   {"open", "read", "click", "type", "select", "scroll", "back", "forward", "reload", "evaluate",
-    "screenshot", NULL},
-   NULL, {NULL}, false},
+  // click and type, look at it, and the rest of what a browser can do. It
+  // reaches nothing of the user's own: the browser keeps its sign-ins in a store
+  // of its own, apart from Safari and from the engine's web view — so no
+  // permission and no write policy. Swift behind DshBrowserBridge.h, which also
+  // lists the operations (`catalog`): a new one is added there and nowhere else.
+  {"browser",  dsh_native_browser, {NULL}, NULL, {NULL}, false, DshBrowserCatalog},
 };
 static const size_t CAPABILITY_COUNT = sizeof(CAPABILITIES) / sizeof(CAPABILITIES[0]);
 
@@ -162,6 +166,15 @@ static const dsh_capability *find_capability(NSString *name) {
 /// The capability's operations as an array, shared by both readers of the table.
 static NSArray<NSString *> *capability_ops(const dsh_capability *cap) {
   NSMutableArray<NSString *> *ops = [NSMutableArray array];
+  if (cap->catalog != NULL) {
+    id actions = cap->catalog()[@"actions"];
+    if (![actions isKindOfClass:NSArray.class]) return ops;
+    for (id action in actions) {
+      id name = [action isKindOfClass:NSDictionary.class] ? action[@"name"] : nil;
+      if ([name isKindOfClass:NSString.class]) [ops addObject:name];
+    }
+    return ops;
+  }
   for (size_t i = 0; i < sizeof(cap->ops) / sizeof(cap->ops[0]) && cap->ops[i] != NULL; i++) {
     [ops addObject:@(cap->ops[i])];
   }
@@ -288,6 +301,7 @@ void DshNativeRequestPermission(NSString *permission, void (^done)(BOOL granted,
 }
 
 static BOOL capability_accepts(const dsh_capability *cap, NSString *op) {
+  if (cap->catalog != NULL) return [capability_ops(cap) containsObject:op];
   const char *wanted = op.UTF8String;
   if (wanted == NULL) return NO;
   for (size_t i = 0; i < sizeof(cap->ops) / sizeof(cap->ops[0]) && cap->ops[i] != NULL; i++) {
@@ -518,8 +532,32 @@ static napi_value capabilities(napi_env env, napi_callback_info info) {
   return value;
 }
 
+/// describe(capability) -> JSON string. The catalog of a capability that lists
+/// its own operations, so the engine's tool describes exactly what the app
+/// implements; "null" for any other.
+static napi_value describe(napi_env env, napi_callback_info info) {
+  size_t argc = 1;
+  napi_value argv[1];
+  napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+  NSString *name = argc >= 1 ? string_arg(env, argv[0]) : nil;
+  const dsh_capability *cap = name == nil ? NULL : find_capability(name);
+  NSData *json = nil;
+  if (cap != NULL && cap->catalog != NULL) {
+    NSDictionary *catalog = cap->catalog();
+    if ([NSJSONSerialization isValidJSONObject:catalog]) {
+      json = [NSJSONSerialization dataWithJSONObject:catalog options:0 error:NULL];
+    }
+  }
+  napi_value value;
+  napi_create_string_utf8(env, json ? [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding].UTF8String : "null",
+                          NAPI_AUTO_LENGTH, &value);
+  return value;
+}
+
 static napi_value init(napi_env env, napi_value exports) {
   napi_value fn;
+  napi_create_function(env, "describe", NAPI_AUTO_LENGTH, describe, NULL, &fn);
+  napi_set_named_property(env, exports, "describe", fn);
   napi_create_function(env, "invoke", NAPI_AUTO_LENGTH, invoke, NULL, &fn);
   napi_set_named_property(env, exports, "invoke", fn);
   napi_create_function(env, "capabilities", NAPI_AUTO_LENGTH, capabilities, NULL, &fn);

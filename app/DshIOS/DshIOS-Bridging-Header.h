@@ -10,3 +10,6 @@
 #import "DshWeatherBridge.h"
 // The browser's native half is Swift too: it is the workbench's WKWebView.
 #import "DshBrowserBridge.h"
+// The engine's filesystem view (DshRoot), so the browser can turn the engine's paths into the app's
+// when it saves a download or uploads a file. Plain C, no Node.
+#import "root.h"

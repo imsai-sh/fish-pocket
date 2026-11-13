@@ -61,8 +61,21 @@ struct ToolPresentation {
         case "forward": String(localized: "前进")
         case "reload": String(localized: "刷新") + version
         case "evaluate": String(localized: "运行脚本")
-        case "screenshot": String(localized: "截图")
-        default: ""
+        case "screenshot": arguments["fullPage"].bool == true ? String(localized: "整页截图") : String(localized: "截图")
+        case "pdf": String(localized: "存为 PDF")
+        case "addScript": String(localized: "添加常驻脚本")
+        case "scripts": String(localized: "查看常驻脚本")
+        case "removeScript": String(localized: "移除常驻脚本")
+        case "logs": String(localized: "读取日志")
+        case "request": String(localized: "发送请求") + " " + (arguments["url"].string.map(ToolCall.firstLine) ?? "")
+        case "cookies": String(localized: "读取 Cookie")
+        case "setCookie": String(localized: "设置 Cookie")
+        case "deleteCookie": String(localized: "删除 Cookie")
+        case "downloads": String(localized: "查看下载")
+        case "upload": String(localized: "上传文件") + element
+        case "keys": String(localized: "键盘输入") + element
+        // An action this build has no words for yet still says what it was.
+        default: arguments["action"].string ?? ""
         }
         let name = String(localized: "浏览器")
         return what.isEmpty ? name : "\(name) · \(what)"

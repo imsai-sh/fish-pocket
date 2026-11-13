@@ -40,6 +40,22 @@ export function capabilities() {
 }
 
 /**
+ * The catalog of a capability that lists its own operations (the browser):
+ * `{ description, actions, params }`, or null without the addon or for any
+ * other capability. Read once, when the tool is built.
+ * @param capability - capability name.
+ */
+export function describe(capability) {
+  const addon = binding();
+  if (addon === null || typeof addon.describe !== 'function') return null;
+  try {
+    return JSON.parse(addon.describe(capability));
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Call one capability operation.
  * @param capability - capability name, as `capabilities()` lists it.
  * @param op - operation within that capability.
