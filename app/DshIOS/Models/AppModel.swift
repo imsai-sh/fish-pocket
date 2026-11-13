@@ -194,6 +194,8 @@ final class AppModel {
         mux = StreamMux(client: client)
         account = AccountModel(client: client, mux: mux)
         cordis.attach(self)
+        DeepSeekSpeech.client = client
+        ReadAloud.shared.onError = { [weak self] message in self?.showToast(message, tone: .warning) }
     }
 
     func connect() async {
@@ -208,6 +210,7 @@ final class AppModel {
             followScheduleCatalog()
             account.follow()
             botTeam.start()
+            DeepSeekSpeech.followAgent()
             BackgroundKeeper.shared.attach { [weak self] in await self?.refreshSessions() }
             LiveActivityController.shared.attach(self)
             WidgetSnapshotWriter.shared.attach(self)

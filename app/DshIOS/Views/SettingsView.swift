@@ -56,7 +56,7 @@ struct SettingsView: View {
                     }
                     NavigationLink { ModelProvidersPage() } label: { row("模型", "cpu", defaultModel ?? "") }
                     NavigationLink { VoiceSettingsPage() } label: {
-                        row("语音输入", "mic", VolcSpeech.shared.configured ? String(localized: "火山引擎") : String(localized: "未设置"))
+                        row("语音", "mic", VoicePreferences.shared.source == .volcengine && !VolcSpeech.shared.configured ? String(localized: "未设置") : VoicePreferences.shared.source.title)
                     }
                     if mirror.serves("permission") { permissionPicker }
                 }
@@ -150,12 +150,13 @@ struct SettingsView: View {
                     linkRow("官网", "safari", AppLinks.site.host() ?? "", AppLinks.site)
                     linkRow("开源仓库", "chevron.left.forwardslash.chevron.right", UpdateChecker.repository, Self.repositoryURL)
                     linkRow("问题反馈", "exclamationmark.bubble", "GitHub Issues", Self.issuesURL)
+                    // The site's picture is swapped in place when the 7-day code expires: always the current one.
+                    linkRow("微信交流群", "bubble.left.and.bubble.right", String(localized: "扫码加群"), AppLinks.wechatGroupCode)
                     linkRow("作者", "at", "sai · imsai.cc", Self.authorURL)
                 } footer: {
                     Text("觉得好用的话，去 GitHub 仓库页点一下 Star ⭐️，这是对项目最大的支持。")
                 }
 
-                WeChatGroupSection()
             }
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.large)

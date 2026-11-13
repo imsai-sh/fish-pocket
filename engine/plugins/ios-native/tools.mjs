@@ -6,6 +6,7 @@
 import { defineTool } from '@deepseek-ai/dsh-tools';
 import { describe, invoke as invokeNative } from './binding.mjs';
 import { ENGINE_CLAIM } from './caller.mjs';
+import { BASE as SPEECH_BASE, credentialHeaders, tellApp } from '../ios-speech/index.mjs';
 
 // These are the engine's own tools, so every call from here claims the engine.
 // It is still only a claim — nothing downstream treats it as proof.
@@ -100,20 +101,18 @@ const notify = defineTool({
   },
 });
 
-const speak = defineTool({
+// Read in DeepSeek's voice by the app itself (plugins/ios-speech), the same way the app reads a
+// reply: the voice the user picked, stopped when they switch conversations. Not the addon's
+// system voices.
+const speak = (ctx) => defineTool({
   name: 'speak',
   description:
-    'Read text aloud through the device speaker, using the system voices. Returns as soon as '
-    + 'speech starts, not when it finishes. Use it when the user asks you to say something out '
-    + 'loud or cannot look at the screen.',
+    'Read text aloud through the device speaker in DeepSeek\'s voice (the one the user picked in '
+    + 'the app\'s settings). Returns once the app has the text, before the audio plays. Use it when '
+    + 'the user asks you to say something out loud or cannot look at the screen.',
   parameters: {
     action: { type: 'string', enum: ['say', 'stop'], description: 'start speaking, or stop at once', required: true },
-    text: { type: 'string', description: 'what to say; required for `say`' },
-    language: {
-      type: 'string',
-      description: 'BCP-47 language of the text, e.g. zh-CN or en-US. Set it when the text is not in the device language',
-    },
-    rate: { type: 'number', description: 'speech rate; the system default is about 0.5' },
+    text: { type: 'string', description: 'what to say; required for `say`. The language is detected from the text' },
   },
   output: {
     schema: { type: 'json' },
@@ -121,13 +120,20 @@ const speak = defineTool({
       text(args.action === 'stop' ? 'Stopped speaking.' : `Speaking ${value.characters} characters.`),
   },
   execute: async (args) => {
-    if (args.action === 'stop') return invoke('speak', 'stop');
+    if (args.action === 'stop') {
+      tellApp('stop');
+      return { speaking: false };
+    }
     if (!args.text) throw new Error('speak: `say` needs `text`');
-    return invoke('speak', 'say', {
-      text: args.text,
-      ...(args.language === undefined ? {} : { language: args.language }),
-      ...(args.rate === undefined ? {} : { rate: args.rate }),
-    });
+    if (await credentialHeaders(ctx, `${SPEECH_BASE}/tts`) === undefined) {
+      throw new Error('speak: reading aloud uses DeepSeek\'s speech service, which needs a DeepSeek API key (it does '
+        + 'not accept a DeepSeek account sign-in yet). Tell the user to add a DeepSeek API key under 设置 → 模型 '
+        + '(Settings → Model) in the app, then ask again. Do not retry until they have.');
+    }
+    if (!tellApp('say', { text: args.text })) {
+      throw new Error('speak: the app is not listening right now (it may be reconnecting to the engine); try again in a moment.');
+    }
+    return { speaking: true, characters: [...args.text].length };
   },
 });
 

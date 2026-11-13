@@ -483,7 +483,9 @@ test('a tool rejects arguments its operation cannot use, before reaching the add
     /needs `afterSeconds`/,
   );
   await assert.rejects(TOOLS.notify.execute({ action: 'cancel' }, {}), /needs `id`/);
-  await assert.rejects(TOOLS.speak.execute({ action: 'say' }, {}), /needs `text`/);
+  await assert.rejects(DEFINITIONS.speak.execute({ action: 'say' }, {}), /needs `text`/);
+  // No DeepSeek API key: the model is told to have the user add one.
+  await assert.rejects(DEFINITIONS.speak.execute({ action: 'say', text: 'x' }, {}), /设置 → 模型/);
 });
 
 test('renderers are pure and survive the shapes the addon can return', () => {

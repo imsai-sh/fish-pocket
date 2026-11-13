@@ -27,6 +27,10 @@ struct ShellNotices: View {
             }
             AccountNotices()
             Spacer(minLength: 0)
+            if ReadAloud.shared.speaking {
+                ReadAloudBar()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
             if let toast = app.toast {
                 ToastView(toast: toast) { withAnimation { app.dismissToast(toast.id) } }
                     .id(toast.id)
@@ -36,6 +40,7 @@ struct ShellNotices: View {
         .padding(.horizontal, 16)
         .padding(.bottom, bottomInset)
         .animation(.snappy, value: app.toast)
+        .animation(.snappy, value: ReadAloud.shared.speaking)
         .animation(.snappy, value: showOffline)
         .task(id: app.connected) {
             guard !app.connected, app.generation > 0 else { showOffline = false; return }
@@ -91,5 +96,44 @@ private struct ToastView: View {
             // raises it just as the install sheet closes.
             if !Task.isCancelled { dismiss() }
         }
+    }
+}
+
+/// While a reply is read aloud: what is happening, pause or go on, and stop.
+private struct ReadAloudBar: View {
+    private var reading: ReadAloud { .shared }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "speaker.wave.2.fill")
+                .symbolEffect(.variableColor.iterative, isActive: !reading.paused)
+                .foregroundStyle(Palette.secondary)
+                .padding(.leading, 14)
+            (reading.paused ? Text("朗读已暂停") : Text("正在朗读"))
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Palette.ink)
+                .padding(.trailing, 6)
+            Button {
+                Haptics.tap()
+                if reading.paused { reading.resume() } else { reading.pause() }
+            } label: {
+                Image(systemName: reading.paused ? "play.fill" : "pause.fill").frame(width: 40, height: 40)
+            }
+            .accessibilityLabel(reading.paused ? Text("继续朗读") : Text("暂停朗读"))
+            Button {
+                Haptics.tap()
+                reading.stop()
+            } label: {
+                Image(systemName: "xmark").font(.footnote.weight(.semibold)).frame(width: 40, height: 40)
+            }
+            .accessibilityLabel(Text("停止朗读"))
+            .padding(.trailing, 2)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(Palette.ink)
+        .frame(height: 44)
+        .background(Palette.grouped, in: Capsule())
+        .overlay(Capsule().strokeBorder(Palette.stroke))
+        .accessibilityElement(children: .contain)
     }
 }
