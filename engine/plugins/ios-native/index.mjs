@@ -86,7 +86,8 @@ export default function IosNative(ctx) {
   ctx.inject(['tools'], (toolsCtx) => {
     for (const [capability, tool] of Object.entries(TOOLS)) {
       if (available[capability] === undefined) continue;
-      toolsCtx.effect(() => toolsCtx.tools.register(tool), `ios-native ${capability} tool`);
+      const definition = typeof tool === 'function' ? tool(toolsCtx) : tool;
+      toolsCtx.effect(() => toolsCtx.tools.register(definition), `ios-native ${capability} tool`);
     }
     toolsCtx.logger.info('native capabilities: %s', Object.keys(available).join(', '));
   });

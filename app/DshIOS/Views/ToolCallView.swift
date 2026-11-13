@@ -31,6 +31,19 @@ struct ToolCallView: View {
             .buttonStyle(.plain)
             .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 12, style: .continuous))
             .contextMenu { menu(row) }
+            if call.displayName == "browser" {
+                // What the agent did in the browser is easier to see than to read about.
+                Button { actions.openBrowser() } label: {
+                    Text("查看")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Palette.ink)
+                        .padding(.horizontal, 12)
+                        .frame(minHeight: 30)
+                        .overlay(Capsule().strokeBorder(Palette.stroke))
+                        .hitTarget()
+                }
+                .buttonStyle(.plain)
+            }
             if ask?.answerable == true {
                 Button { actions.revealQuestion(call.id) } label: {
                     Text("回答")
@@ -102,6 +115,7 @@ enum ToolStyle {
         case "grep", "search": return "magnifyingglass"
         case "web_search", "search_web", "domain_search", "advanced_search": return "globe"
         case "web_fetch", "fetch": return "arrow.down.doc"
+        case "browser": return "safari"
         case "todo_write", "todo", "todos": return "checklist"
         case "subagent", "subagent_fork", "task", "list_agents", "send_message", "interrupt_agent", "wait_agent": return "person.2"
         case "ask_user_question": return "questionmark.bubble"

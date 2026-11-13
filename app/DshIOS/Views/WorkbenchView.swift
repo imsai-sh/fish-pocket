@@ -21,14 +21,14 @@ struct WorkbenchView: View {
     let model: SessionModel
     /// Kept by the conversation, which can also ask for a tab while this is open.
     @Binding var tab: WorkbenchTab
-    /// Kept by the conversation, so the page outlives this view.
-    @Binding var browser: BrowserModel?
     let close: () -> Void
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
     /// A page is created on its first visit (the terminal only attaches then) and
     /// stays, so switching tabs leaves it where it was.
     @State private var visited: Set<WorkbenchTab> = []
+    /// The conversation's browser, which outlives this view and is the one the agent drives.
+    @State private var browser: BrowserModel?
 
     var body: some View {
         Group {
@@ -51,7 +51,7 @@ struct WorkbenchView: View {
             // A keyboard belongs to the tab that raised it.
             dismissKeyboard()
             visited.insert(selected)
-            if selected == .browser, browser == nil { browser = BrowserModel(sessionId: model.sessionId, origin: app.client.origin) }
+            if selected == .browser, browser == nil { browser = BrowserModel.session(model.sessionId, origin: app.client.origin) }
         }
     }
 

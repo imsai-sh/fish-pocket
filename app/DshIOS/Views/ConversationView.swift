@@ -22,8 +22,6 @@ struct ConversationView: View {
     @State private var context = ComposerContext()
     @State private var workbenchOpen = false
     @State private var workbenchTab = WorkbenchTab.terminal
-    /// The workbench browser's page, kept when the sheet closes.
-    @State private var browser: BrowserModel?
     /// Interactions swiped away; they stay answerable from the 「等你允许」 line.
     @State private var deferred: Set<String> = []
     @State private var showNewWorkspace = false
@@ -290,6 +288,7 @@ struct ConversationView: View {
         }
         .environment(\.conversationActions, ConversationActions(
             openChanges: { openWorkbench(.changes) },
+            openBrowser: { openWorkbench(.browser) },
             regenerate: { text in Task { await model.send(text: text) } },
             fork: { turn in
                 Task { await app.fork(session: sessionId, atSeq: model.forkBoundary(turn: turn), from: .turn) }
@@ -381,7 +380,7 @@ struct ConversationView: View {
     }
 
     private func workbenchPage(_ model: SessionModel) -> some View {
-        WorkbenchView(model: model, tab: $workbenchTab, browser: $browser) { workbenchOpen = false }
+        WorkbenchView(model: model, tab: $workbenchTab) { workbenchOpen = false }
     }
 
     /// A continuable child takes messages only through a live parent Agent.
@@ -622,6 +621,8 @@ extension EnvironmentValues {
 /// Actions a reply offers below it, provided by the conversation.
 struct ConversationActions {
     var openChanges: () -> Void = {}
+    /// The workbench's browser, which the agent's browser tool drives.
+    var openBrowser: () -> Void = {}
     var regenerate: (String) -> Void = { _ in }
     var fork: (Int) -> Void = { _ in }
     /// Quote a reply into the composer, to answer that part of it.
