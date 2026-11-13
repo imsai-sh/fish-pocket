@@ -171,7 +171,7 @@ targets:
         NSCalendarsFullAccessUsageDescription: 让智能体按你的要求查看和安排日程。为回答你的问题，相关日程内容会随对话发送给你选择的模型服务商。
         # 本机能力「提醒」。同样的理由：第二句是产品选择，不是硬性要求。
         NSRemindersFullAccessUsageDescription: 让智能体按你的要求查看和创建提醒。为回答你的问题，相关提醒内容会随对话发送给你选择的模型服务商。
-        NSPhotoLibraryAddUsageDescription: 把分享海报保存到相册。
+        NSPhotoLibraryAddUsageDescription: 把分享海报和交流群二维码保存到相册。
         # 本机能力「位置」。只要 when-in-use，不做任何后台或持续定位，所以第一句
         # 就说清楚是「用到的时候问一次」，免得用户以为我们在跟着他。
         NSLocationWhenInUseUsageDescription: 让智能体在你问「我在哪」「附近有什么」时读取一次当前位置。只在用到时读，不会持续记录。为回答你的问题，位置会随对话发送给你选择的模型服务商。

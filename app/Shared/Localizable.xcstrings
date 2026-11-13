@@ -4681,6 +4681,34 @@
         }
       }
     },
+    "微信交流群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WeChat Group"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupo de WeChat"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WeChat グループ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WeChat 그룹"
+          }
+        }
+      }
+    },
     "截图" : {
       "localizations" : {
         "en" : {
@@ -6781,6 +6809,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "링크가 있는 Fish Pocket 공유 포스터"
+          }
+        }
+      }
+    },
+    "Fish Pocket 微信交流群二维码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket WeChat group QR code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Código QR del grupo de WeChat de Fish Pocket"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket の WeChat グループの QR コード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket WeChat 그룹 QR 코드"
           }
         }
       }
@@ -31679,6 +31735,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "WeChat"
+          }
+        }
+      }
+    },
+    "微信扫码加入交流群。在这台手机上看的话，先保存到相册，再用微信「扫一扫」从相册里识别。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan with WeChat to join the community group. Viewing this on your phone? Save it to Photos first, then use WeChat's Scan to pick it from your album."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanéalo con WeChat para unirte al grupo de la comunidad. ¿Lo ves en este teléfono? Guárdalo primero en Fotos y luego usa Escanear de WeChat para elegirlo del álbum."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WeChat でスキャンするとコミュニティグループに参加できます。このスマホで見ている場合は、まず写真に保存してから、WeChat の「スキャン」でアルバムから読み取ってください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WeChat으로 스캔하면 커뮤니티 그룹에 참여할 수 있어요. 이 휴대폰에서 보고 있다면 먼저 사진에 저장한 다음, WeChat의 「스캔」에서 앨범의 사진을 선택하세요."
           }
         }
       }
@@ -70575,6 +70659,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "서버와의 연결이 끊어졌어요"
+          }
+        }
+      }
+    },
+    "二维码加载失败" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load the QR code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo cargar el código QR"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QR コードを読み込めませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QR 코드를 불러오지 못했어요"
           }
         }
       }
