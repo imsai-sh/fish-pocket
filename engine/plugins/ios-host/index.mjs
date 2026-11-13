@@ -75,8 +75,10 @@ export default class IosHost {
     ctx.effect(() => {
       const manager = ctx.pluginManager;
       const change = manager.change;
+      // Installs in flight: a restart waiting on a turn must not cut one off either.
+      let installing = 0;
       const restarter = createRestartRequester({
-        isBusy: () => ctx.agents.list().some((agent) => agent.status === 'running'),
+        isBusy: () => installing > 0 || ctx.agents.list().some((agent) => agent.status === 'running'),
         notify: (reason) => {
           ctx.logger.info('restarting the engine to apply plugin changes (%s)', reason);
           parentPort?.postMessage({ type: 'dsh-ios/restart', reason });
@@ -98,7 +100,7 @@ export default class IosHost {
         };
       }
       const installBundle = manager.installBundle;
-      manager.installBundle = function (spec, options) {
+      const install = function (spec, options) {
         const pin = pinFor(spec, { dir: this.profile?.dir });
         if (pin?.refused) {
           return Promise.resolve({
@@ -115,6 +117,14 @@ export default class IosHost {
         if (refused.length === 0) return installBundle.call(this, spec, options);
         const approvedBuilds = builds.filter((build) => !build.startsWith('!'));
         return refuseBuilds(this.profile.dir, refused).then(() => installBundle.call(this, spec, { ...options, approvedBuilds }));
+      };
+      manager.installBundle = async function (spec, options) {
+        installing += 1;
+        try {
+          return await install.call(this, spec, options);
+        } finally {
+          installing -= 1;
+        }
       };
       // The plugins the app ships (builtins.mjs) start switched on.
       if (process.env.DSH_IOS_DATA) {

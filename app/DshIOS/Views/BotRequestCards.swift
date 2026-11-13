@@ -242,6 +242,7 @@ struct BotSideChatSheet: View {
                         Color.clear.frame(height: 1).id("end")
                     }
                     .padding(20)
+                    .modifier(LinkOpening())
                 }
                 .onChange(of: chat?["entries"].array.count) { _, _ in withAnimation { proxy.scrollTo("end") } }
             }

@@ -20,15 +20,21 @@ struct BotChatView: View {
                     .buttonStyle(.plain)
                     .accessibilityHint("查看 Bot 详情")),
                 accessory: AnyView(BotPending(bot: bot)),
-                menu: { model in AnyView(BotChatMenu(target: .bot(bot.id), model: model)) }
+                menu: { model, tools in AnyView(BotChatMenu(target: .bot(bot.id), model: model, tools: tools)) },
+                tools: true
             ))
             .id(bot.sessionId)
             .environment(\.botTimeline, BotTimeline(hiddenTurns: team.hiddenTurns(of: bot), earlierFrom: bot.parts.isEmpty ? nil : bot.sessionId, showsThinking: team.showsThinking, sessionId: bot.sessionId))
             .environment(\.botComposer, .bot(bot.id))
             .environment(\.userBubbleTint, team.bubbleTint(of: bot))
             .openingOtherSessions($selection, from: bot.sessionId)
-            .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) { BotDetailView(botId: botId, tab: detailTab) }
-            .sheet(isPresented: $sideChatOpen) { BotSideChatSheet(botId: botId) }
+            // Sheets over the chat: their links open in the Bot's own browser too, as in the chat.
+            .sheet(isPresented: $detailOpen, onDismiss: { detailTab = .profile }) {
+                BotDetailView(botId: botId, tab: detailTab).environment(\.browserLinks, BrowserLinks(sessionId: bot.sessionId, origin: app.client.origin))
+            }
+            .sheet(isPresented: $sideChatOpen) {
+                BotSideChatSheet(botId: botId).environment(\.browserLinks, BrowserLinks(sessionId: bot.sessionId, origin: app.client.origin))
+            }
             .onChange(of: team.memoryRequest) { _, request in
                 guard request == botId else { return }
                 team.memoryRequest = nil
@@ -51,7 +57,7 @@ struct BotChatView: View {
             .onDisappear { app.clearUnread(bot.sessionId); if team.visibleChat == bot.id { team.visibleChat = nil } }
         } else if team.status == .unknown {
             // The app opened on this chat (the page it was last on) before the team answered.
-            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).background(Palette.background)
+            ConversationLoading().background(Palette.background)
         } else {
             ContentUnavailableView("这个 Bot 已不在团队里", systemImage: "person.slash")
         }
@@ -99,7 +105,6 @@ private struct BotPending: View {
     var body: some View {
         let team = app.botTeam
         VStack(spacing: 8) {
-            BotMemoryNotice(id: bot.id)
             if bot.waiting { BotModelPicker(bot: bot) }
             if let question = team.question(of: bot) { BotQuestionCard(bot: bot, question: question) }
             if let view = team.pendingView(of: bot) { BotViewCard(bot: bot, pending: view).id(view["id"].string) }
@@ -263,55 +268,24 @@ private struct BotModelPicker: View {
     }
 }
 
-/// The memory of this Bot or group just changed (the Bot remembered something on its own):
-/// one line above the composer until it is read or closed.
-struct BotMemoryNotice: View {
-    @Environment(AppModel.self) private var app
-    /// A Bot's id or a group's.
-    let id: String
-
-    var body: some View {
-        let team = app.botTeam
-        if let news = team.memoryNews(id) {
-            HStack(spacing: 8) {
-                Image(systemName: "brain").font(.footnote).foregroundStyle(Palette.secondary)
-                Text(Self.line(news)).font(.footnote).foregroundStyle(Palette.ink).lineLimit(2)
-                Spacer(minLength: 0)
-                if team.bot(id) != nil {
-                    Button("看看") { team.dismissMemoryNews(id); team.memoryRequest = id }.font(.footnote.weight(.semibold))
-                }
-                Button { team.dismissMemoryNews(id) } label: {
-                    Image(systemName: "xmark").font(.caption2.weight(.semibold)).foregroundStyle(Palette.secondary).hitTarget(30)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("知道了")
-            }
-            .padding(.leading, 14).padding(.trailing, 6)
-            .frame(minHeight: 38)
-            .background(Palette.grouped, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .transition(.opacity)
-        }
-    }
-
-    private static func line(_ news: JSON) -> String {
-        let text = news["text"].string ?? ""
-        return switch news["op"].string {
-        case "remove", "forget": String(localized: "忘掉了：\(text)")
-        case "replace", "update": String(localized: "改了一条记忆：\(text)")
-        default: String(localized: "记住了：\(text)")
-        }
-    }
-}
-
 /// The chat's menu in the bar: what the chat can do beyond sending a message.
 struct BotChatMenu: View {
     @Environment(AppModel.self) private var app
     let target: BotComposer
     let model: SessionModel
+    /// The conversation's tools, for a chat that has them.
+    var tools: BotChatTools?
 
     var body: some View {
         let team = app.botTeam
         Menu {
+            if let tools {
+                // The browser has a line of its own besides the workbench's tab: it opens full screen, the page alone.
+                Section {
+                    Button(action: tools.toggleWorkbench) { Label("工作台", systemImage: "apple.terminal") }
+                    Button(action: tools.openBrowser) { Label("浏览器", systemImage: "globe") }
+                }
+            }
             switch target {
             case .bot(let id):
                 if let bot = team.bot(id) {

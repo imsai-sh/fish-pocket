@@ -49,7 +49,7 @@ struct RoomRelayView: View {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text(reply["text"].string ?? "").font(.callout)
                             .padding(.horizontal, 16).padding(.vertical, 10)
-                            .background(Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .userBubble()
                         if let via = reply["via"].string {
                             Label("来自\(IMPlatform.name(via))", systemImage: "arrow.down.left.circle").font(.caption2).foregroundStyle(Palette.faint)
                         }

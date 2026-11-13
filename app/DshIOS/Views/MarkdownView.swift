@@ -84,10 +84,12 @@ struct MarkdownView: View {
         }
     }
 
-    private func inline(_ text: String, _ style: UIFont.TextStyle = .callout) -> Text {
+    private func inline(_ text: String, _ style: UIFont.TextStyle = .callout) -> some View {
         var string = cached ? MarkdownCache.inline(text) : MarkdownCache.render(text)
         if linksFiles && !fileMentions.isEmpty { string = Self.linkMentions(string, fileMentions) }
-        return MathText.text(string, size: UIFont.preferredFont(forTextStyle: style).pointSize)
+        // Links are blue, as in every chat app; the app's own tint is the text's ink.
+        return MathText.text(string, size: UIFont.preferredFont(forTextStyle: style).pointSize, linkMarks: true)
+            .tint(Palette.link)
     }
 
     /// Links code spans that exactly name a path or its unique basename.
@@ -95,7 +97,10 @@ struct MarkdownView: View {
         var string = source
         for run in source.runs where run.inlinePresentationIntent?.contains(.code) == true && run.link == nil {
             let value = String(source[run.range].characters).replacingOccurrences(of: "\n", with: " ")
-            if let path = mentions[value] { string[run.range].link = LinkTarget.fileURL(path) }
+            if let path = mentions[value] {
+                string[run.range].link = LinkTarget.fileURL(path)
+                string[run.range].backgroundColor = nil
+            }
         }
         return string
     }
@@ -180,6 +185,15 @@ enum MarkdownCache {
             string[run.range].font = .system(.subheadline, design: .monospaced)
         }
         linkify(&string)
+        // A link is blue text on nothing, in the reply's own font, even an address written as code.
+        for run in string.runs where run.link != nil {
+            string[run.range].backgroundColor = nil
+            string[run.range].font = nil
+            if var intent = run.inlinePresentationIntent {
+                intent.remove(.code)
+                string[run.range].inlinePresentationIntent = intent
+            }
+        }
         return string
     }
 
@@ -217,22 +231,47 @@ extension EnvironmentValues {
     @Entry var fileMentions: [String: String] = [:]
 }
 
-/// Opens links tapped in replies the way the Web UI's chat does (C-23). Web
-/// links open in an in-app Safari sheet instead of the system browser: the
-/// app stays in the foreground, so servers started in the engine on
-/// 127.0.0.1 keep answering (switching to Safari suspends the app and them).
+/// Where a conversation's web links open: its own browser (S-87), the page the agent drives too.
+struct BrowserLinks {
+    let sessionId: String
+    let origin: URL
+    /// The workbench shows that browser beside the conversation, so the page opens there.
+    var beside = false
+}
+
+extension EnvironmentValues {
+    @Entry var browserLinks: BrowserLinks?
+}
+
+/// Opens links tapped in replies the way the Web UI's chat does (C-23). In a
+/// conversation, web links open in its own browser, as the Web UI's sidebar
+/// browser: sign-ins made there count, and `localhost` is the engine on this
+/// phone. Elsewhere (a remote session, a page with no conversation) they open
+/// in an in-app Safari sheet. Either way the app stays in the foreground, so
+/// servers started in the engine on 127.0.0.1 keep answering (switching to
+/// Safari suspends the app and them).
 /// File links open the file preview at their `#L24` / `#L24-L30` lines.
 struct LinkOpening: ViewModifier {
     @Environment(\.fileLinkScope) private var scope
+    @Environment(\.browserLinks) private var browserLinks
     @State private var target: LinkTarget?
+    @State private var browser: BrowserModel?
 
     func body(content: Content) -> some View {
         content
             .environment(\.openURL, OpenURLAction { url in
                 guard let target = LinkTarget(url, scope: scope) else { return .systemAction }
-                if case .web(let url) = target { InAppSafari.open(url) } else { self.target = target }
+                if case .web(let url) = target { open(url) } else { self.target = target }
                 return .handled
             })
+            // From here, not from the conversation: a link can be tapped in a sheet over it. A sheet,
+            // not full screen: a glance at a page, with the chat still showing behind it.
+            .sheet(isPresented: Binding(get: { browser != nil }, set: { if !$0 { browser = nil } })) {
+                if let browser {
+                    FullScreenBrowser(model: browser) { self.browser = nil }
+                        .presentationDragIndicator(.visible)
+                }
+            }
             .sheet(item: $target) { target in
                 switch target {
                 case .web:
@@ -241,6 +280,21 @@ struct LinkOpening: ViewModifier {
                     FilePreviewSheet(sessionId: scope.sessionId, path: path, root: scope.root, lines: lines)
                 }
             }
+    }
+
+    /// The browser refuses the app's own address; that one, and every link outside a conversation, goes to Safari.
+    private func open(_ url: URL) {
+        guard let links = browserLinks, case .success = BrowserPage.parse(url.absoluteString, applicationOrigin: links.origin) else {
+            InAppSafari.open(url)
+            return
+        }
+        let model = BrowserModel.session(links.sessionId, origin: links.origin)
+        // A tab of its own: the page the user or the agent had open stays as it was.
+        model.openLink(url.absoluteString)
+        if !links.beside {
+            dismissKeyboard()
+            browser = model
+        }
     }
 }
 

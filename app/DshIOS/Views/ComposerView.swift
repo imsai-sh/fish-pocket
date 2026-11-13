@@ -216,7 +216,7 @@ struct ComposerView: View {
     /// Files another app shared here (the share extension): attached, not sent.
     var pendingFiles: SharedFiles?
     var consumeFiles: () -> Void = {}
-    /// A question the shell wrote for the reader (询问 AI): put in the input, not sent.
+    /// A question the shell wrote for the reader (询问 AI): sent as soon as the conversation shows.
     var pendingPrompt: String?
     var consumePrompt: () -> Void = {}
     /// Take the keyboard once shown (`dsh://new` from a widget).
@@ -293,7 +293,7 @@ struct ComposerView: View {
             guard let pendingPrompt else { return }
             consumePrompt()
             voice.mode = false
-            composer.place(prompt: pendingPrompt)
+            composer.send(prompt: pendingPrompt)
         }
         .task(id: focusOnAppear) {
             guard focusOnAppear else { return }

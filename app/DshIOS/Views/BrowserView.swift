@@ -1,15 +1,15 @@
 import SwiftUI
 import WebKit
 
-/// The workbench browser (S-87): one WKWebView per conversation, its address, and the last page of the session.
+/// One tab of a conversation's browser (S-87): a WKWebView, its address, and what it shows.
 /// There is no proxy and no RPC; the engine runs in this app, so `localhost` reaches a dev server the agent started.
 ///
-/// The agent drives this same page through the browser capability (`BrowserAgent.swift`), so the user can watch it
-/// and take over. That is why the page belongs to `session(_:origin:)` rather than to a view: the agent can open one
-/// before the user ever looks at the workbench.
+/// The agent drives these same pages through the browser capability (`BrowserAgent.swift`), so the user can watch
+/// it and take over. That is why a page belongs to its conversation's `BrowserModel` rather than to a view: the
+/// agent can open one before the user ever looks at the workbench.
 @MainActor
 @Observable
-final class BrowserModel: NSObject {
+final class BrowserPage: NSObject {
     var address = ""
     /// The refused address's reason, shown under the bar.
     var addressError: String?
@@ -18,7 +18,10 @@ final class BrowserModel: NSObject {
     private(set) var canGoForward = false
     private(set) var loading = false
     private(set) var failure: String?
+    /// The last address this page went to.
     private(set) var lastURL: String?
+    /// The page's own title, once it has one.
+    private(set) var title: String?
     /// What is on screen now, for the bar's menu.
     private(set) var page: URL?
     /// The page on screen came as the site's desktop version, as WebKit settled it.
@@ -30,21 +33,19 @@ final class BrowserModel: NSObject {
 
     /// The conversation this browser belongs to: downloads go to its working directory.
     @ObservationIgnored let sessionId: String
-    /// The agent's kept scripts (`addScript`), run on every page load until the app restarts.
-    @ObservationIgnored var keptScripts: [BrowserScript] = []
-    @ObservationIgnored var scriptCount = 0
+    /// The conversation's browser this page is a tab of: its kept scripts run here too, and its
+    /// downloads are listed there.
+    @ObservationIgnored weak var browser: BrowserModel?
     /// What the pages wrote to the console, and the requests their scripts made (`logs`).
     @ObservationIgnored var consoleLog: [[String: Any]] = []
     @ObservationIgnored var networkLog: [[String: Any]] = []
     @ObservationIgnored var logSeq = 0
     @ObservationIgnored var cachedUserAgent: String?
-    /// Files this browser downloaded, and the ones still coming.
-    @ObservationIgnored var downloads: [BrowserDownload] = []
+    /// This page's downloads still coming, by their place in the browser's list.
     @ObservationIgnored var downloadTasks: [ObjectIdentifier: Int] = [:]
     @ObservationIgnored private var noticeTimer: Task<Void, Never>?
 
     @ObservationIgnored let webView: WKWebView
-    @ObservationIgnored private let storageKey: String
     @ObservationIgnored let origin: URL
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
     /// Why the last load failed, as WebKit said it, for the agent; `failure` is the user's sentence.
@@ -53,54 +54,23 @@ final class BrowserModel: NSObject {
     @ObservationIgnored private var tail: Task<Void, Never>?
     /// The agent at work on this page, drawn over it in the workbench.
     @ObservationIgnored let presence = BrowserPresence()
+    /// The address or title changed: the tab set is kept again.
+    @ObservationIgnored var changed: (() -> Void)?
 
-    // MARK: One per conversation
-
-    /// The open conversations' browsers. A few at most: each page is a web process of its own.
-    /// Observed, so a conversation can show that its browser has a page.
-    @MainActor @Observable final class Registry {
-        fileprivate(set) var models: [String: BrowserModel] = [:]
-    }
-    static let registry = Registry()
-    private static var open: [String: BrowserModel] {
-        get { registry.models }
-        set { registry.models = newValue }
-    }
-
-    /// This conversation's browser if it has one, without making one.
-    static func existing(_ sessionId: String) -> BrowserModel? { registry.models[sessionId] }
-    private static var recent: [String] = []
-    private static let kept = 3
-
-    /// This conversation's browser, made on first use by either the workbench or the agent.
-    static func session(_ sessionId: String, origin: URL) -> BrowserModel {
-        recent.removeAll { $0 == sessionId }
-        recent.append(sessionId)
-        if let model = open[sessionId] { return model }
-        let model = BrowserModel(sessionId: sessionId, origin: origin)
-        open[sessionId] = model
-        // The least recently used page that is not on screen goes; its address stays for "恢复页面".
-        while open.count > kept, let stale = recent.first(where: { open[$0]?.onScreen == false && $0 != sessionId }) {
-            recent.removeAll { $0 == stale }
-            open.removeValue(forKey: stale)?.close()
-        }
-        return model
-    }
-
-    /// Every conversation's browser shares one store of its own, kept across launches, so a site signed in
-    /// to once stays signed in, for the user and for the agent. It is apart from the default store, where the
-    /// engine's web view keeps its session cookie, and from Safari, which no app can read.
+    /// Every tab of every conversation's browser shares one store of its own, kept across launches, so a site
+    /// signed in to once stays signed in, for the user and for the agent. It is apart from the default store,
+    /// where the engine's web view keeps its session cookie, and from Safari, which no app can read.
     static let store = WKWebsiteDataStore(forIdentifier: UUID(uuidString: "8E4C2D1A-5B7F-4A3E-9C6D-2F1B0A9E7D45")!)
 
     /// Sign out of every site: cookies, storage and caches of all the conversations' browsers.
     static func clearWebsiteData() async {
         await store.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: .distantPast)
-        for model in open.values where model.webView.url != nil { model.webView.reload() }
+        for page in BrowserModel.livePages where page.webView.url != nil { page.webView.reload() }
     }
 
-    private init(sessionId: String, origin: URL) {
+    init(sessionId: String, origin: URL, browser: BrowserModel?) {
         self.sessionId = sessionId
-        storageKey = "dsh.browser.last.\(sessionId)"
+        self.browser = browser
         self.origin = origin
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = Self.store
@@ -111,7 +81,6 @@ final class BrowserModel: NSObject {
         configuration.userContentController.add(
             BrowserPresence.Listener(presence), contentWorld: Self.agentWorld, name: BrowserPresence.Listener.name)
         webView = WKWebView(frame: .zero, configuration: configuration)
-        lastURL = UserDefaults.standard.string(forKey: storageKey)
         super.init()
         // The recorder posts from the page's own world, where the page's console and requests are.
         webView.configuration.userContentController.add(LogListener(self), contentWorld: .page, name: LogListener.name)
@@ -125,6 +94,14 @@ final class BrowserModel: NSObject {
             webView.observe(\.canGoForward) { [weak self] view, _ in MainActor.assumeIsolated { self?.canGoForward = view.canGoForward } },
             webView.observe(\.isLoading) { [weak self] view, _ in MainActor.assumeIsolated { self?.loading = view.isLoading } },
             webView.observe(\.url) { [weak self] view, _ in MainActor.assumeIsolated { self?.navigated(to: view.url) } },
+            webView.observe(\.title) { [weak self] view, _ in
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    let title = view.title?.trimmed ?? ""
+                    self.title = title.isEmpty ? nil : title
+                    self.changed?()
+                }
+            },
         ]
     }
 
@@ -133,7 +110,7 @@ final class BrowserModel: NSObject {
         page = url
         address = url.absoluteString
         lastURL = url.absoluteString
-        UserDefaults.standard.set(url.absoluteString, forKey: storageKey)
+        changed?()
     }
 
     /// Open what the bar holds, or say why not.
@@ -170,7 +147,7 @@ final class BrowserModel: NSObject {
     }
 
     /// In a SwiftUI page now, rather than parked or nowhere.
-    private var onScreen: Bool { webView.window != nil && webView.superview !== webView.window }
+    var onScreen: Bool { webView.window != nil && webView.superview !== webView.window }
 
     /// A page off screen still has to lay out and run its scripts for the agent to read it, which WebKit does
     /// only for a view in a window. So until the workbench shows it, it waits behind the window's content, the
@@ -184,7 +161,8 @@ final class BrowserModel: NSObject {
         window.insertSubview(webView, at: 0)
     }
 
-    private func close() {
+    func close() {
+        changed = nil
         presence.finish()
         webView.stopLoading()
         if webView.superview === webView.window { webView.removeFromSuperview() }
@@ -216,7 +194,7 @@ final class BrowserModel: NSObject {
     // MARK: Desktop or mobile version
 
     /// The version asked for by site, as Safari's 「请求桌面网站」: kept across launches and shared by every
-    /// conversation's browser, the agent's too. A site with no choice gets WebKit's own (mobile on a phone).
+    /// tab of every conversation's browser, the agent's too. A site with no choice gets WebKit's own (mobile on a phone).
     private static let contentModesKey = "dsh.browser.contentModes"
 
     /// The name a choice is kept under: `www.` and `m.` are one site dressed two ways, and a site with a
@@ -368,7 +346,7 @@ final class BrowserModel: NSObject {
     }
 }
 
-extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
+extension BrowserPage: WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         clearFailure()
         desktop = navigation.effectiveContentMode == .desktop
@@ -421,10 +399,30 @@ extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
     }
 }
 
+/// A conversation's browser in the workbench or full screen: the tab in front, its bar, and the tabs.
 struct WorkbenchBrowser: View {
-    @Bindable var model: BrowserModel
+    let model: BrowserModel
+
+    var body: some View {
+        Group {
+            if let tab = model.selected, let page = tab.page {
+                BrowserPageView(model: model, page: page).id(tab.id)
+            } else {
+                // A tab whose page was let go to save memory comes back when it is in front again.
+                Palette.background.onAppear { model.reviveSelected() }
+            }
+        }
+        .onChange(of: model.selectedId) { _, _ in model.reviveSelected() }
+    }
+}
+
+/// One tab on screen: its page (or where to start), and the bar under it.
+private struct BrowserPageView: View {
+    let model: BrowserModel
+    @Bindable var page: BrowserPage
     @FocusState private var editing: Bool
     @State private var confirmingClear = false
+    @State private var showingTabs = false
 
     /// Where dev servers usually listen; the agent's own port goes in the bar.
     private static let commonPorts = [3000, 5173, 8000, 8080]
@@ -432,16 +430,16 @@ struct WorkbenchBrowser: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                BrowserWebView(webView: model.webView)
-                    .overlay { BrowserAgentOverlay(model: model) }
-                    .opacity(model.started ? 1 : 0)
-                if !model.started { start }
+                BrowserWebView(webView: page.webView)
+                    .overlay { BrowserAgentOverlay(model: page) }
+                    .opacity(page.started ? 1 : 0)
+                if !page.started { start }
             }
-            if let error = model.addressError {
+            if let error = page.addressError {
                 notice(error)
-            } else if let failure = model.failure {
+            } else if let failure = page.failure {
                 notice(failure)
-            } else if let passing = model.notice {
+            } else if let passing = page.notice {
                 notice(passing, color: Palette.secondary)
             }
             bar
@@ -449,19 +447,32 @@ struct WorkbenchBrowser: View {
         .background(Palette.background)
         // On the page rather than the menu: a dialog hung on a Menu can fail to present.
         .confirmationDialog("清除网站数据？", isPresented: $confirmingClear, titleVisibility: .visible) {
-            Button("清除", role: .destructive) { Task { await BrowserModel.clearWebsiteData() } }
+            Button("清除", role: .destructive) { Task { await BrowserPage.clearWebsiteData() } }
         } message: {
             Text("所有会话的浏览器都会退出登录，Cookie 和网站存储一并删除。")
+        }
+        .sheet(isPresented: $showingTabs) { BrowserTabsSheet(model: model) }
+        .onAppear(perform: takeFocus)
+        .onChange(of: showingTabs) { _, showing in if !showing { takeFocus() } }
+    }
+
+    /// A blank tab the user just opened: the cursor goes to its address bar, once nothing covers it.
+    private func takeFocus() {
+        guard model.focusesAddress, !showingTabs, !page.started else { return }
+        model.focusesAddress = false
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(350))
+            editing = true
         }
     }
 
     /// Under the thumb, as in Safari; it rides up on the keyboard while typing an address.
     private var bar: some View {
         HStack(spacing: 0) {
-            button("chevron.backward", "后退", enabled: model.canGoBack) { model.presence.dismiss(); model.back() }
-            button("chevron.forward", "前进", enabled: model.canGoForward) { model.presence.dismiss(); model.forward() }
+            button("chevron.backward", "后退", enabled: page.canGoBack) { page.presence.dismiss(); page.back() }
+            button("chevron.forward", "前进", enabled: page.canGoForward) { page.presence.dismiss(); page.forward() }
             HStack(spacing: 6) {
-                TextField("输入 HTTP(S) 地址", text: $model.address)
+                TextField("输入 HTTP(S) 地址", text: $page.address)
                     .font(.subheadline)
                     .keyboardType(.URL)
                     .textContentType(.URL)
@@ -469,40 +480,68 @@ struct WorkbenchBrowser: View {
                     .autocorrectionDisabled()
                     .submitLabel(.go)
                     .focused($editing)
-                    .onSubmit { model.presence.dismiss(); model.go() }
-                if model.loading { ProgressView().controlSize(.small) }
+                    .onSubmit { page.presence.dismiss(); page.go() }
+                if page.loading { ProgressView().controlSize(.small) }
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 36)
             .background(Palette.bubble, in: Capsule())
             .padding(.horizontal, 4)
+            tabsButton
             more
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
     }
 
+    /// As in Safari: a tap shows the tabs, a long press opens or closes one.
+    private var tabsButton: some View {
+        Menu {
+            Button { newTab() } label: { Label("新建标签页", systemImage: "plus.square.on.square") }
+            if let tab = model.selected {
+                Button(role: .destructive) { model.close(tab) } label: { Label("关闭此标签页", systemImage: "xmark.square") }
+            }
+        } label: {
+            TabCount(count: model.tabs.count)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        } primaryAction: {
+            Haptics.tap()
+            editing = false
+            showingTabs = true
+        }
+        .accessibilityLabel("标签页")
+        .accessibilityValue(Text("\(model.tabs.count) 个"))
+    }
+
+    private func newTab() {
+        Haptics.tap()
+        // A new tab starts at its address bar, as in Safari: the new tab's own view takes it.
+        model.focusesAddress = true
+        model.newTab()
+    }
+
     private var more: some View {
         Menu {
-            Button { model.presence.dismiss(); model.reload() } label: {
-                Label(model.loading ? "停止" : "刷新", systemImage: model.loading ? "xmark" : "arrow.clockwise")
+            Button { page.presence.dismiss(); page.reload() } label: {
+                Label(page.loading ? "停止" : "刷新", systemImage: page.loading ? "xmark" : "arrow.clockwise")
             }
-            .disabled(!model.started && model.lastURL == nil)
-            Button { model.setDesktop(!model.desktop) } label: {
-                if model.desktop {
+            .disabled(!page.started && page.lastURL == nil)
+            Button { page.setDesktop(!page.desktop) } label: {
+                if page.desktop {
                     Label("请求移动版网站", systemImage: "iphone")
                 } else {
                     Label("请求电脑版网站", systemImage: "desktopcomputer")
                 }
             }
-            .disabled(model.page == nil)
+            .disabled(page.page == nil)
             Button {
-                if let url = model.page { UIApplication.shared.open(url) }
+                if let url = page.page { UIApplication.shared.open(url) }
             } label: {
                 Label("在系统浏览器中打开", systemImage: "safari")
             }
-            .disabled(model.page == nil)
-            if let url = model.page { ShareLink("分享", item: url) }
+            .disabled(page.page == nil)
+            if let url = page.page { ShareLink("分享", item: url) }
             Divider()
             Button(role: .destructive) { confirmingClear = true } label: {
                 Label("清除网站数据", systemImage: "trash")
@@ -538,15 +577,23 @@ struct WorkbenchBrowser: View {
             .padding(.top, 8)
     }
 
-    /// Before the first page: where the session left off, and the local ports.
+    /// A tab before its first page: the tabs open when the app last ran, and the local ports.
     private var start: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                if let last = model.lastURL {
+                if !model.restorable.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("上次打开").font(.footnote).foregroundStyle(Palette.secondary)
-                        Text(last).font(.callout).lineLimit(2).truncationMode(.middle)
-                        Button("恢复页面") { model.go(last) }.buttonStyle(.capsule(height: 44, fill: false))
+                        VStack(alignment: .leading, spacing: 6) {
+                            ForEach(Array(model.restorable.prefix(3).enumerated()), id: \.offset) { _, saved in
+                                Text(saved.title ?? saved.url).font(.callout).lineLimit(1).truncationMode(.middle)
+                            }
+                            if model.restorable.count > 3 {
+                                Text("还有 \(model.restorable.count - 3) 个标签页").font(.footnote).foregroundStyle(Palette.secondary)
+                            }
+                        }
+                        Button(model.restorable.count == 1 ? "恢复页面" : "恢复 \(model.restorable.count) 个标签页") { model.restore() }
+                            .buttonStyle(.capsule(height: 44, fill: false))
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
@@ -554,7 +601,7 @@ struct WorkbenchBrowser: View {
                     Text("智能体在这台设备上启动的开发服务器，用 localhost 打开。").font(.footnote).foregroundStyle(Palette.secondary)
                     HStack(spacing: 8) {
                         ForEach(Self.commonPorts, id: \.self) { port in
-                            Button(":\(String(port))") { model.go("localhost:\(port)") }
+                            Button(":\(String(port))") { page.go("localhost:\(port)") }
                                 .buttonStyle(.capsule(.secondary, height: 44, fill: false))
                         }
                     }
@@ -567,7 +614,21 @@ struct WorkbenchBrowser: View {
     }
 }
 
-/// The browser opened from the chat: the page alone, full screen, without the workbench's other tabs.
+/// The tab button's face: how many tabs, in a rounded square.
+private struct TabCount: View {
+    let count: Int
+
+    var body: some View {
+        Text(verbatim: count > 99 ? ":)" : "\(count)")
+            .font(.system(size: count > 9 ? 10 : 12, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+            .foregroundStyle(Palette.ink)
+            .frame(width: 21, height: 21)
+            .overlay { RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(Palette.ink, lineWidth: 1.6) }
+    }
+}
+
+/// The browser opened from the chat (full screen, or as a sheet for a link in a reply): the page alone, without the workbench's other tabs.
 struct FullScreenBrowser: View {
     let model: BrowserModel
     let close: () -> Void
@@ -575,7 +636,7 @@ struct FullScreenBrowser: View {
     var body: some View {
         NavigationStack {
             WorkbenchBrowser(model: model)
-                .navigationTitle(Self.site(model.page) ?? String(localized: "浏览器"))
+                .navigationTitle(Self.site(model.url) ?? String(localized: "浏览器"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar(.visible, for: .navigationBar)
                 .closeButton(action: close)
@@ -589,7 +650,7 @@ struct FullScreenBrowser: View {
     }
 }
 
-/// A conversation has one web view, and it can be on screen in one place at a time: the workbench, or
+/// A tab has one web view, and it can be on screen in one place at a time: the workbench, or
 /// the browser opened full screen from the chat. The holder that comes into a window takes it; the one
 /// that leaves gives it back to another still on screen, so the workbench has its page again.
 private struct BrowserWebView: UIViewRepresentable {

@@ -37,6 +37,7 @@ struct SubagentSwitcher: View {
             .padding(.horizontal, 12)
             .frame(minHeight: 44)
             .contentShape(Capsule())
+            .barTitleGlass()
         }
         .accessibilityLabel(Text("切换子智能体：\(app.lineageTitle(of: sessionId))"))
         .task {

@@ -40,7 +40,9 @@ typedef struct Process {
   bool done;
   int references;
   pthread_mutex_t lock;
-  napi_threadsafe_function onExit;
+  napi_threadsafe_function onExit;  // NULL once the engine that asked for it is gone
+  // The engine's teardown hook holds a reference until it runs or the exit callback removes it.
+  bool hooked;
   struct Process *next;
 } Process;
 
@@ -90,8 +92,33 @@ static void unlist(Process *process) {
   pthread_mutex_unlock(&tableLock);
 }
 
+/**
+ * The engine that started the process is going away (its worker is replaced
+ * when a plugin change needs a restart). Node frees the exit callback right
+ * after this hook, so the process thread must not reach it any more.
+ */
+static void engineGone(void *value) {
+  Process *process = value;
+  pthread_mutex_lock(&process->lock);
+  process->onExit = NULL;
+  bool hooked = process->hooked;
+  process->hooked = false;
+  pthread_mutex_unlock(&process->lock);
+  if (hooked) release(process);
+}
+
 static void callExit(napi_env env, napi_value callback, void *context, void *data) {
   Process *process = data;
+  if (env != NULL) {
+    pthread_mutex_lock(&process->lock);
+    bool hooked = process->hooked;
+    process->hooked = false;
+    pthread_mutex_unlock(&process->lock);
+    if (hooked) {
+      napi_remove_env_cleanup_hook(env, engineGone, process);
+      release(process);
+    }
+  }
   if (env != NULL && callback != NULL) {
     napi_value arguments[2], global;
     pthread_mutex_lock(&process->lock);
@@ -117,13 +144,22 @@ static void *runProcess(void *value) {
   dsh_root_leave();
   // Closing the pipes is what the engine sees as end of output.
   for (int i = 0; i < 3; i++) close(process->fds[i]);
+  // The exit callback is used under the lock: the engine's teardown (`engineGone`) takes it
+  // too, so the callback is either reached before Node frees it or not at all.
   pthread_mutex_lock(&process->lock);
   process->exitCode = code;
   process->done = true;
+  napi_threadsafe_function onExit = process->onExit;
+  process->onExit = NULL;
+  bool delivered = false;
+  if (onExit != NULL) {
+    // The queue is unbounded, so this never waits.
+    delivered = napi_call_threadsafe_function(onExit, process, napi_tsfn_nonblocking) == napi_ok;
+    napi_release_threadsafe_function(onExit, napi_tsfn_release);
+  }
   pthread_mutex_unlock(&process->lock);
-  unlist(process);  // the table's reference goes to the exit callback
-  if (napi_call_threadsafe_function(process->onExit, process, napi_tsfn_blocking) != napi_ok) release(process);
-  napi_release_threadsafe_function(process->onExit, napi_tsfn_release);
+  unlist(process);  // the table's reference goes to the exit callback, or goes now if there is none
+  if (!delivered) release(process);
   release(process);  // the thread's reference
   return NULL;
 }
@@ -231,6 +267,12 @@ static napi_value spawnProcess(napi_env env, napi_callback_info info) {
     if (!started) {
       throwError(env, "spawn: cannot start the process");
     } else {
+      // Called on the engine's thread, so the engine cannot be torn down before the hook is in.
+      pthread_mutex_lock(&process->lock);
+      process->references++;
+      process->hooked = true;
+      pthread_mutex_unlock(&process->lock);
+      napi_add_env_cleanup_hook(env, engineGone, process);
       napi_value pid, stdinEnd, stdoutEnd, stderrEnd;
       napi_create_object(env, &result);
       napi_create_int32(env, process->pid, &pid);

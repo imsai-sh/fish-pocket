@@ -71,6 +71,10 @@ struct QuestionReplyBubble: View {
     let reply: QuestionReply
     @State private var open = false
     @Environment(\.conversationActions) private var actions
+    /// In a Bot's chat, the colour the user's own messages take there: this is one of them.
+    @Environment(\.userBubbleTint) private var tint
+
+    private var secondary: Color { tint.map { $0.text.opacity(0.75) } ?? Palette.secondary }
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 4) {
@@ -79,10 +83,10 @@ struct QuestionReplyBubble: View {
                     withAnimation(.snappy) { open.toggle() }
                 } label: {
                     HStack(spacing: 6) {
-                        Text("回答先前等待中的问题").font(.footnote).foregroundStyle(Palette.secondary)
+                        Text("回答先前等待中的问题").font(.footnote).foregroundStyle(tint.map { $0.text.opacity(0.75) } ?? Palette.secondary)
                         Image(systemName: "chevron.right")
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(Palette.faint)
+                            .foregroundStyle(tint.map { $0.text.opacity(0.55) } ?? Palette.faint)
                             .rotationEffect(.degrees(open ? 90 : 0))
                     }
                     .hitTarget()
@@ -101,7 +105,7 @@ struct QuestionReplyBubble: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
-            .background(Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .userBubble()
             .contextMenu {
                 Button { copyToPasteboard(reply.copyText) } label: { Label("复制", systemImage: "doc.on.doc") }
                 Button { actions.present(.text(reply.copyText)) } label: { Label("选择文本", systemImage: "selection.pin.in.out") }
@@ -114,10 +118,10 @@ struct QuestionReplyBubble: View {
 
     private func detail(_ entry: QuestionReply.Entry) -> some View {
         VStack(alignment: .leading, spacing: 3) {
-            if let header = entry.header, header != entry.question { Text(header).font(.caption).foregroundStyle(Palette.secondary) }
+            if let header = entry.header, header != entry.question { Text(header).font(.caption).foregroundStyle(secondary) }
             Text(entry.question).font(.subheadline.weight(.medium))
-            if let detail = entry.detail { Text(detail).font(.footnote).foregroundStyle(Palette.secondary) }
-            ForEach(entry.options, id: \.self) { option in Text(option).font(.footnote).foregroundStyle(Palette.secondary) }
+            if let detail = entry.detail { Text(detail).font(.footnote).foregroundStyle(secondary) }
+            ForEach(entry.options, id: \.self) { option in Text(option).font(.footnote).foregroundStyle(secondary) }
             Text(String(localized: "回答：") + (entry.values.isEmpty ? String(localized: "已跳过") : entry.values.joined(separator: ", ")))
                 .font(.subheadline)
         }

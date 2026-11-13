@@ -88,7 +88,16 @@ struct PluginInstallSheet: View {
     }
 
     private var title: LocalizedStringKey {
-        switch task.phase {
+        if task.update != nil {
+            switch task.phase {
+            case .done: return "已更新"
+            case .failed: return "插件更新失败"
+            case .unknown: return "未能获取更新结果"
+            case .unconfirmed: return "更新状态尚未确认"
+            default: return "插件更新中…"
+            }
+        }
+        return switch task.phase {
         case .idle where task.confirmed != nil: "无法安装此插件"
         case .idle: "添加插件"
         case .checking: task.confirmed == nil ? "添加插件" : "安装插件"
@@ -346,7 +355,11 @@ private struct InstallSubject: View {
             if let description = subject?["description"].string, !description.isEmpty {
                 Text(description).font(.footnote).foregroundStyle(Palette.secondary).multilineTextAlignment(.center)
             }
-            if let version { Text("版本 \(version)").font(.footnote).foregroundStyle(Palette.secondary) }
+            if let update = task.update {
+                Text("版本 \(update.from) → \(update.to)").font(.footnote).foregroundStyle(Palette.secondary)
+            } else if let version {
+                Text("版本 \(version)").font(.footnote).foregroundStyle(Palette.secondary)
+            }
             if let kind = kindText { Text(kind).font(.footnote).foregroundStyle(Palette.secondary) }
         }
         .frame(maxWidth: .infinity)
@@ -485,7 +498,7 @@ private struct InstallProgress: View {
                 Button("核对安装状态") { Task { await task.reconcile() } }.buttonStyle(.capsule())
             }
             if task.phase == .unconfirmed || task.phase == .starting || task.phase == .running || task.phase == .checking {
-                Button(task.phase == .checking ? "取消" : "取消安装") { Task { await task.cancel() } }.buttonStyle(.capsule(.outline))
+                Button(task.phase == .checking ? "取消" : task.update != nil ? "取消更新" : "取消安装") { Task { await task.cancel() } }.buttonStyle(.capsule(.outline))
             }
         }
     }
@@ -501,11 +514,21 @@ private struct InstallProgress: View {
                 Text(attempt).font(.footnote).foregroundStyle(Palette.waiting)
             }
             InstallDetails()
-            Text("可以关闭此页，安装会在后台继续，结果会提示你。").font(.caption).foregroundStyle(Palette.faint)
+            Text(task.update != nil ? "可以关闭此页，更新会在后台继续，结果会提示你。" : "可以关闭此页，安装会在后台继续，结果会提示你。")
+                .font(.caption).foregroundStyle(Palette.faint)
         }
     }
 
     private var statusText: String {
+        // An update names its step, as the web's update dialog does.
+        if let update = task.update, [.starting, .running].contains(task.phase) {
+            switch task.updateStep {
+            case "removing": return String(localized: "正在停止并移除 \(update.from)…")
+            case "installing": return String(localized: "正在安装 \(update.to)…")
+            case "restoring": return String(localized: "正在重新安装 \(update.from)…")
+            default: return String(localized: "正在检查 \(update.to)…")
+            }
+        }
         switch task.phase {
         case .checking: return String(localized: "正在检查…")
         case .cancelling: return String(localized: "正在停止安装…")
@@ -540,7 +563,8 @@ private struct InstallDone: View {
     var body: some View {
         InstallPage(content: AnyView(content)) {
             Button("完成") { task.close() }.buttonStyle(.capsule(.outline))
-            if task.subject?["selection"].isNull != false, task.installed != nil {
+            // An update keeps the switch the old version had: nothing to switch on.
+            if task.update == nil, task.subject?["selection"].isNull != false, task.installed != nil {
                 Button("立即启用") { Task { await task.enableInstalled() } }
                     .buttonStyle(.capsule())
                     .disabled(task.enabling)
@@ -565,7 +589,9 @@ private struct InstallDone: View {
 
     private var notes: [String] {
         var notes: [String] = []
-        if task.restartRequired {
+        if task.restartRequired, let update = task.update {
+            notes.append(String(localized: "已更新到 \(update.to)。引擎会在没有对话运行时自动重启，之后新版本生效。"))
+        } else if task.restartRequired {
             notes.append(String(localized: "已安装，请重启 DSH 加载它。\(restartReasonText(task.restartReason))").trimmingCharacters(in: .whitespaces) + String(localized: "没有对话在运行时会自动重启引擎。"))
         }
         if let installed = task.installedVersion, let inspected = task.subject?["version"].string, installed != inspected, (task.attempts?.registries.count ?? 1) <= 1 {

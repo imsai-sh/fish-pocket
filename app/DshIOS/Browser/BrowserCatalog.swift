@@ -36,7 +36,11 @@ enum BrowserCatalog {
     read the page's console and network requests, send requests with the browser's sign-ins and no CORS, \
     read and change cookies, download and upload files, capture the whole page as a picture or a PDF. Use it \
     for pages that need JavaScript, a login or several steps, and to check a site you are building (open it \
-    on localhost). For a plain page whose text is all you need, fetching it is cheaper. `open` and every \
+    on localhost). The browser has tabs, \
+    shared with the user: `tabs` lists them (which one is in front, which one you last used); `new_tab`, \
+    `select_tab` and `close_tab` change them. Page actions work in the tab you pass as `tab`, or else the one \
+    you last used, so a link the user opens in a new tab does not move you; to pick up a page the user \
+    opened, `select_tab` it. For a plain page whose text is all you need, fetching it is cheaper. `open` and every \
     page action return the page again: its URL and title, then its text with every element you can act on \
     numbered like [3]. Pass that number as `index`; numbers change whenever the page does, so always use the \
     ones from the latest result. File paths are in your workspace; a relative one is from the conversation's \
@@ -48,34 +52,38 @@ enum BrowserCatalog {
     """
 
     static let actions: [Action] = [
-        Action(name: "open", does: "open a URL and return the page.", takes: ["url", "desktop"], needs: ["url"]),
-        Action(name: "read", does: "return the current page again."),
-        Action(name: "click", does: "click a numbered element.", takes: ["index"], needs: ["index"]),
-        Action(name: "type", does: "replace what a numbered field holds with `text`.", takes: ["index", "text"], needs: ["index", "text"]),
-        Action(name: "select", does: "choose an option of a numbered menu by its visible text.", takes: ["index", "option"], needs: ["index", "option"]),
-        Action(name: "scroll", does: "scroll the page, or a numbered scrollable element.", takes: ["direction", "pages", "index"]),
-        Action(name: "back", does: "go back a page."),
-        Action(name: "forward", does: "go forward a page."),
-        Action(name: "reload", does: "load the page again; with `desktop`, as the desktop or the mobile version.", takes: ["desktop"]),
-        Action(name: "evaluate", does: "run `script` once in the page, with its globals, and return what it returns as JSON.", takes: ["script"], needs: ["script"]),
-        Action(name: "screenshot", does: "show what is on screen as a picture, or the whole page with `fullPage`. For layout, images and charts; use `read` for text.", takes: ["fullPage"], image: true),
-        Action(name: "pdf", does: "save the whole page as a PDF file and return its path.", takes: ["path"]),
+        Action(name: "open", does: "open a URL and return the page.", takes: ["tab", "url", "desktop"], needs: ["url"]),
+        Action(name: "read", does: "return the current page again.", takes: ["tab"]),
+        Action(name: "click", does: "click a numbered element.", takes: ["tab", "index"], needs: ["index"]),
+        Action(name: "type", does: "replace what a numbered field holds with `text`.", takes: ["tab", "index", "text"], needs: ["index", "text"]),
+        Action(name: "select", does: "choose an option of a numbered menu by its visible text.", takes: ["tab", "index", "option"], needs: ["index", "option"]),
+        Action(name: "scroll", does: "scroll the page, or a numbered scrollable element.", takes: ["tab", "direction", "pages", "index"]),
+        Action(name: "back", does: "go back a page.", takes: ["tab"]),
+        Action(name: "forward", does: "go forward a page.", takes: ["tab"]),
+        Action(name: "reload", does: "load the page again; with `desktop`, as the desktop or the mobile version.", takes: ["tab", "desktop"]),
+        Action(name: "evaluate", does: "run `script` once in the page, with its globals, and return what it returns as JSON.", takes: ["tab", "script"], needs: ["script"]),
+        Action(name: "screenshot", does: "show what is on screen as a picture, or the whole page with `fullPage`. For layout, images and charts; use `read` for text.", takes: ["tab", "fullPage"], image: true),
+        Action(name: "pdf", does: "save the whole page as a PDF file and return its path.", takes: ["tab", "path"]),
         Action(name: "addScript", does: "keep `script` in this browser: it runs in the page before the site's own scripts on every page load from now on (`reload` to apply it to the current page), until removed or the app restarts. For intercepting or rewriting the site's requests, or preparing its environment.", takes: ["script", "name"], needs: ["script"]),
         Action(name: "scripts", does: "list the kept scripts."),
         Action(name: "removeScript", does: "stop running a kept script; `id` from `addScript` or `scripts`, or \"all\".", takes: ["id"], needs: ["id"]),
-        Action(name: "logs", does: "what the pages wrote to the console, their uncaught errors, and the requests their scripts made (fetch and XMLHttpRequest: method, URL, status, time), oldest first. Recorded all the time, the last few hundred of each.", takes: ["kind", "limit", "clear"]),
-        Action(name: "request", does: "send an HTTP request as this browser: its cookies and user agent, no CORS. Returns status, headers and the body as text, or saves the body to `path` (a binary body is saved to the downloads folder when no path is given). Cookies the response sets are kept.", takes: ["url", "method", "headers", "body", "path"], needs: ["url"]),
-        Action(name: "cookies", does: "list the cookies sent to `url` (the current page when left out), HttpOnly ones included, or every cookie whose domain contains `domain`.", takes: ["url", "domain"]),
-        Action(name: "setCookie", does: "set a cookie: `name`, `value`, and `domain` (the current page's host when left out), `path`, `expires` (Unix seconds), `secure`, `httpOnly`.", takes: ["name", "value", "domain", "path", "expires", "secure", "httpOnly"], needs: ["name", "value"]),
-        Action(name: "deleteCookie", does: "delete cookies named `name`, on `domain` or wherever they are sent to the current page.", takes: ["name", "domain"], needs: ["name"]),
+        Action(name: "logs", does: "what the pages wrote to the console, their uncaught errors, and the requests their scripts made (fetch and XMLHttpRequest: method, URL, status, time), oldest first. Recorded all the time, the last few hundred of each.", takes: ["tab", "kind", "limit", "clear"]),
+        Action(name: "request", does: "send an HTTP request as this browser: its cookies and user agent, no CORS. Returns status, headers and the body as text, or saves the body to `path` (a binary body is saved to the downloads folder when no path is given). Cookies the response sets are kept.", takes: ["tab", "url", "method", "headers", "body", "path"], needs: ["url"]),
+        Action(name: "cookies", does: "list the cookies sent to `url` (the current page when left out), HttpOnly ones included, or every cookie whose domain contains `domain`.", takes: ["tab", "url", "domain"]),
+        Action(name: "setCookie", does: "set a cookie: `name`, `value`, and `domain` (the current page's host when left out), `path`, `expires` (Unix seconds), `secure`, `httpOnly`.", takes: ["tab", "name", "value", "domain", "path", "expires", "secure", "httpOnly"], needs: ["name", "value"]),
+        Action(name: "deleteCookie", does: "delete cookies named `name`, on `domain` or wherever they are sent to the current page.", takes: ["tab", "name", "domain"], needs: ["name"]),
         Action(name: "downloads", does: "list the files this browser downloaded, by you or the user, with their paths. A link or response the page cannot show is downloaded to the downloads folder of the working directory."),
-        Action(name: "keys", does: "type `text` with the system keyboard into a numbered field (or the focused one): the page gets the same input as from the user's own typing, for a site that ignores `type`. A newline presses Return.", takes: ["index", "text"], needs: ["text"]),
-        Action(name: "upload", does: "put workspace files into a numbered file field (or the field a numbered button or label opens), as if the user picked them; no picker appears.", takes: ["index", "paths"], needs: ["index", "paths"]),
+        Action(name: "keys", does: "type `text` with the system keyboard into a numbered field (or the focused one): the page gets the same input as from the user's own typing, for a site that ignores `type`. A newline presses Return.", takes: ["tab", "index", "text"], needs: ["text"]),
+        Action(name: "tabs", does: "list the tabs: their ids (such as t2), titles and addresses, which one is in front (what the user sees) and which one you last used."),
+        Action(name: "new_tab", does: "open a new tab in front, with `url` loaded if given, and work in it from now on.", takes: ["url", "desktop"]),
+        Action(name: "select_tab", does: "bring tab `tab` to the front and work in it from now on; returns its page.", takes: ["tab"], needs: ["tab"]),
+        Action(name: "close_tab", does: "close tab `tab`; the last one closed leaves a blank tab.", takes: ["tab"], needs: ["tab"]),
+        Action(name: "upload", does: "put workspace files into a numbered file field (or the field a numbered button or label opens), as if the user picked them; no picker appears.", takes: ["tab", "index", "paths"], needs: ["index", "paths"]),
     ]
 
     static let params: [Param] = [
-        Param(name: "url", type: "string", description: "open: the address, where a bare host means https and localhost means http; request: the full URL; cookies: whose cookies"),
-        Param(name: "desktop", type: "boolean", description: "open, reload: true for the site's desktop version, false for its mobile one; remembered for that site. Leave it out to keep the site's current choice"),
+        Param(name: "url", type: "string", description: "open, new_tab: the address, where a bare host means https and localhost means http; request: the full URL; cookies: whose cookies"),
+        Param(name: "desktop", type: "boolean", description: "open, new_tab, reload: true for the site's desktop version, false for its mobile one; remembered for that site. Leave it out to keep the site's current choice"),
         Param(name: "index", type: "integer", description: "the element's number from the latest result; scroll: optionally the scrollable element to scroll inside"),
         Param(name: "text", type: "string", description: "type: what to put in the field, replacing what is there; keys: what to type at the cursor"),
         Param(name: "option", type: "string", description: "select: the visible text of the option to choose"),
@@ -98,6 +106,7 @@ enum BrowserCatalog {
         Param(name: "secure", type: "boolean", description: "setCookie: only sent over https"),
         Param(name: "httpOnly", type: "boolean", description: "setCookie: hidden from the page's scripts"),
         Param(name: "paths", type: "strings", description: "upload: the files to put in the field"),
+        Param(name: "tab", type: "string", description: "select_tab, close_tab: which tab, by its id from `tabs`. A page action: the tab to work in; leave it out for the one you last used"),
     ]
 
     /// The catalog as the dispatcher and the engine read it. Built once; the same object every time.

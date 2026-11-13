@@ -66,7 +66,7 @@ test('a ! in approvedBuilds refuses that build; the rest reach the manager as th
   ctx.set('agents', { list: () => [] });
   const fiber = ctx.plugin(IosHost);
   await new Promise((done) => setTimeout(done, 20));
-  assert.equal(manager.installBundle('plain', { approvedBuilds: ['ssh2'] }), 'installed');
+  assert.equal(await manager.installBundle('plain', { approvedBuilds: ['ssh2'] }), 'installed');
   assert.equal(await manager.installBundle('skip', { enabled: false, approvedBuilds: ['!cloudflared', 'ssh2'] }), 'installed');
   assert.deepEqual(calls, [
     [true, 'plain', { approvedBuilds: ['ssh2'] }],

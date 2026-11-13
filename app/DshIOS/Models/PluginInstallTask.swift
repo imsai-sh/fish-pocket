@@ -113,6 +113,14 @@ final class PluginInstallTask {
     @ObservationIgnored private var registryRead: Task<Void, Never>?
     /// A market entry chose the registry: this dialog only, never remembered.
     @ObservationIgnored private var transientRegistry = false
+    /// A market update installs over a package it just removed: the new version keeps the old
+    /// one's switch instead of asking for 立即启用.
+    @ObservationIgnored private var keptSelection: Bool?
+    /// An update this sheet runs (`pluginManager/updateBundle`), from one installed version to a newer one.
+    private(set) var update: (name: String, from: String, to: String)?
+    /// The Host's step of that update: `checking`, `removing`, `installing` or `restoring`.
+    private(set) var updateStep: String?
+    @ObservationIgnored private var updateRegistry: String?
     @ObservationIgnored private var listener: UUID?
 
     init(app: AppModel) {
@@ -122,6 +130,9 @@ final class PluginInstallTask {
             switch event {
             case "plugin-manager/install-log": self.appendLog(payload)
             case "plugin-manager/install-state": self.progress(payload)
+            case "plugin-manager/update-state":
+                guard payload["requestId"].string == self.requestId, self.pending else { return }
+                self.updateStep = payload["step"].string
             default: break
             }
         }
@@ -146,10 +157,12 @@ final class PluginInstallTask {
         Task { await reconcile() }
     }
 
-    /// MK-08: install a market version straight from the check, without the form.
-    func installFrom(spec: String, registry: String?, title: String, version: String) {
+    /// MK-08: install a market version straight from the check, without the form. `enabled`
+    /// is the switch an update keeps from the version it replaced.
+    func installFrom(spec: String, registry: String?, title: String, version: String, enabled: Bool? = nil) {
         guard requestId == nil && !busy else { show(); return }
         reset()
+        keptSelection = enabled
         show()
         self.spec = spec
         confirmed = (title, version)
@@ -181,6 +194,55 @@ final class PluginInstallTask {
         self.subject = .object(subject)
         readRegistries()
         run()
+    }
+
+    /// 更新到 x, the way the web's plugin page updates: the Host checks the version on the registry and
+    /// installs it with the same switch (`pluginManager/updateBundle`). Without hot reload, as here, the
+    /// running version is not removed first, so a failed install leaves it as it was. The install inside
+    /// carries this request's id, so its progress, output and cancelling are the install sheet's own.
+    func updateTo(name: String, title: String, from: String, to: String, registry: String?) {
+        guard requestId == nil && !busy else { show(); return }
+        reset()
+        update = (name, from, to)
+        updateRegistry = registry
+        spec = "\(name)@\(to)"
+        confirmed = (title, to)
+        show()
+        Task { await startUpdate() }
+    }
+
+    private func startUpdate() async {
+        guard let update else { return }
+        let id = UUID().uuidString.lowercased()
+        requestId = id
+        acknowledged = false
+        replyLost = false
+        recovering = false
+        cancellation = nil
+        phase = .starting
+        updateStep = "checking"
+        var options: [String: JSON] = ["requestId": .string(id)]
+        if let updateRegistry { options["registry"] = .string(updateRegistry) }
+        do {
+            let answer = try await app.client.call("pluginManager/updateBundle", [
+                "name": .string(update.name), "version": .string(update.to), "options": .object(options),
+            ])
+            guard requestId == id else { return }
+            if let restore = answer["restore"].nonNull {
+                // With hot reload the old version went first; the new one did not install.
+                let back = restore["application"].string != "failed" && restore["application"].string != "cancelled"
+                settle(answer["result"].setting(["error", "diagnostic"], .string(back
+                    ? String(localized: "没能装上 \(update.to)，已恢复到 \(update.from)")
+                    : String(localized: "没能装上 \(update.to)，原来的版本也没能恢复，请重新安装"))))
+            } else {
+                settle(answer["result"])
+            }
+        } catch {
+            guard requestId == id else { return }
+            replyLost = true
+            uncertain("result", describeFailure(error))
+            await reconcile()
+        }
     }
 
     /// Hide the sheet. An install keeps running and reports in a toast; a check or a
@@ -229,6 +291,10 @@ final class PluginInstallTask {
         enabling = false
         detailsOpen = false
         mirrorRecovery = false
+        keptSelection = nil
+        update = nil
+        updateStep = nil
+        updateRegistry = nil
         requestId = nil
     }
 
@@ -395,7 +461,9 @@ final class PluginInstallTask {
                     keepRecord()
                     return
                 }
-                await startInstall(answer.setting(["spec"], .string(trimmed)))
+                var accepted = answer.setting(["spec"], .string(trimmed))
+                if let keptSelection { accepted = accepted.setting(["selection"], .bool(keptSelection)) }
+                await startInstall(accepted)
             } catch {
                 guard !Task.isCancelled, phase == .checking else { return }
                 phase = .idle
@@ -469,8 +537,9 @@ final class PluginInstallTask {
         }
         switch result["application"].string {
         case "cancelled":
+            let updating = update != nil
             backToSpec()
-            app.showToast(String(localized: "已取消安装，插件未启用，下载的文件可能保留"))
+            app.showToast(updating ? String(localized: "已取消更新，仍是原来的版本") : String(localized: "已取消安装，插件未启用，下载的文件可能保留"))
         case "failed":
             let package = result["packageResult"]
             settleRuns(package["exitCode"].int)
@@ -484,7 +553,7 @@ final class PluginInstallTask {
                 pendingBuilds: result["pendingBuilds"].array.compactMap(\.string)
             )
             Haptics.error()
-            notifyHidden(String(localized: "插件安装失败，可查看安装详情。"))
+            notifyHidden(update != nil ? String(localized: "插件更新失败，可查看详情。") : String(localized: "插件安装失败，可查看安装详情。"))
         default:
             settleRuns(0)
             phase = .done
@@ -500,7 +569,7 @@ final class PluginInstallTask {
                 try? app.plugins.applied(result, packageName: bundle)
                 app.plugins.highlight = bundle
             }
-            notifyHidden(String(localized: "插件安装已完成，可查看安装结果。"))
+            notifyHidden(update != nil ? String(localized: "插件已更新，可查看结果。") : String(localized: "插件安装已完成，可查看安装结果。"))
         }
         keepRecord()
         Task { await app.plugins.load() }
@@ -552,8 +621,9 @@ final class PluginInstallTask {
             guard requestId == id else { return }
             switch answer["status"].string {
             case "cancelled":
+                let updating = update != nil
                 backToSpec()
-                app.showToast(String(localized: "已取消安装，插件未启用，下载的文件可能保留"))
+                app.showToast(updating ? String(localized: "已取消更新，仍是原来的版本") : String(localized: "已取消安装，插件未启用，下载的文件可能保留"))
                 await app.plugins.load()
             case "too-late":
                 acknowledged = true
@@ -670,6 +740,12 @@ final class PluginInstallTask {
     /// 重试 from the failed screen.
     func retry() {
         guard phase == .failed else { return }
+        if let update {
+            let registry = updateRegistry, title = confirmed?.title ?? update.name
+            reset()
+            updateTo(name: update.name, title: title, from: update.from, to: update.to, registry: registry)
+            return
+        }
         specAgain()
         run()
     }

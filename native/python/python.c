@@ -77,7 +77,12 @@ typedef struct Process {
   int killedWith;  // the signal that ended it, if one did
   int references;
 
-  napi_threadsafe_function onExit;  // NULL when Python started it (_dsh.spawn)
+  // NULL when Python started it (_dsh.spawn), and once the engine that asked for it is gone.
+  napi_threadsafe_function onExit;
+  // The engine's teardown hook holds a reference until it runs or the exit callback removes it.
+  bool hooked;
+  bool fromEngine;  // the engine started it, so no Python parent reaps it
+
   struct Process *next;
 } Process;
 
@@ -360,8 +365,33 @@ static int runInterpreter(Process *process, bool *abandoned) {
   return code;
 }
 
+/**
+ * The engine that started the process is going away (its worker is replaced
+ * when a plugin change needs a restart). Node frees the exit callback right
+ * after this hook, so the process thread must not reach it any more.
+ */
+static void engineGone(void *value) {
+  Process *process = value;
+  pthread_mutex_lock(&process->lock);
+  process->onExit = NULL;
+  bool hooked = process->hooked;
+  process->hooked = false;
+  pthread_mutex_unlock(&process->lock);
+  if (hooked) release(process);
+}
+
 static void callExit(napi_env env, napi_value callback, void *context, void *data) {
   Process *process = data;
+  if (env != NULL) {
+    pthread_mutex_lock(&process->lock);
+    bool hooked = process->hooked;
+    process->hooked = false;
+    pthread_mutex_unlock(&process->lock);
+    if (hooked) {
+      napi_remove_env_cleanup_hook(env, engineGone, process);
+      release(process);
+    }
+  }
   if (env != NULL && callback != NULL) {
     napi_value arguments[2], global;
     pthread_mutex_lock(&process->lock);
@@ -396,17 +426,25 @@ static void *runProcess(void *value) {
   }
   if (null >= 0) close(null);
 
+  // The exit callback is used under the lock: the engine's teardown (`engineGone`) takes it
+  // too, so the callback is either reached before Node frees it or not at all.
   pthread_mutex_lock(&process->lock);
   process->exitCode = code;
   process->done = true;
   pthread_cond_broadcast(&process->changed);
   napi_threadsafe_function onExit = process->onExit;
-  pthread_mutex_unlock(&process->lock);
+  process->onExit = NULL;
+  bool delivered = false;
   if (onExit != NULL) {
-    // Reaped: the table's reference goes to the exit callback.
-    unlist(process);
-    if (napi_call_threadsafe_function(onExit, process, napi_tsfn_blocking) != napi_ok) release(process);
+    // The queue is unbounded, so this never waits.
+    delivered = napi_call_threadsafe_function(onExit, process, napi_tsfn_nonblocking) == napi_ok;
     napi_release_threadsafe_function(onExit, napi_tsfn_release);
+  }
+  pthread_mutex_unlock(&process->lock);
+  if (process->fromEngine) {
+    // Reaped: the table's reference goes to the exit callback, or goes now if there is none.
+    unlist(process);
+    if (!delivered) release(process);
   }
   release(process);  // the thread's reference
   return NULL;
@@ -442,6 +480,7 @@ static Process *start(int argc, char **argv, int envc, char **env, const char *c
   process->parent = parent;
   memcpy(process->fds, fds, sizeof process->fds);
   process->onExit = onExit;
+  process->fromEngine = onExit != NULL;
   if (process->argv == NULL || process->env == NULL || process->cwd == NULL || process->executable == NULL) {
     process->references = 1;
     release(process);
@@ -854,6 +893,12 @@ static napi_value spawnProcess(napi_env env, napi_callback_info info) {
       if (onExit != NULL) napi_release_threadsafe_function(onExit, napi_tsfn_abort);
       throwError(env, "spawn: cannot start the process");
     } else {
+      // Called on the engine's thread, so the engine cannot be torn down before the hook is in.
+      retain(process);
+      pthread_mutex_lock(&process->lock);
+      process->hooked = true;
+      pthread_mutex_unlock(&process->lock);
+      napi_add_env_cleanup_hook(env, engineGone, process);
       napi_value pid, stdinEnd, stdoutEnd, stderrEnd;
       napi_create_object(env, &result);
       napi_create_int32(env, process->pid, &pid);

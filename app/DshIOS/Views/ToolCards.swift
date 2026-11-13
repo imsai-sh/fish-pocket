@@ -74,6 +74,10 @@ struct ToolPresentation {
         case "downloads": String(localized: "查看下载")
         case "upload": String(localized: "上传文件") + element
         case "keys": String(localized: "键盘输入") + element
+        case "tabs": String(localized: "查看标签页")
+        case "new_tab": String(localized: "新建标签页") + (arguments["url"].string.map { " " + ToolCall.firstLine($0) } ?? "")
+        case "select_tab": String(localized: "切换到标签页") + " " + (arguments["tab"].string ?? "")
+        case "close_tab": String(localized: "关闭标签页") + " " + (arguments["tab"].string ?? "")
         // An action this build has no words for yet still says what it was.
         default: arguments["action"].string ?? ""
         }

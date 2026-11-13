@@ -433,8 +433,11 @@ struct BotHomeView: View {
                         .padding(.vertical, 4)
                         .opacity(bot.hidden ? 0.5 : 1)
                     }
-                    .swipeActions(edge: .leading) { pinButton(bot.id, pinned: bot.pinned) }
-                    .swipeActions(edge: .trailing) { if !team.isMain(bot) { hideButton(bot.id, hidden: bot.hidden) } }
+                    // Only a left swipe: a right swipe is the one that opens the sidebar.
+                    .swipeActions(edge: .trailing) {
+                        if !team.isMain(bot) { hideButton(bot.id, hidden: bot.hidden) }
+                        pinButton(bot.id, pinned: bot.pinned)
+                    }
                     .contextMenu {
                         pinButton(bot.id, pinned: bot.pinned)
                         // A main Bot takes the user's work, so it stays in sight.
@@ -456,8 +459,10 @@ struct BotHomeView: View {
                             .padding(.vertical, 4)
                             .opacity(room.hidden ? 0.5 : 1)
                         }
-                        .swipeActions(edge: .leading) { pinButton(room.id, pinned: room.pinned) }
-                        .swipeActions(edge: .trailing) { hideButton(room.id, hidden: room.hidden) }
+                        .swipeActions(edge: .trailing) {
+                            hideButton(room.id, hidden: room.hidden)
+                            pinButton(room.id, pinned: room.pinned)
+                        }
                         .contextMenu {
                             pinButton(room.id, pinned: room.pinned)
                             hideButton(room.id, hidden: room.hidden)

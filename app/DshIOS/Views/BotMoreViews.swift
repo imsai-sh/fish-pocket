@@ -108,7 +108,7 @@ struct MemoryAskSection: View {
                 }
             }
             if let answer = reply["reply"].string {
-                MarkdownView(text: answer)
+                MarkdownView(text: answer).modifier(LinkOpening())
                 ForEach(Array(reply["changes"].array.enumerated()), id: \.offset) { _, change in
                     let verb = switch change["op"].string {
                     case "add": String(localized: "记下")
@@ -157,7 +157,7 @@ struct MemorySummarySection: View {
         if !memory["entries"].array.isEmpty {
             Section {
                 if let summary {
-                    MarkdownView(text: summary)
+                    MarkdownView(text: summary).modifier(LinkOpening())
                     if memory["fresh"].bool == false && !writing {
                         Text("这段概括写在记忆改动之前。").font(.caption).foregroundStyle(Palette.faint)
                     }

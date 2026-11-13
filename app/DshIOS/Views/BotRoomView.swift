@@ -6,8 +6,19 @@ import SwiftUI
 struct BotChrome {
     var title: AnyView
     var accessory: AnyView?
-    /// The chat's own menu in the bar, given the conversation it is for.
-    var menu: ((SessionModel) -> AnyView)?
+    /// The chat's own menu in the bar, given the conversation it is for and how to reach its tools.
+    var menu: ((SessionModel, BotChatTools?) -> AnyView)?
+    /// The chat has the conversation's tools: the workbench, the browser and the background jobs
+    /// floating over its foot. A Bot's own chat does; a group's session only relays its members' replies.
+    var tools = false
+}
+
+/// What a Bot's chat menu opens of the conversation's tools.
+struct BotChatTools {
+    /// Shows or hides the workbench, where the tab last looked at is.
+    let toggleWorkbench: () -> Void
+    /// The browser alone, full screen.
+    let openBrowser: () -> Void
 }
 
 /// How a Bot's timeline differs: turns that answered another Bot stay out (ds-bot's own
@@ -149,14 +160,16 @@ struct BotRoomView: View {
                 .buttonStyle(.plain)
                 .accessibilityHint("查看群聊设置")),
                 accessory: AnyView(RoomMentions(room: room)),
-                menu: { model in AnyView(BotChatMenu(target: .room(room.id), model: model)) }
+                menu: { model, _ in AnyView(BotChatMenu(target: .room(room.id), model: model)) }
             ))
             .environment(\.botTimeline, BotTimeline(room: true, earlierFrom: room.json["ownParts"].array.isEmpty ? nil : room.sessionId, showsThinking: team.showsThinking, sessionId: room.sessionId))
             .environment(\.botComposer, .room(room.id))
             // The round's replies as each member speaks.
             .task(id: room.id) { await team.followRounds(of: room.id) }
             .openingOtherSessions($selection, from: room.sessionId)
-            .sheet(isPresented: $detailOpen) { RoomDetailView(roomId: roomId) }
+            .sheet(isPresented: $detailOpen) {
+                RoomDetailView(roomId: roomId).environment(\.browserLinks, BrowserLinks(sessionId: room.sessionId, origin: app.client.origin))
+            }
             .onChange(of: team.scheduleRequest) { _, request in
                 guard request == .room(roomId) else { return }
                 team.scheduleRequest = nil
@@ -165,7 +178,7 @@ struct BotRoomView: View {
             .onAppear { app.clearUnread(room.sessionId); team.visibleChat = room.id }
             .onDisappear { app.clearUnread(room.sessionId); if team.visibleChat == room.id { team.visibleChat = nil } }
         } else if team.status == .unknown {
-            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).background(Palette.background)
+            ConversationLoading().background(Palette.background)
         } else {
             ContentUnavailableView("这个群聊已经不在了", systemImage: "person.2.slash")
         }
@@ -182,7 +195,6 @@ private struct RoomMentions: View {
         let team = app.botTeam
         let members = room.members.compactMap(team.bot)
         VStack(alignment: .leading, spacing: 8) {
-            BotMemoryNotice(id: room.id)
             ForEach(team.approvals(inRoom: room.id), id: \.["id"]) { approval in RoomApprovalCard(approval: approval) }
             if let goal = room.json["goal"].nonNull, goal["status"].string != "complete", goal["status"].string != "stopped" {
                 Button { team.scheduleRequest = .room(room.id) } label: {

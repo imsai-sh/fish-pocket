@@ -248,6 +248,7 @@ struct BotExchangeSheet: View {
                         Color.clear.frame(height: 1).id("end")
                     }
                     .padding(20)
+                    .modifier(LinkOpening())
                 }
                 .onChange(of: entries.count) { _, _ in proxy.scrollTo("end") }
             }

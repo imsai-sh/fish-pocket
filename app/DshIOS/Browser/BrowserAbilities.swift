@@ -75,8 +75,8 @@ struct BrowserScript {
     let source: String
 }
 
-extension BrowserModel {
-    /// Everything this browser injects, in order: the page controller (agent world), the desktop viewport
+extension BrowserPage {
+    /// Everything a tab injects, in order: the page controller (agent world), the desktop viewport
     /// fix (agent world), the console and network recorder (page world), then the agent's own scripts
     /// (page world), so their console output is recorded too. Message handlers are not touched.
     func installScripts() {
@@ -85,18 +85,25 @@ extension BrowserModel {
         if let script = Self.controllerScript { controller.addUserScript(script) }
         controller.addUserScript(Self.desktopViewport)
         controller.addUserScript(Self.logScript)
-        for script in keptScripts {
+        for script in browser?.keptScripts ?? [] {
             let label = (script.name ?? script.id).replacingOccurrences(of: "'", with: "")
             let source = "(() => {\ntry {\n\(script.source)\n} catch (error) { console.error('[script \(label)]', error); }\n})();"
             controller.addUserScript(WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
         }
+    }
+}
+
+/// Kept scripts belong to the conversation's browser: every tab, now and later, runs them.
+extension BrowserModel {
+    private func installScriptsEverywhere() {
+        for page in tabs.compactMap(\.page) { page.installScripts() }
     }
 
     func agentAddScript(_ source: String, name: String?) -> [String: Any] {
         scriptCount += 1
         let script = BrowserScript(id: "s\(scriptCount)", name: name, source: source)
         keptScripts.append(script)
-        installScripts()
+        installScriptsEverywhere()
         var answer = agentScripts()
         answer["added"] = script.id
         answer["note"] = "It runs from the next page load; `reload` to apply it to this page."
@@ -118,14 +125,14 @@ extension BrowserModel {
             }
             keptScripts.removeAll { $0.id == id }
         }
-        installScripts()
+        installScriptsEverywhere()
         return agentScripts()
     }
 }
 
 // MARK: - 控制台和网络记录
 
-extension BrowserModel {
+extension BrowserPage {
     /// Wraps the page's console, its uncaught errors, `fetch` and `XMLHttpRequest`, and posts each to
     /// the app. In the page's own world, because that is where its scripts call them; the page could see
     /// and spoof this, which costs nothing but its own records.
@@ -242,9 +249,9 @@ extension BrowserModel {
     /// Hears the recorder in the page's world. Weak: the content controller keeps its handlers as long as the web view.
     final class LogListener: NSObject, WKScriptMessageHandler {
         static let name = "dshLog"
-        private weak var model: BrowserModel?
+        private weak var model: BrowserPage?
 
-        init(_ model: BrowserModel) { self.model = model }
+        init(_ model: BrowserPage) { self.model = model }
 
         func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
             guard message.frameInfo.isMainFrame, let body = message.body as? [String: Any] else { return }
@@ -268,7 +275,7 @@ extension BrowserModel {
 
 // MARK: - 带登录态的请求和 Cookie
 
-extension BrowserModel {
+extension BrowserPage {
     /// The cookies a browser would send to `url`.
     static func cookies(_ all: [HTTPCookie], for url: URL) -> [HTTPCookie] {
         guard let host = url.host()?.lowercased() else { return [] }
@@ -433,37 +440,43 @@ struct BrowserDownload {
     var state = "downloading"
 }
 
-extension BrowserModel: WKDownloadDelegate {
+extension BrowserPage: WKDownloadDelegate {
     func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String) async -> URL? {
         let source = download.originalRequest?.url?.absoluteString ?? response.url?.absoluteString ?? ""
+        guard let browser else { return nil }
         do {
             let path = try EnginePath.fresh(suggestedFilename, in: EnginePath.downloads(of: sessionId))
-            downloads.append(BrowserDownload(name: (path as NSString).lastPathComponent, path: path, url: source))
-            downloadTasks[ObjectIdentifier(download)] = downloads.count - 1
+            browser.downloads.append(BrowserDownload(name: (path as NSString).lastPathComponent, path: path, url: source))
+            downloadTasks[ObjectIdentifier(download)] = browser.downloads.count - 1
             return URL(fileURLWithPath: try EnginePath.real(path))
         } catch {
-            downloads.append(BrowserDownload(name: suggestedFilename, path: "", url: source, state: "failed: \(error.localizedDescription)"))
+            browser.downloads.append(BrowserDownload(name: suggestedFilename, path: "", url: source, state: "failed: \(error.localizedDescription)"))
             return nil
         }
     }
 
     func downloadDidFinish(_ download: WKDownload) {
-        guard let index = downloadTasks.removeValue(forKey: ObjectIdentifier(download)) else { return }
-        downloads[index].state = "done"
-        downloads[index].bytes = download.progress.completedUnitCount
-        if let real = try? EnginePath.real(downloads[index].path),
+        guard let browser, let index = downloadTasks.removeValue(forKey: ObjectIdentifier(download)),
+              browser.downloads.indices.contains(index) else { return }
+        browser.downloads[index].state = "done"
+        browser.downloads[index].bytes = download.progress.completedUnitCount
+        if let real = try? EnginePath.real(browser.downloads[index].path),
            let size = try? FileManager.default.attributesOfItem(atPath: real)[.size] as? Int64 {
-            downloads[index].bytes = size
+            browser.downloads[index].bytes = size
         }
-        showNotice(String(localized: "已下载「\(downloads[index].name)」到工作区的 downloads 文件夹"))
+        showNotice(String(localized: "已下载「\(browser.downloads[index].name)」到工作区的 downloads 文件夹"))
     }
 
     func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
-        guard let index = downloadTasks.removeValue(forKey: ObjectIdentifier(download)) else { return }
-        downloads[index].state = "failed: \(error.localizedDescription)"
-        showNotice(String(localized: "「\(downloads[index].name)」下载失败"))
+        guard let browser, let index = downloadTasks.removeValue(forKey: ObjectIdentifier(download)),
+              browser.downloads.indices.contains(index) else { return }
+        browser.downloads[index].state = "failed: \(error.localizedDescription)"
+        showNotice(String(localized: "「\(browser.downloads[index].name)」下载失败"))
     }
+}
 
+/// Downloads are listed for the whole browser, whichever tab started them.
+extension BrowserModel {
     func agentDownloads() -> [String: Any] {
         ["downloads": downloads.map { item -> [String: Any] in
             ["name": item.name, "path": item.path, "url": item.url, "bytes": item.bytes, "state": item.state]
@@ -473,11 +486,11 @@ extension BrowserModel: WKDownloadDelegate {
 
 // MARK: - 上传
 
-extension BrowserModel {
+extension BrowserPage {
     func agentUpload(index: Int, paths: [String], caller: String) async throws -> [String: Any] {
         attachIfDetached()
         guard webView.url != nil else {
-            throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
+            throw BrowserAgentError("No page is open in this tab yet. Use `open` with a URL first.")
         }
         guard !paths.isEmpty else { throw BrowserAgentError("upload needs at least one path in `paths`") }
         let indexed = (try? await run("return __dshBrowser.indexed()", timeout: 5)) as? Bool ?? false
@@ -510,11 +523,11 @@ extension BrowserModel {
 
 // MARK: - 整页截图和 PDF
 
-extension BrowserModel {
+extension BrowserPage {
     private func pagePDF() async throws -> Data {
         attachIfDetached()
         guard webView.url != nil else {
-            throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
+            throw BrowserAgentError("No page is open in this tab yet. Use `open` with a URL first.")
         }
         do {
             return try await webView.pdf(configuration: WKPDFConfiguration())
@@ -571,7 +584,7 @@ extension BrowserModel {
 
 // MARK: - 系统键盘输入
 
-extension BrowserModel {
+extension BrowserPage {
     /// The view WebKit draws the page in and takes the keyboard's text through (`UIKeyInput`).
     private var contentView: UIView? {
         webView.scrollView.subviews.first { String(describing: type(of: $0)).hasPrefix("WKContent") }
@@ -582,7 +595,7 @@ extension BrowserModel {
     func agentKeys(index: Int?, text: String) async throws -> [String: Any] {
         attachIfDetached()
         guard webView.url != nil else {
-            throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
+            throw BrowserAgentError("No page is open in this tab yet. Use `open` with a URL first.")
         }
         if let index {
             let indexed = (try? await run("return __dshBrowser.indexed()", timeout: 5)) as? Bool ?? false

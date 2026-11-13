@@ -7,8 +7,6 @@ struct StoreEntryDetail: View {
     let model: PluginStoreModel
     let install: (MarketChoice) -> Void
 
-    @State private var showWeb = false
-
     private var entry: StoreEntry { model.latest(listing) }
 
     /// Whether the installed plugin is switched on and running, as the plugin list reports it.
@@ -16,7 +14,7 @@ struct StoreEntryDetail: View {
         guard let package = app.plugins.package(listing.name), package.installed else { return nil }
         if !package.enabled { return (String(localized: "已停用：插件没有生效"), false) }
         if package.problem { return (String(localized: "已启用，但没有在运行"), true) }
-        return (String(localized: "已启用，正在运行。它的界面可在网页版中查看。"), false)
+        return (String(localized: "已启用，正在运行"), false)
     }
     private var metadata: JSON { model.market.result?["metadata"] ?? .null }
 
@@ -31,9 +29,10 @@ struct StoreEntryDetail: View {
         if let repository = entry.json["repository"]["url"].string { facts.append(String(localized: "源代码：\(repository)")) }
         if let homepage = entry.json["homepage"].string { facts.append(String(localized: "主页：\(homepage)")) }
         if onDevice {
+            // A finished install's log answers nothing here and only makes the reply slower.
             let listed = app.plugins.package(listing.name)?.questionDetails ?? [String(localized: "插件：\(entry.name)")]
-            let install = records.first { $0.outcome == .done }?.details.dropFirst() ?? []
-            return ("找不到或用不了？新开会话问问", PluginQuestion.installed(entry.displayName, details: listed + facts + install))
+            let interface = String(localized: "说明：插件自带的界面不在 App 的原生界面里显示，要在网页版里看（设置 → 高级 → 网页版）。")
+            return ("找不到或用不了？新开会话问问", PluginQuestion.installed(entry.displayName, details: listed + facts + [interface]))
         }
         if let record = records.first(where: { $0.outcome != .done }) {
             return ("上次安装没成功，带上记录新开会话排查", PluginQuestion.ask(record, more: facts))
@@ -92,19 +91,72 @@ struct StoreEntryDetail: View {
         }
     }
 
+    /// The market's newer version, when this DSH takes it and the app doesn't pin the plugin elsewhere.
+    private var update: JSON? {
+        guard entry.status == "update-available", entry.installable, let version = entry.version,
+              PluginPins.note(package: entry.name, version: entry.versionNumber) == nil else { return nil }
+        return version
+    }
+    private var updating: Bool { app.plugins.busy.contains(entry.name) || app.pluginInstall.busy }
+    /// This plugin's update is running (in the install sheet, shown or not).
+    private var updatingThis: Bool { app.pluginInstall.update?.name == entry.name && app.pluginInstall.pending }
+    /// The version this plugin's update just installed.
+    private var updated: String? {
+        app.pluginInstall.update?.name == entry.name && app.pluginInstall.phase == .done ? app.pluginInstall.update?.to : nil
+    }
+
+    /// Swap the installed version for `version`, keeping its switch: the install sheet runs it
+    /// (`PluginInstallTask.updateTo`) with its progress and output.
+    private func replace(with version: JSON) {
+        Haptics.tap()
+        let installed = entry.json["installation"]["installedVersion"].string ?? app.plugins.package(entry.name)?.version ?? ""
+        app.pluginInstall.updateTo(
+            name: entry.name, title: entry.displayName, from: installed,
+            to: version["version"].string ?? "", registry: version["install"]["registry"].string
+        )
+    }
+
+    /// The listing says what is installed: read it again after an update, or it still offers it. The
+    /// engine restarts to run the new version, so ask over whatever connection is current, until it says so.
+    private func refreshListing(until version: String) {
+        let model = self.model, entry = self.entry, app = self.app
+        Task {
+            for _ in 0..<12 {
+                await model.market.reload(EngineConnection.shared.app ?? app)
+                if model.latest(entry).json["installation"]["installedVersion"].string == version { break }
+                try? await Task.sleep(for: .seconds(1.5))
+            }
+        }
+    }
+
     @ViewBuilder
     private var primaryAction: some View {
         if onDevice {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 10) {
+                    if let update {
+                        // While it runs, the button shows so and opens its progress again.
+                        Button { if updatingThis { app.pluginInstall.show() } else { replace(with: update) } } label: {
+                            HStack(spacing: 8) {
+                                if updatingThis {
+                                    ProgressView().controlSize(.small).tint(Palette.onInk)
+                                    Text("正在更新…")
+                                } else {
+                                    Text("更新到 \(entry.versionNumber)")
+                                }
+                            }
+                            .lineLimit(1).minimumScaleFactor(0.8).frame(maxWidth: .infinity)
+                            .contentTransition(.opacity)
+                        }
+                        .buttonStyle(.capsule(height: 48))
+                        .disabled(!updatingThis && (updating || model.market.fromCache))
+                        .opacity(!updatingThis && (updating || model.market.fromCache) ? 0.4 : 1)
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                    }
                     NavigationLink {
                         PluginDetailView(name: entry.name).storeWebButton()
                     } label: {
-                        Text(entry.status == "update-available" ? "有新版本，查看已安装" : "查看已安装").frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.capsule(.secondary, height: 48))
-                    Button { showWeb = true } label: {
-                        Label("网页版", systemImage: "globe").frame(maxWidth: .infinity)
+                        Text("查看已安装").lineLimit(1).frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.capsule(.secondary, height: 48))
                 }
@@ -112,7 +164,9 @@ struct StoreEntryDetail: View {
                     Text(runState.text).font(.footnote).foregroundStyle(runState.problem ? Palette.removed : Palette.secondary)
                 }
             }
-            .fullScreenCover(isPresented: $showWeb) { WebFallbackView() }
+            .animation(.snappy(duration: 0.25), value: updatingThis)
+            .animation(.snappy(duration: 0.25), value: update == nil)
+            .onChange(of: updated) { _, version in if let version { refreshListing(until: version) } }
         } else if entry.installable, let version = entry.version {
             Button("安装 \(entry.versionNumber)") { install(MarketChoice(entry: entry.json, version: version)) }
                 .buttonStyle(.capsule(height: 48))
@@ -208,8 +262,19 @@ struct StoreEntryDetail: View {
                     if !allowed { PluginTag(text: String(localized: "不兼容"), tone: Palette.removed) }
                     Spacer(minLength: 0)
                     if allowed, !installed, entry.status != "provided" {
-                        Button("安装") { install(MarketChoice(entry: entry.json, version: version)) }
-                            .buttonStyle(.capsule(.secondary, height: 34, fill: false))
+                        Button("安装") {
+                            // An update goes only forward (`updateBundle`), as on the web; an older version
+                            // goes through the install sheet, which says what the Host makes of it.
+                            let newer = entry.json["installation"]["installedVersion"].string
+                                .map { number.compare($0, options: .numeric) == .orderedDescending } ?? false
+                            if onDevice, newer, PluginPins.note(package: entry.name, version: number) == nil {
+                                replace(with: version)
+                            } else {
+                                install(MarketChoice(entry: entry.json, version: version))
+                            }
+                        }
+                        .buttonStyle(.capsule(.secondary, height: 34, fill: false))
+                        .disabled(onDevice && updating)
                     }
                 }
                 .padding(.horizontal, 18)
