@@ -555,10 +555,10 @@ struct DrawerView: View {
         return result
     }
 
-    /// This phone, then each computer of the account.
+    /// This phone (named for what it is: iPhone, iPhone Duo, iPad), then each computer of the account.
     private var deviceGroups: [SessionGroup] {
         let listed = remote.listed()
-        return [SessionGroup(id: "device:", isPhone: true, title: String(localized: "本机"), symbol: "iphone", rows: timeRows.map(Entry.local))]
+        return [SessionGroup(id: "device:", isPhone: true, title: ThisDevice.name, symbol: ThisDevice.symbol, rows: timeRows.map(Entry.local))]
             + remote.devices.map { device in
                 SessionGroup(id: "device:\(device.id)", device: device, title: device.name, symbol: device.symbol,
                              rows: listed.filter { $0.deviceId == device.id }.map(Entry.remote))
@@ -982,7 +982,7 @@ struct DrawerView: View {
                         .lineLimit(1)
                     if twoLine {
                         HStack(spacing: 6) {
-                            if phoneTag { MachineTag(name: String(localized: "本机"), symbol: "iphone") }
+                            if phoneTag { MachineTag(name: ThisDevice.name, symbol: ThisDevice.symbol) }
                             if let subtitle { Text(subtitle).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1) }
                         }
                     }
