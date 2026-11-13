@@ -21,9 +21,10 @@ struct ConversationView: View {
     @State private var model: SessionModel?
     @State private var context = ComposerContext()
     @State private var workbenchOpen = false
-    @State private var workbenchTab = WorkbenchTab.terminal
-    /// The workbench browser's page, kept when the sheet closes.
-    @State private var browser: BrowserModel?
+    /// The tab last looked at, in any conversation: the workbench opens where it was left.
+    @AppStorage("dsh.workbench.tab") private var workbenchTab = WorkbenchTab.terminal
+    /// The browser opened full screen from the chat.
+    @State private var fullBrowser: BrowserModel?
     /// Interactions swiped away; they stay answerable from the 「等你允许」 line.
     @State private var deferred: Set<String> = []
     @State private var showNewWorkspace = false
@@ -50,6 +51,7 @@ struct ConversationView: View {
     @State private var inputSheetUp = false
     #if DEBUG
     @State private var demoApproval: PendingApproval?
+    @State private var demoQuestion: PendingQuestion?
     #endif
 
     var body: some View {
@@ -81,8 +83,22 @@ struct ConversationView: View {
         #if DEBUG
         .task {
             switch UserDefaults.standard.string(forKey: "dshOpen") {
-            case "workbench": openWorkbench(.terminal)
+            case "workbench": workbenchOpen = true
             case "approval": demoApproval = PendingApproval(id: "demo", toolName: "bash", callId: nil, reason: "允许本次操作使用 danger-full-access 权限：当前处于 workspace-write 模式，写不到工作区以外。这条命令会删除 build/ 下约 1.4 GB 的文件，再重新下载依赖，失败时不会自动恢复，需要手动重新构建一次才能继续。")
+            case "question":
+                // `-dshDelay <s>` leaves time to focus the composer first.
+                try? await Task.sleep(for: .seconds(UserDefaults.standard.double(forKey: "dshDelay") + 1))
+                demoQuestion = PendingQuestion(QuestionRequest(eventId: "demo", request: [
+                    "questions": [[
+                        "id": "q", "header": "抖音需要登录",
+                        "question": "抖音网页版现在不给未登录用户看搜索结果（页面直接弹「登录后即可搜索更多精彩视频」，手机版还跳验证码）。搜索得先登录，这一步只能你来做。你想怎么办？",
+                        "options": [
+                            ["label": "我来登录，你接着搜 (推荐)", "description": "在右边的浏览器里扫码或用验证码登录，登录好告诉我。"],
+                            ["label": "改看精选页", "description": "精选页（/jingxuan）不登录也能看，但那是频道推荐流，不是搜索结果的第 2 页。"],
+                            ["label": "换一个平台搜，比如 B 站或小红书", "description": "离开抖音，用不需要登录的站完成「搜索 + 第 2 页」这件事。"],
+                        ],
+                    ]],
+                ]))
             case "timeline":
                 try? await Task.sleep(for: .seconds(2))
                 model?.debugLoadFixture(TimelineFixture.events)
@@ -91,6 +107,9 @@ struct ConversationView: View {
         }
         .sheet(item: $demoApproval) { approval in
             ApprovalSheet(approval: approval, call: ToolCall(id: "demo", name: "bash", arguments: ["command": .string((1...30).map { "rm -rf build/cache-\($0)" }.joined(separator: " &&\n"))], rawArguments: ""), position: (1, 3)) { _ in demoApproval = nil }
+        }
+        .sheet(item: $demoQuestion) { question in
+            if let model { QuestionSheet(model: model, question: question) }
         }
         #endif
     }
@@ -121,7 +140,8 @@ struct ConversationView: View {
             ScrollView {
                 TimelineList(model: model)
                     .modifier(LinkOpening())
-                Color.clear.frame(height: 1).id(Self.bottomId)
+                // Room for the floating chips, so they never sit on the last row.
+                Color.clear.frame(height: activityShown(blank) ? 48 : 1).id(Self.bottomId)
             }
             .environment(\.timelineScroll, TimelineScroll(keep: { id in
                 Task { @MainActor in
@@ -164,6 +184,19 @@ struct ConversationView: View {
                 }
                 .animation(.snappy(duration: 0.18), value: atBottom)
             }
+            // Opposite the scroll buttons: the agent's page and its background jobs, one tap from the chat.
+            .overlay(alignment: .bottomLeading) {
+                if !blank && bot == nil {
+                    ConversationActivity(
+                        sessionId: sessionId, jobs: jobs,
+                        browserShown: browserBeside,
+                        openBrowser: openBrowser,
+                        openJobs: { headerSheet = .jobs }
+                    )
+                    .padding(.leading, 16)
+                    .padding(.bottom, 12)
+                }
+            }
             .sheet(isPresented: $showTurns) {
                 TurnJumpSheet(outline: model.turnOutline) { entry in
                     showTurns = false
@@ -180,7 +213,7 @@ struct ConversationView: View {
         .overlay { if blank { hero(model) } }
         // Above the composer: the transcript and the ✕ while the bar is held to talk.
         .overlay { VoiceHoldOverlay(voice: model.composer.voice) }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+        .conversationDock {
             VStack(alignment: .leading, spacing: 0) {
                 if blank && !composerFocused && model.composer.isEmpty {
                     suggestions(model).padding(.bottom, 10)
@@ -199,6 +232,8 @@ struct ConversationView: View {
                     ComposerView(
                         model: model, context: context, pendingDraft: app.pendingDrafts[sessionId],
                         consumeDraft: { app.pendingDrafts[sessionId] = nil },
+                        pendingFiles: app.pendingFiles[sessionId],
+                        consumeFiles: { app.pendingFiles[sessionId] = nil },
                         pendingPrompt: app.pendingPrompts[sessionId],
                         consumePrompt: { app.pendingPrompts[sessionId] = nil },
                         focusOnAppear: app.pendingFocus.contains(sessionId),
@@ -214,7 +249,6 @@ struct ConversationView: View {
             .padding(.top, 6)
             .padding(.bottom, 8)
             .readableWidth()
-            .background(Palette.background)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { app.composerHeight = $0 }
         }
         .modifier(ComposerDrop(composer: model.composer, enabled: model.subagentReadOnly(parentAvailable: parentAvailable(model)) == nil))
@@ -230,7 +264,7 @@ struct ConversationView: View {
         // item; with the title moved aside for the workbench it would show as a second one.
         .navigationTitle(titleBesideWorkbench ? "" : app.durableTitle(of: sessionId) ?? "")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Palette.background, for: .navigationBar)
+        .conversationBar()
         // Stated, not left to the default: the workbench's files and changes hide the bar of
         // their own stacks, and without this closing the sheet takes this bar along.
         .toolbar(.visible, for: .navigationBar)
@@ -278,7 +312,7 @@ struct ConversationView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     // A Bot runs no subagents or background jobs of DSH's, and its scheduled
                     // tasks are on its own page.
-                    if bot == nil { SessionHeaderActions(sessionId: sessionId, jobs: jobs) { headerSheet = $0 } }
+                    if bot == nil { SessionHeaderActions(sessionId: sessionId) { headerSheet = $0 } }
                     if let menu = bot?.menu { menu(model) }
                     // A Bot works in its own folder and reports in the chat: its pages have no way into the workbench.
                     if bot == nil {
@@ -290,6 +324,7 @@ struct ConversationView: View {
         }
         .environment(\.conversationActions, ConversationActions(
             openChanges: { openWorkbench(.changes) },
+            openBrowser: openBrowser,
             regenerate: { text in Task { await model.send(text: text) } },
             fork: { turn in
                 Task { await app.fork(session: sessionId, atSeq: model.forkBoundary(turn: turn), from: .turn) }
@@ -314,6 +349,9 @@ struct ConversationView: View {
                 .presentationCornerRadius(36)
                 // A pull over the terminal is meant for its scrollback; ✕ closes the sheet.
                 .interactiveDismissDisabled(workbenchTab == .terminal)
+        }
+        .fullScreenCover(isPresented: Binding(get: { fullBrowser != nil }, set: { if !$0 { fullBrowser = nil } })) {
+            if let fullBrowser { FullScreenBrowser(model: fullBrowser) { self.fullBrowser = nil } }
         }
         .onChange(of: workbenchOpen) { _, open in if open, sizeClass == .regular { makeRoomForWorkbench() } }
         .focusedSceneValue(\.workbenchCommands, WorkbenchCommands(available: !blank && bot == nil, toggle: toggleWorkbench, open: openWorkbench))
@@ -366,13 +404,27 @@ struct ConversationView: View {
 
     private var titleBesideWorkbench: Bool { sizeClass == .regular && workbenchOpen }
 
+    /// The workbench's browser is already on screen beside the conversation.
+    private var browserBeside: Bool { sizeClass == .regular && workbenchOpen && workbenchTab == .browser }
+
+    private func activityShown(_ blank: Bool) -> Bool {
+        !blank && bot == nil && ConversationActivity.shows(sessionId: sessionId, jobs: jobs, browserShown: browserBeside, in: app)
+    }
+
+    /// From the chat the browser opens full screen, the page alone: the workbench's other tabs are not
+    /// what the user came for. A subagent's page is its parent conversation's.
+    private func openBrowser() {
+        dismissKeyboard()
+        fullBrowser = BrowserModel.session(BrowserAgent.owner(of: sessionId, in: app), origin: app.client.origin)
+    }
+
     private func openWorkbench(_ tab: WorkbenchTab) {
         workbenchTab = tab
         workbenchOpen = true
     }
 
     private func toggleWorkbench() {
-        if workbenchOpen { workbenchOpen = false } else { openWorkbench(.terminal) }
+        workbenchOpen.toggle()
     }
 
     /// One state, shown in whichever place the width calls for.
@@ -381,7 +433,7 @@ struct ConversationView: View {
     }
 
     private func workbenchPage(_ model: SessionModel) -> some View {
-        WorkbenchView(model: model, tab: $workbenchTab, browser: $browser) { workbenchOpen = false }
+        WorkbenchView(model: model, tab: $workbenchTab) { workbenchOpen = false }
     }
 
     /// A continuable child takes messages only through a live parent Agent.
@@ -617,11 +669,21 @@ struct TimelineScroll {
 
 extension EnvironmentValues {
     @Entry var timelineScroll = TimelineScroll()
+    /// The user's own messages in a Bot's chat, in the Bot's colour; nil keeps the plain bubble.
+    @Entry var userBubbleTint: BubbleTint?
+}
+
+/// A bubble's fill and the text that reads on it.
+struct BubbleTint: Equatable {
+    var fill: Color
+    var text: Color
 }
 
 /// Actions a reply offers below it, provided by the conversation.
 struct ConversationActions {
     var openChanges: () -> Void = {}
+    /// The workbench's browser, which the agent's browser tool drives.
+    var openBrowser: () -> Void = {}
     var regenerate: (String) -> Void = { _ in }
     var fork: (Int) -> Void = { _ in }
     /// Quote a reply into the composer, to answer that part of it.
@@ -986,6 +1048,7 @@ private struct UserBubble: View {
     @State private var fullHeight: CGFloat = 0
     @State private var foldedHeight: CGFloat = 0
     @Environment(\.conversationActions) private var actions
+    @Environment(\.userBubbleTint) private var tint
 
     private static let foldedLines = 8
 
@@ -1018,7 +1081,9 @@ private struct UserBubble: View {
                 .lineSpacing(3)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .background(Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                // `.primary` is the inherited style: a plain bubble stays as it was.
+                .foregroundStyle(tint.map { AnyShapeStyle($0.text) } ?? AnyShapeStyle(.primary))
+                .background(tint?.fill ?? Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .contextMenu {
                     Button { copyToPasteboard(text) } label: { Label("复制", systemImage: "doc.on.doc") }
                     // Masked text stays masked until the reader asks: this would show it whole.

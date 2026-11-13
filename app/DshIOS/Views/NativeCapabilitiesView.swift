@@ -430,6 +430,7 @@ struct NativeCapability: Identifiable {
         case "files": return String(localized: "文件")
         case "music": return String(localized: "音乐")
         case "weather": return String(localized: "天气")
+        case "browser": return String(localized: "浏览器")
         case "calendar": return String(localized: "日历")
         case "reminders": return String(localized: "提醒事项")
         default: return id
@@ -457,6 +458,7 @@ struct NativeCapability: Identifiable {
         case "files": return String(localized: "请你从「文件」里挑文件交给智能体，或把它做好的文件存到你选的位置。它只拿得到你挑的那几个")
         case "music": return String(localized: "在你的音乐资料库里找歌和歌单，并按你设的写入方式播放、暂停、切歌")
         case "weather": return String(localized: "查某个地点的实时天气和预报，数据来自 Apple 天气。不读你的位置")
+        case "browser": return String(localized: "在会话工作台的浏览器里打开网页、读内容、截图、点按钮和填表，还能带着登录状态发请求、读写 Cookie、下载和上传文件、给网页加常驻脚本，你可以在工作台里看着它操作。登录过的网站会一直记住，和 Safari 分开；智能体读得到这些网站的登录凭据")
         case "calendar": return String(localized: "查看你的日程，并按你设的写入方式增删改")
         case "reminders": return String(localized: "查看「提醒事项」里的待办，并按你设的写入方式增删改")
         default: return ops.joined(separator: " · ")
@@ -485,6 +487,7 @@ struct NativeCapability: Identifiable {
         case "files": return "folder"
         case "music": return "music.note"
         case "weather": return "cloud.sun"
+        case "browser": return "safari"
         case "calendar": return "calendar"
         case "reminders": return "checklist"
         default: return "square.grid.2x2"

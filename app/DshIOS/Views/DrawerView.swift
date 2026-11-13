@@ -163,6 +163,7 @@ struct DrawerView: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             .searchFieldAtBottom()
+            .modifier(SearchPageClose(action: closeSearch))
         }
         .tint(Palette.ink)
         .opacity(searchShown ? 1 : 0)
@@ -554,10 +555,10 @@ struct DrawerView: View {
         return result
     }
 
-    /// This phone, then each computer of the account.
+    /// This phone (named for what it is: iPhone, iPhone Duo, iPad), then each computer of the account.
     private var deviceGroups: [SessionGroup] {
         let listed = remote.listed()
-        return [SessionGroup(id: "device:", isPhone: true, title: String(localized: "本机"), symbol: "iphone", rows: timeRows.map(Entry.local))]
+        return [SessionGroup(id: "device:", isPhone: true, title: ThisDevice.name, symbol: ThisDevice.symbol, rows: timeRows.map(Entry.local))]
             + remote.devices.map { device in
                 SessionGroup(id: "device:\(device.id)", device: device, title: device.name, symbol: device.symbol,
                              rows: listed.filter { $0.deviceId == device.id }.map(Entry.remote))
@@ -981,7 +982,7 @@ struct DrawerView: View {
                         .lineLimit(1)
                     if twoLine {
                         HStack(spacing: 6) {
-                            if phoneTag { MachineTag(name: String(localized: "本机"), symbol: "iphone") }
+                            if phoneTag { MachineTag(name: ThisDevice.name, symbol: ThisDevice.symbol) }
                             if let subtitle { Text(subtitle).font(.caption).foregroundStyle(Palette.secondary).lineLimit(1) }
                         }
                     }
@@ -1077,7 +1078,8 @@ struct DrawerView: View {
                 open(id)
             }
         } label: {
-            RemoteRowLabel(session: session, machine: machine ? remote.device(session.deviceId) : nil, detail: detail, indent: indent).equatable()
+            RemoteRowLabel(session: session, machine: machine ? remote.device(session.deviceId) : nil, detail: detail, indent: indent,
+                           asks: remote.requests[session.id]?.isApproval == false).equatable()
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(current ? .isSelected : [])
@@ -1188,6 +1190,24 @@ struct MachineTag: View {
     }
 }
 
+/// The way out of the search page on iPad from iOS 26: there the system puts the field in the
+/// bar, and it has no ✕ of its own to leave by as the phone's has (before iOS 26 it has 取消).
+private struct SearchPageClose: ViewModifier {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        content.toolbar {
+            if #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .pad, sizeClass == .regular {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: action) { Image(systemName: "xmark") }
+                        .accessibilityLabel("关闭")
+                }
+            }
+        }
+    }
+}
+
 /// What a remote session's row shows. Compared by value: the list is told of every push from
 /// the server, and a row whose session did not change is not drawn again.
 private struct RemoteRowLabel: View, Equatable {
@@ -1197,6 +1217,8 @@ private struct RemoteRowLabel: View, Equatable {
     /// Where it is, as far as the group above does not say; nil for a row of one line.
     let detail: String?
     let indent: Bool
+    /// What it waits for is known to be an answer, not a go-ahead.
+    let asks: Bool
 
     var body: some View {
         let live = session.deviceOnline && !session.archived
@@ -1231,7 +1253,7 @@ private struct RemoteRowLabel: View, Equatable {
             if session.archived {
                 Image(systemName: "archivebox").font(.caption).foregroundStyle(Palette.faint)
             } else if live, session.waiting {
-                Text("等你允许").font(.caption.weight(.medium)).foregroundStyle(Palette.waiting)
+                Text(asks ? "等你回答" : "等你允许").font(.caption.weight(.medium)).foregroundStyle(Palette.waiting)
             } else {
                 Text(DrawerView.relative(session.sortAt)).font(.caption).foregroundStyle(Palette.faint)
             }
@@ -1287,18 +1309,6 @@ private extension View {
                         .allowsHitTesting(false)
                 }
             }
-        }
-    }
-
-    /// A floating control's surface: the system's glass from iOS 26, the outlined page colour before.
-    @ViewBuilder
-    func floatingGlass(in shape: some Shape) -> some View {
-        if #available(iOS 26.0, *) {
-            glassEffect(.regular.interactive(), in: shape)
-        } else {
-            background(Palette.background, in: shape)
-                .overlay(shape.stroke(Palette.stroke))
-                .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
         }
     }
 

@@ -23,6 +23,8 @@
 		<string>zh-Hans</string>
 		<string>en</string>
 		<string>es</string>
+		<string>ja</string>
+		<string>ko</string>
 	</array>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
@@ -37,7 +39,7 @@
 			<string>com.wsw.dsh-ios</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>dsh</string>
+				<string>$(DSH_URL_SCHEME)</string>
 			</array>
 		</dict>
 	</array>
@@ -45,6 +47,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>DshAppGroup</key>
 	<string>$(DSH_APP_GROUP)</string>
+	<key>DshURLScheme</key>
+	<string>$(DSH_URL_SCHEME)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSAlarmKitUsageDescription</key>
@@ -75,7 +79,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>按住输入栏说话时录音，把语音转成文字。录音直接发送给你在「语音输入」里设置的火山引擎识别服务，App 不保存录音；松手后识别出的文字会随对话发送给你选择的模型服务商。</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>把分享海报保存到相册。</string>
+	<string>把分享海报和交流群二维码保存到相册。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>让智能体在你问起时查看相册里有哪些照片、导出照片给本机识别，并按你在「本机能力」里设的写入方式帮你整理相册。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。删除照片前 iOS 会再问你一次。</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
@@ -84,6 +88,10 @@
 	<string>让智能体在你要求时读出录音文件里说了什么。默认只在本机识别，录音不离开手机；只有在明确指定云端识别时，录音才会发送给 Apple 的服务器。为回答你的问题，转写出的文字会随对话发送给你选择的模型服务商。这项能力不录音，也不使用麦克风。</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>INSendMessageIntent</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

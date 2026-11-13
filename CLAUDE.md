@@ -58,6 +58,13 @@
 ### 注意
 
 - **升级 nodejs-mobile、Python、libgit2、FFmpeg 的版本后**（`scripts/fetch-nodejs-mobile.sh`、`scripts/fetch-python.sh`、`scripts/build-libgit2.sh`、`scripts/build-ffmpeg.sh`），本地从零跑一遍 `app/ci_scripts/ci_post_clone.sh`。升级 FFmpeg 还要确认 `native/ffmpeg/ffmpeg.patch` 能打上，并在模拟器里实测一遍 `ffmpeg`、`ffprobe`。云端每次都重新下载和编译，下载地址或 sha256 写错会直接失败。
+- **FFmpeg 用本仓库 GitHub Release 里预编译好的包。** `scripts/fetch-ffmpeg.sh` 下载 `FFmpeg.xcframework.zip` 并校验 sha256，不再每次从源码编译。Release 的 tag 形如 `ffmpeg-9.0.2-c79aea98`，末尾是构建输入的指纹，构建输入指 `scripts/build-ffmpeg.sh` 和 `native/ffmpeg` 里除 `binding.c` 以外的文件。改了这些文件或升级 FFmpeg 后，指纹对不上，下载脚本会自动改为从源码编译，构建不会坏，只是慢一两分钟。这时补发一个新包：
+  1. 跑 `scripts/fetch-ffmpeg.sh --package`，它从源码编译、打包，并打印 tag、zip 路径和 sha256。
+  2. 照常扫一遍隐私，`strings` 查二进制里有没有家目录等本机路径。
+  3. `gh release create <tag> <zip> --target <包含这些改动的提交> --prerelease --latest=false`。
+  4. 把 tag 末尾的指纹和 sha256 填进 `fetch-ffmpeg.sh` 开头的 `inputs`、`sha256`，和改动一起提交。
+
+  旧的 Release 不要删，旧提交构建时还要下载它。
 - **云端构建只在推 `release` 时跑**，不在分支上手动触发。改构建脚本或 `app/project.yml` 的工程结构时，本地跑通 `ci_post_clone.sh` 并编译一遍就可以合并；云端的签名和上传等下次推 `release` 时再验证。
 - **触发规则按提交看，不按净差异看。** 推到 `release` 的这一批提交里，只要有一个改到上面四个目录就会出包，哪怕后面的提交又把它改回去了。
 - **连续推送 `release` 只跑最新一次**，前一次会被自动取消。但被取消的那次如果已经导出完，包照样会上传并占一个 build 号，所以 build 列表里的号不一定连续，也可能多出包。
@@ -93,6 +100,16 @@
 
 写法上保持现在的风格：英文、短句、先说能不能用再说替代办法；「Commands that exist」之外的命令都会被当成不存在，所以新增命令一定要列进去。
 
+## 浏览器能力
+
+Agent 用的 `browser` 工具有哪些动作、各要什么参数、给模型看的说明，全写在 `app/DshIOS/Browser/BrowserCatalog.swift` 一处：引擎按它生成工具（`describe`），原生层按它放行动作，参数也按它检查。
+
+- 加一个浏览器能力：在 `BrowserCatalog` 里登记动作和参数，在 `BrowserAgent.perform` 里接上实现（多数写在 `BrowserAbilities.swift`）。引擎的 `tools.mjs` 和 `caps_browser.m` 都不用改。
+- 返回值里带 `image: {data, mediaType}` 的，引擎会自动存成附件给模型看；会出图的动作在清单里标 `image`，引擎先确认模型能看图再执行。
+- 注入网页的脚本（`scripts/page-controller/entry.js`）改了要跑 `scripts/build-page-controller.sh` 重新打包，产物 `PageController.js` 一起提交。
+- 新动作在聊天里的显示文字在 `ToolCards.swift` 的 `browserLine`，没写的会直接显示动作名。
+- 改完照「内置 skill」一节更新 ios-environment skill。
+
 ## 手表 App
 
 手表 App 内嵌在 iPhone App 里一起安装，引擎不在手表上。手机通过 WatchConnectivity 把会话状态发给手表，手表只负责显示、震动提醒，以及把「允许 / 拒绝」发回手机。
@@ -115,6 +132,17 @@
 
 - 构建主 App 时不要给 `xcodebuild` 传 `-sdk iphonesimulator`：它会让内嵌的手表 App 也按 iOS 的 SDK 编译，直接失败。用 `-destination` 选平台就够了。
 - 手表 App 的 bundle ID 必须以主 App 的 bundle ID 开头，`WKCompanionAppBundleIdentifier` 要和主 App 的一致，改主 App 的 bundle ID 时一起改。
+
+## 系统分享（分享扩展）
+
+别的 App 点「分享」选 Fish Pocket，内容进新对话、某个 Bot 或群聊的输入框，不自动发送。扩展是 `app/ShareExtension`（target `DshShare`），引擎不在扩展里，扩展什么都不发。
+
+- 扩展一打开就把文字、链接、图片、文件拷进 App Group 的 `Share/inbox/<id>/`；用户选好去处后写下 `delivery.json`，再打开 `dsh://share/<id>`。App 收到后把文件挪进自己的临时目录，交给对应会话的输入框（`Shared/ShareInbox.swift`、`MainView.receive`）。
+- 系统没让扩展拉起 App 时，内容留在收件箱里，App 下次回到前台会自己取走；超过半小时没取的直接清掉。
+- 扩展里列的 Bot 和群聊来自 App 写的 `Share/targets.json` 和 `Share/avatars/`（`ShareTargetsWriter`）：顺序同 Bot 页，隐藏的不列，头像是 App 按自己的画法渲染好的图，群头像深浅色各一张。扩展不编译 `BotCharacter`，改了头像画法不用动扩展。
+- 扩展的文案在 `app/Shared/Localizable.xcstrings`，`scripts/sync-strings.sh` 会一起收进来。扩展不认 `NSAccentColorName`，主色在 `ShareView` 里显式指定。
+- 发行签名多了一个 bundle ID：`com.wsw.dsh-ios.Share`，要有 App Group。
+- 拉起 App 的链接前缀是工程变量 `DSH_URL_SCHEME`（正式版 `dsh`）。用别的 Bundle ID 并排装测试包时，`DSH_APP_GROUP` 和它都要换成测试包自己的，不然链接可能打开正式包，正式包读不到测试包的 App Group。
 
 ## Bot：只用 DS Bot 的后端
 
@@ -154,7 +182,9 @@ Bot 没有照片时显示的角色是 App 自己画的，形状和动作都写�
 
 ## 微信交流群二维码
 
-群二维码只放在 README 和官网，App 里不放，设置页底部只有一个「官网」链接。二维码 7 天过期，有两份，换图时一起换：
+群二维码在 README、官网和 App 设置页底部都有。二维码 7 天过期，有两份，换图时一起换：
 
 - 主仓库的 `docs/assets/wechat-group.png`：README 的「交流群」一节引用它。
 - 官网 `fish-pocket-site` 的 `web/public/wechat-group.png`：中文页页脚显示它，合进官网的 `main` 就自动部署。
+
+App 不内置图片，设置页底部（`Views/WeChatGroupSection.swift`）每次打开都从官网加载 `https://fish.deepseek1024.com/wechat-group.png`（`AppLinks.wechatGroupCode`）。所以换二维码只要更新官网，不用发版；反过来，官网上这个文件的名字和路径不能改，否则已经装好的 App 都会显示「二维码加载失败」。

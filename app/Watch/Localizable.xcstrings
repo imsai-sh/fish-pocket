@@ -20,6 +20,18 @@
             "state" : "translated",
             "value" : "Esperándote: %lld"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "対応待ち：%lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "응답 대기: %lld"
+          }
         }
       }
     },
@@ -41,6 +53,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "En curso: %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行中：%lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 중: %lld"
           }
         }
       }
@@ -64,6 +88,18 @@
             "state" : "translated",
             "value" : "Puede que la app del iPhone no esté abierta"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone の App が起動していない可能性があります"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone의 앱이 실행 중이 아닐 수 있어요"
+          }
         }
       }
     },
@@ -85,6 +121,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saldo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "残高"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잔액"
           }
         }
       }
@@ -108,6 +156,18 @@
             "state" : "translated",
             "value" : "Terminado. Puedes decir que lo hiciste tú."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "できました。あなたが書いたことにしてもいいですよ。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다 됐어요. 당신이 썼다고 해도 돼요."
+          }
         }
       }
     },
@@ -129,6 +189,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permitir"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허용"
           }
         }
       }
@@ -152,6 +224,18 @@
             "state" : "translated",
             "value" : "Actualizar"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새로고침"
+          }
         }
       }
     },
@@ -173,6 +257,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Responde en el iPhone"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone で回答"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 답하기"
           }
         }
       }
@@ -196,6 +292,18 @@
             "state" : "translated",
             "value" : "Abre Fish Pocket en tu iPhone"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone で Fish Pocket を開いてください"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 Fish Pocket을 여세요"
+          }
         }
       }
     },
@@ -217,6 +325,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vale"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
           }
         }
       }
@@ -240,6 +360,18 @@
             "state" : "translated",
             "value" : "Listo~ Voy a beber un poco de agua."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完了〜ちょっと水を飲んできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "완료~ 물 한 잔 마시고 올게요."
+          }
         }
       }
     },
@@ -261,6 +393,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rechazar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拒否"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "거부"
           }
         }
       }
@@ -284,6 +428,18 @@
             "state" : "translated",
             "value" : "¡Hecho! No tardé mucho, ¿verdad?"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完了！お待たせしすぎませんでしたか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "끝! 너무 오래 기다리시진 않았죠?"
+          }
         }
       }
     },
@@ -305,6 +461,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¡Listo! Buen trabajo hoy."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お疲れさまでした！今日もよく働きました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작업 끝! 오늘도 열일했어요."
           }
         }
       }
@@ -328,6 +496,18 @@
             "state" : "translated",
             "value" : "Recientes"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근"
+          }
         }
       }
     },
@@ -349,6 +529,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Llámame cuando quieras"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いつでも呼んでください"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "언제든 불러 주세요"
           }
         }
       }
@@ -372,6 +564,18 @@
             "state" : "translated",
             "value" : "Descansando"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "休憩中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "쉬는 중"
+          }
         }
       }
     },
@@ -393,6 +597,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trabajando"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作業中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작업 중"
           }
         }
       }
@@ -416,6 +632,18 @@
             "state" : "translated",
             "value" : "Trabajo terminado. Elógiame."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作業が終わりました。ほめてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일 다 끝났어요. 칭찬해 주세요."
+          }
         }
       }
     },
@@ -437,6 +665,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Estado desconocido"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "状態不明"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상태 알 수 없음"
           }
         }
       }
@@ -460,6 +700,18 @@
             "state" : "translated",
             "value" : "Necesita tu permiso"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可待ち"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허용 대기"
+          }
         }
       }
     },
@@ -481,6 +733,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Te toca"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回答待ち"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답변 대기"
           }
         }
       }
@@ -504,6 +768,18 @@
             "state" : "translated",
             "value" : "¡Listo! Ven a verlo~"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "終わりました、見に来てください〜"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다 끝났어요, 와서 확인해 보세요~"
+          }
         }
       }
     },
@@ -526,6 +802,18 @@
             "state" : "translated",
             "value" : "Y %lld más también terminaron"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ほかに %lld 件も完了しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개 더 완료됐어요"
+          }
         }
       }
     },
@@ -547,6 +835,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sin conexión"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결 안 됨"
           }
         }
       }

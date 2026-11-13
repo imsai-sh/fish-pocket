@@ -5,6 +5,7 @@ import SwiftUI
 /// newest page first, each page oldest to newest.
 struct BotEarlierParts: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.userBubbleTint) private var tint
     let sessionId: String
     @State private var items: [JSON] = []
     @State private var cursor: JSON = .null
@@ -70,7 +71,8 @@ struct BotEarlierParts: View {
         case "user":
             Text(item["text"].string ?? "").font(.callout)
                 .padding(.horizontal, 16).padding(.vertical, 10)
-                .background(Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .foregroundStyle(tint.map { AnyShapeStyle($0.text) } ?? AnyShapeStyle(.primary))
+                .background(tint?.fill ?? Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.leading, 60)
                 .textSelection(.enabled)

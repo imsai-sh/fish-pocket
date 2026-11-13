@@ -34,9 +34,51 @@ struct ToolPresentation {
         if call.displayName == "present" {
             return call.arguments["files"].array.compactMap { $0["path"].string }.map { ($0 as NSString).lastPathComponent }.joined(separator: " · ")
         }
+        // Failed and stopped rows show this alone, so it says the action the way the row does.
+        if call.displayName == "browser" { return browserLine }
         let base = call.rowSummary(cwd: cwd)
         if ToolStyle.hasOwnTitle(call) { return base }
         return base.isEmpty ? call.displayName : "\(call.displayName) · \(base)"
+    }
+
+    /// 「浏览器 · 打开 example.com」「浏览器 · 点击 [3]」: the action and what it was on.
+    private var browserLine: String {
+        let arguments = call.arguments
+        let element = arguments["index"].int.map { " [\($0)]" } ?? ""
+        let version = switch arguments["desktop"].bool {
+        case true?: " · " + String(localized: "电脑版")
+        case false?: " · " + String(localized: "移动版")
+        case nil: ""
+        }
+        let what: String = switch arguments["action"].string {
+        case "open": String(localized: "打开") + " " + (arguments["url"].string.map(ToolCall.firstLine) ?? "") + version
+        case "read": String(localized: "读取页面")
+        case "click": String(localized: "点击") + element
+        case "type": String(localized: "输入") + element
+        case "select": String(localized: "选择") + element
+        case "scroll": String(localized: "滚动")
+        case "back": String(localized: "后退")
+        case "forward": String(localized: "前进")
+        case "reload": String(localized: "刷新") + version
+        case "evaluate": String(localized: "运行脚本")
+        case "screenshot": arguments["fullPage"].bool == true ? String(localized: "整页截图") : String(localized: "截图")
+        case "pdf": String(localized: "存为 PDF")
+        case "addScript": String(localized: "添加常驻脚本")
+        case "scripts": String(localized: "查看常驻脚本")
+        case "removeScript": String(localized: "移除常驻脚本")
+        case "logs": String(localized: "读取日志")
+        case "request": String(localized: "发送请求") + " " + (arguments["url"].string.map(ToolCall.firstLine) ?? "")
+        case "cookies": String(localized: "读取 Cookie")
+        case "setCookie": String(localized: "设置 Cookie")
+        case "deleteCookie": String(localized: "删除 Cookie")
+        case "downloads": String(localized: "查看下载")
+        case "upload": String(localized: "上传文件") + element
+        case "keys": String(localized: "键盘输入") + element
+        // An action this build has no words for yet still says what it was.
+        default: arguments["action"].string ?? ""
+        }
+        let name = String(localized: "浏览器")
+        return what.isEmpty ? name : "\(name) · \(what)"
     }
 
     /// For a call that failed or stopped: just what it acted on, next to `outcome`.
@@ -49,6 +91,8 @@ struct ToolPresentation {
             return TodoDiff(call: call).rowSummary
         case "skill" where state == .preparing:
             return String(localized: "准备加载技能")
+        case "browser":
+            return browserLine
         case "present":
             let status: String = switch state {
             case .preparing: String(localized: "准备交付")

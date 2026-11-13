@@ -34,8 +34,13 @@ test('invoking without the addon fails with a reason a model can relay', async (
   await assert.rejects(invoke('device', 'info'), /only available in the iOS app/);
 });
 
+// What index.mjs registers: a definition, or one made from the context.
+const fakeCtx = (services = {}) => ({ get: (name) => services[name] });
+const DEFINITIONS = Object.fromEntries(Object.entries(TOOLS)
+  .map(([capability, tool]) => [capability, typeof tool === 'function' ? tool(fakeCtx()) : tool]));
+
 test('every tool declares the schema the registry requires', () => {
-  for (const [capability, tool] of Object.entries(TOOLS)) {
+  for (const [capability, tool] of Object.entries(DEFINITIONS)) {
     assert.equal(typeof tool.name, 'string', `${capability}: name`);
     assert.ok(tool.description.length > 40, `${capability}: description is too thin to guide a model`);
     assert.equal(typeof tool.execute, 'function', `${capability}: execute`);
@@ -47,12 +52,12 @@ test('every tool declares the schema the registry requires', () => {
 });
 
 test('tool names are unique and stable', () => {
-  const names = Object.values(TOOLS).map((tool) => tool.name);
+  const names = Object.values(DEFINITIONS).map((tool) => tool.name);
   assert.deepEqual(names, [...new Set(names)]);
   // Pinned because they reach the model's prompt and a rename is a breaking
   // change for any skill or plugin that mentions them.
   assert.deepEqual(names.sort(),
-    ['alarm', 'calendar', 'clipboard', 'compose', 'contacts', 'device_info', 'files', 'health',
+    ['alarm', 'browser', 'calendar', 'clipboard', 'compose', 'contacts', 'device_info', 'files', 'health',
      'homekit', 'image_analysis', 'location', 'maps', 'music', 'notify', 'open_url', 'photos',
      'reminders', 'speak', 'text_analysis', 'transcribe_audio', 'weather']);
 });
@@ -77,7 +82,7 @@ test('no tool shares a name with one DSH registers itself', () => {
   for (const pkg of readdirSync(root)) if (existsSync(join(root, pkg, 'lib'))) walk(join(root, pkg, 'lib'));
   // Guards the scan itself: a format change that matches nothing would pass vacuously.
   assert.ok(builtin.has('read') && builtin.has('bash') && builtin.size > 30, `found only ${[...builtin]}`);
-  const clashes = Object.values(TOOLS).map((tool) => tool.name).filter((name) => builtin.has(name));
+  const clashes = Object.values(DEFINITIONS).map((tool) => tool.name).filter((name) => builtin.has(name));
   assert.deepEqual(clashes, []);
 });
 
@@ -1048,4 +1053,109 @@ test('weather renders a daily forecast and warns that a day is stamped in UTC', 
     `No daily forecast came back for that point.\n${WEATHER_CREDIT}`,
   );
   assert.doesNotThrow(() => render({ days: [{}] }));
+});
+
+test('browser needs a conversation, and says so before reaching the addon', async () => {
+  await assert.rejects(
+    DEFINITIONS.browser.execute({ action: 'read' }, { signal: new AbortController().signal }),
+    /not part of a conversation/,
+  );
+});
+
+test('browser renders the page with what was done first, and says when it cut it', () => {
+  const render = (args, value) => DEFINITIONS.browser.output.render(args, value)[0].text;
+  const page = render({ action: 'click', index: 2 }, {
+    action: '✅ Clicked element (2).',
+    header: 'Current Page: [登录](https://example.com/)',
+    content: '[0]<input placeholder=用户名 />\n[1]<button >提交 />',
+    footer: '[End of page]',
+    loading: false,
+  });
+  assert.match(page, /^✅ Clicked element \(2\)\.\n\nCurrent Page/);
+  assert.match(page, /\[1\]<button >提交 \/>\n\[End of page\]$/);
+
+  const long = render({ action: 'read' }, { header: 'h', content: 'x'.repeat(30000), footer: '', loading: true });
+  assert.match(long, /page cut at 24000 of 30000 characters/);
+  assert.match(long, /still loading/);
+  assert.doesNotMatch(long, /desktop version/);
+  assert.match(render({ action: 'read' }, { header: 'h', content: '', desktop: true }), /site's desktop version/);
+
+  assert.match(render({ action: 'evaluate' }, { result: null }), /returned nothing/);
+  assert.equal(render({ action: 'evaluate' }, { result: '{"a":1}' }), '{"a":1}');
+  // Anything else the app answers comes back as JSON.
+  assert.match(render({ action: 'cookies' }, { cookies: [{ name: 'sid' }] }), /"name": "sid"/);
+});
+
+// What the app's browser says it can do; the real one is in BrowserCatalog.swift.
+const BROWSER_CATALOG = {
+  description: 'Use the browser of this conversation to open, read and act on pages.',
+  actions: [
+    { name: 'open', does: 'open a page', takes: ['url', 'desktop'], needs: ['url'] },
+    { name: 'read', does: 'read the page again' },
+    { name: 'screenshot', does: 'show the page as a picture', takes: ['fullPage'], image: true },
+    { name: 'upload', does: 'put files into a file field', takes: ['index', 'paths'], needs: ['index', 'paths'] },
+  ],
+  params: [
+    { name: 'url', schema: { type: 'string', description: 'open: the address' } },
+    { name: 'desktop', schema: { type: 'boolean', description: 'open: the desktop version' } },
+    { name: 'fullPage', schema: { type: 'boolean', description: 'screenshot: the whole page' } },
+    { name: 'index', schema: { type: 'integer', description: 'the element\'s number' } },
+    { name: 'paths', schema: { type: 'array', items: { type: 'string' }, description: 'files' } },
+    { name: 'headers', schema: { type: 'object', additionalProperties: true, description: 'headers' } },
+    { name: 'session', schema: { type: 'string', description: 'never offered to the model' } },
+  ],
+};
+
+test('the browser tool is built from the app\'s catalog: its actions, what they need, its arguments', () => {
+  const tool = TOOLS.browser(fakeCtx(), BROWSER_CATALOG);
+  assert.match(tool.description, /^Use the browser of this conversation/);
+  assert.match(tool.description, /- `open` \(needs `url`\): open a page/);
+  assert.match(tool.description, /- `upload` \(needs `index`, `paths`\): put files into a file field/);
+  const schema = tool.parameters;
+  assert.deepEqual(schema.properties.action.enum, ['open', 'read', 'screenshot', 'upload']);
+  assert.equal(schema.properties.paths.type, 'array');
+  assert.equal(schema.properties.headers.type, 'object');
+  assert.equal(schema.properties.session, undefined);
+});
+
+test('an answer with a picture is stored, and the model gets the reference', async () => {
+  const stored = [];
+  const tool = TOOLS.browser(fakeCtx({
+    attachments: {
+      saveImage: async (image) => {
+        stored.push(image);
+        return { attachmentId: 'a9', mediaType: image.mediaType, bytes: image.data.length, width: 10, height: 20 };
+      },
+    },
+    llm: { resolveModelInfo: async () => ({ inputModalities: ['text', 'image'] }) },
+  }), { ...BROWSER_CATALOG, actions: [{ name: 'shot', does: 'a picture the catalog does not mark' }] });
+  const exec = {
+    signal: new AbortController().signal,
+    agent: { session: { id: 's1', requestHeader: () => undefined }, options: { provider: 'p', model: 'vision' } },
+  };
+  // No addon here: the call itself is what fails, after the checks have passed.
+  await assert.rejects(tool.execute({ action: 'shot' }, exec), /only available in the iOS app/);
+  assert.equal(stored.length, 0);
+});
+
+test('a screenshot is refused before anything is taken when the model cannot see images', async () => {
+  const tool = TOOLS.browser(fakeCtx({
+    attachments: { saveImage: () => assert.fail('nothing should be stored') },
+    llm: { resolveModelInfo: async () => ({ inputModalities: ['text'] }) },
+  }), BROWSER_CATALOG);
+  const exec = {
+    signal: new AbortController().signal,
+    agent: { session: { id: 's1', requestHeader: () => undefined }, options: { provider: 'p', model: 'text-only' } },
+  };
+  await assert.rejects(tool.execute({ action: 'screenshot' }, exec), /cannot look at images.*`read`/s);
+});
+
+test('a screenshot renders as the image with a line saying what it shows', () => {
+  const blocks = DEFINITIONS.browser.output.render({ action: 'screenshot' }, {
+    url: 'https://example.com/', title: 'Example',
+    image: { attachmentId: 'a1', mediaType: 'image/jpeg', bytes: 1000, width: 804, height: 1556 },
+  });
+  assert.equal(blocks.length, 2);
+  assert.match(blocks[0].text, /Screenshot of \[Example\]\(https:\/\/example\.com\/\).*804x1556 px/);
+  assert.deepEqual(blocks[1], { type: 'image', attachment: { attachmentId: 'a1', mediaType: 'image/jpeg', bytes: 1000, width: 804, height: 1556 } });
 });

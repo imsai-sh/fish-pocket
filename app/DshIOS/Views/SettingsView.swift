@@ -1,9 +1,12 @@
 import SafariServices
 import SwiftUI
+import WatchConnectivity
 
-/// Settings: only what people come here for (账号, 模型, 访问模式, 外观, 插件, 自动化,
-/// 后台运行: 静音音频, 任务续跑). Developer pages sit behind 高级, versions and engine status behind 关于.
-/// 分享 Fish Pocket opens the list; the star, rating, website, source, feedback and author links close it.
+/// Settings: only what people come here for (账号, 模型, 访问模式, 插件, 自动化, 后台运行: 静音音频,
+/// 任务续跑, 小组件), then the rarely touched 外观 and 语言. Developer pages sit behind 高级, versions and
+/// engine status behind 关于. 本机能力 and 远程控制 have their rows in the sidebar, not here.
+/// 分享 Fish Pocket and Apple Watch open the list; the star, rating, website, source, feedback and author links,
+/// then the WeChat group's QR code, close it.
 /// The engine card shows here only while the engine is not running. Every page reads the shared
 /// settings mirror, so a write anywhere shows everywhere.
 struct SettingsView: View {
@@ -27,19 +30,6 @@ struct SettingsView: View {
 
     private var mirror: SettingsMirror { app.settings }
 
-    /// 本机能力的数量，数的是 addon 的能力表本身（见 NativeCapability.all）。
-    private var nativeCapabilityCount: Int? {
-        let count = NativeCapability.all.count
-        return count > 0 ? count : nil
-    }
-
-    /// How many of the account's computers are reachable; nothing before signing in.
-    private var remoteValue: String {
-        guard app.remote.signedIn else { return "" }
-        let online = app.remote.devices.filter(\.online).count
-        return online > 0 ? String(localized: "\(online) 台在线") : String(localized: "已登录")
-    }
-
     private var engineRunning: Bool {
         if case .running = engine.phase { return true }
         return false
@@ -54,6 +44,10 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink { ShareAppPage() } label: { ShareAppRow() }
+                    // iPad pairs with no watch.
+                    if WCSession.isSupported() {
+                        NavigationLink { WatchSetupPage() } label: { WatchSetupRow() }
+                    }
                 }
 
                 Section {
@@ -65,31 +59,6 @@ struct SettingsView: View {
                         row("语音输入", "mic", VolcSpeech.shared.configured ? String(localized: "火山引擎") : String(localized: "未设置"))
                     }
                     if mirror.serves("permission") { permissionPicker }
-                    if let theme = mirror.namespace("ui-theme") {
-                        Picker(selection: Binding(get: { theme["value"]["preference"].string ?? "system" }, set: { value in
-                            Task { await write("ui-theme", ["preference"], .string(value)) }
-                        })) {
-                            Text("跟随系统").tag("system")
-                            Text("浅色").tag("light")
-                            Text("深色").tag("dark")
-                        } label: {
-                            Label("外观", systemImage: "circle.lefthalf.filled")
-                        }
-                        .pickerValueTint()
-                    }
-                    // iOS shows the per-app language in its Settings only to readers with several system
-                    // languages; this picker writes the same preference, applied at the next launch.
-                    Picker(selection: $languageChoice) {
-                        Text("跟随系统").tag("system")
-                        ForEach(AppLanguage.choices, id: \.code) { Text(verbatim: $0.name).tag($0.code) }
-                    } label: {
-                        Label("语言", systemImage: "globe")
-                    }
-                    .pickerValueTint()
-                    .onChange(of: languageChoice) { _, value in
-                        AppLanguage.chosen = value == "system" ? nil : value
-                        languageChanged = true
-                    }
                 }
 
                 Section {
@@ -98,12 +67,6 @@ struct SettingsView: View {
                     }
                     NavigationLink { SchedulesView(openSession: openSession) } label: {
                         row("自动化", "clock.arrow.2.circlepath", app.scheduleCount.map { String(localized: "\($0) 个") } ?? "")
-                    }
-                    NavigationLink { NativeCapabilitiesView() } label: {
-                        row("本机能力", "iphone", nativeCapabilityCount.map { String(localized: "\($0) 项") } ?? "")
-                    }
-                    NavigationLink { RemoteControlPage() } label: {
-                        row("远程控制", "laptopcomputer.and.iphone", remoteValue)
                     }
                 }
 
@@ -145,6 +108,34 @@ struct SettingsView: View {
                 .onChange(of: widgetTitles) { WidgetSnapshotWriter.shared.refresh() }
 
                 Section {
+                    if let theme = mirror.namespace("ui-theme") {
+                        Picker(selection: Binding(get: { theme["value"]["preference"].string ?? "system" }, set: { value in
+                            Task { await write("ui-theme", ["preference"], .string(value)) }
+                        })) {
+                            Text("跟随系统").tag("system")
+                            Text("浅色").tag("light")
+                            Text("深色").tag("dark")
+                        } label: {
+                            Label("外观", systemImage: "circle.lefthalf.filled")
+                        }
+                        .pickerValueTint()
+                    }
+                    // iOS shows the per-app language in its Settings only to readers with several system
+                    // languages; this picker writes the same preference, applied at the next launch.
+                    Picker(selection: $languageChoice) {
+                        Text("跟随系统").tag("system")
+                        ForEach(AppLanguage.choices, id: \.code) { Text(verbatim: $0.name).tag($0.code) }
+                    } label: {
+                        Label("语言", systemImage: "globe")
+                    }
+                    .pickerValueTint()
+                    .onChange(of: languageChoice) { _, value in
+                        AppLanguage.chosen = value == "system" ? nil : value
+                        languageChanged = true
+                    }
+                }
+
+                Section {
                     NavigationLink { AdvancedSettingsPage() } label: { row("高级", "wrench.and.screwdriver") }
                     NavigationLink { AboutPage(engineVersion: engineVersion) } label: { row("关于", "info.circle", aboutValue) }
                 }
@@ -163,6 +154,8 @@ struct SettingsView: View {
                 } footer: {
                     Text("觉得好用的话，去 GitHub 仓库页点一下 Star ⭐️，这是对项目最大的支持。")
                 }
+
+                WeChatGroupSection()
             }
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.large)

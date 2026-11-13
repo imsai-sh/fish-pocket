@@ -37,9 +37,16 @@ jb_python="$nm/just-bash/vendor/cpython-emscripten"
 [ -d "$jb_python" ] || { echo "build-engine: just-bash no longer has $jb_python; update the prune" >&2; exit 1; }
 rm -rf "$jb_python"
 # Development-only payload. Licence texts stay: their terms require shipping them.
-find "$nm" -type f \( -name '*.map' -o -name '*.d.ts' -o -name '*.d.mts' -o -name '*.d.cts' -o -name '*.md' -o -name '*.markdown' \) \
+# DSH's own packages and ds-bot keep their Markdown and docs/: they read it at
+# run time — skills (SKILL.md and its references), the plugin detail page
+# (docs/DETAIL*.md with its images, or the README when none is declared), and
+# prompt material. Packages these depend on are pruned like any other.
+own=( \( -path "$nm/@deepseek-ai/*" -o -path "$nm/ds-bot/*" \) ! -path "$nm/*/node_modules/*" )
+find "$nm" -type f \( -name '*.map' -o -name '*.d.ts' -o -name '*.d.mts' -o -name '*.d.cts' \) -delete
+find "$nm" -type f \( -name '*.md' -o -name '*.markdown' \) ! \( "${own[@]}" \) \
   ! -iname 'licen[cs]e*' ! -iname 'notice*' ! -iname 'copying*' -delete
-find "$nm" -type d \( -name test -o -name tests -o -name __tests__ -o -name docs -o -name example -o -name examples \) -prune -exec rm -rf {} +
+find "$nm" -type d \( -name test -o -name tests -o -name __tests__ -o -name docs -o -name example -o -name examples \) \
+  ! \( "${own[@]}" \) -prune -exec rm -rf {} +
 # Any remaining Mach-O would fail App Store validation and cannot load anyway.
 { find "$nm" -type f -size +1k -print0 | xargs -0 file --mime-type 2>/dev/null | grep -E 'application/x-(mach-binary|executable|sharedlib)' || true; } | cut -d: -f1 | while read -r f; do rm -f "$f"; done
 # Bin links into what was pruned above: a dangling link in the bundle fails App Store validation.

@@ -6,12 +6,23 @@ import Foundation
 // same way the web one does.
 
 /// The `schedule.manager` copy (with the shared frequency fragments) this app uses, in the UI's
-/// language: the official client's own zh, en and es dictionaries, Chinese for anything a table lacks.
+/// language: the official client's own zh, en, es and ja dictionaries (the official client has no
+/// Korean, so `ko` is this app's own), Chinese for anything a table lacks.
 enum ScheduleText {
     static var locale: Locale { AppLanguage.locale }
 
+    /// The table for the UI's language, English when there is none.
+    private static var table: [String: String] {
+        switch AppLanguage.primary {
+        case "zh": zh
+        case "es": es
+        case "ja": ja
+        case "ko": ko
+        default: en
+        }
+    }
+
     static func t(_ key: String, _ params: [String: Any] = [:]) -> String {
-        let table = AppLanguage.isChinese ? zh : (AppLanguage.isSpanish ? es : en)
         var text = table[key] ?? zh[key] ?? key
         for (name, value) in params { text = text.replacingOccurrences(of: "{\(name)}", with: "\(value)") }
         return text
@@ -19,7 +30,7 @@ enum ScheduleText {
 
     /// `unit.hour` for a count: English has `hour` / `hours` (`unit.hour.one` / `.other`).
     static func unit(_ name: String, count: Int) -> String {
-        if !AppLanguage.isChinese, let text = (AppLanguage.isSpanish ? es : en)["unit.\(name).\(count == 1 ? "one" : "other")"] { return text }
+        if let text = table["unit.\(name).\(count == 1 ? "one" : "other")"] { return text }
         return t("unit.\(name)")
     }
 
@@ -194,6 +205,125 @@ enum ScheduleText {
         "relative.future": "en {value} {unit}",
         "relative.overdue": "{value} {unit} vencido",
         "rule.zone.system": " (sistema)",
+    ]
+
+    /// The official `ja` entries for the same keys (`schedule.manager`, then the shared fragments),
+    /// from `@deepseek-ai/dsh-client-ui-schedule`.
+    private static let ja: [String: String] = [
+        "frequency.once": "1回のみ",
+        "frequency.every": "{value}{unit}ごと",
+        "frequency.daily": "毎日 {time} ({timeZone})",
+        "frequency.dailyLocal": "毎日 {time}",
+        "frequency.weekly": "毎週 {weekdays} の {time} ({timeZone})",
+        "frequency.weeklyLocal": "毎週 {weekdays} の {time}",
+        "frequency.cron": "カスタム ({timeZone})",
+        "frequency.cronLocal": "カスタム",
+        "frequency.cronRule": "{rule} ({timeZone})",
+        "cron.list.join": "、",
+        "cron.part.join": " ",
+        "cron.weekday.name": "{weekday}",
+        "cron.weekday.range": "{from}〜{to}",
+        "cron.months": " {months}",
+        "cron.day.every": "毎日{months}",
+        "cron.day.weekdays": "{weekdays}{months}",
+        "cron.day.monthDays": "毎月{days}日{months}",
+        "cron.day.both": "毎月{days}日または{weekdays}{months}",
+        "cron.day.bothStarred": "毎月{days}日と{weekdays}{months}",
+        "cron.hours.range": "{from}〜{to}",
+        "cron.hours.list": "{hours}",
+        "cron.time.everyMinute": "毎分",
+        "cron.time.everyMinutes": "{step}分ごと",
+        "cron.time.joinedEveryMinute": "毎分",
+        "cron.time.joinedEveryMinutes": "{step}分ごと",
+        "cron.time.everyHour": "毎時",
+        "cron.time.joinedEveryHour": "毎時",
+        "cron.time.everyNHours": "{count}時間ごと",
+        "cron.time.joinedEveryNHours": "{count}時間ごと",
+        "cron.time.hourlyAt": "毎時{minutes}分",
+        "cron.time.joinedHourlyAt": "毎時{minutes}分",
+        "cron.time.hoursEveryMinute": "{hours}時の毎分",
+        "cron.time.hoursEveryMinutes": "{hours}時の{step}分ごと",
+        "cron.time.at": "{times}に",
+        "cron.time.hoursAt": "{hours}時の{minutes}分に",
+        "frequency.weekday.join": "、",
+        "frequency.weekday.1": "月",
+        "frequency.weekday.2": "火",
+        "frequency.weekday.3": "水",
+        "frequency.weekday.4": "木",
+        "frequency.weekday.5": "金",
+        "frequency.weekday.6": "土",
+        "frequency.weekday.7": "日",
+        "unit.day.one": "日",
+        "unit.day.other": "日",
+        "unit.hour.one": "時間",
+        "unit.hour.other": "時間",
+        "unit.minute.one": "分",
+        "unit.minute.other": "分",
+        "unit.second.one": "秒",
+        "unit.second.other": "秒",
+        "relative.now": "まもなく期限",
+        "relative.future": "{value}{unit}後",
+        "relative.overdue": "{value}{unit}超過",
+        "rule.zone.system": "（システム）",
+    ]
+
+    /// Korean for the same keys. The official client has none, so these are this app's own.
+    private static let ko: [String: String] = [
+        "frequency.once": "한 번",
+        "frequency.every": "{value}{unit}마다",
+        "frequency.daily": "매일 {time} ({timeZone})",
+        "frequency.dailyLocal": "매일 {time}",
+        "frequency.weekly": "매주 {weekdays} {time} ({timeZone})",
+        "frequency.weeklyLocal": "매주 {weekdays} {time}",
+        "frequency.cron": "사용자 지정 ({timeZone})",
+        "frequency.cronLocal": "사용자 지정",
+        "frequency.cronRule": "{rule} ({timeZone})",
+        "cron.list.join": ", ",
+        "cron.part.join": " ",
+        "cron.weekday.name": "{weekday}요일",
+        "cron.weekday.range": "{from}~{to}",
+        "cron.months": " ({months})",
+        "cron.day.every": "매일{months}",
+        "cron.day.weekdays": "{weekdays}{months}",
+        "cron.day.monthDays": "매월 {days}일{months}",
+        "cron.day.both": "매월 {days}일 또는 {weekdays}{months}",
+        "cron.day.bothStarred": "매월 {days}일 및 {weekdays}{months}",
+        "cron.hours.range": "{from}~{to}",
+        "cron.hours.list": "{hours}",
+        "cron.time.everyMinute": "매분",
+        "cron.time.everyMinutes": "{step}분마다",
+        "cron.time.joinedEveryMinute": "매분",
+        "cron.time.joinedEveryMinutes": "{step}분마다",
+        "cron.time.everyHour": "매시간",
+        "cron.time.joinedEveryHour": "매시간",
+        "cron.time.everyNHours": "{count}시간마다",
+        "cron.time.joinedEveryNHours": "{count}시간마다",
+        "cron.time.hourlyAt": "매시 {minutes}분",
+        "cron.time.joinedHourlyAt": "매시 {minutes}분",
+        "cron.time.hoursEveryMinute": "{hours}시 동안 매분",
+        "cron.time.hoursEveryMinutes": "{hours}시 동안 {step}분마다",
+        "cron.time.at": "{times}",
+        "cron.time.hoursAt": "{hours}시 {minutes}분",
+        "frequency.weekday.join": ", ",
+        "frequency.weekday.1": "월",
+        "frequency.weekday.2": "화",
+        "frequency.weekday.3": "수",
+        "frequency.weekday.4": "목",
+        "frequency.weekday.5": "금",
+        "frequency.weekday.6": "토",
+        "frequency.weekday.7": "일",
+        "unit.day.one": "일",
+        "unit.day.other": "일",
+        "unit.hour.one": "시간",
+        "unit.hour.other": "시간",
+        "unit.minute.one": "분",
+        "unit.minute.other": "분",
+        "unit.second.one": "초",
+        "unit.second.other": "초",
+        "relative.now": "지금 실행 예정",
+        "relative.future": "{value}{unit} 후",
+        "relative.overdue": "{value}{unit} 지남",
+        "rule.zone.system": " (시스템)",
     ]
 }
 

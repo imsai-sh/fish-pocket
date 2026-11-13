@@ -19,8 +19,11 @@
 | [pnpm](https://github.com/pnpm/pnpm) | 11.28.5 | MIT | Rico Sta. Cruz、Zoltan Kochan 及贡献者 | 插件安装 |
 | [DS Bot](https://github.com/Fei2411/DS-Bot)（`ds-bot`） | 0.3.1 | Apache-2.0 | Copyright 2026 Fei2411 and the DS Bot contributors | Bot 功能的后台，内置在引擎里 |
 | [Simple Icons](https://github.com/simple-icons/simple-icons) | 16.37.0 | CC0-1.0 | Simple Icons 贡献者 | Bot 连接器页面的品牌图标 |
+| [page-agent](https://github.com/alibaba/page-agent)（`@page-agent/page-controller`） | 1.12.4 | MIT | Copyright (c) 2026 SimonLuvRamen, Copyright (c) 2026 Alibaba Group Holding Limited | 智能体操作浏览器时读网页、点击和输入 |
 
 Simple Icons 是上面这句话的例外：用到的 28 个图标以 SVG 文件直接放在仓库里（`app/DshIOS/Assets.xcassets/Connectors`）。CC0 只覆盖图标文件本身，各图标仍是其品牌方的商标，App 里只用来标明连接的是哪家服务。
+
+page-agent 也是例外：`scripts/build-page-controller.sh` 把它的 page controller 和本仓库的一小段包装打成一个脚本，提交在 `app/DshIOS/Browser/PageController.js`，文件开头保留了它的 MIT 许可证全文。没有改动它的源码，只是没打包它的遮罩层（自动操作时挡住页面的那层）。它的页面结构提取移植自 [browser-use](https://github.com/browser-use/browser-use)（MIT）。
 
 CPython 的完整许可证及其捆绑组件（OpenSSL、SQLite、libffi、zlib、bzip2、xz、zstd、expat、mpdecimal 等）的许可证见 [Python 文档的许可证页](https://docs.python.org/3.15/license.html)；标准库里的 `LICENSE.txt` 随 App 一起分发。
 
@@ -30,6 +33,7 @@ FFmpeg 按 LGPL 2.1 或更高版本使用，构建方式见 `scripts/build-ffmpe
 - **动态链接。** FFmpeg 的库和 ffmpeg、ffprobe 两个程序编成一个独立的动态框架 `FFmpeg.framework`，App 的其余部分只通过它导出的两个函数调用它。框架里附带 LGPL 2.1 全文（`LICENSE`）。
 - **改动公开。** 为了让两个程序在 App 内作为函数运行，对 FFmpeg 源码做了少量修改：改名入口函数、不安装信号处理、不读终端、`pipe:` 协议改用当次命令的管道，以及每次运行前复位程序的全局变量。改动全部在本仓库的 `native/ffmpeg/`（`ffmpeg.patch`、`fftools-prefix.h`、`tool.c`），任何人都可以用原版或自己修改过的 FFmpeg 源码重新编译出这个框架并替换进 App。
 - **源码。** 官方源码包 <https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz>，构建脚本里钉死了 sha256。许可证全文见源码里的 `COPYING.LGPLv2.1` 和 [FFmpeg 的许可证说明](https://ffmpeg.org/legal.html)。
+- **预编译包。** 为了省去每次构建都编译一遍，本仓库的 GitHub Release（tag 以 `ffmpeg-` 开头）里放着用上面的脚本和改动编好的同一个框架，`scripts/fetch-ffmpeg.sh` 下载它并校验 sha256。它和从源码编出来的框架内容相同，上面几条同样适用。
 
 libgit2 的完整许可证见其仓库的 [COPYING](https://github.com/libgit2/libgit2/blob/main/COPYING)。其中的链接例外允许把未修改的库链接进其他程序并分发，只有修改库本身时才受 GPLv2 约束。
 

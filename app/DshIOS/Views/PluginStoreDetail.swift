@@ -287,7 +287,7 @@ private struct StoreReadmePage: View {
     /// The copy on disk shows at once; the engine's answer replaces it, and a failed read keeps it.
     private func load() async {
         failed = false
-        let language = AppLanguage.isChinese ? "zh" : "en"
+        let language = AppLanguage.primary
         let key = [url, entry.name, entry.versionNumber, language]
         if markdown == nil, !missing, let cached = await PluginStoreCache.readme(key) { show(cached) }
         do {

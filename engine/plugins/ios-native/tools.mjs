@@ -4,7 +4,7 @@
 // Each tool is thin on purpose: validate, call the addon, render. The addon owns
 // permission, the main thread and the framework call.
 import { defineTool } from '@deepseek-ai/dsh-tools';
-import { invoke as invokeNative } from './binding.mjs';
+import { describe, invoke as invokeNative } from './binding.mjs';
 import { ENGINE_CLAIM } from './caller.mjs';
 
 // These are the engine's own tools, so every call from here claims the engine.
@@ -1734,6 +1734,173 @@ const weather = defineTool({
   },
 });
 
+// The page as the model reads it. Long pages are cut, and the cut is said, so a
+// model never mistakes the first part of a page for all of it.
+const PAGE_LIMIT = 24000;
+const SCRIPT_RESULT_LIMIT = 12000;
+
+function cut(value, limit, what) {
+  if (typeof value !== 'string' || value.length <= limit) return value ?? '';
+  return `${value.slice(0, limit)}\n… ${what} cut at ${limit} of ${value.length} characters`;
+}
+
+/**
+ * Refuse a picture the model on this route could not look at. Same test
+ * DSH's own read_image makes: the image would otherwise be stored and sent to
+ * a model that rejects it, and the whole turn would fail instead of this call.
+ */
+async function assertSeesImages(ctx, exec) {
+  const routed = exec.agent?.session.requestHeader?.()?.config;
+  const provider = routed?.provider ?? exec.agent?.options?.provider;
+  const model = routed?.model ?? exec.agent?.options?.model;
+  const llm = ctx.get('llm');
+  if (provider === undefined || model === undefined || llm === undefined) {
+    throw new Error('browser: could not tell which model this conversation uses, so no picture was taken');
+  }
+  const info = await llm.resolveModelInfo(provider, model, exec.signal);
+  if (!info.inputModalities?.includes('image')) {
+    throw new Error(`browser: model "${model}" cannot look at images, so no picture was taken. `
+      + 'Use `read` for the text, or `evaluate` to measure layout and styles.');
+  }
+}
+
+/**
+ * What the browser can do comes from the app, not from here: the app lists its
+ * actions, their arguments and what to tell the model about them (its
+ * `catalog`), checks the arguments itself, and the dispatcher refuses anything
+ * the catalog does not name. This tool only shapes that list into a tool and
+ * passes calls through, so a new browser ability is written in the app alone.
+ *
+ * Without the app (tests, a desktop build) there is no catalog, and the tool is
+ * not registered at all (index.mjs); this stands in so it can still be built.
+ */
+const NO_CATALOG = {
+  description: 'Use the web browser of this conversation, the one the user sees under Workbench → Browser. '
+    + 'Its actions are listed by the app, and this build of the app lists none.',
+  actions: [],
+  params: [],
+};
+
+function describeBrowser(catalog) {
+  const lines = [typeof catalog.description === 'string' ? catalog.description : NO_CATALOG.description];
+  if (catalog.actions?.length) {
+    lines.push('', 'Actions:');
+    for (const action of catalog.actions) {
+      const needs = action.needs?.length ? ` (needs ${action.needs.map((name) => `\`${name}\``).join(', ')})` : '';
+      lines.push(`- \`${action.name}\`${needs}: ${action.does}`);
+    }
+  }
+  return lines.join('\n');
+}
+
+function browserParameters(catalog) {
+  const names = (catalog.actions ?? []).map((action) => action.name);
+  const parameters = {
+    action: {
+      type: 'string',
+      ...(names.length > 0 ? { enum: names } : {}),
+      description: 'what to do; the Actions list says what each one takes',
+      required: true,
+    },
+  };
+  for (const param of catalog.params ?? []) {
+    // `session` is this tool's to fill in, never the model's.
+    if (typeof param?.name !== 'string' || param.name === 'action' || param.name === 'session') continue;
+    if (param.schema === null || typeof param.schema !== 'object') continue;
+    parameters[param.name] = { ...param.schema };
+  }
+  return parameters;
+}
+
+function renderPage(value) {
+  const lines = [];
+  if (value.action) lines.push(value.action, '');
+  lines.push(value.header ?? `Current Page: [${value.title ?? ''}](${value.url ?? ''})`);
+  lines.push(cut(value.content, PAGE_LIMIT, 'page'));
+  if (value.footer) lines.push(value.footer);
+  if (value.loading) lines.push('(The page is still loading; `read` again to see the rest.)');
+  if (value.desktop === true) lines.push('(This is the site\'s desktop version.)');
+  return text(lines.join('\n'));
+}
+
+/**
+ * The browser tool. Unlike most tools here it needs the engine: a picture goes
+ * into the attachment store, which is how an image reaches the model.
+ * @param ctx - the context the tool is registered in.
+ * @param catalog - what the app's browser can do; read from the app by default.
+ */
+const browser = (ctx, catalog = describe('browser') ?? NO_CATALOG) => defineTool({
+  name: 'browser',
+  description: describeBrowser(catalog),
+  parameters: browserParameters(catalog),
+  output: {
+    schema: { type: 'json' },
+    render: (args, value) => {
+      if (value?.image?.attachmentId !== undefined) {
+        const what = value.fullPage
+          ? 'the whole page, top to bottom'
+          : 'the visible part of the page, as the user sees it in the workbench';
+        return [
+          {
+            type: 'text',
+            text: `Screenshot of [${value.title ?? ''}](${value.url ?? ''}): ${what}, `
+              + `${value.image.width}x${value.image.height} px.`,
+          },
+          { type: 'image', attachment: value.image },
+        ];
+      }
+      if (value !== null && typeof value === 'object' && 'result' in value) {
+        return text(value.result === null
+          ? 'The script ran and returned nothing.'
+          : cut(value.result, SCRIPT_RESULT_LIMIT, 'result'));
+      }
+      if (value?.content !== undefined || value?.header !== undefined) return renderPage(value);
+      return text(cut(JSON.stringify(value ?? null, null, 2), SCRIPT_RESULT_LIMIT, 'result'));
+    },
+  },
+  execute: async (args, exec) => {
+    // The browser belongs to a conversation, so a call from outside one has
+    // nowhere to go.
+    const session = exec?.agent?.session?.id;
+    if (typeof session !== 'string' || session.length === 0) {
+      throw new Error('browser: this call is not part of a conversation, so there is no browser to use');
+    }
+    const { action, ...rest } = args;
+    const shows = catalog.actions?.find((entry) => entry.name === action)?.image === true;
+    const attachments = ctx.get('attachments');
+    // An action that answers with a picture is refused before it runs when the
+    // picture could not be shown.
+    if (shows) {
+      if (attachments === undefined) throw new Error('browser: this engine has no attachment store, so it cannot show images');
+      await assertSeesImages(ctx, exec);
+    }
+    const value = await invoke('browser', action, { ...rest, session });
+    if (typeof value?.image?.data !== 'string') return value;
+
+    // The picture goes to the attachment store; the model gets a reference.
+    if (attachments === undefined) throw new Error('browser: this engine has no attachment store, so it cannot show images');
+    if (!shows) await assertSeesImages(ctx, exec);
+    const ref = await attachments.saveImage({
+      data: Buffer.from(value.image.data, 'base64'),
+      mediaType: value.image.mediaType,
+      name: value.image.name ?? 'browser-screenshot.jpg',
+    });
+    return {
+      ...value,
+      image: {
+        attachmentId: ref.attachmentId,
+        mediaType: ref.mediaType,
+        bytes: ref.bytes,
+        width: ref.width,
+        height: ref.height,
+        ...(ref.originalDimensions === undefined ? {} : { originalDimensions: { ...ref.originalDimensions } }),
+      },
+    };
+  },
+});
+
+// A tool is a definition, or a function of the registering context for the
+// few that need the engine itself.
 export const TOOLS = {
   device: device,
   notify: notify,
@@ -1756,4 +1923,5 @@ export const TOOLS = {
   music: music,
   files: files,
   weather: weather,
+  browser: browser,
 };

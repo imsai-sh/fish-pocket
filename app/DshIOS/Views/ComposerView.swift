@@ -213,6 +213,9 @@ struct ComposerView: View {
     /// Text the shell put here (创建你的插件…): added to the draft, not sent.
     var pendingDraft: String?
     var consumeDraft: () -> Void = {}
+    /// Files another app shared here (the share extension): attached, not sent.
+    var pendingFiles: SharedFiles?
+    var consumeFiles: () -> Void = {}
     /// A question the shell wrote for the reader (询问 AI): put in the input, not sent.
     var pendingPrompt: String?
     var consumePrompt: () -> Void = {}
@@ -262,16 +265,29 @@ struct ComposerView: View {
                 CandidatePanel(model: model, context: context, hit: trigger, pick: { pick($0, over: trigger) }, showAll: { refocus = true; browsing = trigger })
             }
             field
-                .background(fieldFill, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+                // While held, the bar's own fill over the surface: the waveform's ink, red to cancel.
+                .background {
+                    if let holdFill {
+                        RoundedRectangle(cornerRadius: 28, style: .continuous).fill(holdFill)
+                    }
+                }
                 // The bar turns at the touch; only letting go eases back.
                 .animation(voice.holding ? nil : .snappy(duration: 0.18), value: voice.phase)
                 .animation(.snappy(duration: 0.18), value: voice.cancelArmed)
+                .composerSurface()
         }
         .task(id: pendingDraft) {
             guard let pendingDraft else { return }
             composer.text = composer.text.isEmpty ? pendingDraft : composer.text + "\n" + pendingDraft
             voice.mode = false
             consumeDraft()
+        }
+        .task(id: pendingFiles) {
+            guard let pendingFiles else { return }
+            consumeFiles()
+            // Each is copied on (images read, the rest staged for upload): the shared copies go.
+            composer.addFiles(pendingFiles.urls)
+            try? FileManager.default.removeItem(at: pendingFiles.folder)
         }
         .task(id: pendingPrompt) {
             guard let pendingPrompt else { return }
@@ -536,9 +552,9 @@ struct ComposerView: View {
         composer.editingQueue == nil && composer.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    /// The field's fill: the waveform's ink while held, red once letting go would cancel.
-    private var fieldFill: Color {
-        guard voice.holding else { return Palette.field }
+    /// The bar's fill while held: the waveform's ink, red once letting go would cancel.
+    private var holdFill: Color? {
+        guard voice.holding else { return nil }
         return voice.cancelArmed ? .red : Palette.ink
     }
 

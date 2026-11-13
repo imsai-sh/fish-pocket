@@ -6,7 +6,7 @@ import SwiftUI
 /// regular width it is the split view's sidebar. With nothing selected — at
 /// launch, after archiving — a blank session in the current workspace opens.
 struct MainView: View {
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, capabilities, connectors, remote; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, watch, capabilities, connectors, remote; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -41,6 +41,8 @@ struct MainView: View {
     @State private var supportDialog = false
     /// 「新功能」 after an update (`WhatsNew`).
     @State private var whatsNew: WhatsNew.Release?
+    /// The plugins safe mode switched off on the launch screen (NodeEngine.requestSafeMode).
+    @State private var safeModeDisabled: [String]?
     /// It was shown: no update toast on top of it this time.
     @State private var newsShown = false
     /// 「在电脑上新建会话」, once whatever sheet asked for it has gone.
@@ -224,6 +226,10 @@ struct MainView: View {
         .task { await AppDistribution.refresh() }
         .task(id: canAnnounce) {
             guard canAnnounce else { return }
+            if let names = NodeEngine.shared.takeSafeModeReport() {
+                safeModeDisabled = names
+                return
+            }
             if let release = WhatsNew.take() {
                 newsShown = true
                 whatsNew = release
@@ -302,7 +308,7 @@ struct MainView: View {
     }
 
     #if DEBUG
-    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|timeline|settings|plugins|store|schedules|signin|support|share|connectors|whatsnew|capabilities|remote`.
+    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|question|timeline|settings|plugins|store|schedules|signin|support|share|watch|connectors|whatsnew|capabilities|remote`.
     private func openForChecks() {
         switch UserDefaults.standard.string(forKey: "dshOpen") {
         case "drawer": drawerOpen = true
@@ -313,6 +319,7 @@ struct MainView: View {
         case "signin": sheet = .signIn
         case "support": supportDialog = true
         case "share": sheet = .share
+        case "watch": sheet = .watch
         case "connectors": sheet = .connectors
         case "whatsnew": whatsNew = WhatsNew.current
         case "capabilities": sheet = .capabilities
@@ -334,6 +341,7 @@ struct MainView: View {
         case .signIn: SignInSheet()
         case .cordis: CordisPanelView(currentSession: selection)
         case .share: SheetStack { ShareAppPage() }
+        case .watch: SheetStack { WatchSetupPage() }
         case .capabilities: SheetStack { NativeCapabilitiesView() }.environment(\.systemLists, true)
         // The services ordinary conversations and Bots both reach; the Bot team's settings hold the same page.
         case .connectors: SheetStack { BotConnectorsPage() }.settingsStyle()
@@ -375,6 +383,12 @@ struct MainView: View {
             }
         } message: {
             Text("充值后才能开始新会话，也可稍后在「设置 → 账号与余额」充值。")
+        }
+        .alert("已停用 \(safeModeDisabled?.count ?? 0) 个第三方插件", isPresented: Binding(get: { safeModeDisabled != nil }, set: { if !$0 { safeModeDisabled = nil } })) {
+            Button("去插件页") { sheet = .plugins }
+            Button("好", role: .cancel) {}
+        } message: {
+            Text("它们仍然装着。可以在插件页逐个重新打开，找出是哪个卡住了引擎。\n\n\((safeModeDisabled ?? []).joined(separator: "\n"))")
         }
         .onChange(of: app.lastError) { _, error in if error != nil { Haptics.error() } }
         .alert("出错了", isPresented: Binding(get: { app.lastError != nil }, set: { if !$0 { app.lastError = nil } })) {
@@ -624,6 +638,12 @@ struct MainView: View {
     /// `dsh://session/<id>` opens the session; `dsh://new` a new conversation with the keyboard up,
     /// once the workspaces are known and the launch's own blank conversation is in place.
     private func follow(_ link: DshLink) async {
+        // Taken already (by another window, or found waiting as the app came to the front): nothing to do.
+        var shared: ShareInbox.Taken?
+        if case .share(let id) = link {
+            shared = ShareInbox.take(id)
+            if shared == nil { return }
+        }
         sheet = nil
         storeOpen = false
         setDrawer(false)
@@ -640,11 +660,59 @@ struct MainView: View {
             let target = workspaceId.flatMap { id in app.workspaces.first { $0.id == id } } ?? workspace
             if let target { self.workspaceId = target.id }
             newConversation(in: target, agentPreset: preset, draft: draft, focus: true)
+        case .share:
+            if let shared { await receive(shared) }
         }
     }
 
+    /// What another app shared (the share extension): into the composer of the Bot, the group or
+    /// the new conversation picked there, keyboard up, nothing sent.
+    private func receive(_ shared: ShareInbox.Taken) async {
+        let files = shared.files.isEmpty ? nil : SharedFiles(urls: shared.files, folder: shared.folder)
+        if files == nil { try? FileManager.default.removeItem(at: shared.folder) }
+        if case .bot(let botId) = shared.target {
+            // A cold launch: the team arrives a moment after the engine.
+            let deadline = ContinuousClock.now + .seconds(10)
+            while app.botTeam.bot(botId) == nil, ContinuousClock.now < deadline {
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+            if let bot = app.botTeam.bot(botId), !bot.sessionId.isEmpty {
+                deliver(text: shared.text, files: files, to: bot.sessionId)
+                app.botTeam.openRequest = BotOpenRequest(route: .bot(botId))
+                return
+            }
+            app.showToast(String(localized: "找不到这个 Bot 了，内容放进了新对话"), tone: .warning)
+        }
+        if case .room(let roomId) = shared.target {
+            let deadline = ContinuousClock.now + .seconds(10)
+            while app.botTeam.room(roomId) == nil, ContinuousClock.now < deadline {
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+            if let room = app.botTeam.room(roomId), !room.sessionId.isEmpty {
+                deliver(text: shared.text, files: files, to: room.sessionId)
+                app.botTeam.openRequest = BotOpenRequest(route: .room(roomId))
+                return
+            }
+            app.showToast(String(localized: "找不到这个群聊了，内容放进了新对话"), tone: .warning)
+        }
+        let deadline = ContinuousClock.now + .seconds(10)
+        while app.workspaces.isEmpty || creating, ContinuousClock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        launchedUnderBot = false
+        botOpen = false
+        newConversation(in: workspace, draft: shared.text, files: files, focus: true)
+    }
+
+    /// Text and files waiting for a session's composer, which takes them when it shows.
+    private func deliver(text: String?, files: SharedFiles?, to id: String) {
+        if let text { app.pendingDrafts[id] = text }
+        if let files { app.pendingFiles[id] = files }
+        app.pendingFocus.insert(id)
+    }
+
     /// Open a blank conversation in `workspace` (the engine reuses a blank one there).
-    private func newConversation(in workspace: Workspace?, agentPreset: String? = nil, draft: String? = nil, prompt: String? = nil, focus: Bool = false) {
+    private func newConversation(in workspace: Workspace?, agentPreset: String? = nil, draft: String? = nil, files: SharedFiles? = nil, prompt: String? = nil, focus: Bool = false) {
         guard let workspace, !creating else { return }
         creating = true
         Task {
@@ -652,11 +720,15 @@ struct MainView: View {
             do {
                 let id = try await app.createSession(in: workspace, agentPreset: agentPreset)
                 if let draft { app.pendingDrafts[id] = draft }
+                if let files { app.pendingFiles[id] = files }
                 if let prompt { app.pendingPrompts[id] = prompt }
                 if focus { app.pendingFocus.insert(id) }
                 selection = id
             }
-            catch { app.showToast(String(localized: "新建会话失败：\(error.localizedDescription)"), tone: .warning, duration: 6) }
+            catch {
+                if let files { try? FileManager.default.removeItem(at: files.folder) }
+                app.showToast(String(localized: "新建会话失败：\(error.localizedDescription)"), tone: .warning, duration: 6)
+            }
         }
     }
 }

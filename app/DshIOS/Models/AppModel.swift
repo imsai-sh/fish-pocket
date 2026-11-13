@@ -108,7 +108,7 @@ final class AppModel {
     let account: AccountModel
     let cordis = CordisModel()
     /// Agent sessions on the user's computers, through Agents Anywhere; idle until signed in.
-    let remote = RemoteStore()
+    let remote = RemoteStore.shared
 
     private(set) var workspaces: [Workspace] = []
     private(set) var pinned: [String] = []
@@ -141,6 +141,8 @@ final class AppModel {
     var pendingDrafts: [String: String] = [:]
     /// A written question waiting for a session's composer to show it (询问 AI).
     var pendingPrompts: [String: String] = [:]
+    /// Files another app shared, waiting for a session's composer to attach them.
+    var pendingFiles: [String: SharedFiles] = [:]
     /// Sessions whose composer takes the keyboard when it appears (`dsh://new`).
     var pendingFocus: Set<String> = []
     /// A session to open in the main view (set through `open(session:)`; the root view consumes it).
@@ -209,6 +211,7 @@ final class AppModel {
             BackgroundKeeper.shared.attach { [weak self] in await self?.refreshSessions() }
             LiveActivityController.shared.attach(self)
             WidgetSnapshotWriter.shared.attach(self)
+            ShareTargetsWriter.shared.attach(self)
             RemotePresence.shared.attach(self)
             WatchLink.shared.attach(self)
         } catch {
