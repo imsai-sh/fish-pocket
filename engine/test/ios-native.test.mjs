@@ -1082,13 +1082,67 @@ test('browser renders the page with what was done first, and says when it cut it
 
   assert.match(render({ action: 'evaluate' }, { result: null }), /returned nothing/);
   assert.equal(render({ action: 'evaluate' }, { result: '{"a":1}' }), '{"a":1}');
+  // Anything else the app answers comes back as JSON.
+  assert.match(render({ action: 'cookies' }, { cookies: [{ name: 'sid' }] }), /"name": "sid"/);
+});
+
+// What the app's browser says it can do; the real one is in BrowserCatalog.swift.
+const BROWSER_CATALOG = {
+  description: 'Use the browser of this conversation to open, read and act on pages.',
+  actions: [
+    { name: 'open', does: 'open a page', takes: ['url', 'desktop'], needs: ['url'] },
+    { name: 'read', does: 'read the page again' },
+    { name: 'screenshot', does: 'show the page as a picture', takes: ['fullPage'], image: true },
+    { name: 'upload', does: 'put files into a file field', takes: ['index', 'paths'], needs: ['index', 'paths'] },
+  ],
+  params: [
+    { name: 'url', schema: { type: 'string', description: 'open: the address' } },
+    { name: 'desktop', schema: { type: 'boolean', description: 'open: the desktop version' } },
+    { name: 'fullPage', schema: { type: 'boolean', description: 'screenshot: the whole page' } },
+    { name: 'index', schema: { type: 'integer', description: 'the element\'s number' } },
+    { name: 'paths', schema: { type: 'array', items: { type: 'string' }, description: 'files' } },
+    { name: 'headers', schema: { type: 'object', additionalProperties: true, description: 'headers' } },
+    { name: 'session', schema: { type: 'string', description: 'never offered to the model' } },
+  ],
+};
+
+test('the browser tool is built from the app\'s catalog: its actions, what they need, its arguments', () => {
+  const tool = TOOLS.browser(fakeCtx(), BROWSER_CATALOG);
+  assert.match(tool.description, /^Use the browser of this conversation/);
+  assert.match(tool.description, /- `open` \(needs `url`\): open a page/);
+  assert.match(tool.description, /- `upload` \(needs `index`, `paths`\): put files into a file field/);
+  const schema = tool.parameters;
+  assert.deepEqual(schema.properties.action.enum, ['open', 'read', 'screenshot', 'upload']);
+  assert.equal(schema.properties.paths.type, 'array');
+  assert.equal(schema.properties.headers.type, 'object');
+  assert.equal(schema.properties.session, undefined);
+});
+
+test('an answer with a picture is stored, and the model gets the reference', async () => {
+  const stored = [];
+  const tool = TOOLS.browser(fakeCtx({
+    attachments: {
+      saveImage: async (image) => {
+        stored.push(image);
+        return { attachmentId: 'a9', mediaType: image.mediaType, bytes: image.data.length, width: 10, height: 20 };
+      },
+    },
+    llm: { resolveModelInfo: async () => ({ inputModalities: ['text', 'image'] }) },
+  }), { ...BROWSER_CATALOG, actions: [{ name: 'shot', does: 'a picture the catalog does not mark' }] });
+  const exec = {
+    signal: new AbortController().signal,
+    agent: { session: { id: 's1', requestHeader: () => undefined }, options: { provider: 'p', model: 'vision' } },
+  };
+  // No addon here: the call itself is what fails, after the checks have passed.
+  await assert.rejects(tool.execute({ action: 'shot' }, exec), /only available in the iOS app/);
+  assert.equal(stored.length, 0);
 });
 
 test('a screenshot is refused before anything is taken when the model cannot see images', async () => {
   const tool = TOOLS.browser(fakeCtx({
     attachments: { saveImage: () => assert.fail('nothing should be stored') },
     llm: { resolveModelInfo: async () => ({ inputModalities: ['text'] }) },
-  }));
+  }), BROWSER_CATALOG);
   const exec = {
     signal: new AbortController().signal,
     agent: { session: { id: 's1', requestHeader: () => undefined }, options: { provider: 'p', model: 'text-only' } },

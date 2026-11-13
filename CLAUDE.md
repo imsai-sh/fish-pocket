@@ -100,6 +100,16 @@
 
 写法上保持现在的风格：英文、短句、先说能不能用再说替代办法；「Commands that exist」之外的命令都会被当成不存在，所以新增命令一定要列进去。
 
+## 浏览器能力
+
+Agent 用的 `browser` 工具有哪些动作、各要什么参数、给模型看的说明，全写在 `app/DshIOS/Browser/BrowserCatalog.swift` 一处：引擎按它生成工具（`describe`），原生层按它放行动作，参数也按它检查。
+
+- 加一个浏览器能力：在 `BrowserCatalog` 里登记动作和参数，在 `BrowserAgent.perform` 里接上实现（多数写在 `BrowserAbilities.swift`）。引擎的 `tools.mjs` 和 `caps_browser.m` 都不用改。
+- 返回值里带 `image: {data, mediaType}` 的，引擎会自动存成附件给模型看；会出图的动作在清单里标 `image`，引擎先确认模型能看图再执行。
+- 注入网页的脚本（`scripts/page-controller/entry.js`）改了要跑 `scripts/build-page-controller.sh` 重新打包，产物 `PageController.js` 一起提交。
+- 新动作在聊天里的显示文字在 `ToolCards.swift` 的 `browserLine`，没写的会直接显示动作名。
+- 改完照「内置 skill」一节更新 ios-environment skill。
+
 ## 手表 App
 
 手表 App 内嵌在 iPhone App 里一起安装，引擎不在手表上。手机通过 WatchConnectivity 把会话状态发给手表，手表只负责显示、震动提醒，以及把「允许 / 拒绝」发回手机。

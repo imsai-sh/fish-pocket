@@ -4457,30 +4457,30 @@
         }
       }
     },
-    "在会话工作台的浏览器里打开网页、读内容、截图、点按钮和填表，你可以在工作台里看着它操作。登录过的网站会一直记住，和 Safari 分开" : {
+    "在会话工作台的浏览器里打开网页、读内容、截图、点按钮和填表，还能带着登录状态发请求、读写 Cookie、下载和上传文件、给网页加常驻脚本，你可以在工作台里看着它操作。登录过的网站会一直记住，和 Safari 分开；智能体读得到这些网站的登录凭据" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Opens web pages in the conversation's workbench browser, reads them, takes screenshots, taps buttons and fills in forms while you watch in the workbench. Sites you sign in to stay signed in, separately from Safari"
+            "value" : "Opens web pages in the conversation's workbench browser, reads them, takes screenshots, taps buttons and fills in forms, and can also send requests with your sign-ins, read and change cookies, download and upload files, and keep scripts running on pages, while you watch in the workbench. Sites you sign in to stay signed in, separately from Safari; the agent can read their sign-in credentials"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abre páginas web en el navegador del área de trabajo de la conversación, las lee, hace capturas, pulsa botones y rellena formularios mientras lo ves en el área de trabajo. Los sitios en los que inicias sesión la mantienen, aparte de Safari"
+            "value" : "Abre páginas web en el navegador del área de trabajo de la conversación, las lee, hace capturas, pulsa botones y rellena formularios, y además puede enviar solicitudes con tus sesiones iniciadas, leer y cambiar cookies, descargar y subir archivos y mantener scripts en las páginas, mientras lo ves en el área de trabajo. Los sitios en los que inicias sesión la mantienen, aparte de Safari; el agente puede leer sus credenciales de inicio de sesión"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "会話のワークベンチのブラウザで Web ページを開き、内容を読み取り、スクリーンショットを撮り、ボタンを押したりフォームに入力したりします。操作はワークベンチで見ていられます。サインインしたサイトは記憶され、Safari とは別に保存されます"
+            "value" : "会話のワークベンチのブラウザで Web ページを開き、内容を読み取り、スクリーンショットを撮り、ボタンを押したりフォームに入力したりします。サインイン状態でのリクエスト送信、Cookie の読み書き、ファイルのダウンロードとアップロード、ページへの常駐スクリプトの追加もできます。操作はワークベンチで見ていられます。サインインしたサイトは記憶され、Safari とは別に保存されます。エージェントはそれらのサイトのサインイン情報を読み取れます"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "대화 작업대의 브라우저에서 웹 페이지를 열고, 내용을 읽고, 스크린샷을 찍고, 버튼을 누르거나 양식을 채웁니다. 작업대에서 그 과정을 지켜볼 수 있습니다. 로그인한 사이트는 계속 기억되며 Safari와는 따로 저장됩니다"
+            "value" : "대화 작업대의 브라우저에서 웹 페이지를 열고, 내용을 읽고, 스크린샷을 찍고, 버튼을 누르거나 양식을 채웁니다. 로그인 상태로 요청 보내기, 쿠키 읽고 쓰기, 파일 다운로드와 업로드, 페이지에 상주 스크립트 추가도 할 수 있습니다. 작업대에서 그 과정을 지켜볼 수 있습니다. 로그인한 사이트는 계속 기억되며 Safari와는 따로 저장됩니다. 에이전트는 이 사이트들의 로그인 정보를 읽을 수 있습니다"
           }
         }
       }
@@ -75287,6 +75287,426 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시스템 언어에 맞춰 자동으로 바뀌어요. 설정 → 언어에서 日本語나 한국어를 고를 수도 있어요."
+          }
+        }
+      }
+    },
+    "已下载「%@」到工作区的 downloads 文件夹" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloaded “%@” to the downloads folder of the workspace"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se descargó «%@» en la carpeta downloads del espacio de trabajo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」をワークスペースの downloads フォルダにダウンロードしました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”을(를) 작업 공간의 downloads 폴더에 다운로드했습니다"
+          }
+        }
+      }
+    },
+    "「%@」下载失败" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t download “%@”"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo descargar «%@»"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」をダウンロードできませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”을(를) 다운로드하지 못했습니다"
+          }
+        }
+      }
+    },
+    "整页截图" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full-page screenshot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Captura de página completa"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ページ全体のスクリーンショット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체 페이지 스크린샷"
+          }
+        }
+      }
+    },
+    "存为 PDF" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save as PDF"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar como PDF"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PDF として保存"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PDF로 저장"
+          }
+        }
+      }
+    },
+    "添加常驻脚本" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add kept script"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir script permanente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常駐スクリプトを追加"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상주 스크립트 추가"
+          }
+        }
+      }
+    },
+    "查看常驻脚本" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List kept scripts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver scripts permanentes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常駐スクリプトを表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상주 스크립트 보기"
+          }
+        }
+      }
+    },
+    "移除常驻脚本" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove kept script"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitar script permanente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常駐スクリプトを削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상주 스크립트 제거"
+          }
+        }
+      }
+    },
+    "读取日志" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read logs"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer registros"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ログを読む"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그 읽기"
+          }
+        }
+      }
+    },
+    "发送请求" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send request"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar solicitud"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストを送信"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청 보내기"
+          }
+        }
+      }
+    },
+    "读取 Cookie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read cookies"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer cookies"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cookie を読む"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "쿠키 읽기"
+          }
+        }
+      }
+    },
+    "设置 Cookie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set cookie"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar cookie"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cookie を設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "쿠키 설정"
+          }
+        }
+      }
+    },
+    "删除 Cookie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete cookies"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar cookies"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cookie を削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "쿠키 삭제"
+          }
+        }
+      }
+    },
+    "查看下载" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List downloads"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver descargas"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードを表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다운로드 보기"
+          }
+        }
+      }
+    },
+    "上传文件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload files"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subir archivos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルをアップロード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일 업로드"
+          }
+        }
+      }
+    },
+    "键盘输入" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keyboard input"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribir con el teclado"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キーボード入力"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드 입력"
           }
         }
       }

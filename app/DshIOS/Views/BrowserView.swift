@@ -25,6 +25,23 @@ final class BrowserModel: NSObject {
     private(set) var desktop = false
     /// The agent is in the middle of an operation on this page.
     private(set) var agentBusy = false
+    /// A passing word under the page, such as a finished download.
+    private(set) var notice: String?
+
+    /// The conversation this browser belongs to: downloads go to its working directory.
+    @ObservationIgnored let sessionId: String
+    /// The agent's kept scripts (`addScript`), run on every page load until the app restarts.
+    @ObservationIgnored var keptScripts: [BrowserScript] = []
+    @ObservationIgnored var scriptCount = 0
+    /// What the pages wrote to the console, and the requests their scripts made (`logs`).
+    @ObservationIgnored var consoleLog: [[String: Any]] = []
+    @ObservationIgnored var networkLog: [[String: Any]] = []
+    @ObservationIgnored var logSeq = 0
+    @ObservationIgnored var cachedUserAgent: String?
+    /// Files this browser downloaded, and the ones still coming.
+    @ObservationIgnored var downloads: [BrowserDownload] = []
+    @ObservationIgnored var downloadTasks: [ObjectIdentifier: Int] = [:]
+    @ObservationIgnored private var noticeTimer: Task<Void, Never>?
 
     @ObservationIgnored let webView: WKWebView
     @ObservationIgnored private let storageKey: String
@@ -73,7 +90,7 @@ final class BrowserModel: NSObject {
     /// Every conversation's browser shares one store of its own, kept across launches, so a site signed in
     /// to once stays signed in, for the user and for the agent. It is apart from the default store, where the
     /// engine's web view keeps its session cookie, and from Safari, which no app can read.
-    private static let store = WKWebsiteDataStore(forIdentifier: UUID(uuidString: "8E4C2D1A-5B7F-4A3E-9C6D-2F1B0A9E7D45")!)
+    static let store = WKWebsiteDataStore(forIdentifier: UUID(uuidString: "8E4C2D1A-5B7F-4A3E-9C6D-2F1B0A9E7D45")!)
 
     /// Sign out of every site: cookies, storage and caches of all the conversations' browsers.
     static func clearWebsiteData() async {
@@ -82,6 +99,7 @@ final class BrowserModel: NSObject {
     }
 
     private init(sessionId: String, origin: URL) {
+        self.sessionId = sessionId
         storageKey = "dsh.browser.last.\(sessionId)"
         self.origin = origin
         let configuration = WKWebViewConfiguration()
@@ -90,13 +108,14 @@ final class BrowserModel: NSObject {
         // As in Safari, a pinch zooms every page, including one that asks not to be zoomed
         // (`user-scalable=no`, `maximum-scale=1`), as most mobile sites do.
         configuration.ignoresViewportScaleLimits = true
-        if let script = Self.controllerScript { configuration.userContentController.addUserScript(script) }
         configuration.userContentController.add(
             BrowserPresence.Listener(presence), contentWorld: Self.agentWorld, name: BrowserPresence.Listener.name)
-        configuration.userContentController.addUserScript(Self.desktopViewport)
         webView = WKWebView(frame: .zero, configuration: configuration)
         lastURL = UserDefaults.standard.string(forKey: storageKey)
         super.init()
+        // The recorder posts from the page's own world, where the page's console and requests are.
+        webView.configuration.userContentController.add(LogListener(self), contentWorld: .page, name: LogListener.name)
+        installScripts()
         webView.isInspectable = true
         webView.allowsBackForwardNavigationGestures = true
         webView.navigationDelegate = self
@@ -277,6 +296,17 @@ final class BrowserModel: NSObject {
         webView.reload()
     }
 
+    /// Say something under the page for a few seconds.
+    func showNotice(_ text: String) {
+        notice = text
+        noticeTimer?.cancel()
+        noticeTimer = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(6))
+            guard !Task.isCancelled else { return }
+            self?.notice = nil
+        }
+    }
+
     func back() { webView.goBack() }
     func forward() { webView.goForward() }
 
@@ -284,6 +314,8 @@ final class BrowserModel: NSObject {
         let error = error as NSError
         // A newer navigation replaced this one.
         if error.domain == NSURLErrorDomain, error.code == NSURLErrorCancelled { return }
+        // The response became a download (WebKit's "frame load interrupted"): the page stays as it was.
+        if error.domain == "WebKitErrorDomain", error.code == 102 { return }
         loadFailure = error
         failure = String(localized: "页面加载失败 (\(error.code)): \(error.localizedDescription)")
     }
@@ -340,6 +372,7 @@ extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         clearFailure()
         desktop = navigation.effectiveContentMode == .desktop
+        recordPageLoad(webView.url)
     }
 
     /// Each page goes out as the version its site was asked for, which is what the server sees in the
@@ -354,7 +387,28 @@ extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
            let desktop = Self.asksForDesktop(url) {
             preferences.preferredContentMode = desktop ? .desktop : .mobile
         }
-        decisionHandler(.allow, preferences)
+        // A link marked `download` is saved, not shown.
+        decisionHandler(navigationAction.shouldPerformDownload ? .download : .allow, preferences)
+    }
+
+    /// What the page cannot show (a zip, a document it has no viewer for) or the server says is an
+    /// attachment is downloaded into the working directory rather than failing to load.
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationResponse: WKNavigationResponse,
+        decisionHandler: @escaping @MainActor (WKNavigationResponsePolicy) -> Void
+    ) {
+        let disposition = (navigationResponse.response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Disposition") ?? ""
+        let attachment = disposition.lowercased().hasPrefix("attachment")
+        decisionHandler(navigationResponse.isForMainFrame && (attachment || !navigationResponse.canShowMIMEType) ? .download : .allow)
+    }
+
+    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
+        download.delegate = self
+    }
+
+    func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
+        download.delegate = self
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { sendEffects() }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { failed(error) }
@@ -387,6 +441,8 @@ struct WorkbenchBrowser: View {
                 notice(error)
             } else if let failure = model.failure {
                 notice(failure)
+            } else if let passing = model.notice {
+                notice(passing, color: Palette.secondary)
             }
             bar
         }
@@ -473,10 +529,10 @@ struct WorkbenchBrowser: View {
         .accessibilityLabel(label)
     }
 
-    private func notice(_ text: String) -> some View {
+    private func notice(_ text: String, color: Color = Palette.removed) -> some View {
         Text(text)
             .font(.footnote)
-            .foregroundStyle(Palette.removed)
+            .foregroundStyle(color)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.top, 8)
