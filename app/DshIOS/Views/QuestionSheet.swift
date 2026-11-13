@@ -3,7 +3,13 @@ import SwiftUI
 /// A sheet as tall as its content, with the actions pinned at the bottom under the thumb: what
 /// does not fit scrolls above them. Its handle shows it can be pulled down, and the conversation
 /// behind stays usable, to read what led to the question.
+///
+/// Only the sheet's own field moves the actions up for the keyboard. A keyboard the composer
+/// behind still holds (it is being dismissed as the sheet arrives) would otherwise leave its
+/// height inside the sheet: on iPad the actions then sat halfway up, over the choices.
 struct PinnedActionsSheet<Content: View, Actions: View>: View {
+    /// One of the sheet's fields has focus.
+    var typing = false
     @ViewBuilder let content: () -> Content
     @ViewBuilder let actions: () -> Actions
     @State private var contentHeight: CGFloat = 240
@@ -20,7 +26,7 @@ struct PinnedActionsSheet<Content: View, Actions: View>: View {
                 .background(Palette.background)
         }
         // Sized to the sheet's real edge; the actions carry their own margin above the home indicator.
-        .ignoresSafeArea(.container, edges: .bottom)
+        .ignoresSafeArea(typing ? .container : .all, edges: .bottom)
         .presentationDetents([.height(contentHeight + actionsHeight)])
         .presentationCornerRadius(36)
         .presentationDragIndicator(.visible)
@@ -43,7 +49,7 @@ struct QuestionSheet: View {
 
     var body: some View {
         let current = page
-        PinnedActionsSheet {
+        PinnedActionsSheet(typing: customFocused) {
             VStack(alignment: .leading, spacing: 16) {
                 header(current)
                 if let detail = current.detail { MarkdownView(text: detail).modifier(LinkOpening()) }
