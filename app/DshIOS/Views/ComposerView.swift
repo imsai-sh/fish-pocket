@@ -213,6 +213,9 @@ struct ComposerView: View {
     /// Text the shell put here (创建你的插件…): added to the draft, not sent.
     var pendingDraft: String?
     var consumeDraft: () -> Void = {}
+    /// Files another app shared here (the share extension): attached, not sent.
+    var pendingFiles: SharedFiles?
+    var consumeFiles: () -> Void = {}
     /// A question the shell wrote for the reader (询问 AI): put in the input, not sent.
     var pendingPrompt: String?
     var consumePrompt: () -> Void = {}
@@ -263,6 +266,13 @@ struct ComposerView: View {
             guard let pendingDraft else { return }
             composer.text = composer.text.isEmpty ? pendingDraft : composer.text + "\n" + pendingDraft
             consumeDraft()
+        }
+        .task(id: pendingFiles) {
+            guard let pendingFiles else { return }
+            consumeFiles()
+            // Each is copied on (images read, the rest staged for upload): the shared copies go.
+            composer.addFiles(pendingFiles.urls)
+            try? FileManager.default.removeItem(at: pendingFiles.folder)
         }
         .task(id: pendingPrompt) {
             guard let pendingPrompt else { return }

@@ -60,7 +60,7 @@
   <sub>Put the phone down and glance at your wrist: approve from the watch, and get a tap when the work is done</sub>
 </p>
 
-<p align="center"><sub>These are recordings of the app running, with waits cut or sped up. They show the Chinese interface; the app also comes in English and Spanish.</sub></p>
+<p align="center"><sub>These are recordings of the app running, with waits cut or sped up. They show the Chinese interface; the app also comes in English, Spanish, Japanese and Korean.</sub></p>
 
 ## What it does
 
@@ -73,7 +73,7 @@
 - **Built-in FFmpeg.** `ffmpeg` and `ffprobe` are compiled into the app. They read nearly every audio and video format (iPhone HEVC video, MKV and WebM included), extract frames and audio, cut and convert, and every built-in FFmpeg filter works. H.264 and HEVC encoding uses the phone's hardware encoder. There is no x264, VP9 or MP3 encoding.
 - **A built-in DSH plugin store.** A DSH ecosystem plugin market comes preset: browse and search on the phone, install with one tap, and the plugin is ready to use, no computer involved. Add store sources you trust under Index Sources, or install pure JavaScript plugins straight from npm.
 - **A workbench.** Terminal, file preview, built-in browser and change review in one panel.
-- **Made for iOS.** Dynamic Island and Lock Screen Live Activities, Home Screen and Lock Screen widgets, a Control Center button, Siri and Shortcuts, and tasks that continue in the background.
+- **Made for iOS.** Dynamic Island and Lock Screen Live Activities, Home Screen and Lock Screen widgets, a Control Center button, Siri and Shortcuts, sharing from WeChat and other apps into a new conversation, a Bot or a group chat, and tasks that continue in the background.
 - **Made for iPad too.** A persistent sidebar, a side workbench, multiple windows, file drag and drop, and keyboard shortcuts.
 - **Reaches the agents on your computer too.** Sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) and the Codex, Claude Code and DeepSeek Harness sessions on your computers appear in the same sidebar: follow their progress, keep the conversation going, answer approvals, stop a run. It is optional, and nothing changes until you sign in.
 - **More private.** Sessions and workspaces stay on your device.
@@ -214,6 +214,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Sample-test compatibility of popular community plugins
 - [x] English for the native UI, on a framework ready for more languages
 - [x] Spanish UI ([#24](https://github.com/imsai-sh/fish-pocket/issues/24)), with the UI language switchable in Settings
+- [x] Japanese and Korean UI ([#120](https://github.com/imsai-sh/fish-pocket/issues/120))
 - [ ] Define plugin compatibility tiers and an adaptation guide ([#4](https://github.com/imsai-sh/fish-pocket/issues/4))
 - [x] Bundle a third-party plugin store ([#5](https://github.com/imsai-sh/fish-pocket/issues/5))
 - [x] Let the agent use the iPhone's device capabilities: Calendar, Reminders, Health, Photos, Maps and more
@@ -222,6 +223,7 @@ More answers on the [website](https://fish.deepseek1024.com/en/#faq).
 - [x] Remote control: manage the Codex, Claude Code and DSH sessions on your computers and servers from the phone, with the same Lock Screen, Dynamic Island and widgets as sessions on the device (through Agents Anywhere)
 - [ ] Move the bash interpreter off the engine thread
 - [x] Bot mode: hand tasks to the agent in your pocket from a chat
+- [x] Share sheet: tap Share in WeChat, Photos or Safari to send text, links, photos and files to a new conversation, a Bot or a group chat ([#57](https://github.com/imsai-sh/fish-pocket/issues/57))
 
 ## Contributing
 

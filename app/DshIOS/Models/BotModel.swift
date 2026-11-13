@@ -73,6 +73,8 @@ final class BotModel {
     static let package = "ds-bot"
     /// The open-source project behind the Bot feature, linked where it is credited.
     static let projectURL = URL(string: "https://github.com/Fei2411/DS-Bot")!
+    /// DS Bot's website, linked from the line under each Bot's page.
+    static let websiteURL = URL(string: "https://dsbot.app/")!
 
     enum Status: Equatable {
         /// Not known yet (the engine or the plugin list is still loading).
@@ -160,6 +162,19 @@ final class BotModel {
     /// The Bots that take the user's work first; the first is `mainBotId`.
     var mainBotIds: [String] { team["mainBotIds"].array.compactMap(\.string) }
     func isMain(_ bot: BotInfo) -> Bool { mainBotIds.contains(bot.id) }
+    /// The group list's order: pinned first, then the most recently active.
+    func listOrder(_ a: RoomInfo, _ b: RoomInfo) -> Bool {
+        if a.pinned != b.pinned { return a.pinned }
+        return (app.sessions[a.sessionId]?.updatedAt ?? .distantPast) > (app.sessions[b.sessionId]?.updatedAt ?? .distantPast)
+    }
+    /// The Bot list's order: pinned first, then the main Bots in their order, then the most recently active.
+    func listOrder(_ a: BotInfo, _ b: BotInfo) -> Bool {
+        if a.pinned != b.pinned { return a.pinned }
+        let main = mainBotIds
+        let ia = main.firstIndex(of: a.id) ?? .max, ib = main.firstIndex(of: b.id) ?? .max
+        if ia != ib { return ia < ib }
+        return (app.sessions[a.sessionId]?.updatedAt ?? .distantPast) > (app.sessions[b.sessionId]?.updatedAt ?? .distantPast)
+    }
     /// The models this DSH serves: `{ref, name, providerName, needsKey?}`.
     var models: [JSON] { team["models"].array }
     func modelName(_ ref: String?) -> String? {
@@ -380,7 +395,7 @@ final class BotModel {
     }
 
     func refreshState() async {
-        var payload: [String: JSON] = ["locale": .string(AppLanguage.isChinese ? "zh-CN" : "en")]
+        var payload: [String: JSON] = ["locale": .string(AppLanguage.isChinese ? "zh-CN" : AppLanguage.primary)]
         if let revision { payload["since"] = .number(revision) }
         if let liveKey { payload["live"] = .string(liveKey) }
         // The model list changes without a revision (a key added in 设置): its key rides along.
@@ -462,7 +477,9 @@ final class BotModel {
 
     /// Send a message to a Bot's own chat.
     func send(_ text: String, to bot: BotInfo) async -> Bool {
-        await app.perform { try await self.call("send", ["sessionId": .string(bot.sessionId), "text": .string(text)]) }
+        let sent = await app.perform { try await self.call("send", ["sessionId": .string(bot.sessionId), "text": .string(text)]) }
+        if sent { ShareSuggestions.didSend(in: bot.sessionId, app: app) }
+        return sent
     }
 
     /// Stop what the Bot does in its own chat.

@@ -14,6 +14,18 @@
             "state" : "translated",
             "value" : "Nueva conversación en ${applicationName}"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} で新しい会話"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} 새 대화"
+          }
         }
       }
     },
@@ -30,6 +42,18 @@
             "state" : "translated",
             "value" : "Empieza una conversación nueva en ${applicationName}"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} で新しい会話を始める"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 새 대화 시작"
+          }
         }
       }
     },
@@ -45,6 +69,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nueva conversación con ${applicationName}"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} で新しい会話を作成"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}으로 새 대화 만들기"
           }
         }
       }

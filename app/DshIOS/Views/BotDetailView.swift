@@ -205,8 +205,22 @@ struct BotDetailView: View {
             Button { dismiss(); app.webRequest = UUID() } label: {
                 Text("在网页版中打开").font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
             }
+            Link(destination: BotModel.websiteURL) {
+                HStack(spacing: 4) {
+                    Text("此 Bot 由 DS Bot 驱动")
+                    Image(systemName: "arrow.up.right").font(.caption2.weight(.semibold))
+                }
+                .font(.footnote)
+                .foregroundStyle(Palette.secondary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(Palette.control, in: Capsule())
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
         }
         .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
     }
 
     /// The team's capabilities this Bot may use, each switched on or off here.
