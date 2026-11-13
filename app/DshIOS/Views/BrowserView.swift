@@ -78,7 +78,6 @@ final class BrowserModel: NSObject {
         webView = WKWebView(frame: .zero, configuration: configuration)
         lastURL = UserDefaults.standard.string(forKey: storageKey)
         super.init()
-        webView.addGestureRecognizer(BrowserPresence.TouchWatcher { [weak self] in self?.presence.dismiss() })
         webView.isInspectable = true
         webView.allowsBackForwardNavigationGestures = true
         webView.navigationDelegate = self
@@ -146,9 +145,32 @@ final class BrowserModel: NSObject {
     }
 
     private func close() {
-        presence.dismiss()
+        presence.finish()
         webView.stopLoading()
         if webView.superview === webView.window { webView.removeFromSuperview() }
+    }
+
+    /// What page-agent's effects on the page should be (`entry.js`'s `presence`).
+    struct PageEffects: Equatable {
+        var shown: Bool
+        var action: String?
+        var done: Bool
+    }
+
+    /// The effects as last asked for; a page that loads afresh gets them again.
+    @ObservationIgnored private var effects = PageEffects(shown: false, action: nil, done: true)
+
+    func showEffects(_ effects: PageEffects) {
+        self.effects = effects
+        sendEffects()
+    }
+
+    fileprivate func sendEffects() {
+        guard webView.url != nil else { return }
+        let state: [String: Any] = ["shown": effects.shown, "action": effects.action ?? NSNull(), "done": effects.done]
+        webView.callAsyncJavaScript(
+            "await globalThis.__dshBrowser?.presence(state)", arguments: ["state": state], in: nil, in: Self.agentWorld
+        ) { _ in }
     }
 
     func back() { webView.goBack() }
@@ -212,6 +234,7 @@ final class BrowserModel: NSObject {
 
 extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { clearFailure() }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { sendEffects() }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { failed(error) }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { failed(error) }
 

@@ -27,6 +27,11 @@ import WebKit
         let browser = BrowserModel.session(owner(of: session, in: app), origin: app.client.origin)
         return try await browser.serially {
             browser.presence.began(op, driver: session)
+            // The panel's stop button ends the turn of the conversation that owns this browser.
+            let owner = owner(of: session, in: app)
+            browser.presence.stop = { [weak app] in
+                Task { try? await app?.client.call("session/cancel", ["request": ["sessionId": .string(owner)]]) }
+            }
             defer { browser.presence.ended() }
             switch op {
             case "open": return try await browser.agentOpen(args["url"] as? String ?? "")
