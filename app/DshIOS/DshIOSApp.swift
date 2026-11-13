@@ -102,7 +102,7 @@ struct RootView: View {
             // A `dsh://` link goes to a window that is already open. Any window may also take a plain
             // launch: unless one allows it, iPadOS opens another window on every tap of the app's icon.
             // `preferring` stays narrow, so `openWindow` still gets its new window.
-            .handlesExternalEvents(preferring: ["dsh://"], allowing: ["*"])
+            .handlesExternalEvents(preferring: ["\(DshLink.scheme)://"], allowing: ["*"])
     }
 
     @ViewBuilder

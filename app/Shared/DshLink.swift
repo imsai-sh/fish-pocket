@@ -11,7 +11,8 @@ enum DshLink: Hashable {
     case new(workspace: String? = nil, preset: String? = nil, draft: String? = nil)
     case share(String)
 
-    static let scheme = "dsh"
+    /// `DshURLScheme` in Info.plist (`DSH_URL_SCHEME` in project.yml): `dsh`, or a test build's own.
+    static let scheme = Bundle.main.object(forInfoDictionaryKey: "DshURLScheme") as? String ?? "dsh"
 
     init?(url: URL) {
         guard url.scheme == Self.scheme, let host = url.host() else { return nil }

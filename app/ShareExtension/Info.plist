@@ -30,6 +30,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>DshAppGroup</key>
 	<string>$(DSH_APP_GROUP)</string>
+	<key>DshURLScheme</key>
+	<string>$(DSH_URL_SCHEME)</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>

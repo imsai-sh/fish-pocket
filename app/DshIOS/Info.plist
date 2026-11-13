@@ -39,7 +39,7 @@
 			<string>com.wsw.dsh-ios</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>dsh</string>
+				<string>$(DSH_URL_SCHEME)</string>
 			</array>
 		</dict>
 	</array>
@@ -47,6 +47,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>DshAppGroup</key>
 	<string>$(DSH_APP_GROUP)</string>
+	<key>DshURLScheme</key>
+	<string>$(DSH_URL_SCHEME)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSAlarmKitUsageDescription</key>

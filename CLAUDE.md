@@ -132,6 +132,7 @@
 - 扩展里列的 Bot 和群聊来自 App 写的 `Share/targets.json` 和 `Share/avatars/`（`ShareTargetsWriter`）：顺序同 Bot 页，隐藏的不列，头像是 App 按自己的画法渲染好的图，群头像深浅色各一张。扩展不编译 `BotCharacter`，改了头像画法不用动扩展。
 - 扩展的文案在 `app/Shared/Localizable.xcstrings`，`scripts/sync-strings.sh` 会一起收进来。扩展不认 `NSAccentColorName`，主色在 `ShareView` 里显式指定。
 - 发行签名多了一个 bundle ID：`com.wsw.dsh-ios.Share`，要有 App Group。
+- 拉起 App 的链接前缀是工程变量 `DSH_URL_SCHEME`（正式版 `dsh`）。用别的 Bundle ID 并排装测试包时，`DSH_APP_GROUP` 和它都要换成测试包自己的，不然链接可能打开正式包，正式包读不到测试包的 App Group。
 
 ## Bot：只用 DS Bot 的后端
 

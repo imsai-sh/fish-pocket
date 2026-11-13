@@ -33,6 +33,9 @@ settings:
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     # The container the app and the widget extension share (widget snapshot). Rename it with the bundle ID.
     DSH_APP_GROUP: group.com.wsw.dsh-ios
+    # The app's link scheme (Shared/DshLink.swift): the widgets and the share extension open the app with it.
+    # A side-by-side test build takes its own, or its links can land in the installed app.
+    DSH_URL_SCHEME: dsh
 targets:
   DshIOS:
     type: application
@@ -212,9 +215,10 @@ targets:
         # dsh://session/<id> and dsh://new: the Live Activity and the widgets (Shared/DshLink.swift).
         CFBundleURLTypes:
           - CFBundleURLName: com.wsw.dsh-ios
-            CFBundleURLSchemes: [dsh]
+            CFBundleURLSchemes: ["$(DSH_URL_SCHEME)"]
         # Shared/WidgetSnapshot.swift reads the group from here.
         DshAppGroup: $(DSH_APP_GROUP)
+        DshURLScheme: $(DSH_URL_SCHEME)
     entitlements:
       path: DshIOS/DshIOS.entitlements
       properties:
@@ -270,6 +274,7 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         DshAppGroup: $(DSH_APP_GROUP)
+        DshURLScheme: $(DSH_URL_SCHEME)
     dependencies:
       # 闹钟的锁屏呈现（AlarmActivity.swift）要它。和 App target 同理：部署目标
       # 是 17.0，AlarmKit 要 26.0，必须 weak link。
@@ -316,6 +321,7 @@ targets:
               NSExtensionActivationSupportsFileWithMaxCount: 20
               NSExtensionActivationSupportsAttachmentsWithMaxCount: 20
         DshAppGroup: $(DSH_APP_GROUP)
+        DshURLScheme: $(DSH_URL_SCHEME)
     entitlements:
       path: ShareExtension/DshShare.entitlements
       properties:
