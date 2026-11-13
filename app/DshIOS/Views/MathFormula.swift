@@ -82,10 +82,19 @@ enum MathTypesetter {
 @MainActor
 enum MathText {
     /// Inline Markdown with its formulas typeset in place, at the size of the text around them.
-    static func text(_ string: AttributedString, size: CGFloat) -> Text {
-        guard string.runs.contains(where: { $0[MathFormulaKey.self] != nil }) else { return Text(string) }
+    /// `linkMarks` puts the site's icon before each web link (`LinkIcons`).
+    @MainActor
+    static func text(_ string: AttributedString, size: CGFloat, linkMarks: Bool = false) -> Text {
+        let webLinks = linkMarks && string.runs.contains { run in run.link.map { $0.scheme == "http" || $0.scheme == "https" } ?? false }
+        guard webLinks || string.runs.contains(where: { $0[MathFormulaKey.self] != nil }) else { return Text(string) }
         var text = Text(verbatim: "")
+        var previousLink: URL?
         for run in string.runs {
+            // One mark per link, though its text may be several runs (a bold word inside it).
+            if webLinks, let link = run.link, link != previousLink, let mark = LinkIcons.shared.mark(for: link, size: size) {
+                text = text + mark
+            }
+            previousLink = run.link
             guard let formula = run[MathFormulaKey.self] else {
                 text = text + Text(AttributedString(string[run.range]))
                 continue

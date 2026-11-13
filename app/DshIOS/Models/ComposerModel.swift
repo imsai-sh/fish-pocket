@@ -365,19 +365,15 @@ final class ComposerModel {
         sendMessage(text, steer: steer, running: running)
     }
 
-    /// Put a written question in the input for the reader to send (询问 AI). The blank session is
-    /// reused, so asking again replaces the last question if it is still there untouched;
-    /// anything the reader typed stays, with the question after it.
-    func place(prompt: String) {
-        let defaults = UserDefaults.standard
-        if isTextEmpty || text == defaults.string(forKey: Self.placedKey) { text = prompt } else { text += "\n" + prompt }
-        defaults.set(prompt, forKey: Self.placedKey)
+    /// Send a written question at once (询问 AI). Whatever the reader had typed or attached in
+    /// this conversation stays in the input; a refused question comes back there to send again.
+    func send(prompt: String) {
+        let draft = text, kept = attachments
+        attachments = []
+        sendMessage(prompt, steer: false, running: session?.running ?? false)
+        text = draft
+        attachments = kept
     }
-
-    /// The question last placed, kept across launches as the draft is: it is told from typed text by it.
-    private static let placedKey = "dsh.composer.placedPrompt"
-
-    private var isTextEmpty: Bool { text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
     private func sendMessage(_ draft: String, steer: Bool, running: Bool) {
         let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)

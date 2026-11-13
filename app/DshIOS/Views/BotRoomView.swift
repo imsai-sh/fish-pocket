@@ -178,7 +178,7 @@ struct BotRoomView: View {
             .onAppear { app.clearUnread(room.sessionId); team.visibleChat = room.id }
             .onDisappear { app.clearUnread(room.sessionId); if team.visibleChat == room.id { team.visibleChat = nil } }
         } else if team.status == .unknown {
-            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).background(Palette.background)
+            ConversationLoading().background(Palette.background)
         } else {
             ContentUnavailableView("这个群聊已经不在了", systemImage: "person.2.slash")
         }

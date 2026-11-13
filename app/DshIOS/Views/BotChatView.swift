@@ -57,7 +57,7 @@ struct BotChatView: View {
             .onDisappear { app.clearUnread(bot.sessionId); if team.visibleChat == bot.id { team.visibleChat = nil } }
         } else if team.status == .unknown {
             // The app opened on this chat (the page it was last on) before the team answered.
-            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).background(Palette.background)
+            ConversationLoading().background(Palette.background)
         } else {
             ContentUnavailableView("这个 Bot 已不在团队里", systemImage: "person.slash")
         }

@@ -15,7 +15,7 @@ struct ConversationActivity: View {
     /// A subagent works in the browser of the conversation that started it.
     @MainActor
     static func browser(of sessionId: String, in app: AppModel) -> BrowserModel? {
-        guard let model = BrowserModel.existing(BrowserAgent.owner(of: sessionId, in: app)), model.started else { return nil }
+        guard let model = BrowserModel.existing(BrowserAgent.owner(of: sessionId, in: app)), model.hasPages else { return nil }
         return model
     }
 
@@ -34,9 +34,9 @@ struct ConversationActivity: View {
             if let browser {
                 chip(
                     icon: "globe",
-                    text: Text(Self.host(browser.page) ?? String(localized: "浏览器")),
-                    running: browser.agentBusy || browser.loading,
-                    label: Text("浏览器：\(Self.host(browser.page) ?? "")"),
+                    text: Text(Self.host(browser.url) ?? String(localized: "浏览器")),
+                    running: browser.agentBusy || browser.selected?.page?.loading == true,
+                    label: Text("浏览器：\(Self.host(browser.url) ?? "")"),
                     action: openBrowser
                 )
             }

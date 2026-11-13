@@ -79,13 +79,9 @@ final class RemoteStore {
 
     @ObservationIgnored private(set) var client: RemoteClient?
     @ObservationIgnored private var follow: Task<Void, Never>?
-    /// The sessions that have been opened, the most recently shown last. A model stays after its
-    /// page closes, so that opening the session again shows at once what it held and only has to
-    /// catch up. In memory, for this run of the app: nothing of a session is written to the phone.
-    @ObservationIgnored private var kept: [RemoteSessionModel] = []
-    /// How many pages show each session now (a session can be open in more than one window).
-    @ObservationIgnored private var showing: [String: Int] = [:]
-    private static let keptLimit = 8
+    /// The sessions that have been opened (`SessionKeeper`, as for local conversations): opened
+    /// again, one shows at once what it held and only has to catch up.
+    @ObservationIgnored private let kept = SessionKeeper<RemoteSessionModel>()
     @ObservationIgnored private var inFront = true
     /// The state of the session each request was read at; a later one is read again.
     @ObservationIgnored private var requestSeq: [String: Int] = [:]
@@ -103,9 +99,6 @@ final class RemoteStore {
             },
             center.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated { self?.setInFront(true) }
-            },
-            center.addObserver(forName: UIApplication.didReceiveMemoryWarningNotification, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.shed() }
             },
         ]
         guard let saved = RemoteKeychain.load() else { return }
@@ -248,10 +241,7 @@ final class RemoteStore {
     private func clear() {
         follow?.cancel()
         follow = nil
-        let models = kept
-        kept = []
-        showing = [:]
-        for model in models { model.close() }
+        kept.clear()
         client = nil
         account = nil
         devices = []
@@ -275,7 +265,7 @@ final class RemoteStore {
     private func setInFront(_ front: Bool) {
         inFront = front
         if front { startFollowing() } else { settleFollowing() }
-        for model in kept where showing[model.id] != nil { front ? model.resume() : model.suspend() }
+        kept.setInFront(front)
     }
 
     /// Off screen with nothing left to report: the connection goes until the app is back.
@@ -373,7 +363,7 @@ final class RemoteStore {
         if next != sessions { sessions = next }
         if !loaded { loaded = true }
         reindex()
-        for model in kept {
+        for model in kept.all {
             if let session = next[model.id] { model.apply(meta: session) }
         }
         readRequests()
@@ -461,46 +451,14 @@ final class RemoteStore {
     /// The session, for a page that shows it: the one kept from the last time it was open,
     /// which already holds its records, or a new one that reads them. Its channel comes up.
     func acquire(_ id: String) -> RemoteSessionModel {
-        let model = kept.first { $0.id == id } ?? RemoteSessionModel(id: id, store: self)
-        kept.removeAll { $0 === model }
-        kept.append(model)
-        showing[id, default: 0] += 1
-        if inFront { model.resume() }
-        trim()
-        return model
+        kept.acquire(id) { RemoteSessionModel(id: id, store: self) }
     }
 
     /// The page went away: the channel closes, what was read stays for the next time.
-    func release(_ id: String) {
-        guard let count = showing[id] else { return }
-        showing[id] = count > 1 ? count - 1 : nil
-        guard showing[id] == nil else { return }
-        kept.first { $0.id == id }?.park()
-        trim()
-    }
-
-    /// Only the last few stay; a session on screen is never dropped.
-    private func trim() {
-        var extra = kept.count - Self.keptLimit
-        for model in kept where extra > 0 && showing[model.id] == nil {
-            model.close()
-            kept.removeAll { $0 === model }
-            extra -= 1
-        }
-    }
-
-    /// The system is short of memory: every session that is not on screen is let go. Opened
-    /// again, it reads from the server as a session opened for the first time does.
-    private func shed() {
-        for model in kept where showing[model.id] == nil { model.close() }
-        kept.removeAll { showing[$0.id] == nil }
-    }
+    func release(_ id: String) { kept.release(id) }
 
     /// Sessions that are gone (their computer left the account) are not kept either.
-    private func forget(_ ids: Set<String>) {
-        for model in kept where ids.contains(model.id) && showing[model.id] == nil { model.close() }
-        kept.removeAll { ids.contains($0.id) && showing[$0.id] == nil }
-    }
+    private func forget(_ ids: Set<String>) { kept.forget(ids) }
 
     // MARK: Changes
 

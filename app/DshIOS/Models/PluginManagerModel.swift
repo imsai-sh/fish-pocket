@@ -449,23 +449,6 @@ final class PluginManagerModel {
         }
     }
 
-    /// A market's newer version: the Host won't install over an installed package, so remove
-    /// it, then install the market's version with the same switch. A failed install leaves it removed.
-    func update(_ name: String, spec: String, registry: String?, title: String, version: String) async {
-        // Another install holds the sheet: removing now would leave nothing to install the new version.
-        guard !app.pluginInstall.busy, app.pluginInstall.requestId == nil, let package = self.package(name), package.installed else {
-            app.pluginInstall.installFrom(spec: spec, registry: registry, title: title, version: version)
-            return
-        }
-        await run(name, .uninstall) {
-            let removed = try await app.client.call("pluginManager/removeBundle", ["name": .string(name)])
-            try applied(removed, packageName: package.title)
-            // The install's own check reads this list: it must no longer hold the old version.
-            await load()
-            app.pluginInstall.installFrom(spec: spec, registry: registry, title: title, version: version, enabled: package.enabled)
-        }
-    }
-
     func isBusy(_ package: PluginPackage) -> Bool { busy.contains(package.name) }
     func isBusy(_ row: PluginRow) -> Bool { row.entryId.map { busy.contains("row:\($0)") } ?? false }
 }

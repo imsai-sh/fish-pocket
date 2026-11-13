@@ -739,3 +739,7 @@ final class RemoteSessionModel: Identifiable {
         if done, draft.trimmingCharacters(in: .whitespacesAndNewlines) == raw { draft = "" }
     }
 }
+
+extension RemoteSessionModel: KeptSession {
+    var keptId: String { id }
+}

@@ -24,25 +24,90 @@ import WebKit
         guard let app = EngineConnection.shared.app else {
             throw BrowserAgentError("the app is still connecting to its engine; try again in a moment")
         }
-        let browser = BrowserModel.session(owner(of: session, in: app), origin: app.client.origin)
-        return try await browser.serially {
-            browser.presence.began(op, driver: session)
+        // 子智能体用发起它的那个会话的浏览器。
+        let owner = owner(of: session, in: app)
+        let browser = BrowserModel.session(owner, origin: app.client.origin)
+        let named = args["tab"] as? String
+
+        // 标签页本身的操作：不碰网页，不用排队。
+        switch op {
+        case "tabs":
+            return tabsAnswer(browser)
+        case "close_tab":
+            guard let id = named, let tab = browser.tab(id) else {
+                throw BrowserAgentError("There is no tab '\(named ?? "")'. Use `tabs` to see the open ones.")
+            }
+            browser.close(tab)
+            var answer = tabsAnswer(browser)
+            answer["action"] = "Closed tab \(id)."
+            return answer
+        case "select_tab":
+            let tab = try browser.agentTarget(named, opening: false)
+            browser.select(tab)
+            browser.agentUses(tab)
+            guard tab.started else {
+                var answer = tabsAnswer(browser)
+                answer["action"] = "Tab \(tab.id) is in front now. It is blank: `open` a URL in it."
+                return answer
+            }
+        case "new_tab":
+            let tab = browser.newTab()
+            browser.agentUses(tab)
+            guard args["url"] is String else {
+                var answer = tabsAnswer(browser)
+                answer["action"] = "Opened tab \(tab.id), blank, in front. `open` a URL in it."
+                return answer
+            }
+        default:
+            break
+        }
+
+        let tab = try browser.agentTarget(named, opening: op == "open" || op == "new_tab")
+        browser.agentUses(tab)
+        // 为了省内存放掉的页面，先回到原来的地址。
+        let revived = tab.page == nil
+        let page = browser.revive(tab)
+        var answer = try await page.serially {
+            page.presence.began(op == "new_tab" ? "open" : op == "select_tab" ? "read" : op, driver: session)
             // The panel's stop button ends the turn of the conversation that owns this browser.
-            let owner = owner(of: session, in: app)
-            browser.presence.stop = { [weak app] in
+            page.presence.stop = { [weak app] in
                 Task { try? await app?.client.call("session/cancel", ["request": ["sessionId": .string(owner)]]) }
             }
-            defer { browser.presence.ended() }
+            defer { page.presence.ended() }
+            if revived { page.attachIfDetached(); await page.settle(navigating: true) }
             switch op {
-            case "open": return try await browser.agentOpen(args["url"] as? String ?? "", desktop: args["desktop"] as? Bool)
-            case "read": return try await browser.agentRead()
-            case "click", "type", "select", "scroll": return try await browser.agentAct(op, args)
-            case "back", "forward", "reload": return try await browser.agentNavigate(op, desktop: args["desktop"] as? Bool)
-            case "evaluate": return try await browser.agentEvaluate(args["script"] as? String ?? "")
-            case "screenshot": return try await browser.agentScreenshot()
+            case "open", "new_tab": return try await page.agentOpen(args["url"] as? String ?? "", desktop: args["desktop"] as? Bool)
+            case "read", "select_tab": return try await page.agentRead()
+            case "click", "type", "select", "scroll": return try await page.agentAct(op, args)
+            case "back", "forward", "reload": return try await page.agentNavigate(op, desktop: args["desktop"] as? Bool)
+            case "evaluate": return try await page.agentEvaluate(args["script"] as? String ?? "")
+            case "screenshot": return try await page.agentScreenshot()
             default: throw BrowserAgentError("browser has no operation '\(op)'")
             }
         }
+        // Which tab this was, so the agent can tell when the user has another in front.
+        answer["tab"] = tab.id
+        answer["tabCount"] = browser.tabs.count
+        answer["frontTab"] = browser.selectedId ?? NSNull()
+        if op == "select_tab" { answer["action"] = "Tab \(tab.id) is in front now." }
+        if op == "new_tab" { answer["action"] = "Opened tab \(tab.id) in front." }
+        return answer
+    }
+
+    /// Every tab: its id, title and address, which one is in front and which one the agent works in.
+    @MainActor
+    private static func tabsAnswer(_ browser: BrowserModel) -> [String: Any] {
+        let tabs: [[String: Any]] = browser.tabs.map { tab in
+            [
+                "id": tab.id,
+                "title": tab.title ?? "",
+                "url": tab.url ?? "",
+                "front": tab.id == browser.selectedId,
+                "yours": tab.id == browser.agentTabId,
+                "loading": tab.page?.loading ?? false,
+            ]
+        }
+        return ["tabs": tabs]
     }
 }
 
@@ -82,7 +147,7 @@ struct BrowserAgentError: Error {
 
 // MARK: - 智能体的操作
 
-extension BrowserModel {
+extension BrowserPage {
     /// 注入脚本住的地方。和网页自己的脚本隔开：网页看不到 `__dshBrowser`，也改不了它；
     /// DOM 是共享的，点击和输入照样落到网页上。
     static let agentWorld = WKContentWorld.world(name: "dsh-browser")
@@ -112,7 +177,7 @@ extension BrowserModel {
     func agentRead() async throws -> [String: Any] {
         attachIfDetached()
         guard webView.url != nil else {
-            throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
+            throw BrowserAgentError("No page is open in this tab yet. Use `open` with a URL first.")
         }
         if let loadFailure {
             throw BrowserAgentError("The page did not load: \(loadFailure.localizedDescription) (\(loadFailure.domain) \(loadFailure.code)).")
@@ -135,7 +200,7 @@ extension BrowserModel {
     func agentAct(_ op: String, _ args: [String: Any]) async throws -> [String: Any] {
         attachIfDetached()
         guard webView.url != nil else {
-            throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
+            throw BrowserAgentError("No page is open in this tab yet. Use `open` with a URL first.")
         }
         let index = (args["index"] as? NSNumber)?.intValue
         if op != "scroll" {
@@ -187,14 +252,14 @@ extension BrowserModel {
         attachIfDetached()
         switch op {
         case "back":
-            guard webView.canGoBack else { throw BrowserAgentError("There is no earlier page in this browser.") }
+            guard webView.canGoBack else { throw BrowserAgentError("There is no earlier page in this tab.") }
             back()
         case "forward":
-            guard webView.canGoForward else { throw BrowserAgentError("There is no later page in this browser.") }
+            guard webView.canGoForward else { throw BrowserAgentError("There is no later page in this tab.") }
             forward()
         default:
             guard webView.url != nil || lastURL != nil else {
-                throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
+                throw BrowserAgentError("No page is open in this tab yet. Use `open` with a URL first.")
             }
             if let desktop, let url = page ?? lastURL.flatMap(URL.init(string:)) { Self.setDesktop(desktop, for: url) }
             reload()
@@ -207,7 +272,7 @@ extension BrowserModel {
     func agentEvaluate(_ script: String) async throws -> [String: Any] {
         attachIfDetached()
         guard webView.url != nil else {
-            throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
+            throw BrowserAgentError("No page is open in this tab yet. Use `open` with a URL first.")
         }
         let body = """
         const __value = await (async () => {
@@ -234,7 +299,7 @@ extension BrowserModel {
     func agentScreenshot() async throws -> [String: Any] {
         attachIfDetached()
         guard webView.url != nil else {
-            throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
+            throw BrowserAgentError("No page is open in this tab yet. Use `open` with a URL first.")
         }
         guard webView.bounds.width > 0, webView.bounds.height > 0 else {
             throw BrowserAgentError("The browser has no size yet, so there is nothing to capture. Try again in a moment.")
@@ -280,7 +345,7 @@ extension BrowserModel {
 
     /// 等页面安静下来，有上限。导航可能在点击之后才开始，所以先给它一点时间冒头；
     /// 加载完再留一小段，让脚本渲染的页面把内容画出来。
-    private func settle(navigating: Bool) async {
+    func settle(navigating: Bool) async {
         if !navigating { try? await Task.sleep(for: .milliseconds(300)) }
         let deadline = ContinuousClock.now + .seconds(20)
         while webView.isLoading, ContinuousClock.now < deadline {
@@ -336,7 +401,7 @@ private final class Once {
     }
 }
 
-extension BrowserModel.Refusal {
+extension BrowserPage.Refusal {
     /// 给模型看的说法，和给用户看的 `message` 内容一样。
     var agentMessage: String {
         switch self {

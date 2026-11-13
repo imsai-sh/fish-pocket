@@ -32,7 +32,7 @@ struct RemoteConversationView: View {
             if let model {
                 content(model)
             } else {
-                ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).background(Palette.background)
+                ConversationLoading().background(Palette.background)
                     .toolbar { if let openDrawer { ToolbarItem(placement: .topBarLeading) { DrawerButton(action: openDrawer) } } }
             }
         }
@@ -195,7 +195,7 @@ struct RemoteConversationView: View {
             }
             .padding(32)
         } else if !model.loaded {
-            ProgressView()
+            ConversationLoading()
         } else if model.rows.isEmpty {
             Text("还没有消息").font(.subheadline).foregroundStyle(Palette.secondary)
         }
@@ -371,6 +371,7 @@ private struct RemoteTitleMenu: View {
             .frame(maxWidth: 200)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
+            .barTitleGlass()
         }
         .accessibilityLabel(Text("会话：\(meta?.displayTitle ?? "")，\(subtitle)"))
         .accessibilityHint("打开会话菜单")

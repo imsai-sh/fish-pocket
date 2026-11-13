@@ -85,8 +85,7 @@ struct NewSessionRequest: Equatable {
     var agentPreset: String?
     /// Placed in the composer, not sent.
     var draft: String?
-    /// A question written for the reader (询问 AI): placed in the composer for them to send,
-    /// in place of the last one left there unsent.
+    /// A question written for the reader (询问 AI): sent as the conversation's first message.
     var prompt: String?
 }
 
@@ -109,6 +108,9 @@ final class AppModel {
     let cordis = CordisModel()
     /// Agent sessions on the user's computers, through Agents Anywhere; idle until signed in.
     let remote = RemoteStore.shared
+    /// This engine's conversations opened in this run (DSH's own, a Bot's chat, a group's), kept
+    /// between visits as remote ones are. A new engine generation starts with none.
+    @ObservationIgnored private(set) lazy var localSessions = SessionKeeper<SessionModel>()
 
     private(set) var workspaces: [Workspace] = []
     private(set) var pinned: [String] = []

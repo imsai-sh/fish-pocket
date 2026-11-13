@@ -1744,7 +1744,18 @@ function cut(value, limit, what) {
   return `${value.slice(0, limit)}\n… ${what} cut at ${limit} of ${value.length} characters`;
 }
 
-const BROWSER_ACTIONS = ['open', 'read', 'click', 'type', 'select', 'scroll', 'back', 'forward', 'reload', 'evaluate', 'screenshot'];
+const BROWSER_ACTIONS = ['open', 'read', 'click', 'type', 'select', 'scroll', 'back', 'forward', 'reload', 'evaluate', 'screenshot',
+  'tabs', 'new_tab', 'select_tab', 'close_tab'];
+
+/**
+ * Which tab a page result came from, when there is more than one: the user
+ * may have another in front, and the agent should know it is not that one.
+ */
+function tabLine(value) {
+  if (typeof value.tab !== 'string' || !(value.tabCount > 1)) return [];
+  const front = value.frontTab === value.tab ? 'in front' : `the user has ${value.frontTab} in front`;
+  return [`Tab ${value.tab} of ${value.tabCount} open (${front}).`];
+}
 
 /**
  * Refuse a screenshot the model on this route could not look at. Same test
@@ -1784,7 +1795,11 @@ const browser = (ctx) => defineTool({
     + 'whenever the page does, so always use the ones from the latest result. `screenshot` shows '
     + 'what is on screen, for layout, images and charts the text cannot tell you. Sites see a phone; '
     + 'pass `desktop: true` with `open` or `reload` for a site\'s desktop (PC) version, `false` to go '
-    + 'back — the choice stays with that site, for the user too. Sign-ins are kept '
+    + 'back — the choice stays with that site, for the user too. The browser has tabs, shared with '
+    + 'the user: `tabs` lists them (which one is in front, which one you last used), `new_tab`, '
+    + '`select_tab` and `close_tab` change them. Every other action works in the tab you pass as '
+    + '`tab`, or else the one you last used; a link the user taps opens in a new tab and does not '
+    + 'move you. To pick up a page the user opened, call `tabs` and `select_tab` it. Sign-ins are kept '
     + 'across app launches. The user can watch and take over at any time. Never type a password, '
     + 'card number or other secret into a page — ask the user to do that part in the workbench.',
   parameters: {
@@ -1793,13 +1808,19 @@ const browser = (ctx) => defineTool({
       enum: BROWSER_ACTIONS,
       description: 'open a URL; read the current page; click, type into or select in a numbered '
         + 'element; scroll; go back, forward or reload; evaluate a script in the page; take a '
-        + 'screenshot of what is on screen',
+        + 'screenshot of what is on screen; list the tabs; open a new tab (with `url` to load one); '
+        + 'bring a tab to the front and work in it; close a tab',
       required: true,
     },
-    url: { type: 'string', description: 'open: the address; a bare host means https, localhost means http' },
+    url: { type: 'string', description: 'open, new_tab: the address; a bare host means https, localhost means http' },
+    tab: {
+      type: 'string',
+      description: 'select_tab, close_tab: which tab, by its id from `tabs` (such as "t2"). Any other '
+        + 'action except new_tab: the tab to work in; leave it out for the one you last used',
+    },
     desktop: {
       type: 'boolean',
-      description: 'open, reload: true for the site\'s desktop version, false for its mobile one; '
+      description: 'open, new_tab, reload: true for the site\'s desktop version, false for its mobile one; '
         + 'remembered for that site. Leave it out to keep the site\'s current choice',
     },
     index: { type: 'number', description: 'click, type, select: the element\'s number from the latest result; scroll: optionally the scrollable element to scroll inside' },
@@ -1821,11 +1842,21 @@ const browser = (ctx) => defineTool({
         return [
           {
             type: 'text',
-            text: `Screenshot of [${value.title ?? ''}](${value.url ?? ''}): the visible part of the page, `
-              + `${value.image.width}x${value.image.height} px, as the user sees it in the workbench.`,
+            text: [...tabLine(value), `Screenshot of [${value.title ?? ''}](${value.url ?? ''}): the visible part of the page, `
+              + `${value.image.width}x${value.image.height} px, as the user sees it in the workbench.`].join('\n'),
           },
           { type: 'image', attachment: value.image },
         ];
+      }
+      if (value.tabs !== undefined) {
+        const lines = [];
+        if (value.action) lines.push(value.action, '');
+        for (const tab of value.tabs) {
+          const marks = [tab.front && 'in front', tab.yours && 'yours', tab.loading && 'loading'].filter(Boolean);
+          const where = tab.url ? `[${tab.title || tab.url}](${tab.url})` : '(blank)';
+          lines.push(`${tab.id}${marks.length > 0 ? ` (${marks.join(', ')})` : ''}: ${where}`);
+        }
+        return text(lines.join('\n'));
       }
       if (args.action === 'evaluate') {
         return text(value.result === null
@@ -1834,6 +1865,7 @@ const browser = (ctx) => defineTool({
       }
       const lines = [];
       if (value.action) lines.push(value.action, '');
+      lines.push(...tabLine(value));
       lines.push(value.header ?? `Current Page: [${value.title ?? ''}](${value.url ?? ''})`);
       lines.push(cut(value.content, PAGE_LIMIT, 'page'));
       if (value.footer) lines.push(value.footer);
@@ -1851,11 +1883,13 @@ const browser = (ctx) => defineTool({
     }
     const { action, ...rest } = args;
     if (action !== 'screenshot') return invoke('browser', action, { ...rest, session });
+    // The tab goes along; the other arguments mean nothing to a screenshot.
+    const where = typeof rest.tab === 'string' ? { tab: rest.tab } : {};
 
     const attachments = ctx.get('attachments');
     if (attachments === undefined) throw new Error('browser: this engine has no attachment store, so it cannot show images');
     await assertSeesImages(ctx, exec);
-    const shot = await invoke('browser', 'screenshot', { session });
+    const shot = await invoke('browser', 'screenshot', { ...where, session });
     const ref = await attachments.saveImage({
       data: Buffer.from(shot.data, 'base64'),
       mediaType: shot.mediaType,
@@ -1864,6 +1898,9 @@ const browser = (ctx) => defineTool({
     return {
       url: shot.url,
       title: shot.title,
+      tab: shot.tab,
+      tabCount: shot.tabCount,
+      frontTab: shot.frontTab,
       image: {
         attachmentId: ref.attachmentId,
         mediaType: ref.mediaType,

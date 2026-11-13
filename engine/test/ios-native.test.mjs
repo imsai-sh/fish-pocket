@@ -1084,6 +1084,23 @@ test('browser renders the page with what was done first, and says when it cut it
   assert.equal(render({ action: 'evaluate' }, { result: '{"a":1}' }), '{"a":1}');
 });
 
+test('browser lists its tabs, and names the tab a page came from when there are several', () => {
+  const render = (args, value) => DEFINITIONS.browser.output.render(args, value)[0].text;
+  const list = render({ action: 'close_tab', tab: 't3' }, {
+    action: 'Closed tab t3.',
+    tabs: [
+      { id: 't1', title: 'Example', url: 'https://example.com/', front: true, yours: false, loading: false },
+      { id: 't2', title: '', url: '', front: false, yours: true, loading: false },
+    ],
+  });
+  assert.equal(list, 'Closed tab t3.\n\nt1 (in front): [Example](https://example.com/)\nt2 (yours): (blank)');
+
+  const one = render({ action: 'read' }, { header: 'h', content: '', tab: 't1', tabCount: 1, frontTab: 't1' });
+  assert.doesNotMatch(one, /Tab t1/);
+  const behind = render({ action: 'read' }, { header: 'h', content: '', tab: 't2', tabCount: 3, frontTab: 't1' });
+  assert.match(behind, /^Tab t2 of 3 open \(the user has t1 in front\)\.\nh/);
+});
+
 test('a screenshot is refused before anything is taken when the model cannot see images', async () => {
   const tool = TOOLS.browser(fakeCtx({
     attachments: { saveImage: () => assert.fail('nothing should be stored') },

@@ -84,6 +84,11 @@ final class SessionModel {
         self.app = app
     }
 
+    /// The last user message the latest `session/follow` snapshot held: the first one, a kept
+    /// conversation catching up on its return, a reconnect. Those are history; only later ones
+    /// were sent while the conversation was on screen.
+    @ObservationIgnored private(set) var snapshotThrough = 0
+
     var client: EngineClient { app.client }
 
     // MARK: Following
@@ -104,7 +109,10 @@ final class SessionModel {
                     for try await frame in stream { self.apply(frame) }
                 } catch {
                     if Task.isCancelled { return }
-                    self.error = error.localizedDescription
+                    // The engine refusing the stream is worth saying. A dropped connection is not: the
+                    // engine restarting (after a plugin change) drops it, it is followed again in a
+                    // second, and the shell's banner speaks for a connection that stays down.
+                    if error is EngineError { self.error = error.localizedDescription }
                 }
                 try? await Task.sleep(for: .seconds(1))
             }
@@ -131,6 +139,7 @@ final class SessionModel {
             cursor = frame["cursor"].int ?? -1
             applyProjections(frame["projections"]["values"])
             resetLive()
+            snapshotThrough = timeline.items.reduce(0) { last, item in if case .user(let seq, _, _, _) = item { max(last, seq) } else { last } }
             publishTimeline()
             loaded = true
             error = nil
@@ -629,4 +638,14 @@ final class SessionModel {
     }
 
     func cachedImage(_ attachmentId: String) -> UIImage? { imageCache.object(forKey: attachmentId as NSString) }
+}
+
+/// Kept between visits by `AppModel.localSessions`: opened again, the timeline is already there and
+/// `session/follow` catches up behind it (its snapshot replaces the window with the current one).
+extension SessionModel: KeptSession {
+    var keptId: String { sessionId }
+    func resume() { start() }
+    func park() { stop() }
+    func suspend() { stop() }
+    func close() { stop() }
 }

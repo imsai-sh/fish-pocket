@@ -229,7 +229,7 @@ locale ns `sidebar`：
 | S-84 | Office 预览 | doc/docx/ppt/pptx → Host LibreOffice 转 PDF；缺字体警告 | `officeToPdf/render`（multipart） | PDFKit；缺字体 popover；QuickLook 兜底 | C §1.3、§2.2 |
 | S-85 | HTML 预览 | 静态（DOMPurify + CSP，无脚本）/ 交互（开启"代码工作视图"时：sandbox allow-scripts + 打包相对 js/css） | `readBytes(baseFile)` | WKWebView；交互模式用 `WKURLSchemeHandler` 拦截相对资源 | C §1.3 |
 | S-86 | 不可预览兜底 | 已知二进制后缀不读取，显示「该格式文件暂时无法预览」+ 打开/显示文件位置 | — | 同 + **[增强]** `ShareLink` 下载到本机 | C §4 |
-| S-87 | 内置浏览器 tab | 地址栏（补 https、拒凭据/非 http(s)/应用自身 origin）、前进后退刷新、系统浏览器打开、沙箱开关、恢复上次页面；Web profile 默认禁用 | 无 RPC；`dsh.sidebar-browser.v1` | WKWebView；**localhost 指手机本身**，需改写为 Host 地址 | C §1.4 |
+| S-87 | 内置浏览器 tab | 地址栏（补 https、拒凭据/非 http(s)/应用自身 origin）、前进后退刷新、系统浏览器打开、沙箱开关、恢复上次页面；Web profile 默认禁用 | 无 RPC；`dsh.sidebar-browser.v1` | WKWebView，多标签页（用户和 Agent 共用同一组标签页，Agent 的 `browser` 工具可列出、新建、切换、关闭；恢复上次的这组标签页；跨会话最多 6 个活页面，其余卸载、切回时重新加载）；**localhost 指手机本身**，需改写为 Host 地址 | C §1.4 |
 | S-88 | 在应用中打开（文件/目录） | 分体按钮：默认应用 / 应用列表 / 显示文件位置；均在 Host 桌面执行 | `session/canOpenWorkspacePath|workspacePathApplications|openWorkspacePath`、HTTP `open-in-app/*` | **[iOS 不适用]**（可保留"在电脑上打开"） | C §1.5 |
 | S-89 | 计划 / 子智能体 / 诊断 tab | `plan`（计划审阅自动打开一次）、`subagentchat`（优先新分栏，内嵌完整会话）、`session-inspector-log`（实验） | 另文 | push / sheet | C §1.7 |
 

@@ -100,8 +100,7 @@ extension AppModel {
         openRequest = (id, UUID())
     }
 
-    /// 询问 AI: a new conversation in the main view with `prompt` in its composer, for the
-    /// reader to look over and send. The install
+    /// 询问 AI: a new conversation in the main view that sends `prompt` at once. The install
     /// sheet leaves first: it sits over the sheet the request then closes.
     func ask(_ prompt: String) {
         let covered = pluginInstall.open

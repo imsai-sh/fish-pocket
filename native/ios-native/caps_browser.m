@@ -1,7 +1,9 @@
 // browser: read and drive the web page open in this conversation's browser.
 //
 // The browser is the one under Workbench → Browser, so whatever the agent does
-// there the user can watch and take over. Pages are read with page-agent's page
+// there the user can watch and take over. It has tabs, which the user and the
+// agent share: `tabs` lists them, `new_tab`, `select_tab` and `close_tab` change
+// them, and every page operation takes an optional `tab` (else the agent's last). Pages are read with page-agent's page
 // controller (app/DshIOS/Browser/PageController.js), which numbers the parts of a
 // page that can be clicked or typed into; `click`, `type` and `select` take
 // those numbers.
@@ -57,6 +59,19 @@ static BOOL has_index(NSDictionary *args) {
 
 /// The argument this operation cannot do without, or nil when it has it.
 static NSString *missing_argument(NSString *op, NSDictionary *args) {
+  if (args[@"tab"] != nil && !has_string(args, @"tab")) {
+    return @"'tab' must be a tab id from `tabs`, such as \"t2\"";
+  }
+  if (([op isEqualToString:@"select_tab"] || [op isEqualToString:@"close_tab"]) &&
+      !has_string(args, @"tab")) {
+    return [NSString stringWithFormat:@"%@ needs 'tab': an id from `tabs`", op];
+  }
+  if ([op isEqualToString:@"new_tab"] && args[@"tab"] != nil) {
+    return @"new_tab makes its own tab; leave 'tab' out";
+  }
+  if ([op isEqualToString:@"new_tab"] && args[@"url"] != nil && !has_string(args, @"url")) {
+    return @"new_tab's 'url' must be a string";
+  }
   if ([op isEqualToString:@"open"] && !has_string(args, @"url")) {
     return @"open needs 'url'";
   }
@@ -75,8 +90,9 @@ static NSString *missing_argument(NSString *op, NSDictionary *args) {
           CFGetTypeID((__bridge CFTypeRef)args[@"desktop"]) == CFBooleanGetTypeID())) {
       return @"'desktop' must be true or false";
     }
-    if (!([op isEqualToString:@"open"] || [op isEqualToString:@"reload"])) {
-      return @"'desktop' goes with open or reload";
+    if (!([op isEqualToString:@"open"] || [op isEqualToString:@"new_tab"] ||
+          [op isEqualToString:@"reload"])) {
+      return @"'desktop' goes with open, new_tab or reload";
     }
   }
   if ([op isEqualToString:@"evaluate"] && !has_string(args, @"script")) {

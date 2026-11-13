@@ -51,6 +51,7 @@ struct SessionTitleMenu: View {
             .frame(maxWidth: crowded && sizeClass == .compact ? 176 : 240)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
+            .barTitleGlass()
         }
         .accessibilityLabel(Text("会话：\(title)"))
         .accessibilityHint("打开会话菜单")

@@ -4,7 +4,7 @@ import SwiftUI
 /// with the agent: shown while it works, gone once its turn ends or the user takes over. It draws
 /// nothing itself.
 struct BrowserAgentOverlay: View {
-    let model: BrowserModel
+    let model: BrowserPage
     @Environment(AppModel.self) private var app
 
     private var presence: BrowserPresence { model.presence }
@@ -16,7 +16,7 @@ struct BrowserAgentOverlay: View {
         return app.sessions[driver]?.running ?? true
     }
 
-    private var state: BrowserModel.PageEffects {
+    private var state: BrowserPage.PageEffects {
         let shown = presence.driver != nil && (presence.action != nil || running)
         return .init(shown: shown, action: shown ? presence.action?.rawValue : nil, done: !presence.takenOver)
     }

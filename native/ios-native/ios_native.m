@@ -39,7 +39,7 @@ typedef struct {
   /// never reaches the handler: an unimplemented operation must not execute,
   /// which is what keeps a plugin calling us directly (process._linkedBinding
   /// is visible to any JS) from reaching something we have not built yet.
-  const char *ops[16];
+  const char *ops[20];
   /// The iOS permission this capability needs, or NULL when it needs none.
   /// Only for display in the app's capability list — the capability itself
   /// still asks iOS at use time, and nothing here gates on this field.
@@ -145,7 +145,7 @@ static const dsh_capability CAPABILITIES[] = {
   // behind DshBrowserBridge.h.
   {"browser",  dsh_native_browser,
    {"open", "read", "click", "type", "select", "scroll", "back", "forward", "reload", "evaluate",
-    "screenshot", NULL},
+    "screenshot", "tabs", "new_tab", "select_tab", "close_tab", NULL},
    NULL, {NULL}, false},
 };
 static const size_t CAPABILITY_COUNT = sizeof(CAPABILITIES) / sizeof(CAPABILITIES[0]);

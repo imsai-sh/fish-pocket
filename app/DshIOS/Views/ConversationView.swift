@@ -11,13 +11,14 @@ struct ConversationView: View {
     var openDrawer: (() -> Void)?
     /// Start a new conversation in another workspace (the workspace chip).
     var switchWorkspace: (Workspace) -> Void = { _ in }
-    /// The workbench opened beside the conversation: a narrow window gives up its sidebar for it.
-    var makeRoomForWorkbench: () -> Void = {}
     /// A Bot's chat or a group chat: its own title in the bar and its cards above the composer.
     var bot: BotChrome?
     /// The global automation page (the reminders sheet leads there).
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
+    /// The split view's sidebar, as far as the conversation reaches it: room for the workbench, and
+    /// (in a Bot's chat, which is pushed and has no drawer button of its own) the sidebar's button.
+    @Environment(\.splitSidebar) private var splitSidebar
     @State private var model: SessionModel?
     @State private var context = ComposerContext()
     @State private var workbenchOpen = false
@@ -59,22 +60,29 @@ struct ConversationView: View {
             if let model {
                 content(model)
             } else {
-                ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).background(Palette.background)
+                ConversationLoading().background(Palette.background)
             }
         }
         .task {
             // A child opens by its parent's address, which the list knows.
             if app.sessions[sessionId] == nil { await app.refreshSessions() }
-            let session = SessionModel(sessionId: sessionId, app: app)
-            session.subagentAddress = app.subagentAddress(for: sessionId)
+            // Kept from the last time it was open, it shows at once and catches up behind.
+            let app = self.app, sessionId = self.sessionId
+            let session = app.localSessions.acquire(sessionId) {
+                let session = SessionModel(sessionId: sessionId, app: app)
+                session.subagentAddress = app.subagentAddress(for: sessionId)
+                return session
+            }
             session.modelCatalog = context
             model = session
-            session.start()
             await context.load(session)
         }
         .task(id: "\(sessionId)-\(app.generation)") { await jobs.follow(sessionId: sessionId, app: app) }
         .task(id: app.generation) { await presets.load(app.client) }
-        .onDisappear { model?.stop() }
+        .onDisappear {
+            guard model != nil else { return }
+            app.localSessions.release(sessionId)
+        }
         .trackKeyboard($keyboardUp)
         // A key saved or an account signed in changes what the model picker can offer.
         .task(id: app.revision("llm/adapters-updated", "settings/document-updated", "credentials/reference-updated", "credentials/record-updated")) {
@@ -143,6 +151,21 @@ struct ConversationView: View {
                 // Room for the floating chips, so they never sit on the last row.
                 Color.clear.frame(height: activityShown(blank) ? 48 : 1).id(Self.bottomId)
             }
+            // Until the first read answers; a conversation known to be blank shows its own start.
+            // The fade is the overlay's alone: animating the timeline's arrival would carry it past
+            // the bottom anchor, and the page would open above the last message.
+            .overlay {
+                ZStack {
+                    if !model.loaded && app.sessions[sessionId]?.blank != true {
+                        ConversationLoading().transition(.opacity)
+                    }
+                }
+                .animation(.easeOut(duration: 0.2), value: model.loaded)
+            }
+            // The first read in: open at the last message.
+            .onChange(of: model.loaded) { _, loaded in
+                if loaded { atBottom = true; scrollToBottom(proxy, animated: false) }
+            }
             .environment(\.timelineScroll, TimelineScroll(keep: { id in
                 Task { @MainActor in
                     // The rows above have to be laid out before their height can be kept.
@@ -157,7 +180,11 @@ struct ConversationView: View {
             // even when the timeline is too short to scroll; so does a tap outside the composer.
             .scrollDismissesKeyboard(.immediately)
             .scrollBounceBehavior(.always)
-            .simultaneousGesture(TapGesture().onEnded { dismissKeyboard() })
+            // A moment later, not at once: the keyboard going moves the rows, and a link under the
+            // finger would lose the tap; it opens first, and the keyboard goes after.
+            .simultaneousGesture(TapGesture().onEnded {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { dismissKeyboard() }
+            })
             // The bottom anchor only holds for the first layout; follow the user's own message and the start of a turn.
             .onChange(of: model.items.last?.id) { _, _ in
                 if case .user? = model.items.last { atBottom = true; scrollToBottom(proxy) }
@@ -251,13 +278,9 @@ struct ConversationView: View {
         }
         .modifier(ComposerDrop(composer: model.composer, enabled: model.subagentReadOnly(parentAvailable: parentAvailable(model)) == nil))
         // Under the toolbar: what is inside an inspector's main view does not reach the navigation bar.
-        .inspector(isPresented: workbenchShown(sizeClass == .regular)) {
-            // Only where it is shown: on a phone this content stays built while closed, and its
-            // toolbar lands in the conversation's bar.
-            if sizeClass == .regular {
-                workbenchPage(model).inspectorColumnWidth(min: 320, ideal: 420, max: 640)
-            }
-        }
+        .modifier(WorkbenchBeside(shown: workbenchShown(sizeClass == .regular), regular: sizeClass == .regular) {
+            workbenchPage(model)
+        })
         // It names the window in the iPad app switcher. Not drawn while the title is the principal
         // item; with the title moved aside for the workbench it would show as a second one.
         .navigationTitle(titleBesideWorkbench ? "" : app.durableTitle(of: sessionId) ?? "")
@@ -267,11 +290,13 @@ struct ConversationView: View {
         // their own stacks, and without this closing the sheet takes this bar along.
         .toolbar(.visible, for: .navigationBar)
         .toolbar {
-            if let openDrawer {
+            if let openDrawer = openDrawer ?? splitSidebar.toggle {
                 ToolbarItem(placement: .topBarLeading) { DrawerButton(action: openDrawer) }
             }
             if let bot {
-                ToolbarItem(placement: titlePlacement) { bot.title }
+                // Beside the bar's leading buttons the bar gives an item only what it asks for:
+                // without this the name is squeezed out and only the avatar is left.
+                ToolbarItem(placement: titlePlacement) { bot.title.fixedSize(horizontal: titleBesideWorkbench, vertical: false) }
             }
             // As the web keeps 新会话 in its sidebar, the bar keeps it one tap away: no drawer
             // first. A blank conversation is already a new one, so it only shows on a started one.
@@ -353,7 +378,7 @@ struct ConversationView: View {
         .fullScreenCover(isPresented: Binding(get: { fullBrowser != nil }, set: { if !$0 { fullBrowser = nil } })) {
             if let fullBrowser { FullScreenBrowser(model: fullBrowser) { self.fullBrowser = nil } }
         }
-        .onChange(of: workbenchOpen) { _, open in if open, sizeClass == .regular { makeRoomForWorkbench() } }
+        .onChange(of: workbenchOpen) { _, open in if open, sizeClass == .regular { splitSidebar.makeRoom() } }
         .focusedSceneValue(\.workbenchCommands, WorkbenchCommands(available: !blank && hasTools, toggle: toggleWorkbench, open: openWorkbench))
         // The sheet leaves the background live, so the composer keeps its focus and the
         // keyboard would stay over the sheet; an answer comes first.
@@ -674,6 +699,8 @@ struct TimelineScroll {
 }
 
 extension EnvironmentValues {
+    /// Set by the split view: what a conversation in its detail can do with the sidebar.
+    @Entry var splitSidebar = SplitSidebar()
     @Entry var timelineScroll = TimelineScroll()
     /// The user's own messages in a Bot's chat, in the Bot's colour; nil keeps the plain bubble.
     @Entry var userBubbleTint: BubbleTint?
@@ -683,6 +710,25 @@ extension EnvironmentValues {
 struct BubbleTint: Equatable {
     var fill: Color
     var text: Color
+}
+
+/// The user's side of a chat, one look wherever a message of theirs shows: what they typed, an
+/// answer to a question card, an earlier part of a Bot's chat, a word added to a group's round.
+/// In a Bot's chat it takes the colour the Bot was given (`userBubbleTint`).
+private struct UserBubbleStyle: ViewModifier {
+    @Environment(\.userBubbleTint) private var tint
+
+    func body(content: Content) -> some View {
+        content
+            // `.primary` is the inherited style: a plain bubble stays as it was.
+            .foregroundStyle(tint.map { AnyShapeStyle($0.text) } ?? AnyShapeStyle(.primary))
+            .background(tint?.fill ?? Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+}
+
+extension View {
+    /// A message of the user's (`UserBubbleStyle`); the padding is the caller's.
+    func userBubble() -> some View { modifier(UserBubbleStyle()) }
 }
 
 /// Actions a reply offers below it, provided by the conversation.
@@ -789,15 +835,15 @@ private struct TimelineList: View {
     let model: SessionModel
     @Environment(\.botTimeline) private var bot
     @Environment(\.botComposer) private var botChat
-    /// The last user message there was when a Bot page opened: the ones after it arrive as they are sent.
-    @State private var seenThrough: Int?
 
     var body: some View {
         // A Bot's chat leaves out the turns that answered another Bot (ds-bot draws none of them).
         let items = bot.map { bot in model.items.filter { !bot.hides($0) } } ?? model.items
         let lastAssistant = items.last { if case .assistant = $0 { true } else { false } }?.id
         // The turn being worked on: the streamed attempt joins it, under one step line (as the web does).
-        let activeTurn: String? = if model.running, case .assistant? = items.last { items.last?.id } else { nil }
+        // A turn that has ended is not it: right after a send the session already runs while the new
+        // message is still on its way, and the last reply would open up as if it were being written.
+        let activeTurn: String? = if model.running, case .assistant(_, _, _, nil)? = items.last { items.last?.id } else { nil }
         // Not lazy: a lazy stack estimates the heights of rows it has not laid out, and when a long
         // timeline grows the estimate leaves the bottom-anchored viewport past the real end (a blank page
         // after sending). The snapshot holds only the recent history and rows skip unchanged redraws.
@@ -829,9 +875,12 @@ private struct TimelineList: View {
                     .id(item.id)
                 }
             }
-            if model.running && activeTurn == nil && bot?.room != true { LiveSection(model: model) }
+            // A message just sent comes first, then the line saying the reply is on its way: until the
+            // engine's copy of the message is in, the turn's loading line waits.
+            let sending = model.composer.pending.contains { $0.placement == .transcript }
+            if model.running && !sending && activeTurn == nil && bot?.room != true { LiveSection(model: model) }
             // A group round says who is speaking in its own place; a Bot's own chat shows the Bot at work.
-            if model.running && bot?.room != true {
+            if model.running && !sending && bot?.room != true {
                 if case .bot(let id)? = botChat { BotActivityLine(botId: id, model: model) } else { RunningIndicator(since: model.runningSince) }
             }
         }
@@ -839,16 +888,13 @@ private struct TimelineList: View {
         .padding(.top, 20)
         .padding(.bottom, 12)
         .readableWidth()
-        .onChange(of: model.loaded, initial: true) { _, loaded in
-            guard loaded, bot != nil, seenThrough == nil else { return }
-            seenThrough = model.items.reduce(0) { last, item in if case .user(let seq, _, _, _) = item { max(last, seq) } else { last } }
-        }
     }
 
-    /// In a Bot page, a message sent while the page is open rises into place.
+    /// A message sent while the conversation is open rises into place; what a snapshot brought
+    /// (opening it, a kept one catching up, a reconnect) is already there.
     private func arrives(_ item: TimelineItem) -> Bool {
-        guard let seenThrough, case .user(let seq, _, _, _) = item else { return false }
-        return seq > seenThrough
+        guard model.loaded, case .user(let seq, _, _, _) = item else { return false }
+        return seq > model.snapshotThrough
     }
 
     private static func turn(of item: TimelineItem) -> Int? {
@@ -1054,7 +1100,7 @@ private struct UserBubble: View {
     let model: SessionModel
     /// The chat app the message came in over (a Bot reached from one), by name.
     var via: String?
-    /// Just sent, in a Bot page: it rises from the composer into place.
+    /// Just sent: it rises from the composer into place.
     var arrives = false
     @State private var landed = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -1064,7 +1110,6 @@ private struct UserBubble: View {
     @State private var fullHeight: CGFloat = 0
     @State private var foldedHeight: CGFloat = 0
     @Environment(\.conversationActions) private var actions
-    @Environment(\.userBubbleTint) private var tint
 
     private static let foldedLines = 8
 
@@ -1097,9 +1142,7 @@ private struct UserBubble: View {
                 .lineSpacing(3)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                // `.primary` is the inherited style: a plain bubble stays as it was.
-                .foregroundStyle(tint.map { AnyShapeStyle($0.text) } ?? AnyShapeStyle(.primary))
-                .background(tint?.fill ?? Palette.bubble, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .userBubble()
                 .contextMenu {
                     Button { copyToPasteboard(text) } label: { Label("复制", systemImage: "doc.on.doc") }
                     // Masked text stays masked until the reader asks: this would show it whole.
@@ -1156,6 +1199,8 @@ struct AssistantTurnView: View {
     var info: TurnInfo?
     /// nil until the reader taps the line; then their choice holds for this turn.
     @State private var choice: Bool?
+    @State private var landed = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.conversationActions) private var actions
     /// A Bot's chat: its reasoning shows only when asked for, and what it did beyond its words is drawn.
     @Environment(\.botTimeline) private var bot
@@ -1175,6 +1220,9 @@ struct AssistantTurnView: View {
         // doing, and its reply arrives whole when the turn ends. Words it ends on a card with show
         // at once, since the card waits on the user.
         let quiet = inProgress && ownChat
+        // A Bot's reply held back while it was written comes in as a whole: it fades and rises into
+        // place. Decided from when the turn ended, so the first pass that shows it already knows.
+        let arrives = ownChat && finished && endedAt.map { -$0.timeIntervalSinceNow < 3 } == true
         let tailShown = !quiet || blocks.dropFirst(finalStart).contains { block in
             if case .tool(let call) = block { BotTurnEvents.cards.contains(call.displayName) } else { false }
         }
@@ -1214,13 +1262,24 @@ struct AssistantTurnView: View {
             // In a Bot's chat: what it did while working, above its words; a card it ended on, below them.
             if bot != nil && !quiet { BotTurnEvents(blocks: Array(blocks.prefix(finalStart))) }
             if tailShown {
-                ForEach(Array(blocks.enumerated().dropFirst(finalStart)), id: \.element.id) { index, block in
-                    if case .tool = block {} else {
-                        BlockView(block: block, live: isLive(index), closing: finished).equatable()
-                            .environment(\.fileMentions, finished ? mentions : [:])
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(blocks.enumerated().dropFirst(finalStart)), id: \.element.id) { index, block in
+                        if case .tool = block {} else {
+                            BlockView(block: block, live: isLive(index), closing: finished).equatable()
+                                .environment(\.fileMentions, finished ? mentions : [:])
+                        }
                     }
+                    if bot != nil { BotTurnEvents(blocks: Array(blocks.dropFirst(finalStart))) }
                 }
-                if bot != nil { BotTurnEvents(blocks: Array(blocks.dropFirst(finalStart))) }
+                .opacity(arrives && !landed ? 0 : 1)
+                .blur(radius: arrives && !landed && !reduceMotion ? 6 : 0)
+                .offset(y: arrives && !landed && !reduceMotion ? 14 : 0)
+                .task(id: arrives) {
+                    guard arrives, !landed else { return }
+                    // As the user's own bubble does: after the pass that laid the row out.
+                    await Task.yield()
+                    withAnimation(.smooth(duration: 0.45)) { landed = true }
+                }
             }
             if finished {
                 ForEach(plans, id: \.plan) { plan in PlanCard(title: plan.title, plan: plan.plan) }
@@ -1545,6 +1604,48 @@ private struct CommandBlock: View {
             if height > limit {
                 Text("内容较长，滑动查看全部").font(.caption).foregroundStyle(Palette.secondary)
             }
+        }
+    }
+}
+
+/// What a conversation in the split view's detail can do with the sidebar. Equal while the same
+/// actions are there: a closure is new on every pass of the view that sets it, and an environment
+/// value that changes each time redraws everything under it.
+struct SplitSidebar: Equatable {
+    /// A narrow window gives up its sidebar for the workbench.
+    var makeRoom: () -> Void = {}
+    /// Shows or hides the sidebar, where the bar needs a button for it (nil where the system's is there).
+    var toggle: (() -> Void)?
+
+    static func == (lhs: Self, rhs: Self) -> Bool { (lhs.toggle == nil) == (rhs.toggle == nil) }
+}
+
+/// The workbench beside the conversation. From iPadOS 26 on, an inspector. Before that an inspector
+/// on an upright iPad is laid over the conversation, dimmed under it, so there it is a column of its own.
+private struct WorkbenchBeside<Page: View>: ViewModifier {
+    @Binding var shown: Bool
+    let regular: Bool
+    @ViewBuilder let page: () -> Page
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.inspector(isPresented: $shown) {
+                // Only where it is shown: on a phone this content stays built while closed, and its
+                // toolbar lands in the conversation's bar.
+                if regular { page().inspectorColumnWidth(min: 320, ideal: 420, max: 640) }
+            }
+        } else {
+            HStack(spacing: 0) {
+                content
+                if shown && regular {
+                    HStack(spacing: 0) {
+                        Divider()
+                        page().frame(width: 420)
+                    }
+                    .transition(.move(edge: .trailing))
+                }
+            }
+            .animation(.snappy(duration: 0.3), value: shown && regular)
         }
     }
 }

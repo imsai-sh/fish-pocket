@@ -84,10 +84,12 @@ struct MarkdownView: View {
         }
     }
 
-    private func inline(_ text: String, _ style: UIFont.TextStyle = .callout) -> Text {
+    private func inline(_ text: String, _ style: UIFont.TextStyle = .callout) -> some View {
         var string = cached ? MarkdownCache.inline(text) : MarkdownCache.render(text)
         if linksFiles && !fileMentions.isEmpty { string = Self.linkMentions(string, fileMentions) }
-        return MathText.text(string, size: UIFont.preferredFont(forTextStyle: style).pointSize)
+        // Links are blue, as in every chat app; the app's own tint is the text's ink.
+        return MathText.text(string, size: UIFont.preferredFont(forTextStyle: style).pointSize, linkMarks: true)
+            .tint(Palette.link)
     }
 
     /// Links code spans that exactly name a path or its unique basename.
@@ -97,7 +99,7 @@ struct MarkdownView: View {
             let value = String(source[run.range].characters).replacingOccurrences(of: "\n", with: " ")
             if let path = mentions[value] {
                 string[run.range].link = LinkTarget.fileURL(path)
-                string[run.range].underlineStyle = Text.LineStyle.single
+                string[run.range].backgroundColor = nil
             }
         }
         return string
@@ -183,8 +185,15 @@ enum MarkdownCache {
             string[run.range].font = .system(.subheadline, design: .monospaced)
         }
         linkify(&string)
-        // Links take the app's tint, which is the text's own ink: the line says they can be tapped.
-        for run in string.runs where run.link != nil { string[run.range].underlineStyle = Text.LineStyle.single }
+        // A link is blue text on nothing, in the reply's own font, even an address written as code.
+        for run in string.runs where run.link != nil {
+            string[run.range].backgroundColor = nil
+            string[run.range].font = nil
+            if var intent = run.inlinePresentationIntent {
+                intent.remove(.code)
+                string[run.range].inlinePresentationIntent = intent
+            }
+        }
         return string
     }
 
@@ -255,9 +264,13 @@ struct LinkOpening: ViewModifier {
                 if case .web(let url) = target { open(url) } else { self.target = target }
                 return .handled
             })
-            // From here, not from the conversation: a link can be tapped in a sheet over it.
-            .fullScreenCover(isPresented: Binding(get: { browser != nil }, set: { if !$0 { browser = nil } })) {
-                if let browser { FullScreenBrowser(model: browser) { self.browser = nil } }
+            // From here, not from the conversation: a link can be tapped in a sheet over it. A sheet,
+            // not full screen: a glance at a page, with the chat still showing behind it.
+            .sheet(isPresented: Binding(get: { browser != nil }, set: { if !$0 { browser = nil } })) {
+                if let browser {
+                    FullScreenBrowser(model: browser) { self.browser = nil }
+                        .presentationDragIndicator(.visible)
+                }
             }
             .sheet(item: $target) { target in
                 switch target {
@@ -271,12 +284,13 @@ struct LinkOpening: ViewModifier {
 
     /// The browser refuses the app's own address; that one, and every link outside a conversation, goes to Safari.
     private func open(_ url: URL) {
-        guard let links = browserLinks, case .success = BrowserModel.parse(url.absoluteString, applicationOrigin: links.origin) else {
+        guard let links = browserLinks, case .success = BrowserPage.parse(url.absoluteString, applicationOrigin: links.origin) else {
             InAppSafari.open(url)
             return
         }
         let model = BrowserModel.session(links.sessionId, origin: links.origin)
-        model.go(url.absoluteString)
+        // A tab of its own: the page the user or the agent had open stays as it was.
+        model.openLink(url.absoluteString)
         if !links.beside {
             dismissKeyboard()
             browser = model

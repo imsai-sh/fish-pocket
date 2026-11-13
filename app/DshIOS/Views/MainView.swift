@@ -281,6 +281,10 @@ struct MainView: View {
             app.newSessionRequest = nil
             sheet = nil
             storeOpen = false
+            // The conversation shows in place of the Bot pages too. The engine may hand back the
+            // blank conversation already selected, and then no change of selection closes them.
+            botOpen = false
+            launchedUnderBot = false
             let target = request.workspaceId.flatMap { id in app.workspaces.first { $0.id == id } } ?? workspace
             if let target { workspaceId = target.id }
             newConversation(in: target, agentPreset: request.agentPreset, draft: request.draft, prompt: request.prompt)
@@ -446,6 +450,8 @@ struct MainView: View {
                 }
             }
             .modifier(PastTheFold())
+            // Every conversation in the detail, a Bot's chat too, can ask for the sidebar's room.
+            .environment(\.splitSidebar, SplitSidebar(makeRoom: makeRoomForWorkbench))
         }
         // Side by side wherever both fit. Where they do not, the system keeps the sidebar
         // away and its button slides it over the conversation.
@@ -608,10 +614,16 @@ struct MainView: View {
         NavigationStack(path: $botPath) {
             BotHomeView(openDrawer: openDrawer)
                 .navigationDestination(for: BotRoute.self) { route in
-                    switch route {
-                    case .bot(let id): BotChatView(botId: id)
-                    case .room(let id): BotRoomView(roomId: id)
+                    Group {
+                        switch route {
+                        case .bot(let id): BotChatView(botId: id)
+                        case .room(let id): BotRoomView(roomId: id)
+                        }
                     }
+                    // Set here as well: what the split view sets does not reach a pushed page. A pushed
+                    // chat has a back button where the conversation has its sidebar button, so the
+                    // sidebar's goes beside it.
+                    .environment(\.splitSidebar, SplitSidebar(makeRoom: makeRoomForWorkbench, toggle: sizeClass == .regular ? hideSidebar : nil))
                 }
         }
     }
@@ -625,7 +637,7 @@ struct MainView: View {
             ConversationView(sessionId: selection, selection: $selection, openDrawer: openDrawer, switchWorkspace: { workspace in
                 workspaceId = workspace.id
                 newConversation(in: workspace)
-            }, makeRoomForWorkbench: makeRoomForWorkbench)
+            })
             .id(selection)
         } else {
             ProgressView()

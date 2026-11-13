@@ -97,18 +97,35 @@ struct StoreEntryDetail: View {
               PluginPins.note(package: entry.name, version: entry.versionNumber) == nil else { return nil }
         return version
     }
-    private var updating: Bool { app.plugins.isBusy(entry.name) || app.pluginInstall.busy }
+    private var updating: Bool { app.plugins.busy.contains(entry.name) || app.pluginInstall.busy }
+    /// This plugin's update is running (in the install sheet, shown or not).
+    private var updatingThis: Bool { app.pluginInstall.update?.name == entry.name && app.pluginInstall.pending }
+    /// The version this plugin's update just installed.
+    private var updated: String? {
+        app.pluginInstall.update?.name == entry.name && app.pluginInstall.phase == .done ? app.pluginInstall.update?.to : nil
+    }
 
-    /// Swap the installed version for `version`: the Host won't install over it, so the manager
-    /// removes it first and installs this one with the same switch.
+    /// Swap the installed version for `version`, keeping its switch: the install sheet runs it
+    /// (`PluginInstallTask.updateTo`) with its progress and output.
     private func replace(with version: JSON) {
-        let install = version["install"]
         Haptics.tap()
+        let installed = entry.json["installation"]["installedVersion"].string ?? app.plugins.package(entry.name)?.version ?? ""
+        app.pluginInstall.updateTo(
+            name: entry.name, title: entry.displayName, from: installed,
+            to: version["version"].string ?? "", registry: version["install"]["registry"].string
+        )
+    }
+
+    /// The listing says what is installed: read it again after an update, or it still offers it. The
+    /// engine restarts to run the new version, so ask over whatever connection is current, until it says so.
+    private func refreshListing(until version: String) {
+        let model = self.model, entry = self.entry, app = self.app
         Task {
-            await app.plugins.update(
-                entry.name, spec: install["spec"].string ?? "", registry: install["registry"].string,
-                title: entry.displayName, version: version["version"].string ?? ""
-            )
+            for _ in 0..<12 {
+                await model.market.reload(EngineConnection.shared.app ?? app)
+                if model.latest(entry).json["installation"]["installedVersion"].string == version { break }
+                try? await Task.sleep(for: .seconds(1.5))
+            }
         }
     }
 
@@ -118,12 +135,23 @@ struct StoreEntryDetail: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 10) {
                     if let update {
-                        Button { replace(with: update) } label: {
-                            Text("更新到 \(entry.versionNumber)").lineLimit(1).minimumScaleFactor(0.8).frame(maxWidth: .infinity)
+                        // While it runs, the button shows so and opens its progress again.
+                        Button { if updatingThis { app.pluginInstall.show() } else { replace(with: update) } } label: {
+                            HStack(spacing: 8) {
+                                if updatingThis {
+                                    ProgressView().controlSize(.small).tint(Palette.onInk)
+                                    Text("正在更新…")
+                                } else {
+                                    Text("更新到 \(entry.versionNumber)")
+                                }
+                            }
+                            .lineLimit(1).minimumScaleFactor(0.8).frame(maxWidth: .infinity)
+                            .contentTransition(.opacity)
                         }
                         .buttonStyle(.capsule(height: 48))
-                        .disabled(updating || model.market.fromCache)
-                        .opacity(updating || model.market.fromCache ? 0.4 : 1)
+                        .disabled(!updatingThis && (updating || model.market.fromCache))
+                        .opacity(!updatingThis && (updating || model.market.fromCache) ? 0.4 : 1)
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
                     }
                     NavigationLink {
                         PluginDetailView(name: entry.name).storeWebButton()
@@ -136,6 +164,9 @@ struct StoreEntryDetail: View {
                     Text(runState.text).font(.footnote).foregroundStyle(runState.problem ? Palette.removed : Palette.secondary)
                 }
             }
+            .animation(.snappy(duration: 0.25), value: updatingThis)
+            .animation(.snappy(duration: 0.25), value: update == nil)
+            .onChange(of: updated) { _, version in if let version { refreshListing(until: version) } }
         } else if entry.installable, let version = entry.version {
             Button("安装 \(entry.versionNumber)") { install(MarketChoice(entry: entry.json, version: version)) }
                 .buttonStyle(.capsule(height: 48))
@@ -232,7 +263,11 @@ struct StoreEntryDetail: View {
                     Spacer(minLength: 0)
                     if allowed, !installed, entry.status != "provided" {
                         Button("安装") {
-                            if onDevice, PluginPins.note(package: entry.name, version: number) == nil {
+                            // An update goes only forward (`updateBundle`), as on the web; an older version
+                            // goes through the install sheet, which says what the Host makes of it.
+                            let newer = entry.json["installation"]["installedVersion"].string
+                                .map { number.compare($0, options: .numeric) == .orderedDescending } ?? false
+                            if onDevice, newer, PluginPins.note(package: entry.name, version: number) == nil {
                                 replace(with: version)
                             } else {
                                 install(MarketChoice(entry: entry.json, version: version))

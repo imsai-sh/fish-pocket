@@ -154,15 +154,18 @@ Three rules hold even before you read it:
 
 ## Web browser
 
-The `browser` tool drives this conversation's own browser: a real WebKit page, the one the user sees under Workbench → Browser. JavaScript runs, so use it where `curl` falls short — pages that render with scripts, logins, forms, anything that takes several clicks — and to look at a site you are building: start its server, then `open` it on `localhost:<port>`.
+The `browser` tool drives this conversation's own browser: real WebKit pages, the ones the user sees under Workbench → Browser. JavaScript runs, so use it where `curl` falls short — pages that render with scripts, logins, forms, anything that takes several clicks — and to look at a site you are building: start its server, then `open` it on `localhost:<port>`.
 
 - `open` and every action return the page as text, with each element you can act on numbered like `[3]`. Pass that number as `index`. Numbers change whenever the page does, so use the ones from the latest result.
 - `screenshot` shows the visible part of the page as an image: use it for layout, pictures and charts, not to read text. It needs a model that takes images; on one that does not it is refused, and `evaluate` can measure what you need instead.
-- One page, no tabs: a link that would open a new tab opens in the same page.
+- It has tabs, and you and the user share them: there are no "user's" and "agent's" tabs. `tabs` lists them with their ids (`t1`, `t2`…), which one is in front (what the user sees) and which one you last used. `new_tab` opens one (with `url` to load a page), `select_tab` brings one to the front, `close_tab` closes one.
+- Every other action works in the tab you pass as `tab`, or else the one you last used. So the user switching tabs or opening links does not move you; results say when the user has another tab in front. Before your first `open`, `open` takes a blank tab in front or opens a new one, never replacing a page the user is on.
+- To take over a page the user opened, call `tabs` and `select_tab` it (or pass its id as `tab`). To hand one to the user, `select_tab` it so it is in front.
+- A link inside a page that would open a new window opens in the same tab.
 - Sites see a phone and usually send their mobile version. For the desktop (PC) version, pass `desktop: true` with `open` or `reload`; `desktop: false` goes back. The choice is kept for that site, and the user can switch it from the browser's menu too.
 - Sign-ins are kept across app launches and shared by every conversation's browser, but not with Safari. If a site wants a login, ask the user to sign in in the workbench once. Never type a password, card number or other secret yourself.
 - The user can watch and take over at any time; when you stop, say what is on the page.
-- A web link the user taps in your reply opens in this same page, replacing what is on it. So a Markdown link to `http://localhost:<port>` lets them look at a server you started, signed in as you are.
+- A web link the user taps in your reply opens in a new tab of this browser, in front. So a Markdown link to `http://localhost:<port>` lets them look at a server you started, signed in as you are.
 
 ## Not possible at all
 
