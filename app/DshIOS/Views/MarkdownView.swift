@@ -95,7 +95,10 @@ struct MarkdownView: View {
         var string = source
         for run in source.runs where run.inlinePresentationIntent?.contains(.code) == true && run.link == nil {
             let value = String(source[run.range].characters).replacingOccurrences(of: "\n", with: " ")
-            if let path = mentions[value] { string[run.range].link = LinkTarget.fileURL(path) }
+            if let path = mentions[value] {
+                string[run.range].link = LinkTarget.fileURL(path)
+                string[run.range].underlineStyle = Text.LineStyle.single
+            }
         }
         return string
     }
@@ -180,6 +183,8 @@ enum MarkdownCache {
             string[run.range].font = .system(.subheadline, design: .monospaced)
         }
         linkify(&string)
+        // Links take the app's tint, which is the text's own ink: the line says they can be tapped.
+        for run in string.runs where run.link != nil { string[run.range].underlineStyle = Text.LineStyle.single }
         return string
     }
 
@@ -217,22 +222,43 @@ extension EnvironmentValues {
     @Entry var fileMentions: [String: String] = [:]
 }
 
-/// Opens links tapped in replies the way the Web UI's chat does (C-23). Web
-/// links open in an in-app Safari sheet instead of the system browser: the
-/// app stays in the foreground, so servers started in the engine on
-/// 127.0.0.1 keep answering (switching to Safari suspends the app and them).
+/// Where a conversation's web links open: its own browser (S-87), the page the agent drives too.
+struct BrowserLinks {
+    let sessionId: String
+    let origin: URL
+    /// The workbench shows that browser beside the conversation, so the page opens there.
+    var beside = false
+}
+
+extension EnvironmentValues {
+    @Entry var browserLinks: BrowserLinks?
+}
+
+/// Opens links tapped in replies the way the Web UI's chat does (C-23). In a
+/// conversation, web links open in its own browser, as the Web UI's sidebar
+/// browser: sign-ins made there count, and `localhost` is the engine on this
+/// phone. Elsewhere (a remote session, a page with no conversation) they open
+/// in an in-app Safari sheet. Either way the app stays in the foreground, so
+/// servers started in the engine on 127.0.0.1 keep answering (switching to
+/// Safari suspends the app and them).
 /// File links open the file preview at their `#L24` / `#L24-L30` lines.
 struct LinkOpening: ViewModifier {
     @Environment(\.fileLinkScope) private var scope
+    @Environment(\.browserLinks) private var browserLinks
     @State private var target: LinkTarget?
+    @State private var browser: BrowserModel?
 
     func body(content: Content) -> some View {
         content
             .environment(\.openURL, OpenURLAction { url in
                 guard let target = LinkTarget(url, scope: scope) else { return .systemAction }
-                if case .web(let url) = target { InAppSafari.open(url) } else { self.target = target }
+                if case .web(let url) = target { open(url) } else { self.target = target }
                 return .handled
             })
+            // From here, not from the conversation: a link can be tapped in a sheet over it.
+            .fullScreenCover(isPresented: Binding(get: { browser != nil }, set: { if !$0 { browser = nil } })) {
+                if let browser { FullScreenBrowser(model: browser) { self.browser = nil } }
+            }
             .sheet(item: $target) { target in
                 switch target {
                 case .web:
@@ -241,6 +267,20 @@ struct LinkOpening: ViewModifier {
                     FilePreviewSheet(sessionId: scope.sessionId, path: path, root: scope.root, lines: lines)
                 }
             }
+    }
+
+    /// The browser refuses the app's own address; that one, and every link outside a conversation, goes to Safari.
+    private func open(_ url: URL) {
+        guard let links = browserLinks, case .success = BrowserModel.parse(url.absoluteString, applicationOrigin: links.origin) else {
+            InAppSafari.open(url)
+            return
+        }
+        let model = BrowserModel.session(links.sessionId, origin: links.origin)
+        model.go(url.absoluteString)
+        if !links.beside {
+            dismissKeyboard()
+            browser = model
+        }
     }
 }
 

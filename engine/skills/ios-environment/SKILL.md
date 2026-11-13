@@ -162,6 +162,7 @@ The `browser` tool drives this conversation's own browser: a real WebKit page, t
 - Sites see a phone and usually send their mobile version. For the desktop (PC) version, pass `desktop: true` with `open` or `reload`; `desktop: false` goes back. The choice is kept for that site, and the user can switch it from the browser's menu too.
 - Sign-ins are kept across app launches and shared by every conversation's browser, but not with Safari. If a site wants a login, ask the user to sign in in the workbench once. Never type a password, card number or other secret yourself.
 - The user can watch and take over at any time; when you stop, say what is on the page.
+- A web link the user taps in your reply opens in this same page, replacing what is on it. So a Markdown link to `http://localhost:<port>` lets them look at a server you started, signed in as you are.
 
 ## Not possible at all
 

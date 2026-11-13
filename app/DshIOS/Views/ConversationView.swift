@@ -374,6 +374,8 @@ struct ConversationView: View {
             Text(model.error ?? "")
         }
         .environment(\.fileLinkScope, FileLinkScope(sessionId: sessionId, root: model.workingDirectory))
+        .environment(\.browserLinks, BrowserLinks(
+            sessionId: BrowserAgent.owner(of: sessionId, in: app), origin: app.client.origin, beside: browserBeside))
         .environment(\.sessionModel, model)
     }
 
