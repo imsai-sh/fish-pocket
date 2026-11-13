@@ -88,6 +88,21 @@ struct NativeCapabilitiesView: View {
             }
             .groupedRow()
 
+            // 闹钟和通知响之前，iOS 哪里都不列（「时钟」App 只列它自己的），所以从这里也能
+            // 进到那张列表，和「自动化 › 提醒」是同一页。
+            Section {
+                NavigationLink {
+                    AgentRemindersList()
+                        .navigationTitle("闹钟和通知")
+                        .navigationBarTitleDisplayMode(.inline)
+                } label: {
+                    Label("闹钟和通知", systemImage: "alarm")
+                }
+            } footer: {
+                Text("智能体设的闹钟和定时通知，响之前只能在这里或「自动化 › 提醒」里看到和删除。")
+            }
+            .groupedRow()
+
             if needsPermission {
                 Section {
                     NavigationLink { NativeAuditView() } label: {

@@ -5085,6 +5085,74 @@
         }
       }
     },
+    "「%@」\n删除后不会再收到这条通知。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”\nOnce deleted, you won’t get this notification."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@»\nSi la eliminas, ya no recibirás esta notificación."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」\n削除すると、この通知は届きません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”\n삭제하면 이 알림을 받지 않아요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」\n刪除後不會再收到這則通知。"
+          }
+        }
+      }
+    },
+    "「%@」\n删除后到时间不会再响。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”\nOnce deleted, it won’t ring."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@»\nSi la eliminas, ya no sonará."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」\n削除すると、時刻になっても鳴りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”\n삭제하면 시간이 돼도 울리지 않아요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」\n刪除後到時間不會再響。"
+          }
+        }
+      }
+    },
     "一支常驻的 Bot 团队：可以私聊，可以拉群一起商量，也能到点自己开工。入口在侧边栏。" : {
       "localizations" : {
         "en" : {
@@ -5115,6 +5183,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "一支常駐的 Bot 團隊：可以私訊，可以拉群組一起商量，也能時間到了自己開工。入口在側邊欄。"
+          }
+        }
+      }
+    },
+    "下次响铃：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next ring: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Próxima alarma: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次に鳴る時刻：%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 알람: %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下次響鈴：%@"
           }
         }
       }
@@ -5357,6 +5459,74 @@
         }
       }
     },
+    "删除这个闹钟？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this alarm?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta alarma?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このアラームを削除しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 알람을 삭제할까요?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除這個鬧鐘？"
+          }
+        }
+      }
+    },
+    "删除这条通知？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this notification?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta notificación?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この通知を削除しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 알림을 삭제할까요?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除這則通知？"
+          }
+        }
+      }
+    },
     "在「我的手表」里往下滑" : {
       "localizations" : {
         "en" : {
@@ -5421,6 +5591,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在對話工作台的瀏覽器裡打開網頁、讀內容、截圖、點按鈕和填表單，還能帶著登入狀態傳送請求、讀寫 Cookie、下載和上傳檔案、給網頁加常駐指令碼，你可以在工作台裡看著它操作。登入過的網站會一直記住，和 Safari 分開；AI 代理讀得到這些網站的登入憑證"
+          }
+        }
+      }
+    },
+    "在对话里让智能体设闹钟或定时通知，例如「明早 7 点叫我起床」，会列在这里。iOS 不会把它们放进「时钟」App。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask the agent in a conversation to set an alarm or a timed notification, like “Wake me up at 7 tomorrow”, and it shows up here. iOS doesn’t put them in the Clock app."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pídele al agente en una conversación que ponga una alarma o una notificación programada, por ejemplo «Despiértame mañana a las 7», y aparecerá aquí. iOS no las muestra en la app Reloj."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話でエージェントにアラームや通知の予約を頼むと（例：「明日の朝 7 時に起こして」）、ここに表示されます。iOS は「時計」App には表示しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대화에서 에이전트에게 알람이나 예약 알림을 부탁하면(예: ‘내일 아침 7시에 깨워 줘’) 여기에 표시돼요. iOS는 이것들을 ‘시계’ 앱에 표시하지 않아요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在對話裡請 AI 代理設鬧鐘或定時通知，例如「明早 7 點叫我起床」，就會列在這裡。iOS 不會把它們放進「時鐘」App。"
           }
         }
       }
@@ -6241,6 +6445,176 @@
         }
       }
     },
+    "提醒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラート"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예약 알림"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提醒"
+          }
+        }
+      }
+    },
+    "搜索提醒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search alerts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar avisos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラートを検索"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예약 알림 검색"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜尋提醒"
+          }
+        }
+      }
+    },
+    "无法删除闹钟" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not delete the alarm."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo eliminar la alarma."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラームを削除できませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알람을 삭제할 수 없어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法刪除鬧鐘"
+          }
+        }
+      }
+    },
+    "智能体设的闹钟和定时通知，响之前只能在这里或「自动化 › 提醒」里看到和删除。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarms and timed notifications the agent set. Until they go off, you can only see and delete them here or in Automations › Alerts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarmas y notificaciones programadas que configuró el agente. Hasta que suenen, solo puedes verlas y eliminarlas aquí o en Automatizaciones › Avisos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エージェントが設定したアラームと予約通知です。鳴るまでは、ここか「オートメーション › アラート」でしか確認・削除できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트가 설정한 알람과 예약 알림이에요. 울리기 전에는 여기나 ‘자동화 › 예약 알림’에서만 보고 삭제할 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 代理設定的鬧鐘和定時通知，響之前只能在這裡或「自動化 › 提醒」裡看到和刪除。"
+          }
+        }
+      }
+    },
+    "智能体设的闹钟和通知。iOS 不会把它们放进「时钟」App，只能在这里查看和删除。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarms and notifications the agent set. iOS doesn’t put them in the Clock app, so this is the only place to see and delete them."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarmas y notificaciones que configuró el agente. iOS no las muestra en la app Reloj, así que solo puedes verlas y eliminarlas aquí."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エージェントが設定したアラームと通知です。iOS は「時計」App に表示しないため、確認や削除はここでしかできません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트가 설정한 알람과 알림이에요. iOS는 이것들을 ‘시계’ 앱에 표시하지 않아서 여기에서만 보고 삭제할 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 代理設定的鬧鐘和通知。iOS 不會把它們放進「時鐘」App，只能在這裡查看和刪除。"
+          }
+        }
+      }
+    },
     "有事找你时震动" : {
       "localizations" : {
         "en" : {
@@ -6888,6 +7262,40 @@
         }
       }
     },
+    "正在响" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ringing"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sonando"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鳴っています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "울리는 중"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在響"
+          }
+        }
+      }
+    },
     "正在打开 %@…" : {
       "localizations" : {
         "en" : {
@@ -7224,6 +7632,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "回到上次的對話"
+          }
+        }
+      }
+    },
+    "没有匹配的提醒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching alerts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay avisos coincidentes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一致するアラートがありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일치하는 예약 알림 없음"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有符合的提醒"
           }
         }
       }
@@ -8192,6 +8634,40 @@
         }
       }
     },
+    "还没有提醒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No alerts yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay avisos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラートはまだありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 예약 알림이 없어요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還沒有提醒"
+          }
+        }
+      }
+    },
     "进入这个 App 的详情页。" : {
       "localizations" : {
         "en" : {
@@ -8222,6 +8698,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "進入這個 App 的詳細資訊頁面。"
+          }
+        }
+      }
+    },
+    "送达时间：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrives: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Llegará: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "届く時刻：%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림 시간: %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "送達時間：%@"
           }
         }
       }
@@ -8664,6 +9174,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "連線成功，可以按住說話了"
+          }
+        }
+      }
+    },
+    "通知" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificación"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        }
+      }
+    },
+    "通知已删除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification deleted."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificación eliminada."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知を削除しました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림을 삭제했어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知已刪除"
           }
         }
       }
@@ -85449,6 +86027,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "鬧鐘"
+          }
+        }
+      }
+    },
+    "闹钟和通知" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarms and notifications"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarmas y notificaciones"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラームと通知"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알람과 알림"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鬧鐘和通知"
+          }
+        }
+      }
+    },
+    "闹钟已删除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarm deleted."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarma eliminada."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラームを削除しました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알람을 삭제했어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鬧鐘已刪除"
           }
         }
       }

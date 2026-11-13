@@ -767,6 +767,21 @@ enum ScheduleFormat {
     static func nextRun(_ iso: String, now: Date = .now) -> String {
         "\(absolute(iso)) (\(relative(iso, now: now)))"
     }
+
+    /// The same for a `Date`: the reminders list reads its times from iOS, not from the Host.
+    static func nextRun(_ date: Date, now: Date = .now) -> String {
+        nextRun(plain.string(from: date), now: now)
+    }
+
+    /// An alarm's repeat rule in a task's words: `仅一次` / `每天 09:00` / `每周一、五 09:00`.
+    /// `weekdays` are ISO (Monday 1 … Sunday 7); none means a one-off.
+    static func clockRule(hour: Int, minute: Int, weekdays: [Int]) -> String {
+        let time = String(format: "%02d:%02d", hour, minute)
+        let days = Set(weekdays)
+        if days.isEmpty { return ScheduleText.t("frequency.once") }
+        if days.count == 7 { return ScheduleText.t("frequency.dailyLocal", ["time": time]) }
+        return ScheduleText.t("frequency.weeklyLocal", ["weekdays": self.weekdays(days.sorted()), "time": time])
+    }
 }
 
 // MARK: Zoned wall clock (task-timing.js)

@@ -98,6 +98,79 @@ private func dshAlarmNames(from days: [Locale.Weekday]) -> [String] {
     days.compactMap { day in dshAlarmWeekdays.first { $0.day == day }?.name }
 }
 
+// MARK: - 自动化 › 提醒
+
+/// 「自动化 › 提醒」那一页读的东西。iOS 不把别的 App 设的闹钟放进「时钟」App，
+/// 所以用户能看到、能删掉这些闹钟的地方只有那一页。
+///
+/// 删除是用户自己在列表里点的，不是智能体调用，所以不走 `caps_alarm.m` 的写确认，
+/// 也不记使用记录：那两样管的是「智能体和插件碰了什么」。
+extension AlarmProvider {
+    /// 这个 App 设的闹钟。iOS 26 以前、没授权或 AlarmKit 答不上来时是空的。
+    static func reminders(now: Date = .now) -> [AgentReminder] {
+        guard #available(iOS 26.0, *), let alarms = try? AlarmManager.shared.alarms else { return [] }
+        AlarmTitleStore.keepOnly(Set(alarms.map { $0.id.uuidString }))
+        return alarms.map { reminder(for: $0, now: now) }
+    }
+
+    /// 关掉一个闹钟。`false`：这个 id 不对，或者 AlarmKit 拒绝了。
+    static func remove(_ identifier: String) -> Bool {
+        guard #available(iOS 26.0, *), let id = UUID(uuidString: identifier) else { return false }
+        do {
+            try AlarmManager.shared.cancel(id: id)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// 闹钟有增减（智能体刚设了一个、一次性的响过了）时响一下。iOS 26 以前直接结束。
+    static func changes() -> AsyncStream<Void> {
+        AsyncStream { continuation in
+            guard #available(iOS 26.0, *) else {
+                continuation.finish()
+                return
+            }
+            let task = Task {
+                for await _ in AlarmManager.shared.alarmUpdates { continuation.yield() }
+                continuation.finish()
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private static func reminder(for alarm: Alarm, now: Date) -> AgentReminder {
+        var next: Date?
+        var rule: String?
+        switch alarm.schedule {
+        case .relative(let relative)?:
+            var weekdays: [Int] = []
+            if case .weekly(let days) = relative.repeats {
+                // ISO 编号（周一 1 … 周日 7），和自动化任务的星期写法一致。
+                weekdays = days.compactMap { day in dshAlarmWeekdays.firstIndex { $0.day == day }.map { $0 + 1 } }
+            }
+            let hour = relative.time.hour, minute = relative.time.minute
+            rule = ScheduleFormat.clockRule(hour: hour, minute: minute, weekdays: weekdays)
+            next = AgentReminder.nextOccurrence(hour: hour, minute: minute, weekdays: weekdays, after: now)
+        case .fixed(let date)?:
+            next = date
+        default:
+            break
+        }
+        let ringing = alarm.state == .alerting
+        return AgentReminder(
+            id: alarm.id.uuidString,
+            kind: .alarm,
+            title: AlarmTitleStore.title(for: alarm.id) ?? String(localized: "闹钟"),
+            body: nil,
+            next: ringing ? nil : next,
+            rule: rule,
+            ringing: ringing
+        )
+    }
+}
+
 // MARK: - DshAlarmProviding
 
 extension AlarmProvider: DshAlarmProviding {

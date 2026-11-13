@@ -41,9 +41,25 @@ final class ScheduleCatalog {
 /// `sessionId` narrows the list to one session (the session header's entry);
 /// `openSession` opens a session and leaves this page. Without it the page
 /// dismisses itself and opens `dsh://session/<id>`, which `RootView` hands to `MainView`.
+///
+/// Unscoped, the page has a second half, 提醒: the alarms and notifications the agent set
+/// (`AgentRemindersList`). They are the other kind of "later" the agent leaves behind, and iOS
+/// lists them nowhere else. A session's own entry shows tasks only: a reminder does not
+/// remember which session set it.
 struct SchedulesView: View {
     var sessionId: String? = nil
     var openSession: ((String) -> Void)? = nil
+
+    enum Kind: String, CaseIterable, Identifiable {
+        case tasks, reminders
+        var id: String { rawValue }
+        var label: LocalizedStringKey {
+            switch self {
+            case .tasks: "任务"
+            case .reminders: "提醒"
+            }
+        }
+    }
 
     enum StatusFilter: String, CaseIterable, Identifiable {
         case all, active, inactive
@@ -65,6 +81,9 @@ struct SchedulesView: View {
     @State private var confirming: JSON?
     @State private var creating = false
     @State private var leaving = false
+    @State private var chosenKind = Kind.tasks
+
+    private var kind: Kind { sessionId == nil ? chosenKind : .tasks }
 
     private var scoped: [JSON] {
         catalog.records.filter { sessionId == nil || $0["target"]["sessionId"].string == sessionId }
@@ -82,6 +101,37 @@ struct SchedulesView: View {
     }
 
     var body: some View {
+        Group {
+            switch kind {
+            case .tasks: tasks
+            case .reminders: AgentRemindersList(query: query)
+            }
+        }
+        .searchable(text: $query, prompt: kind == .tasks ? Text("搜索自动化任务") : Text("搜索提醒"))
+        .navigationTitle(String(localized: "schedules.title", defaultValue: "自动化任务", comment: "The list page; the same words on a timeline card name one task"))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if sessionId == nil {
+                ToolbarItem(placement: .principal) {
+                    Picker("类型", selection: $chosenKind) {
+                        ForEach(Kind.allCases) { Text($0.label).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                }
+                if kind == .tasks {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { Task { await newTask() } } label: { Label("新建", systemImage: "plus") }
+                            .disabled(creating)
+                    }
+                }
+            }
+        }
+        .task(id: app.revision("schedule/changed")) { await catalog.load(app.client) }
+        .dismisses(when: leaving)
+    }
+
+    private var tasks: some View {
         List {
             Section {
                 if catalog.status == .error && !catalog.records.isEmpty {
@@ -124,26 +174,13 @@ struct SchedulesView: View {
         }
         .overlay { overlay }
         .groupedList()
-        .searchable(text: $query, prompt: "搜索自动化任务")
-        .navigationTitle(String(localized: "schedules.title", defaultValue: "自动化任务", comment: "The list page; the same words on a timeline card name one task"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if sessionId == nil {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { Task { await newTask() } } label: { Label("新建", systemImage: "plus") }
-                        .disabled(creating)
-                }
-            }
-        }
         .refreshable { await catalog.load(app.client) }
-        .task(id: app.revision("schedule/changed")) { await catalog.load(app.client) }
         .confirmationDialog("删除此任务？", isPresented: Binding(get: { confirming != nil }, set: { if !$0 { confirming = nil } }), titleVisibility: .visible, presenting: confirming) { record in
             Button("确认删除", role: .destructive) { Task { _ = await delete(record) } }
             Button("取消", role: .cancel) {}
         } message: { record in
             Text("「\(record["title"].string ?? "")」\n任务将停止触发，并连同其已保存的任务运行记录一并删除。原会话及其消息仍然保留；已排队的消息不会被撤回。")
         }
-        .dismisses(when: leaving)
     }
 
     @ViewBuilder

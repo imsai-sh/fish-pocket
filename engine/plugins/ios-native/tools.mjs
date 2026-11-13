@@ -50,7 +50,9 @@ const notify = defineTool({
   description:
     'Schedule a local notification on the user\'s device, or list and cancel ones you scheduled. '
     + 'Use this for "remind me in N minutes" — it alerts the user even if the app is closed, and '
-    + 'does not touch their Reminders or Calendar. The first use asks the user to allow notifications.',
+    + 'does not touch their Reminders or Calendar. iOS shows pending notifications nowhere; the user '
+    + 'can see and delete the ones you scheduled under Automations → Alerts in this app. It refuses '
+    + 'until the user switches notifications on under Device capabilities.',
   parameters: {
     action: {
       type: 'string',
@@ -1116,9 +1118,10 @@ const alarm = defineTool({
     + '`notify`, an alarm breaks through silent mode and Focus and keeps ringing until they stop '
     + 'it — so use it only for things they must not sleep through or miss, and use `notify` for '
     + 'ordinary reminders. These alarms belong to this app, not to the Clock app: they never show '
-    + 'up in Clock\'s alarm list, so never tell the user to look for them there — `list` is the '
-    + 'only place to see them, and they appear on screen only when they ring. Needs iOS 26 or '
-    + 'later, and they must switch alarms on under Device capabilities first.',
+    + 'up in Clock\'s alarm list, so never tell the user to look for them there. To see or delete '
+    + 'them, point the user to Automations → Alerts in this app (the same list is under Device '
+    + 'capabilities → Alarms and notifications), or call `list` yourself. Needs iOS 26 or later, '
+    + 'and they must switch alarms on under Device capabilities first.',
   parameters: {
     action: {
       type: 'string',
