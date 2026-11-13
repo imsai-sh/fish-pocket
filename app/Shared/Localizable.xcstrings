@@ -2488,6 +2488,34 @@
         }
       }
     },
+    "%lld 张图片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld images"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld imágenes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像 %lld 枚"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미지 %lld장"
+          }
+        }
+      }
+    },
     "%lld 待处理" : {
       "localizations" : {
         "en" : {
@@ -4117,6 +4145,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "사진에서 읽는 중…"
+          }
+        }
+      }
+    },
+    "正在打开 %@…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opening %@…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abriendo %@…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ を開いています…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 여는 중…"
           }
         }
       }
@@ -9102,6 +9158,34 @@
         }
       }
     },
+    "从别的 App 分享进来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share in from other apps"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparte desde otras apps"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ほかの App から共有"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 앱에서 공유하기"
+          }
+        }
+      }
+    },
     "从控制中心按钮、Siri 或快捷指令直接开始新对话。" : {
       "localizations" : {
         "en" : {
@@ -13500,6 +13584,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "메모리 %@"
+          }
+        }
+      }
+    },
+    "内容会放进输入框，不会自动发送。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It goes into the message box. Nothing is sent until you send it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se coloca en el cuadro de mensaje. No se envía hasta que lo envíes."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メッセージ欄に入ります。自動では送信されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메시지 입력란에 들어가며 자동으로 보내지지 않습니다."
           }
         }
       }
@@ -21092,6 +21204,62 @@
         }
       }
     },
+    "在当前工作区开始" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In the current workspace"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En el espacio de trabajo actual"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のワークスペースで始める"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 워크스페이스에서 시작"
+          }
+        }
+      }
+    },
+    "在微信、相册、Safari 里点「分享」选 Fish Pocket，文字、链接、图片和文件会放进新对话、某个 Bot 或群聊的输入框，确认后再发送。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap Share in WeChat, Photos or Safari and pick Fish Pocket. Text, links, photos and files go into the message box of a new conversation, a Bot or a group chat, ready for you to send."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca Compartir en WeChat, Fotos o Safari y elige Fish Pocket. El texto, los enlaces, las fotos y los archivos van al cuadro de mensaje de una conversación nueva, un Bot o un chat de grupo, listos para que los envíes."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WeChat、写真、Safari で「共有」から Fish Pocket を選ぶと、テキスト、リンク、画像、ファイルが新しい会話、Bot、グループチャットのメッセージ欄に入ります。確認してから送信できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WeChat, 사진, Safari에서 공유를 눌러 Fish Pocket을 고르면 텍스트, 링크, 이미지, 파일이 새 대화, Bot 또는 그룹 채팅의 메시지 입력란에 들어갑니다. 확인한 뒤 보내면 됩니다."
+          }
+        }
+      }
+    },
     "在打开的网页里粘贴验证码并授权，这里会自动连上。" : {
       "localizations" : {
         "en" : {
@@ -27264,6 +27432,34 @@
         }
       }
     },
+    "已经准备好" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All set"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo listo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "準備できました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "준비됐습니다"
+          }
+        }
+      }
+    },
     "已经有一个叫%@的 Bot 了" : {
       "localizations" : {
         "en" : {
@@ -30899,6 +31095,34 @@
         }
       }
     },
+    "打开 Fish Pocket 就能在输入框里看到，确认后再发送。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Fish Pocket to find it in the message box, ready for you to send."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre Fish Pocket y lo encontrarás en el cuadro de mensaje, listo para enviar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket を開くとメッセージ欄に入っています。確認してから送信できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket을 열면 메시지 입력란에 들어 있습니다. 확인한 뒤 보내면 됩니다."
+          }
+        }
+      }
+    },
     "打开 Fish Pocket，开始一个新对话。" : {
       "localizations" : {
         "en" : {
@@ -31640,6 +31864,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "플러그인을 찾을 수 없어요."
+          }
+        }
+      }
+    },
+    "找不到这个 Bot 了，内容放进了新对话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That Bot is gone, so it went into a new conversation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese Bot ya no está; se colocó en una conversación nueva"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Bot が見つからないため、新しい会話に入れました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Bot을 찾을 수 없어 새 대화에 넣었습니다"
+          }
+        }
+      }
+    },
+    "找不到这个群聊了，内容放进了新对话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That group chat is gone, so it went into a new conversation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese chat de grupo ya no está; se colocó en una conversación nueva"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このグループチャットが見つからないため、新しい会話に入れました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 그룹 채팅을 찾을 수 없어 새 대화에 넣었습니다"
           }
         }
       }
@@ -32564,6 +32844,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "값 변경"
+          }
+        }
+      }
+    },
+    "换一种方式分享，或者在 Fish Pocket 里从文件添加。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try sharing it another way, or add it from Files in Fish Pocket."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prueba a compartirlo de otra forma o añádelo desde Archivos en Fish Pocket."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "別の方法で共有するか、Fish Pocket でファイルから追加してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 방법으로 공유하거나 Fish Pocket에서 파일로 추가하세요."
           }
         }
       }
@@ -47365,6 +47673,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이전 대화를 불러오지 못했어요"
+          }
+        }
+      }
+    },
+    "没能读取分享的内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read what was shared"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo leer lo compartido"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共有された内容を読み込めませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유한 내용을 읽지 못했습니다"
           }
         }
       }
@@ -68981,6 +69317,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "수정 의견 보내기"
+          }
+        }
+      }
+    },
+    "发送到 Fish Pocket" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send to Fish Pocket"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar a Fish Pocket"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket に送る"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket으로 보내기"
           }
         }
       }

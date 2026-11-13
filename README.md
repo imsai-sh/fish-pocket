@@ -73,7 +73,7 @@
 - **内置 FFmpeg：** `ffmpeg` 和 `ffprobe` 编进 App，能读几乎所有音视频格式（包括 iPhone 拍的 HEVC 视频和 MKV、WebM），能抽帧、抽音轨、剪辑、转码，FFmpeg 自带的滤镜都能用。H.264、HEVC 编码走手机的硬件编码器。没有 x264、VP9、MP3 编码。
 - **内置 DSH 插件商店：** 预置 DSH 生态插件市场，在手机上浏览、搜索，一键安装，装完就能用，不用回到电脑前。也可以在「索引源」里添加自己信任的商店源，或者直接从 npm 安装纯 JavaScript 插件。
 - **工作台：** 终端、文件预览、内置浏览器和改动查看都放在一个面板里。
-- **iOS 专属体验：** 灵动岛和锁屏 Live Activity，主屏幕和锁屏小组件，控制中心按钮，Siri 和快捷指令，切到后台任务也能继续。
+- **iOS 专属体验：** 灵动岛和锁屏 Live Activity，主屏幕和锁屏小组件，控制中心按钮，Siri 和快捷指令，从微信等 App 分享进新对话、Bot 或群聊，切到后台任务也能继续。
 - **iPad 适配：** 常驻侧栏、右侧工作台、多窗口、拖放文件，外接键盘支持常用快捷键。
 - **也能管电脑上的智能体：** 登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 后，电脑上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在同一个侧边栏里，可以跟进进度、接着聊、回应审批、随时打断。这是可选功能，不登录就和原来一样。
 - **更私密：** 会话和工作区留在设备上。
@@ -223,6 +223,7 @@ App 免费，代码以 MIT 协议开源，商用需要先取得授权，见[许�
 - [x] 远程控制：在手机上管电脑和服务器里的 Codex、Claude Code 和 DSH 会话，锁屏、灵动岛和小组件与本机会话同等对待（对接 Agents Anywhere）
 - [ ] bash 解释器移出引擎线程
 - [x] Bot 模式：在聊天里给口袋里的 Agent 派任务
+- [x] 系统分享：在微信、相册、Safari 里点「分享」，文字、链接、图片和文件进新对话、某个 Bot 或群聊（[#57](https://github.com/imsai-sh/fish-pocket/issues/57)）
 
 ## 交流群
 

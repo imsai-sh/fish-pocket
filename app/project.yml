@@ -33,6 +33,9 @@ settings:
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     # The container the app and the widget extension share (widget snapshot). Rename it with the bundle ID.
     DSH_APP_GROUP: group.com.wsw.dsh-ios
+    # The app's link scheme (Shared/DshLink.swift): the widgets and the share extension open the app with it.
+    # A side-by-side test build takes its own, or its links can land in the installed app.
+    DSH_URL_SCHEME: dsh
 targets:
   DshIOS:
     type: application
@@ -123,6 +126,8 @@ targets:
       - package: SwiftTerm
       - package: SwiftMath
       - target: DshLiveActivity
+      # 系统分享面板里的 Fish Pocket：别的 App 分享的内容进新对话或某个 Bot 的输入框。
+      - target: DshShare
       # The watch app rides inside the iPhone app and is installed with it.
       - target: DshWatch
     postBuildScripts:
@@ -210,9 +215,12 @@ targets:
         # dsh://session/<id> and dsh://new: the Live Activity and the widgets (Shared/DshLink.swift).
         CFBundleURLTypes:
           - CFBundleURLName: com.wsw.dsh-ios
-            CFBundleURLSchemes: [dsh]
+            CFBundleURLSchemes: ["$(DSH_URL_SCHEME)"]
         # Shared/WidgetSnapshot.swift reads the group from here.
         DshAppGroup: $(DSH_APP_GROUP)
+        DshURLScheme: $(DSH_URL_SCHEME)
+        # The messages it reports sending to Bots and groups (DshIOS/ShareSuggestions.swift).
+        NSUserActivityTypes: [INSendMessageIntent]
     entitlements:
       path: DshIOS/DshIOS.entitlements
       properties:
@@ -268,6 +276,7 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         DshAppGroup: $(DSH_APP_GROUP)
+        DshURLScheme: $(DSH_URL_SCHEME)
     dependencies:
       # 闹钟的锁屏呈现（AlarmActivity.swift）要它。和 App target 同理：部署目标
       # 是 17.0，AlarmKit 要 26.0，必须 weak link。
@@ -280,6 +289,51 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wsw.dsh-ios.LiveActivity
+  # The share extension: what another app shares (text, links, pictures, files) is copied into
+  # the App Group container and the app is opened on the composer it goes to (Shared/ShareInbox.swift).
+  # No engine here: nothing is sent from the extension.
+  DshShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ShareExtension
+      - path: Shared/ShareInbox.swift
+      - path: Shared/DshLink.swift
+      # Its strings live in the app's catalog: scripts/sync-strings.sh collects them with the app's.
+      - path: Shared/Localizable.xcstrings
+    info:
+      path: ShareExtension/Info.plist
+      properties:
+        CFBundleDisplayName: Fish Pocket
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [zh-Hans, en, es, ja, ko]
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            # The share sheet's top row: Bots and groups the app reported as sent to (DshIOS/ShareSuggestions.swift).
+            IntentsSupported: [INSendMessageIntent]
+            # Version 2: "file" means any file, whatever else it also is.
+            NSExtensionActivationDictionaryVersion: 2
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsImageWithMaxCount: 20
+              NSExtensionActivationSupportsMovieWithMaxCount: 5
+              NSExtensionActivationSupportsFileWithMaxCount: 20
+              NSExtensionActivationSupportsAttachmentsWithMaxCount: 20
+        DshAppGroup: $(DSH_APP_GROUP)
+        DshURLScheme: $(DSH_URL_SCHEME)
+    entitlements:
+      path: ShareExtension/DshShare.entitlements
+      properties:
+        com.apple.security.application-groups: ["$(DSH_APP_GROUP)"]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wsw.dsh-ios.Share
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
   # The watch app: draws the snapshot the phone sends over WatchConnectivity (DshIOS/WatchLink.swift)
   # and sends back approvals and 「继续」. No engine, no network of its own.
   DshWatch:

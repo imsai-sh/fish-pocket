@@ -123,6 +123,17 @@
 - 构建主 App 时不要给 `xcodebuild` 传 `-sdk iphonesimulator`：它会让内嵌的手表 App 也按 iOS 的 SDK 编译，直接失败。用 `-destination` 选平台就够了。
 - 手表 App 的 bundle ID 必须以主 App 的 bundle ID 开头，`WKCompanionAppBundleIdentifier` 要和主 App 的一致，改主 App 的 bundle ID 时一起改。
 
+## 系统分享（分享扩展）
+
+别的 App 点「分享」选 Fish Pocket，内容进新对话、某个 Bot 或群聊的输入框，不自动发送。扩展是 `app/ShareExtension`（target `DshShare`），引擎不在扩展里，扩展什么都不发。
+
+- 扩展一打开就把文字、链接、图片、文件拷进 App Group 的 `Share/inbox/<id>/`；用户选好去处后写下 `delivery.json`，再打开 `dsh://share/<id>`。App 收到后把文件挪进自己的临时目录，交给对应会话的输入框（`Shared/ShareInbox.swift`、`MainView.receive`）。
+- 系统没让扩展拉起 App 时，内容留在收件箱里，App 下次回到前台会自己取走；超过半小时没取的直接清掉。
+- 扩展里列的 Bot 和群聊来自 App 写的 `Share/targets.json` 和 `Share/avatars/`（`ShareTargetsWriter`）：顺序同 Bot 页，隐藏的不列，头像是 App 按自己的画法渲染好的图，群头像深浅色各一张。扩展不编译 `BotCharacter`，改了头像画法不用动扩展。
+- 扩展的文案在 `app/Shared/Localizable.xcstrings`，`scripts/sync-strings.sh` 会一起收进来。扩展不认 `NSAccentColorName`，主色在 `ShareView` 里显式指定。
+- 发行签名多了一个 bundle ID：`com.wsw.dsh-ios.Share`，要有 App Group。
+- 拉起 App 的链接前缀是工程变量 `DSH_URL_SCHEME`（正式版 `dsh`）。用别的 Bundle ID 并排装测试包时，`DSH_APP_GROUP` 和它都要换成测试包自己的，不然链接可能打开正式包，正式包读不到测试包的 App Group。
+
 ## Bot：只用 DS Bot 的后端
 
 Bot 功能的后台是内置的 ds-bot 插件，版本锁定在 `engine/plugins/ios-host/pins.json`。
