@@ -846,10 +846,19 @@ private struct ActiveTurn: View {
     let turn: Int
     let blocks: [AssistantBlock]
     let startedAt: Date?
+    @Environment(\.botComposer) private var botChat
 
     var body: some View {
-        AssistantTurnView(blocks: blocks + model.live, turn: turn, inProgress: true, liveCount: model.live.count, startedAt: startedAt, endedAt: nil, info: model.turnInfo[turn])
+        let live = shownLive(model.live, botChat: botChat)
+        AssistantTurnView(blocks: blocks + live, turn: turn, inProgress: true, liveCount: live.count, startedAt: startedAt, endedAt: nil, info: model.turnInfo[turn])
     }
+}
+
+/// What of the streamed attempt shows. A Bot's own chat reads like a message from a person: its words
+/// arrive whole, once written, and until then the Bot's line below says it is typing.
+private func shownLive(_ live: [AssistantBlock], botChat: BotComposer?) -> [AssistantBlock] {
+    guard case .bot? = botChat else { return live }
+    return live.filter { if case .text = $0 { false } else { true } }
 }
 
 /// A running session before its turn has a durable message: the streamed attempt,
@@ -859,9 +868,10 @@ private struct LiveSection: View {
     @Environment(\.botComposer) private var botChat
 
     var body: some View {
+        let live = shownLive(model.live, botChat: botChat)
         // In a Bot's own chat the Bot's mark below is the loading line.
-        if case .bot? = botChat, model.live.isEmpty {} else {
-            AssistantTurnView(blocks: model.live, turn: nil, inProgress: true, liveCount: model.live.count, startedAt: nil, endedAt: nil)
+        if case .bot? = botChat, live.isEmpty {} else {
+            AssistantTurnView(blocks: live, turn: nil, inProgress: true, liveCount: live.count, startedAt: nil, endedAt: nil)
         }
     }
 }
