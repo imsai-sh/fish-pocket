@@ -100,7 +100,7 @@ func localized(_ json: JSON) -> String? {
     if let text = json.string { return text }
     let object = json.object
     guard !object.isEmpty else { return nil }
-    if AppLanguage.isChinese, let text = object.first(where: { $0.key.lowercased().hasPrefix("zh") })?.value.string { return text }
+    if AppLanguage.isChinese, let zh = AppLanguage.chinese(in: object) { return zh }
     return object[AppLanguage.primary]?.string ?? object["en"]?.string ?? object["zh"]?.string ?? object.values.compactMap(\.string).first
 }
 

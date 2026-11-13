@@ -17,6 +17,12 @@
             "value" : "让智能体按你的要求查看和安排日程。为回答你的问题，相关日程内容会随对话发送给你选择的模型服务商。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理依你的要求查看和安排行程。為回答你的問題，相關行程內容會隨對話傳送給你選擇的模型服務供應商。"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -51,6 +57,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "让智能体按你的要求查看和创建提醒。为回答你的问题，相关提醒内容会随对话发送给你选择的模型服务商。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理依你的要求查看和建立提醒事項。為回答你的問題，相關提醒事項內容會隨對話傳送給你選擇的模型服務供應商。"
           }
         },
         "es" : {
@@ -89,6 +101,12 @@
             "value" : "拍照后作为附件发给智能体，或扫描电脑上的登录二维码。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拍照後作為附件傳給 AI 代理，或掃描電腦上的登入 QR Code。"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -123,6 +141,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "让智能体在你问「我在哪」「附近有什么」时读取一次当前位置。只在用到时读，不会持续记录。为回答你的问题，位置会随对话发送给你选择的模型服务商。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理在你問「我在哪」「附近有什麼」時讀取一次目前位置。只在用到時讀取，不會持續記錄。為回答你的問題，位置會隨對話傳送給你選擇的模型服務供應商。"
           }
         },
         "es" : {
@@ -161,6 +185,12 @@
             "value" : "让智能体在你问起时读取你的健康数据，比如步数、睡眠、心率。为回答你的问题，读到的数值会随对话发送给你选择的模型服务商。App 不会写入或修改任何健康数据。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理在你問起時讀取你的健康資料，例如步數、睡眠、心率。為回答你的問題，讀到的數值會隨對話傳送給你選擇的模型服務供應商。App 不會寫入或修改任何健康資料。"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -195,6 +225,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "这个版本不会向「健康」写入或修改任何数据。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這個版本不會向「健康」寫入或修改任何資料。"
           }
         },
         "es" : {
@@ -233,10 +269,28 @@
             "value" : "按住输入栏说话时录音，把语音转成文字。录音直接发送给你在「语音输入」里设置的火山引擎识别服务，App 不保存录音；松手后识别出的文字会随对话发送给你选择的模型服务商。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住輸入列說話時錄音，把語音轉成文字。錄音直接傳送給你在「語音輸入」裡設定的火山引擎辨識服務，App 不保存錄音；放開後辨識出的文字會隨對話傳送給你選擇的模型服務供應商。"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Graba mientras mantienes pulsada la barra de entrada para hablar, para convertir tu voz en texto. La grabación se envía directamente al servicio de reconocimiento de Volcengine que configuraste en Entrada de voz y la app no la guarda; al soltar, el texto reconocido se envía con la conversación al proveedor de modelos que hayas elegido."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "入力欄を押したまま話している間だけ録音し、音声をテキストに変換します。録音は「音声入力」で設定した Volcengine の音声認識サービスへ直接送信され、App には保存されません。指を離すと、認識されたテキストが会話と一緒に、選択したモデルプロバイダへ送信されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "입력란을 누른 채 말하는 동안 녹음해 음성을 텍스트로 바꿔요. 녹음은 ‘음성 입력’에서 설정한 Volcengine 인식 서비스로 바로 전송되며, 앱은 녹음을 저장하지 않아요. 손을 떼면 인식된 텍스트가 대화와 함께 선택한 모델 제공업체로 전송돼요."
           }
         }
       }
@@ -257,6 +311,12 @@
             "value" : "让智能体在你要求时读出录音文件里说了什么。默认只在本机识别，录音不离开手机；只有在明确指定云端识别时，录音才会发送给 Apple 的服务器。为回答你的问题，转写出的文字会随对话发送给你选择的模型服务商。这项能力不录音，也不使用麦克风。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理在你要求時讀出錄音檔裡說了什麼。預設只在本機辨識，錄音不離開手機；只有在明確指定雲端辨識時，錄音才會傳送給 Apple 的伺服器。為回答你的問題，轉錄出的文字會隨對話傳送給你選擇的模型服務供應商。這項能力不錄音，也不使用麥克風。"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -266,13 +326,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "リクエストに応じて、エージェントが録音ファイルの内容を文字に起こします。認識は標準でこのデバイス上で行い、録音がデバイスの外に出ることはありません。サーバでの認識を明示的に指定した場合のみ、録音が Apple のサーバへ送信されます。質問に答えるため、書き起こしたテキストは会話と一緒に、選択したモデルプロバイダへ送信されます。App が録音したりマイクを使ったりすることはありません。"
+            "value" : "リクエストに応じて、エージェントが録音ファイルの内容を文字に起こします。認識は標準でこのデバイス上で行い、録音がデバイスの外に出ることはありません。クラウドでの認識を明示的に指定した場合のみ、録音が Apple のサーバへ送信されます。質問に答えるため、書き起こしたテキストは会話と一緒に、選択したモデルプロバイダへ送信されます。この機能は録音せず、マイクも使用しません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "요청하면 에이전트가 녹음 파일의 내용을 받아 적어요. 기본적으로 기기에서만 인식하며 녹음은 기기 밖으로 나가지 않아요. 서버 인식을 명시적으로 지정한 경우에만 녹음이 Apple 서버로 전송돼요. 질문에 답하기 위해 받아 적은 텍스트가 대화와 함께 선택한 모델 제공업체로 전송돼요. 앱은 녹음하지 않으며 마이크도 사용하지 않아요."
+            "value" : "요청하면 에이전트가 녹음 파일의 내용을 받아 적어요. 기본적으로 기기에서만 인식하며 녹음은 기기 밖으로 나가지 않아요. 서버 인식을 명시적으로 지정한 경우에만 녹음이 Apple 서버로 전송돼요. 질문에 답하기 위해 받아 적은 텍스트가 대화와 함께 선택한 모델 제공업체로 전송돼요. 이 기능은 녹음하지 않으며 마이크도 사용하지 않아요."
           }
         }
       }
@@ -291,6 +351,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "让智能体按你的要求查看家里的配件和它们的状态，并按你设的写入方式改状态或执行场景。为回答你的问题，配件名称和状态会随对话发送给你选择的模型服务商。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理依你的要求查看家裡的配件和它們的狀態，並依你設的寫入方式變更狀態或執行場景。為回答你的問題，配件名稱和狀態會隨對話傳送給你選擇的模型服務供應商。"
           }
         },
         "es" : {
@@ -320,13 +386,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lets the agent see what is in your photo library when you ask, export pictures for the phone to read on-device, and organize your library the way you set writing under Device capabilities. To answer your questions, the information involved is sent with the conversation to the model provider you chose. iOS asks you again before any photo is deleted."
+            "value" : "Lets the agent see what is in your photo library when you ask, export photos for on-device recognition, and organize your library the way you set under Device capabilities. To answer your questions, the information involved is sent with the conversation to the model provider you chose. iOS asks you again before any photo is deleted."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "让智能体在你问起时查看相册里有哪些照片、导出照片给本机识别，并按你在「本机能力」里设的写入方式帮你整理相册。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。删除照片前 iOS 会再问你一次。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理在你問起時查看相簿裡有哪些照片、匯出照片給本機辨識，並依你在「本機能力」裡設的寫入方式幫你整理相簿。為回答你的問題，相關資訊會隨對話傳送給你選擇的模型服務供應商。刪除照片前 iOS 會再問你一次。"
           }
         },
         "es" : {
@@ -365,6 +437,12 @@
             "value" : "让智能体按你的要求设真正的闹钟。闹钟会穿透静音和专注模式，响到你关掉为止。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理依你的要求設定真正的鬧鐘。鬧鐘會穿透靜音和專注模式，響到你關掉為止。"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -399,6 +477,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "让智能体在你要求时按名字、电话或邮箱查找联系人，比如替你写邮件前查对方的地址。为回答你的问题，查到的联系人信息会随对话发送给你选择的模型服务商。App 不会添加、修改或删除任何联系人。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理在你要求時依名字、電話或電子郵件尋找聯絡人，例如替你寫郵件前查對方的信箱。為回答你的問題，查到的聯絡人資訊會隨對話傳送給你選擇的模型服務供應商。App 不會新增、修改或刪除任何聯絡人。"
           }
         },
         "es" : {
@@ -437,6 +521,12 @@
             "value" : "让智能体按你的要求在音乐资料库里找歌和歌单，并控制播放。为回答你的问题，歌曲和歌单的名称会随对话发送给你选择的模型服务商。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓 AI 代理依你的要求在音樂資料庫裡找歌曲和播放列表，並控制播放。為回答你的問題，歌曲和播放列表的名稱會隨對話傳送給你選擇的模型服務供應商。"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -471,6 +561,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "把分享海报和交流群二维码保存到相册。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把分享海報和交流群 QR Code 儲存到照片。"
           }
         },
         "es" : {
