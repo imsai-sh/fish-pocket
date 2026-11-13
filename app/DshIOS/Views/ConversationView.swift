@@ -211,6 +211,8 @@ struct ConversationView: View {
         }
         .background(Palette.background)
         .overlay { if blank { hero(model) } }
+        // Above the composer: the transcript and the ✕ while the bar is held to talk.
+        .overlay { VoiceHoldOverlay(voice: model.composer.voice) }
         .conversationDock {
             VStack(alignment: .leading, spacing: 0) {
                 if blank && !composerFocused && model.composer.isEmpty {

@@ -230,6 +230,7 @@ struct ComposerView: View {
     var sheetUp: Binding<Bool> = .constant(false)
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.scenePhase) private var scenePhase
     @State private var photos: [PhotosPickerItem] = []
     @State private var showPhotos = false
     @State private var showCamera = false
@@ -249,9 +250,13 @@ struct ComposerView: View {
     /// the tray, the tray's choice put text in the draft, or the sheet is one for typing.
     /// Dismissing the tray with nothing chosen leaves the keyboard down.
     @State private var refocus = false
+    /// The microphone button found no key: the voice input settings, as a sheet.
+    @State private var voiceSetup = false
+    @State private var microphoneOff = false
     @FocusState private var focused: Bool
 
     private var composer: ComposerModel { model.composer }
+    private var voice: VoiceInput { composer.voice }
 
     var body: some View {
         let trigger = activeTrigger
@@ -260,11 +265,21 @@ struct ComposerView: View {
                 CandidatePanel(model: model, context: context, hit: trigger, pick: { pick($0, over: trigger) }, showAll: { refocus = true; browsing = trigger })
             }
             field
+                // While held, the bar's own fill over the surface: the waveform's ink, red to cancel.
+                .background {
+                    if let holdFill {
+                        RoundedRectangle(cornerRadius: 28, style: .continuous).fill(holdFill)
+                    }
+                }
+                // The bar turns at the touch; only letting go eases back.
+                .animation(voice.holding ? nil : .snappy(duration: 0.18), value: voice.phase)
+                .animation(.snappy(duration: 0.18), value: voice.cancelArmed)
                 .composerSurface()
         }
         .task(id: pendingDraft) {
             guard let pendingDraft else { return }
             composer.text = composer.text.isEmpty ? pendingDraft : composer.text + "\n" + pendingDraft
+            voice.mode = false
             consumeDraft()
         }
         .task(id: pendingFiles) {
@@ -277,6 +292,7 @@ struct ComposerView: View {
         .task(id: pendingPrompt) {
             guard let pendingPrompt else { return }
             consumePrompt()
+            voice.mode = false
             composer.place(prompt: pendingPrompt)
         }
         .task(id: focusOnAppear) {
@@ -304,6 +320,20 @@ struct ComposerView: View {
             composer.addFiles(urls.filter { !folders.contains($0) })
         }
         .sheet(isPresented: $showModels) { ModelSearchSheet(model: model, context: context) }
+        .sheet(isPresented: $voiceSetup) {
+            NavigationStack {
+                VoiceSettingsPage { voiceSetup = false }
+                .closeButton { voiceSetup = false }
+            }
+        }
+        .alert("麦克风权限已关闭", isPresented: $microphoneOff) {
+            Button("取消", role: .cancel) {}
+            Button("去设置") {
+                if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+            }
+        } message: {
+            Text("按住说话需要用麦克风，请在系统设置里打开。")
+        }
         .sheet(isPresented: trayShown(sizeClass != .regular), onDismiss: sheetClosed) { tray }
         .sheet(isPresented: $showEditor, onDismiss: sheetClosed) {
             DraftEditor(composer: composer) {
@@ -335,7 +365,14 @@ struct ComposerView: View {
             if open { sheetUp.wrappedValue = true }
         }
         .onChange(of: composer.focusRequest) { focused = true }
-        .onChange(of: focused) { _, now in focusChanged(now) }
+        .onChange(of: focused) { _, now in
+            // Anything that brings the keyboard back (a prompt placed, a tray choice) shows the text.
+            if now { voice.mode = false }
+            focusChanged(now)
+        }
+        // A call or the app leaving the foreground ends the hold without a touch-up: throw it away.
+        .onChange(of: scenePhase) { _, phase in if phase != .active { voice.cancel() } }
+        .onDisappear { voice.cancel() }
         // A picker closing gives the keyboard back when it was up before: typed into
         // (`/model`, `/file`) or reached from the tray while it was up.
         .onChange(of: pickerUp) { _, open in
@@ -376,10 +413,20 @@ struct ComposerView: View {
                     .padding(.top, 4)
             }
             HStack(alignment: .bottom, spacing: 6) {
-                plusButton
-                input
-                    .padding(.vertical, 11)
-                mainButton
+                plusButton.holdHidden(voice.phase != .idle)
+                if voice.mode {
+                    if VoiceInput.ready {
+                        HoldToTalk(voice: voice, begin: beginHold, release: releaseHold)
+                            .padding(.vertical, 2)
+                    } else {
+                        voiceSetupPrompt.padding(.vertical, 2)
+                    }
+                } else {
+                    input
+                        .padding(.vertical, 11)
+                }
+                voiceToggle
+                mainButton.holdHidden(voice.phase != .idle)
             }
         }
         // The buttons' 44 pt areas stand 3 pt past their circles: the insets make up for it, so the bar stays 54 pt.
@@ -451,7 +498,8 @@ struct ComposerView: View {
             refocus = focused
             showTray = true
         } label: {
-            Image(systemName: "plus").font(.system(size: 19, weight: .regular)).foregroundStyle(Palette.ink)
+            Image(systemName: "plus").font(.system(size: 17, weight: .medium)).foregroundStyle(Palette.ink)
+                .frame(width: 38, height: 38).background(Palette.control, in: Circle())
                 .hitTarget()
         }
         .accessibilityLabel("添加附件、调用指令、切换模式")
@@ -485,14 +533,114 @@ struct ComposerView: View {
     }
 
     /// While the agent runs, stop stays one tap away: alone with an empty draft (the main
-    /// button), and beside send once there is text, in the quieter fill.
+    /// button), and beside send once there is text, in the quieter fill. With nothing typed
+    /// the microphone stands where send would be greyed out; voice mode sends on letting go.
     @ViewBuilder
     private var mainButton: some View {
         let empty = composer.nothingToSend
         let editing = composer.editingQueue != nil
         HStack(spacing: 0) {
-            if model.running { stopButton(prominent: empty && !editing) }
-            if !model.running || !empty || editing { sendButton(empty: empty) }
+            if model.running { stopButton(prominent: (empty || voice.mode) && !editing) }
+            if !voice.mode && (!empty || editing || (!model.running && !micOffered)) { sendButton(empty: empty) }
+        }
+    }
+
+    // MARK: Voice
+
+    /// Nothing typed and no queued message open: the microphone is offered.
+    private var micOffered: Bool {
+        composer.editingQueue == nil && composer.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// The bar's fill while held: the waveform's ink, red once letting go would cancel.
+    private var holdFill: Color? {
+        guard voice.holding else { return nil }
+        return voice.cancelArmed ? .red : Palette.ink
+    }
+
+    /// Microphone into voice mode, keyboard back out of it.
+    @ViewBuilder
+    private var voiceToggle: some View {
+        if voice.mode {
+            Button {
+                Haptics.select()
+                voice.mode = false
+                // The text field is only now coming back: focus it once it is on screen.
+                DispatchQueue.main.async { focused = true }
+            } label: {
+                Image(systemName: "keyboard").font(.system(size: 15, weight: .medium)).foregroundStyle(Palette.ink)
+                    .frame(width: 38, height: 38).background(Palette.control, in: Circle())
+                    .hitTarget()
+            }
+            .accessibilityLabel("切换到键盘输入")
+            .holdHidden(voice.phase != .idle)
+        } else if micOffered {
+            Button(action: openVoice) {
+                Image(systemName: "wave.3.right").font(.system(size: 15, weight: .medium)).foregroundStyle(Palette.ink)
+                    .frame(width: 38, height: 38).background(Palette.control, in: Circle())
+                    .hitTarget()
+            }
+            .accessibilityLabel("切换到语音输入")
+        }
+    }
+
+    /// Voice mode without a key: the bar says so and opens the setup.
+    private var voiceSetupPrompt: some View {
+        Button {
+            Haptics.select()
+            voiceSetup = true
+        } label: {
+            Text("配置语音转文字")
+                .font(.callout.weight(.medium))
+                .foregroundStyle(Palette.ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Into voice mode at once; the key and the microphone are asked for when the bar is first used.
+    private func openVoice() {
+        Haptics.select()
+        focused = false
+        voice.mode = true
+    }
+
+    private func beginHold() {
+        // The first press asks for the microphone; the system's prompt ends that press.
+        switch MicrophoneAccess.state {
+        case .granted: break
+        case .denied:
+            microphoneOff = true
+            return
+        case .undecided:
+            Task { _ = await MicrophoneAccess.request() }
+            return
+        }
+        Haptics.firm()
+        Task {
+            let failure = await voice.begin(reachedLimit: releaseHold) { message in
+                Haptics.error()
+                app.showToast(message)
+            }
+            if let failure { app.showToast(failure) }
+        }
+    }
+
+    private func releaseHold() {
+        Task {
+            switch await voice.release() {
+            case .text(let text):
+                let draft = composer.text.trimmingCharacters(in: .whitespacesAndNewlines)
+                composer.text = draft.isEmpty ? text : draft + " " + text
+                send(.preferred)
+            case .cancelled: break
+            case .tooShort: app.showToast(String(localized: "说话时间太短"))
+            case .empty: app.showToast(String(localized: "没有听清，请再说一次"))
+            case .failed(let message): app.showToast(message)
+            }
         }
     }
 
@@ -594,6 +742,7 @@ struct ComposerView: View {
             if let hit {
                 composer.text = hit.replacing(in: text, with: replacement)
             } else if !replacement.isEmpty {
+                voice.mode = false
                 composer.text = text.isEmpty || text.last?.isWhitespace == true ? text + replacement : text + " " + replacement
                 // From the tray: the draft has new text to carry on typing after.
                 refocus = true
@@ -829,4 +978,11 @@ struct FittedSheet: ViewModifier {
 
 extension View {
     func fittedSheet() -> some View { modifier(FittedSheet()) }
+}
+
+private extension View {
+    /// The bar's buttons step aside while it is held: still there, so nothing moves.
+    func holdHidden(_ hidden: Bool) -> some View {
+        opacity(hidden ? 0 : 1).allowsHitTesting(!hidden)
+    }
 }

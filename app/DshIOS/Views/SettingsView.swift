@@ -55,6 +55,9 @@ struct SettingsView: View {
                         row("账号", "person.crop.circle", app.account.signedIn ? (app.account.displayName ?? String(localized: "已登录")) : String(localized: "未登录"))
                     }
                     NavigationLink { ModelProvidersPage() } label: { row("模型", "cpu", defaultModel ?? "") }
+                    NavigationLink { VoiceSettingsPage() } label: {
+                        row("语音输入", "mic", VolcSpeech.shared.configured ? String(localized: "火山引擎") : String(localized: "未设置"))
+                    }
                     if mirror.serves("permission") { permissionPicker }
                 }
 

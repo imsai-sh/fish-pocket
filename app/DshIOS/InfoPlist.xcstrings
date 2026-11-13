@@ -217,6 +217,30 @@
         }
       }
     },
+    "NSMicrophoneUsageDescription" : {
+      "comment" : "Privacy - Microphone Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Records while you hold the input bar to speak, to turn your speech into text. The recording goes straight to the Volcengine recognition service you set up under Voice input, and the app does not keep it; once you let go, the recognized text is sent with the conversation to the model provider you chose."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住输入栏说话时录音，把语音转成文字。录音直接发送给你在「语音输入」里设置的火山引擎识别服务，App 不保存录音；松手后识别出的文字会随对话发送给你选择的模型服务商。"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graba mientras mantienes pulsada la barra de entrada para hablar, para convertir tu voz en texto. La grabación se envía directamente al servicio de reconocimiento de Volcengine que configuraste en Entrada de voz y la app no la guarda; al soltar, el texto reconocido se envía con la conversación al proveedor de modelos que hayas elegido."
+          }
+        }
+      }
+    },
     "NSSpeechRecognitionUsageDescription" : {
       "comment" : "Privacy - Speech Recognition Usage Description",
       "extractionState" : "extracted_with_value",
@@ -224,19 +248,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lets the agent read out what is said in a recording when you ask it to. Recognition stays on the phone by default and the recording does not leave it; only when server recognition is asked for explicitly is the recording sent to Apple's servers. To answer your questions, the transcript is sent with the conversation to the model provider you chose. The app does not record and does not use the microphone."
+            "value" : "Lets the agent read out what is said in a recording when you ask it to. Recognition stays on the phone by default and the recording does not leave it; only when server recognition is asked for explicitly is the recording sent to Apple's servers. To answer your questions, the transcript is sent with the conversation to the model provider you chose. This capability does not record and does not use the microphone."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "让智能体在你要求时读出录音文件里说了什么。默认只在本机识别，录音不离开手机；只有在明确指定云端识别时，录音才会发送给 Apple 的服务器。为回答你的问题，转写出的文字会随对话发送给你选择的模型服务商。App 不会录音，也不使用麦克风。"
+            "value" : "让智能体在你要求时读出录音文件里说了什么。默认只在本机识别，录音不离开手机；只有在明确指定云端识别时，录音才会发送给 Apple 的服务器。为回答你的问题，转写出的文字会随对话发送给你选择的模型服务商。这项能力不录音，也不使用麦克风。"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Permite que el agente lea lo que se dice en una grabación cuando se lo pides. El reconocimiento se hace en el teléfono por omisión y la grabación no sale de él; solo si se pide explícitamente el reconocimiento en servidor se envía la grabación a los servidores de Apple. Para responder a tus preguntas, la transcripción se envía con la conversación al proveedor de modelos que hayas elegido. La app no graba ni usa el micrófono."
+            "value" : "Permite que el agente lea lo que se dice en una grabación cuando se lo pides. El reconocimiento se hace en el teléfono por omisión y la grabación no sale de él; solo si se pide explícitamente el reconocimiento en servidor se envía la grabación a los servidores de Apple. Para responder a tus preguntas, la transcripción se envía con la conversación al proveedor de modelos que hayas elegido. Esta función no graba ni usa el micrófono."
           }
         },
         "ja" : {
