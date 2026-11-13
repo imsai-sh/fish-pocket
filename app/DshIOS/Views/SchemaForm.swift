@@ -137,7 +137,8 @@ func schemaText(_ value: JSON) -> String? {
     guard !object.isEmpty else { return nil }
     let preferred = AppLanguage.code.lowercased()
     let primary = AppLanguage.primary
-    let candidates = [preferred, primary, primary == "zh" ? "zh-cn" : primary, "en", ""]
+    let traditional = AppLanguage.isTraditionalChinese ? ["zh-tw", "zh-hk"] : []
+    let candidates = [preferred] + traditional + [primary, primary == "zh" ? "zh-cn" : primary, "en", ""]
     for key in candidates {
         if let match = object.first(where: { $0.key.lowercased() == key })?.value.string, !match.isEmpty { return match }
     }

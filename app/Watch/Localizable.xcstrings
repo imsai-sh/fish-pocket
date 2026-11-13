@@ -9,6 +9,12 @@
             "value" : "%lld 个会话在等你"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 個對話在等你"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -41,6 +47,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 个会话在跑"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 個對話在執行"
           }
         },
         "en" : {
@@ -77,6 +89,12 @@
             "value" : "iPhone 上的 App 可能没在运行"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone 上的 App 可能沒在執行"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -109,6 +127,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "余额"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "餘額"
           }
         },
         "en" : {
@@ -145,6 +169,12 @@
             "value" : "做好了，说是你写的也行。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "做好了，說是你寫的也行。"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -177,6 +207,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "允许"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允許"
           }
         },
         "en" : {
@@ -213,6 +249,12 @@
             "value" : "刷新"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新整理"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -242,6 +284,12 @@
     "在 iPhone 上回答" : {
       "localizations" : {
         "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 iPhone 上回答"
+          }
+        },
+        "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 iPhone 上回答"
@@ -281,6 +329,12 @@
             "value" : "在 iPhone 上打开 Fish Pocket"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 iPhone 上打開 Fish Pocket"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -310,6 +364,12 @@
     "好的" : {
       "localizations" : {
         "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好的"
+          }
+        },
+        "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "好的"
@@ -349,6 +409,12 @@
             "value" : "完成～我去喝口水。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成～我去喝口水。"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -381,6 +447,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "拒绝"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拒絕"
           }
         },
         "en" : {
@@ -417,6 +489,12 @@
             "value" : "搞定！没让你等太久吧？"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搞定！沒讓你等太久吧？"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +529,12 @@
             "value" : "收工！今天也很能干。"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收工！今天也很能幹。"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -480,6 +564,12 @@
     "最近" : {
       "localizations" : {
         "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近"
+          }
+        },
+        "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "最近"
@@ -519,6 +609,12 @@
             "value" : "有事随时叫我"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有事隨時叫我"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -551,6 +647,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "歇着呢"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歇著呢"
           }
         },
         "en" : {
@@ -587,6 +689,12 @@
             "value" : "正在干活"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在工作"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -619,6 +727,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "活干完了，夸我。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工作做完了，誇我。"
           }
         },
         "en" : {
@@ -655,6 +769,12 @@
             "value" : "状态未知"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "狀態不明"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +807,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "等你允许"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等你允許"
           }
         },
         "en" : {
@@ -723,6 +849,12 @@
             "value" : "等你答复"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等你答覆"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -755,6 +887,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "跑完啦，快来看看～"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跑完囉，快來看看～"
           }
         },
         "en" : {
@@ -791,6 +929,12 @@
             "value" : "还有 %lld 个会话也跑完了"
           }
         },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還有 %lld 個對話也跑完了"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -823,6 +967,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "还没连上"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還沒連上"
           }
         },
         "en" : {

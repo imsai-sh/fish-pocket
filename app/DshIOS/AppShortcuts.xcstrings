@@ -6,7 +6,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "${applicationName} new conversation"
+            "value" : "New ${applicationName} conversation"
           }
         },
         "es" : {
@@ -25,6 +25,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "${applicationName} 새 대화"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} 新對話"
           }
         }
       }
@@ -54,6 +60,12 @@
             "state" : "translated",
             "value" : "${applicationName}에서 새 대화 시작"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 ${applicationName} 裡開始新對話"
+          }
         }
       }
     },
@@ -81,6 +93,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "${applicationName}으로 새 대화 만들기"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 ${applicationName} 新增對話"
           }
         }
       }

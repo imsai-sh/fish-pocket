@@ -19,7 +19,7 @@
 标题和说明先写中文，然后：
 
 1. 跑 `scripts/sync-strings.sh`，把新文案同步进 `app/Shared/Localizable.xcstrings`。
-2. 给新词条补上 `en`、`es` 翻译。
+2. 给新词条补上 `en`、`es`、`ja`、`ko`、`zh-Hant` 翻译，照下面「界面翻译」一节的规则直接翻。
 3. 跑 `node scripts/strings-coverage.mjs`，确认各语言都是全覆盖。
 
 同步脚本有时会顺带改动其他旧词条，提交前看一下 diff，只保留这次自己加的部分。
@@ -35,6 +35,14 @@
 
 - 已经发出去的条目，不要改它的 `version` 或 `build`，否则看过的人可能会再弹一次，或者有人会漏看。
 - 本地自测用 Debug 版的启动参数：`-dshVersion 1.1.0 -dshBuild 20` 让 App 当成这个版本和 build 运行；`-dshOpen whatsnew` 直接打开弹窗。这些参数只在 Debug 版里生效。
+
+## 界面翻译
+
+所有语言的译文，包括繁体中文，都由做这次改动的 Agent 自己逐条直接翻译。不用 OpenCC 这类简繁转换工具，也不用机器翻译服务或脚本批量生成初稿，再拿来校对也不行：大模型直接翻最准，转换工具只会逐字逐词替换，一词多义时常选错（比如把「权限」转成「許可權」、「连接」分不清連線和連結）。
+
+- 文案多的时候可以分批交给子 Agent 翻，但每一批都要由 Agent 读原文直接翻出来。
+- 繁体中文按台湾用词写，系统 App 和 iOS 功能用 Apple 台湾版的名字，产品名词跟已有译法保持一致，术语见 `CONTRIBUTING.md` 的「界面语言」。
+- 脚本只用来做机械检查：覆盖率、格式占位符是否和原文一致、有没有残留简体字。
 
 ## Xcode Cloud 构建
 
@@ -120,7 +128,7 @@ Agent 用的 `browser` 工具有哪些动作、各要什么参数、给模型看
 
 ### 文案
 
-手表的文案在 `app/Watch/Localizable.xcstrings`，`scripts/sync-strings.sh` 不管它，要手动加词条并补上 `en`、`es`。每个词条的 `zh-Hans` 也要写出来并标成 `translated`，否则中文用户会看到英文。加完跑 `node scripts/strings-coverage.mjs` 确认全覆盖。
+手表的文案在 `app/Watch/Localizable.xcstrings`，`scripts/sync-strings.sh` 不管它，要手动加词条并补上 `en`、`es`、`ja`、`ko`、`zh-Hant`。每个词条的 `zh-Hans` 也要写出来并标成 `translated`，否则中文用户会看到英文。加完跑 `node scripts/strings-coverage.mjs` 确认全覆盖。
 
 ### 本地看效果
 
@@ -176,7 +184,7 @@ Bot 没有照片时显示的角色是 App 自己画的，形状和动作都写�
 连接器页面（`app/DshIOS/Views/BotConnectors.swift`）里每个服务的图标、品牌色和一句中文说明，都在 `ConnectorBrand.looks` 这张表里，按 ds-bot 接口返回的连接器 id 查。接口本身不带图标，说明也只有英文。
 
 - **图标取自 [Simple Icons](https://github.com/simple-icons/simple-icons)（CC0）**，不取自 ds-bot 的网页版。SVG 放在 `app/DshIOS/Assets.xcassets/Connectors/<id>.imageset`，模板渲染，由代码按品牌色上底色。Simple Icons 里没有的品牌（有些是品牌方要求下架的），表里不填图标，显示成品牌色加名字首字母。
-- **ds-bot 新增了连接器时**，在表里补一行，否则它显示成通用的拼图块、说明是英文。新的中文说明要照「文案翻译」的步骤补 `en`、`es`。
+- **ds-bot 新增了连接器时**，在表里补一行，否则它显示成通用的拼图块、说明是英文。新的中文说明要照「文案翻译」的步骤补齐各语言。
 - **导入一个新图标**：从 Simple Icons 的 npm 包里取 `icons/<名字>.svg` 的那一条路径，写成 24×24 的单路径 SVG，配一个模板渲染的 `Contents.json`（照现有的抄）；品牌色在它的 `data/simple-icons.json` 里。只读这两处的数据，不要运行包里的脚本。换了 Simple Icons 的版本，记得改 `THIRD_PARTY_NOTICES.md` 里的版本号。
 - 近乎纯黑的品牌色（GitHub、Notion、Vercel）在深色模式下会自动反成白底黑标，不用单独处理。
 

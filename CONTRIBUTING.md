@@ -34,11 +34,12 @@ iOS 部分的改动请至少在模拟器上跑一遍，并在 PR 里写明测过
 
 ## 界面语言
 
-原生界面用中文写，翻译放在 String Catalog [`app/Shared/Localizable.xcstrings`](app/Shared/Localizable.xcstrings) 里，源语言是 `zh-Hans`。目前有中文、英文、西班牙语、日语和韩语，跟随系统语言，也可以在 App 设置页的「语言」里单独选，重启 App 后生效。它和系统「设置 → Fish Pocket → 语言」写的是同一个设置，系统那一项只在系统语言列表里有两种以上语言时才出现。都不匹配时显示英文。
+原生界面用中文写，翻译放在 String Catalog [`app/Shared/Localizable.xcstrings`](app/Shared/Localizable.xcstrings) 里，源语言是 `zh-Hans`。目前有简体中文、繁体中文、英文、西班牙语、日语和韩语，跟随系统语言，也可以在 App 设置页的「语言」里单独选，重启 App 后生效。它和系统「设置 → Fish Pocket → 语言」写的是同一个设置，系统那一项只在系统语言列表里有两种以上语言时才出现。都不匹配时显示英文。
 
 - **写界面文字：** 代码里直接写中文。`Text("设置")`、`Button("取消")` 这类 SwiftUI 字面量会自动进 Catalog；先存成 `String` 再显示的文字要写成 `String(localized: "…")`，不然不会被翻译。
 - **只翻界面：** 日志、注释和发给 Agent 的提示词不翻译。
 - **专业名词跟官方走：** 插件、审批、计划模式、子智能体这类名词，以及和官方 Web UI 意思相同的句子，优先用官方 Web UI 的译法。官方词典在 `@deepseek-ai/dsh-client-ui-*` 各包的 `lib/client.js` 里（MIT），已有 zh、en、ja、es、fr、de、ru、pt 八种，没有韩语；韩语的术语以 App 里已有的译法为准，保持前后一致。
+- **繁体中文按台湾用词写（`zh-Hant`）：** 香港、澳门的系统也会退回到它。直接翻译，不要用 OpenCC 这类简繁转换工具或机器翻译生成初稿，它们一词多义时常选错。系统 App 和 iOS 功能用 Apple 台湾版的名字（行事曆、聯絡人、捷徑、小工具、鎖定畫面、主畫面、動態島），产品名词照已有译法（智能体 → AI 代理，插件 → 外掛，会话 → 對話，群聊 → 群組，私聊 → 私訊，审批 → 核准，定时任务 → 排程任務，头像 → 大頭貼）。
 - **引擎给的文字不用翻：** 插件说明、配置项描述这类 `{en, zh, …}` 文字按界面语言取（`AppLanguage`），没有对应语言时用英文。
 - **定时任务的规则描述**（「每天 9:00」这类）是从官方 `dsh-client-ui-schedule` 移植的词典，在 `app/DshIOS/Views/ScheduleCron.swift` 的 `ScheduleText` 里，不在 Catalog 中。
 
@@ -46,7 +47,7 @@ iOS 部分的改动请至少在模拟器上跑一遍，并在 PR 里写明测过
 
 1. 在 `app/project.yml` 的 `CFBundleLocalizations` 里加上语言代码（如 `fr`），再运行 `xcodegen generate`；在 `AppLanguage.choices` 里加上它和它自己语言里的名字（如 `("fr", "Français")`），设置页的「语言」菜单才会有这一项。
 2. 在 `Localizable.xcstrings` 和 `app/DshIOS/InfoPlist.xcstrings` 里给每条字符串加这个语言的译文，`state` 写 `translated`。Catalog 是 JSON，没有 Xcode 也能编辑。
-3. 在 `ScheduleText` 里照 `en`、`es` 加一张这个语言的表，内容取官方 `dsh-client-ui-schedule` 里同名的词条（官方没有的语言自己翻，如 `ko`），并在 `table` 里按语言代码选用它。
+3. 在 `ScheduleText` 里照 `en`、`es` 加一张这个语言的表，内容取官方 `dsh-client-ui-schedule` 里同名的词条（官方没有的语言自己翻，如 `ko`、`zhHant`），并在 `table` 里按语言代码选用它。
 4. 运行 `node scripts/strings-coverage.mjs fr` 查漏翻的字符串。
 
 在 Xcode 里构建后，新写的界面文字会自动出现在 Catalog 里。不用 Xcode 时，在 Mac 上可以运行 `scripts/sync-strings.sh` 同步。

@@ -36,6 +36,11 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
+        Release(version: "1.2.1", build: 103, features: [
+            Feature(symbol: "character.bubble",
+                    title: "界面支持繁体中文",
+                    detail: "系统语言是繁体中文时自动切换，用词按台湾的习惯；也可以在设置 → 语言里选繁體中文。"),
+        ]),
         Release(version: "1.2.1", features: [
             Feature(symbol: "square.and.arrow.down",
                     title: "从别的 App 分享进来",
