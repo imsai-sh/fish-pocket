@@ -7,7 +7,8 @@ import WebKit
 /// `scripts/build-page-controller.sh` 打包）。它整个跑在网页里，是 iOS 上唯一走得通
 /// 的浏览器自动化办法：这里没有 Chromium，靠 CDP、WebDriver 的方案都用不了。
 ///
-/// 参数在 `caps_browser.m` 里查过了，这里只做事。发给模型的话都是英文，和其他能力一致。
+/// 有哪些动作、各要什么参数，在 `BrowserCatalog` 里登记；这里先按它检查参数，再做事。
+/// 发给模型的话都是英文，和其他能力一致。
 @objc final class BrowserAgent: NSObject {
     @objc static let shared = BrowserAgent()
 
@@ -21,6 +22,7 @@ import WebKit
     @MainActor
     private static func perform(_ op: String, _ args: [String: Any]) async throws -> [String: Any] {
         guard let session = args["session"] as? String else { throw BrowserAgentError("missing session") }
+        try BrowserCatalog.check(op, args)
         guard let app = EngineConnection.shared.app else {
             throw BrowserAgentError("the app is still connecting to its engine; try again in a moment")
         }
@@ -29,8 +31,12 @@ import WebKit
         let browser = BrowserModel.session(owner, origin: app.client.origin)
         let named = args["tab"] as? String
 
-        // 标签页本身的操作：不碰网页，不用排队。
+        // 整个浏览器的事和标签页本身的操作：不碰网页，不用排队。
         switch op {
+        case "addScript": return browser.agentAddScript(args["script"] as? String ?? "", name: args["name"] as? String)
+        case "scripts": return browser.agentScripts()
+        case "removeScript": return try browser.agentRemoveScript(args["id"] as? String ?? "")
+        case "downloads": return browser.agentDownloads()
         case "tabs":
             return tabsAnswer(browser)
         case "close_tab":
@@ -81,16 +87,34 @@ import WebKit
             case "click", "type", "select", "scroll": return try await page.agentAct(op, args)
             case "back", "forward", "reload": return try await page.agentNavigate(op, desktop: args["desktop"] as? Bool)
             case "evaluate": return try await page.agentEvaluate(args["script"] as? String ?? "")
-            case "screenshot": return try await page.agentScreenshot()
-            default: throw BrowserAgentError("browser has no operation '\(op)'")
+            case "screenshot":
+                return try await (args["fullPage"] as? Bool == true ? page.agentFullPageScreenshot() : page.agentScreenshot())
+            case "pdf": return try await page.agentPDF(path: args["path"] as? String, caller: session)
+            case "logs":
+                return page.agentLogs(
+                    kind: args["kind"] as? String ?? "all", limit: (args["limit"] as? NSNumber)?.intValue ?? 100,
+                    clear: args["clear"] as? Bool ?? false)
+            case "request": return try await page.agentRequest(args, caller: session)
+            case "cookies": return try await page.agentCookies(url: args["url"] as? String, domain: args["domain"] as? String)
+            case "setCookie": return try await page.agentSetCookie(args)
+            case "deleteCookie": return try await page.agentDeleteCookie(name: args["name"] as? String ?? "", domain: args["domain"] as? String)
+            case "keys": return try await page.agentKeys(index: (args["index"] as? NSNumber)?.intValue, text: args["text"] as? String ?? "")
+            case "upload": return try await page.agentUpload(index: (args["index"] as? NSNumber)?.intValue ?? 0, paths: args["paths"] as? [String] ?? [], caller: session)
+            // Listed in the catalog but not handled here: a slip that shows at once, not a silent no-op.
+            default: throw BrowserAgentError("browser has no implementation for '\(op)' in this build")
             }
         }
-        // Which tab this was, so the agent can tell when the user has another in front.
+        // Which tab this was, so the agent can tell when the user has another in front. A page's
+        // header carries it, as that is what the model reads first.
         answer["tab"] = tab.id
-        answer["tabCount"] = browser.tabs.count
-        answer["frontTab"] = browser.selectedId ?? NSNull()
         if op == "select_tab" { answer["action"] = "Tab \(tab.id) is in front now." }
         if op == "new_tab" { answer["action"] = "Opened tab \(tab.id) in front." }
+        if browser.tabs.count > 1, answer["content"] != nil || answer["header"] != nil {
+            let front = browser.selectedId == tab.id ? "in front" : "the user has \(browser.selectedId ?? "another") in front"
+            let note = "Tab \(tab.id) of \(browser.tabs.count) open (\(front))."
+            let header = answer["header"] as? String ?? "Current Page: [\(answer["title"] as? String ?? "")](\(answer["url"] as? String ?? ""))"
+            answer["header"] = note + "\n" + header
+        }
         return answer
     }
 
@@ -123,6 +147,11 @@ extension BrowserAgent {
 }
 
 extension BrowserAgent: DshBrowserProviding {
+    /// Read by the dispatcher on every call and by the engine once, from any thread: a constant.
+    func catalog() -> [String: Any] {
+        BrowserCatalog.dictionary as? [String: Any] ?? [:]
+    }
+
     func performOperation(
         _ op: String,
         arguments args: [String: Any],
@@ -334,8 +363,7 @@ extension BrowserPage {
             throw BrowserAgentError("The screenshot could not be encoded.")
         }
         return [
-            "data": data.base64EncodedString(),
-            "mediaType": "image/jpeg",
+            "image": ["data": data.base64EncodedString(), "mediaType": "image/jpeg"],
             "url": webView.url?.absoluteString ?? "",
             "title": webView.title ?? "",
         ]
@@ -356,7 +384,7 @@ extension BrowserPage {
 
     /// 调一段脚本，最多等 `timeout` 秒。网页卡住、App 被切到后台时脚本可能永远不返回，
     /// 引擎那头的调用不能跟着挂死，所以到点就先回一个错误；脚本之后的结果丢掉。
-    private func run(
+    func run(
         _ body: String,
         arguments: [String: Any] = [:],
         in world: WKContentWorld? = nil,
@@ -392,7 +420,7 @@ extension BrowserPage {
 
 /// 两条路谁先到谁说了算，另一条什么都不做。
 @MainActor
-private final class Once {
+final class Once {
     private var claimed = false
     func claim() -> Bool {
         if claimed { return false }

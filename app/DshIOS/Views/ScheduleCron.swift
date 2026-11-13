@@ -7,14 +7,15 @@ import Foundation
 
 /// The `schedule.manager` copy (with the shared frequency fragments) this app uses, in the UI's
 /// language: the official client's own zh, en, es and ja dictionaries (the official client has no
-/// Korean, so `ko` is this app's own), Chinese for anything a table lacks.
+/// Korean or Traditional Chinese, so `ko` and `zhHant` are this app's own), Chinese for anything a
+/// table lacks.
 enum ScheduleText {
     static var locale: Locale { AppLanguage.locale }
 
     /// The table for the UI's language, English when there is none.
     private static var table: [String: String] {
         switch AppLanguage.primary {
-        case "zh": zh
+        case "zh": AppLanguage.isTraditionalChinese ? zhHant : zh
         case "es": es
         case "ja": ja
         case "ko": ko
@@ -86,6 +87,61 @@ enum ScheduleText {
         "relative.future": "{value}{unit}后",
         "relative.overdue": "已逾期 {value}{unit}",
         "rule.zone.system": "（系统）",
+    ]
+
+    /// `zh` in Taiwan Traditional: the official client has none, so it is this app's own.
+    private static let zhHant: [String: String] = [
+        "frequency.once": "僅一次",
+        "frequency.every": "每 {value} {unit}",
+        "frequency.daily": "每天 {time}（{timeZone}）",
+        "frequency.dailyLocal": "每天 {time}",
+        "frequency.weekly": "每週{weekdays} {time}（{timeZone}）",
+        "frequency.weeklyLocal": "每週{weekdays} {time}",
+        "frequency.cron": "Cron {expression}（{timeZone}）",
+        "frequency.cronLocal": "Cron {expression}",
+        "frequency.cronRule": "{rule}（{timeZone}）",
+        "cron.list.join": "、",
+        "cron.part.join": " ",
+        "cron.weekday.name": "週{weekday}",
+        "cron.weekday.range": "{from}至{to}",
+        "cron.months": "（{months}）",
+        "cron.day.every": "每天{months}",
+        "cron.day.weekdays": "{weekdays}{months}",
+        "cron.day.monthDays": "每月 {days} 日{months}",
+        "cron.day.both": "每月 {days} 日或{weekdays}{months}",
+        "cron.day.bothStarred": "每月 {days} 日且{weekdays}{months}",
+        "cron.hours.range": "{from} 至 {to}",
+        "cron.hours.list": "{hours}",
+        "cron.time.everyMinute": "每分鐘",
+        "cron.time.everyMinutes": "每 {step} 分鐘",
+        "cron.time.joinedEveryMinute": "每分鐘",
+        "cron.time.joinedEveryMinutes": "每 {step} 分鐘",
+        "cron.time.everyHour": "每小時",
+        "cron.time.joinedEveryHour": "每小時",
+        "cron.time.everyNHours": "每 {count} 小時",
+        "cron.time.joinedEveryNHours": "每 {count} 小時",
+        "cron.time.hourlyAt": "每小時的第 {minutes} 分鐘",
+        "cron.time.joinedHourlyAt": "每小時的第 {minutes} 分鐘",
+        "cron.time.hoursEveryMinute": "{hours} 點的每分鐘",
+        "cron.time.hoursEveryMinutes": "{hours} 點內每 {step} 分鐘",
+        "cron.time.at": "{times}",
+        "cron.time.hoursAt": "{hours} 點的第 {minutes} 分鐘",
+        "frequency.weekday.join": "、",
+        "frequency.weekday.1": "一",
+        "frequency.weekday.2": "二",
+        "frequency.weekday.3": "三",
+        "frequency.weekday.4": "四",
+        "frequency.weekday.5": "五",
+        "frequency.weekday.6": "六",
+        "frequency.weekday.7": "日",
+        "unit.day": "天",
+        "unit.hour": "小時",
+        "unit.minute": "分鐘",
+        "unit.second": "秒",
+        "relative.now": "現在到期",
+        "relative.future": "{value}{unit}後",
+        "relative.overdue": "已逾期 {value}{unit}",
+        "rule.zone.system": "（系統）",
     ]
 
     /// The official `en` entries for the same keys (`schedule.manager`, then the shared fragments).

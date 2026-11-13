@@ -421,6 +421,26 @@ func copyToPasteboard(_ text: String) {
     Haptics.success()
 }
 
+/// The system share sheet, presented from whatever is on top. Not `ShareLink`:
+/// in a sheet opened from the chat, a `ShareLink` (in a toolbar menu at least)
+/// presents from the root controller, which is already presenting that sheet,
+/// so UIKit refuses and the tap does nothing.
+@MainActor
+func presentShareSheet(_ items: [Any]) {
+    let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first { $0.activationState == .foregroundActive }
+        ?? UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+    guard var top = scene?.keyWindow?.rootViewController else { return }
+    while let presented = top.presentedViewController, !presented.isBeingDismissed { top = presented }
+    let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+    // iPad shows it as a popover, which needs an anchor: the middle of the page, no arrow.
+    if let popover = controller.popoverPresentationController {
+        popover.sourceView = top.view
+        popover.sourceRect = CGRect(x: top.view.bounds.midX, y: top.view.bounds.midY, width: 0, height: 0)
+        popover.permittedArrowDirections = []
+    }
+    top.present(controller, animated: true)
+}
+
 /// Hide the keyboard, whichever field (or the terminal) holds it. Not by sending
 /// `resignFirstResponder` up the responder chain: the terminal answers
 /// `canPerformAction` for its own menu only, so that action passes it by.

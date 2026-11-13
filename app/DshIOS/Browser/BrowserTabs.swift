@@ -46,6 +46,13 @@ final class BrowserModel {
     @ObservationIgnored var focusesAddress = false
 
     @ObservationIgnored let origin: URL
+    /// The conversation: downloads go to its working directory.
+    @ObservationIgnored let sessionId: String
+    /// The agent's kept scripts (`addScript`), run in every tab on every page load until the app restarts.
+    @ObservationIgnored var keptScripts: [BrowserScript] = []
+    @ObservationIgnored var scriptCount = 0
+    /// Files any tab downloaded, and the ones still coming.
+    @ObservationIgnored var downloads: [BrowserDownload] = []
     @ObservationIgnored private let storageKey: String
     @ObservationIgnored private var restorableSelected = 0
     @ObservationIgnored private var nextId = 1
@@ -81,6 +88,7 @@ final class BrowserModel {
 
     private init(sessionId: String, origin: URL) {
         self.origin = origin
+        self.sessionId = sessionId
         storageKey = "dsh.browser.tabs.\(sessionId)"
         let defaults = UserDefaults.standard
         if let data = defaults.data(forKey: storageKey), let kept = try? JSONDecoder().decode(Kept.self, from: data) {
@@ -184,7 +192,7 @@ final class BrowserModel {
     @discardableResult
     func revive(_ tab: Tab) -> BrowserPage {
         if let page = tab.page { return page }
-        let page = BrowserPage(origin: origin)
+        let page = BrowserPage(sessionId: sessionId, origin: origin, browser: self)
         page.changed = { [weak self] in self?.pageChanged() }
         tab.page = page
         tab.used = Date()

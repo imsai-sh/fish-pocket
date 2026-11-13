@@ -89,3 +89,7 @@
     # addon. Registers nothing when that addon is absent (docs/native-services.md).
     - id: ios-native
       name: ./plugins/ios-native/index.mjs
+    # DeepSeek speech recognition and synthesis for the app's own screens
+    # (hold-to-talk, replies read aloud), sent with the stored DeepSeek key.
+    - id: ios-speech
+      name: ./plugins/ios-speech/index.mjs

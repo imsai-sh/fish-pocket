@@ -291,7 +291,7 @@ struct FileContentView: View {
             if let localURL {
                 Button { copyToPasteboard(localURL.path) } label: { Label("复制路径", systemImage: "doc.on.doc") }
                 Button { preview = localURL } label: { Label("快速查看", systemImage: "eye") }
-                ShareLink(item: localURL)
+                Button { presentShareSheet([localURL]) } label: { Label("分享", systemImage: "square.and.arrow.up") }
             }
         } label: {
             Image(systemName: "ellipsis")
@@ -322,7 +322,7 @@ struct FileContentView: View {
             if let localURL {
                 HStack(spacing: 12) {
                     Button("用快速查看打开") { preview = localURL }.buttonStyle(.capsule(.secondary, height: 44, fill: false))
-                    ShareLink(item: localURL) { Image(systemName: "square.and.arrow.up") }
+                    Button { presentShareSheet([localURL]) } label: { Image(systemName: "square.and.arrow.up") }
                         .buttonStyle(.capsule(.secondary, height: 44, fill: false))
                         .accessibilityLabel("分享")
                 }

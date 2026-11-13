@@ -4,8 +4,9 @@
 // Each tool is thin on purpose: validate, call the addon, render. The addon owns
 // permission, the main thread and the framework call.
 import { defineTool } from '@deepseek-ai/dsh-tools';
-import { invoke as invokeNative } from './binding.mjs';
+import { describe, invoke as invokeNative } from './binding.mjs';
 import { ENGINE_CLAIM } from './caller.mjs';
+import { BASE as SPEECH_BASE, credentialHeaders, tellApp } from '../ios-speech/index.mjs';
 
 // These are the engine's own tools, so every call from here claims the engine.
 // It is still only a claim — nothing downstream treats it as proof.
@@ -100,20 +101,18 @@ const notify = defineTool({
   },
 });
 
-const speak = defineTool({
+// Read in DeepSeek's voice by the app itself (plugins/ios-speech), the same way the app reads a
+// reply: the voice the user picked, stopped when they switch conversations. Not the addon's
+// system voices.
+const speak = (ctx) => defineTool({
   name: 'speak',
   description:
-    'Read text aloud through the device speaker, using the system voices. Returns as soon as '
-    + 'speech starts, not when it finishes. Use it when the user asks you to say something out '
-    + 'loud or cannot look at the screen.',
+    'Read text aloud through the device speaker in DeepSeek\'s voice (the one the user picked in '
+    + 'the app\'s settings). Returns once the app has the text, before the audio plays. Use it when '
+    + 'the user asks you to say something out loud or cannot look at the screen.',
   parameters: {
     action: { type: 'string', enum: ['say', 'stop'], description: 'start speaking, or stop at once', required: true },
-    text: { type: 'string', description: 'what to say; required for `say`' },
-    language: {
-      type: 'string',
-      description: 'BCP-47 language of the text, e.g. zh-CN or en-US. Set it when the text is not in the device language',
-    },
-    rate: { type: 'number', description: 'speech rate; the system default is about 0.5' },
+    text: { type: 'string', description: 'what to say; required for `say`. The language is detected from the text' },
   },
   output: {
     schema: { type: 'json' },
@@ -121,13 +120,20 @@ const speak = defineTool({
       text(args.action === 'stop' ? 'Stopped speaking.' : `Speaking ${value.characters} characters.`),
   },
   execute: async (args) => {
-    if (args.action === 'stop') return invoke('speak', 'stop');
+    if (args.action === 'stop') {
+      tellApp('stop');
+      return { speaking: false };
+    }
     if (!args.text) throw new Error('speak: `say` needs `text`');
-    return invoke('speak', 'say', {
-      text: args.text,
-      ...(args.language === undefined ? {} : { language: args.language }),
-      ...(args.rate === undefined ? {} : { rate: args.rate }),
-    });
+    if (await credentialHeaders(ctx, `${SPEECH_BASE}/tts`) === undefined) {
+      throw new Error('speak: reading aloud uses DeepSeek\'s speech service, which needs a DeepSeek API key (it does '
+        + 'not accept a DeepSeek account sign-in yet). Tell the user to add a DeepSeek API key under 设置 → 模型 '
+        + '(Settings → Model) in the app, then ask again. Do not retry until they have.');
+    }
+    if (!tellApp('say', { text: args.text })) {
+      throw new Error('speak: the app is not listening right now (it may be reconnecting to the engine); try again in a moment.');
+    }
+    return { speaking: true, characters: [...args.text].length };
   },
 });
 
@@ -1744,21 +1750,8 @@ function cut(value, limit, what) {
   return `${value.slice(0, limit)}\n… ${what} cut at ${limit} of ${value.length} characters`;
 }
 
-const BROWSER_ACTIONS = ['open', 'read', 'click', 'type', 'select', 'scroll', 'back', 'forward', 'reload', 'evaluate', 'screenshot',
-  'tabs', 'new_tab', 'select_tab', 'close_tab'];
-
 /**
- * Which tab a page result came from, when there is more than one: the user
- * may have another in front, and the agent should know it is not that one.
- */
-function tabLine(value) {
-  if (typeof value.tab !== 'string' || !(value.tabCount > 1)) return [];
-  const front = value.frontTab === value.tab ? 'in front' : `the user has ${value.frontTab} in front`;
-  return [`Tab ${value.tab} of ${value.tabCount} open (${front}).`];
-}
-
-/**
- * Refuse a screenshot the model on this route could not look at. Same test
+ * Refuse a picture the model on this route could not look at. Same test
  * DSH's own read_image makes: the image would otherwise be stored and sent to
  * a model that rejects it, and the whole turn would fail instead of this call.
  */
@@ -1768,110 +1761,107 @@ async function assertSeesImages(ctx, exec) {
   const model = routed?.model ?? exec.agent?.options?.model;
   const llm = ctx.get('llm');
   if (provider === undefined || model === undefined || llm === undefined) {
-    throw new Error('browser: could not tell which model this conversation uses, so no screenshot was taken');
+    throw new Error('browser: could not tell which model this conversation uses, so no picture was taken');
   }
   const info = await llm.resolveModelInfo(provider, model, exec.signal);
   if (!info.inputModalities?.includes('image')) {
-    throw new Error(`browser: model "${model}" cannot look at images, so no screenshot was taken. `
+    throw new Error(`browser: model "${model}" cannot look at images, so no picture was taken. `
       + 'Use `read` for the text, or `evaluate` to measure layout and styles.');
   }
 }
 
 /**
- * The browser tool. Unlike the other tools here it needs the engine: a
- * screenshot goes into the attachment store, which is how an image reaches
- * the model.
- * @param ctx - the context the tool is registered in.
+ * What the browser can do comes from the app, not from here: the app lists its
+ * actions, their arguments and what to tell the model about them (its
+ * `catalog`), checks the arguments itself, and the dispatcher refuses anything
+ * the catalog does not name. This tool only shapes that list into a tool and
+ * passes calls through, so a new browser ability is written in the app alone.
+ *
+ * Without the app (tests, a desktop build) there is no catalog, and the tool is
+ * not registered at all (index.mjs); this stands in so it can still be built.
  */
-const browser = (ctx) => defineTool({
-  name: 'browser',
-  description:
-    'Use the web browser of this conversation — the one the user sees under Workbench → Browser — '
-    + 'to open a page, read it, look at it, and click, type and choose on it like a person would. '
-    + 'Use it for pages that need JavaScript, a login or several steps, and to check a site you are '
-    + 'building (open it on localhost). For a plain page whose text is all you need, fetching it is '
-    + 'cheaper. `open` and every action return the page again: its URL and title, then its text with '
-    + 'every element you can act on numbered like [3]. Pass that number as `index`; numbers change '
-    + 'whenever the page does, so always use the ones from the latest result. `screenshot` shows '
-    + 'what is on screen, for layout, images and charts the text cannot tell you. Sites see a phone; '
-    + 'pass `desktop: true` with `open` or `reload` for a site\'s desktop (PC) version, `false` to go '
-    + 'back — the choice stays with that site, for the user too. The browser has tabs, shared with '
-    + 'the user: `tabs` lists them (which one is in front, which one you last used), `new_tab`, '
-    + '`select_tab` and `close_tab` change them. Every other action works in the tab you pass as '
-    + '`tab`, or else the one you last used; a link the user taps opens in a new tab and does not '
-    + 'move you. To pick up a page the user opened, call `tabs` and `select_tab` it. Sign-ins are kept '
-    + 'across app launches. The user can watch and take over at any time. Never type a password, '
-    + 'card number or other secret into a page — ask the user to do that part in the workbench.',
-  parameters: {
+const NO_CATALOG = {
+  description: 'Use the web browser of this conversation, the one the user sees under Workbench → Browser. '
+    + 'Its actions are listed by the app, and this build of the app lists none.',
+  actions: [],
+  params: [],
+};
+
+function describeBrowser(catalog) {
+  const lines = [typeof catalog.description === 'string' ? catalog.description : NO_CATALOG.description];
+  if (catalog.actions?.length) {
+    lines.push('', 'Actions:');
+    for (const action of catalog.actions) {
+      const needs = action.needs?.length ? ` (needs ${action.needs.map((name) => `\`${name}\``).join(', ')})` : '';
+      lines.push(`- \`${action.name}\`${needs}: ${action.does}`);
+    }
+  }
+  return lines.join('\n');
+}
+
+function browserParameters(catalog) {
+  const names = (catalog.actions ?? []).map((action) => action.name);
+  const parameters = {
     action: {
       type: 'string',
-      enum: BROWSER_ACTIONS,
-      description: 'open a URL; read the current page; click, type into or select in a numbered '
-        + 'element; scroll; go back, forward or reload; evaluate a script in the page; take a '
-        + 'screenshot of what is on screen; list the tabs; open a new tab (with `url` to load one); '
-        + 'bring a tab to the front and work in it; close a tab',
+      ...(names.length > 0 ? { enum: names } : {}),
+      description: 'what to do; the Actions list says what each one takes',
       required: true,
     },
-    url: { type: 'string', description: 'open, new_tab: the address; a bare host means https, localhost means http' },
-    tab: {
-      type: 'string',
-      description: 'select_tab, close_tab: which tab, by its id from `tabs` (such as "t2"). Any other '
-        + 'action except new_tab: the tab to work in; leave it out for the one you last used',
-    },
-    desktop: {
-      type: 'boolean',
-      description: 'open, new_tab, reload: true for the site\'s desktop version, false for its mobile one; '
-        + 'remembered for that site. Leave it out to keep the site\'s current choice',
-    },
-    index: { type: 'number', description: 'click, type, select: the element\'s number from the latest result; scroll: optionally the scrollable element to scroll inside' },
-    text: { type: 'string', description: 'type: what to put in the field; it replaces what is there' },
-    option: { type: 'string', description: 'select: the visible text of the option to choose' },
-    direction: { type: 'string', enum: ['down', 'up'], description: 'scroll: which way; defaults to down' },
-    pages: { type: 'number', description: 'scroll: how many screens; defaults to 1' },
-    script: {
-      type: 'string',
-      description: 'evaluate: the body of an async function run in the page, with access to its '
-        + 'globals; `return` a JSON-serialisable value to see it. For checking a page you are building '
-        + '— prefer the other actions for using a site',
-    },
-  },
+  };
+  for (const param of catalog.params ?? []) {
+    // `session` is this tool's to fill in, never the model's.
+    if (typeof param?.name !== 'string' || param.name === 'action' || param.name === 'session') continue;
+    if (param.schema === null || typeof param.schema !== 'object') continue;
+    parameters[param.name] = { ...param.schema };
+  }
+  return parameters;
+}
+
+function renderPage(value) {
+  const lines = [];
+  if (value.action) lines.push(value.action, '');
+  lines.push(value.header ?? `Current Page: [${value.title ?? ''}](${value.url ?? ''})`);
+  lines.push(cut(value.content, PAGE_LIMIT, 'page'));
+  if (value.footer) lines.push(value.footer);
+  if (value.loading) lines.push('(The page is still loading; `read` again to see the rest.)');
+  if (value.desktop === true) lines.push('(This is the site\'s desktop version.)');
+  return text(lines.join('\n'));
+}
+
+/**
+ * The browser tool. Unlike most tools here it needs the engine: a picture goes
+ * into the attachment store, which is how an image reaches the model.
+ * @param ctx - the context the tool is registered in.
+ * @param catalog - what the app's browser can do; read from the app by default.
+ */
+const browser = (ctx, catalog = describe('browser') ?? NO_CATALOG) => defineTool({
+  name: 'browser',
+  description: describeBrowser(catalog),
+  parameters: browserParameters(catalog),
   output: {
     schema: { type: 'json' },
     render: (args, value) => {
-      if (args.action === 'screenshot') {
+      if (value?.image?.attachmentId !== undefined) {
+        const what = value.fullPage
+          ? 'the whole page, top to bottom'
+          : 'the visible part of the page, as the user sees it in the workbench';
         return [
           {
             type: 'text',
-            text: [...tabLine(value), `Screenshot of [${value.title ?? ''}](${value.url ?? ''}): the visible part of the page, `
-              + `${value.image.width}x${value.image.height} px, as the user sees it in the workbench.`].join('\n'),
+            text: `Screenshot of [${value.title ?? ''}](${value.url ?? ''}): ${what}, `
+              + `${value.image.width}x${value.image.height} px.`,
           },
           { type: 'image', attachment: value.image },
         ];
       }
-      if (value.tabs !== undefined) {
-        const lines = [];
-        if (value.action) lines.push(value.action, '');
-        for (const tab of value.tabs) {
-          const marks = [tab.front && 'in front', tab.yours && 'yours', tab.loading && 'loading'].filter(Boolean);
-          const where = tab.url ? `[${tab.title || tab.url}](${tab.url})` : '(blank)';
-          lines.push(`${tab.id}${marks.length > 0 ? ` (${marks.join(', ')})` : ''}: ${where}`);
-        }
-        return text(lines.join('\n'));
-      }
-      if (args.action === 'evaluate') {
+      if (value !== null && typeof value === 'object' && 'result' in value) {
         return text(value.result === null
           ? 'The script ran and returned nothing.'
           : cut(value.result, SCRIPT_RESULT_LIMIT, 'result'));
       }
-      const lines = [];
-      if (value.action) lines.push(value.action, '');
-      lines.push(...tabLine(value));
-      lines.push(value.header ?? `Current Page: [${value.title ?? ''}](${value.url ?? ''})`);
-      lines.push(cut(value.content, PAGE_LIMIT, 'page'));
-      if (value.footer) lines.push(value.footer);
-      if (value.loading) lines.push('(The page is still loading; `read` again to see the rest.)');
-      if (value.desktop === true) lines.push('(This is the site\'s desktop version.)');
-      return text(lines.join('\n'));
+      if (value?.content !== undefined || value?.header !== undefined) return renderPage(value);
+      return text(cut(JSON.stringify(value ?? null, null, 2), SCRIPT_RESULT_LIMIT, 'result'));
     },
   },
   execute: async (args, exec) => {
@@ -1882,25 +1872,27 @@ const browser = (ctx) => defineTool({
       throw new Error('browser: this call is not part of a conversation, so there is no browser to use');
     }
     const { action, ...rest } = args;
-    if (action !== 'screenshot') return invoke('browser', action, { ...rest, session });
-    // The tab goes along; the other arguments mean nothing to a screenshot.
-    const where = typeof rest.tab === 'string' ? { tab: rest.tab } : {};
-
+    const shows = catalog.actions?.find((entry) => entry.name === action)?.image === true;
     const attachments = ctx.get('attachments');
+    // An action that answers with a picture is refused before it runs when the
+    // picture could not be shown.
+    if (shows) {
+      if (attachments === undefined) throw new Error('browser: this engine has no attachment store, so it cannot show images');
+      await assertSeesImages(ctx, exec);
+    }
+    const value = await invoke('browser', action, { ...rest, session });
+    if (typeof value?.image?.data !== 'string') return value;
+
+    // The picture goes to the attachment store; the model gets a reference.
     if (attachments === undefined) throw new Error('browser: this engine has no attachment store, so it cannot show images');
-    await assertSeesImages(ctx, exec);
-    const shot = await invoke('browser', 'screenshot', { ...where, session });
+    if (!shows) await assertSeesImages(ctx, exec);
     const ref = await attachments.saveImage({
-      data: Buffer.from(shot.data, 'base64'),
-      mediaType: shot.mediaType,
-      name: 'browser-screenshot.jpg',
+      data: Buffer.from(value.image.data, 'base64'),
+      mediaType: value.image.mediaType,
+      name: value.image.name ?? 'browser-screenshot.jpg',
     });
     return {
-      url: shot.url,
-      title: shot.title,
-      tab: shot.tab,
-      tabCount: shot.tabCount,
-      frontTab: shot.frontTab,
+      ...value,
       image: {
         attachmentId: ref.attachmentId,
         mediaType: ref.mediaType,

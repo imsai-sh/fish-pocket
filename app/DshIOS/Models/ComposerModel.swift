@@ -165,6 +165,8 @@ final class ComposerModel {
     private(set) var savingQueueEdit = false
     /// Bumped to ask the input for the keyboard (from outside it, or after a sheet).
     private(set) var focusRequest = 0
+    /// Hold-to-talk: the bar's voice mode and the recording under the finger.
+    @ObservationIgnored let voice = VoiceInput()
     /// Cleared here; hidden until the projection catches up.
     private var clearedGoalId: String?
 

@@ -196,6 +196,8 @@ final class AppModel {
         mux = StreamMux(client: client)
         account = AccountModel(client: client, mux: mux)
         cordis.attach(self)
+        DeepSeekSpeech.client = client
+        ReadAloud.shared.onError = { [weak self] message in self?.showToast(message, tone: .warning) }
     }
 
     func connect() async {
@@ -210,6 +212,7 @@ final class AppModel {
             followScheduleCatalog()
             account.follow()
             botTeam.start()
+            DeepSeekSpeech.followAgent()
             BackgroundKeeper.shared.attach { [weak self] in await self?.refreshSessions() }
             LiveActivityController.shared.attach(self)
             WidgetSnapshotWriter.shared.attach(self)
@@ -615,7 +618,7 @@ final class AppModel {
         if let string = value.string { return string }
         let object = value.object
         guard !object.isEmpty else { return nil }
-        if AppLanguage.isChinese, let zh = object.first(where: { $0.key.lowercased().hasPrefix("zh") })?.value.string { return zh }
+        if AppLanguage.isChinese, let zh = AppLanguage.chinese(in: object) { return zh }
         return object[AppLanguage.primary]?.string ?? object["en"]?.string ?? object[""]?.string ?? object.values.first?.string
     }
 

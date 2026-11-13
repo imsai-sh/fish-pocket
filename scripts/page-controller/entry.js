@@ -166,12 +166,73 @@ async function scroll(down, pages, pixels, index) {
   return act('scroll', { index }, () => controller.scroll({ down, numPages: pages, pixels, index }));
 }
 
+/**
+ * The file field a number points at: the field itself, or the one a button or
+ * label opens. Sites hide the real field and show a styled button, and the
+ * controller numbers what is visible, so the button's number has to lead to it.
+ */
+function fileField(index) {
+  const node = element(index);
+  if (!node) return null;
+  const isFile = (field) => field instanceof HTMLInputElement && field.type === 'file';
+  if (isFile(node)) return node;
+  if (node instanceof HTMLLabelElement && isFile(node.control)) return node.control;
+  const label = node.closest('label');
+  if (label && isFile(label.control)) return label.control;
+  const inside = node.querySelector('input[type=file]');
+  if (inside) return inside;
+  for (let around = node.parentElement, depth = 0; around && depth < 3; around = around.parentElement, depth++) {
+    const near = around.querySelector('input[type=file]');
+    if (near) return near;
+  }
+  // One file field on the page: it is the one meant.
+  const all = document.querySelectorAll('input[type=file]');
+  return all.length === 1 ? all[0] : null;
+}
+
+function bytes(base64) {
+  const text = atob(base64);
+  const out = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i++) out[i] = text.charCodeAt(i);
+  return out;
+}
+
+/** Files into a file field, as if the user had picked them: the page sees its usual input and change events. */
+function upload(index, files) {
+  return act('upload', { index }, async () => {
+    const field = fileField(index);
+    if (!field) return { success: false, message: `Element ${index} is not a file field, and no file field goes with it.` };
+    if (!field.multiple && files.length > 1) return { success: false, message: 'This file field takes one file at a time.' };
+    const transfer = new DataTransfer();
+    for (const file of files) transfer.items.add(new File([bytes(file.data)], file.name, { type: file.type }));
+    field.files = transfer.files;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+    return { success: true, message: `Put ${files.map((file) => file.name).join(', ')} into the file field.` };
+  });
+}
+
+/** Focus a numbered element, so the system keyboard's text goes there. */
+function focus(index) {
+  const target = element(index);
+  if (!target) return { success: false, message: `There is no element ${index} on this page; \`read\` again for its numbers.` };
+  target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  target.focus();
+  const active = document.activeElement;
+  const focused = active === target || target.contains(active);
+  return focused
+    ? { success: true, message: `Focused element ${index}.` }
+    : { success: false, message: `Element ${index} cannot take the keyboard's focus.` };
+}
+
 globalThis.__dshBrowser = Object.freeze({
   read,
   click: (index) => act('click', { index }, () => controller.clickElement(index)),
   type: (index, text) => act('type', { index, text }, () => controller.inputText(index, text)),
   select,
   scroll,
+  upload,
+  focus,
   presence,
   /** Whether this page has been read since it loaded: numbers mean nothing before that. */
   indexed: () => controller.selectorMap?.size > 0,

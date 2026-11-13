@@ -1,9 +1,7 @@
 // browser: read and drive the web page open in this conversation's browser.
 //
 // The browser is the one under Workbench → Browser, so whatever the agent does
-// there the user can watch and take over. It has tabs, which the user and the
-// agent share: `tabs` lists them, `new_tab`, `select_tab` and `close_tab` change
-// them, and every page operation takes an optional `tab` (else the agent's last). Pages are read with page-agent's page
+// there the user can watch and take over. Pages are read with page-agent's page
 // controller (app/DshIOS/Browser/PageController.js), which numbers the parts of a
 // page that can be clicked or typed into; `click`, `type` and `select` take
 // those numbers.
@@ -13,12 +11,13 @@
 // Safari's and from the engine's web view: it is signed in to what someone
 // signed in to in this browser, and to nothing else.
 //
-// `screenshot` answers with the picture as base64 JPEG; the engine puts it in
-// its attachment store, which is how an image reaches the model.
+// An operation that shows something answers with the picture as base64 JPEG;
+// the engine puts it in its attachment store, which is how an image reaches the
+// model.
 //
 // This file is only a shim. The browser lives in Swift (DshBrowserBridge.h says
-// why); what stays here is the argument checking and the sentences a caller can
-// be refused with.
+// why), and so do its operations, their arguments and the checks on them: a new
+// one is written there alone.
 #import "dsh_ios_native.h"
 #import "DshBrowserBridge.h"
 
@@ -46,66 +45,10 @@ static id<DshBrowserProviding> current_provider(void) {
   return provider;
 }
 
-static BOOL has_string(NSDictionary *args, NSString *key) {
-  return [args[key] isKindOfClass:NSString.class];
-}
-
-static BOOL has_index(NSDictionary *args) {
-  id index = args[@"index"];
-  // A JSON number that is a whole, non-negative value. 3.0 from a model counts.
-  return [index isKindOfClass:NSNumber.class] && [index doubleValue] >= 0 &&
-         [index doubleValue] == floor([index doubleValue]);
-}
-
-/// The argument this operation cannot do without, or nil when it has it.
-static NSString *missing_argument(NSString *op, NSDictionary *args) {
-  if (args[@"tab"] != nil && !has_string(args, @"tab")) {
-    return @"'tab' must be a tab id from `tabs`, such as \"t2\"";
-  }
-  if (([op isEqualToString:@"select_tab"] || [op isEqualToString:@"close_tab"]) &&
-      !has_string(args, @"tab")) {
-    return [NSString stringWithFormat:@"%@ needs 'tab': an id from `tabs`", op];
-  }
-  if ([op isEqualToString:@"new_tab"] && args[@"tab"] != nil) {
-    return @"new_tab makes its own tab; leave 'tab' out";
-  }
-  if ([op isEqualToString:@"new_tab"] && args[@"url"] != nil && !has_string(args, @"url")) {
-    return @"new_tab's 'url' must be a string";
-  }
-  if ([op isEqualToString:@"open"] && !has_string(args, @"url")) {
-    return @"open needs 'url'";
-  }
-  if (([op isEqualToString:@"click"] || [op isEqualToString:@"type"] ||
-       [op isEqualToString:@"select"]) && !has_index(args)) {
-    return [NSString stringWithFormat:
-        @"%@ needs 'index': the number in brackets in front of an element in the last `read`", op];
-  }
-  if ([op isEqualToString:@"type"] && !has_string(args, @"text")) return @"type needs 'text'";
-  if ([op isEqualToString:@"select"] && !has_string(args, @"option")) {
-    return @"select needs 'option': the visible text of the option to choose";
-  }
-  if (args[@"desktop"] != nil) {
-    // A JSON true or false; NSNumber also holds plain numbers, which are not a choice.
-    if (!([args[@"desktop"] isKindOfClass:NSNumber.class] &&
-          CFGetTypeID((__bridge CFTypeRef)args[@"desktop"]) == CFBooleanGetTypeID())) {
-      return @"'desktop' must be true or false";
-    }
-    if (!([op isEqualToString:@"open"] || [op isEqualToString:@"new_tab"] ||
-          [op isEqualToString:@"reload"])) {
-      return @"'desktop' goes with open, new_tab or reload";
-    }
-  }
-  if ([op isEqualToString:@"evaluate"] && !has_string(args, @"script")) {
-    return @"evaluate needs 'script'";
-  }
-  if ([op isEqualToString:@"scroll"]) {
-    id pages = args[@"pages"];
-    if (pages != nil && !([pages isKindOfClass:NSNumber.class] && [pages doubleValue] > 0)) {
-      return @"scroll's 'pages' must be a number above 0";
-    }
-    if (args[@"index"] != nil && !has_index(args)) return @"scroll's 'index' must be a whole number";
-  }
-  return nil;
+NSDictionary<NSString *, id> *DshBrowserCatalog(void) {
+  id<DshBrowserProviding> provider = current_provider();
+  NSDictionary *catalog = provider == nil ? nil : [provider catalog];
+  return [catalog isKindOfClass:NSDictionary.class] ? catalog : @{};
 }
 
 void dsh_native_browser(NSString *op, NSDictionary *args, DshNativeReply reply) {
@@ -115,12 +58,6 @@ void dsh_native_browser(NSString *op, NSDictionary *args, DshNativeReply reply) 
     reply(nil, @"browser needs 'session': which conversation's browser to use");
     return;
   }
-  NSString *missing = missing_argument(op, args);
-  if (missing != nil) {
-    reply(nil, missing);
-    return;
-  }
-
   id<DshBrowserProviding> provider = current_provider();
   if (provider == nil) {
     reply(nil, kNoProviderMessage);

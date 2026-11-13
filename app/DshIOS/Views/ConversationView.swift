@@ -42,6 +42,8 @@ struct ConversationView: View {
     /// Approvals seen since none were waiting, for the 「1/3」 of the sheet.
     @State private var approvalBatch: Set<String> = []
     @State private var keyboardUp = false
+    /// The window keeps a strip under the dock for the home indicator tall enough for the AI label.
+    @State private var labelUnderDock = true
     @State private var composerFocused = false
     /// The new-conversation page's free height: a short one drops the headline.
     @State private var heroHeight: CGFloat = .infinity
@@ -84,6 +86,8 @@ struct ConversationView: View {
             app.localSessions.release(sessionId)
         }
         .trackKeyboard($keyboardUp)
+        // A phone's strip (34 pt) holds the line clear of the indicator; an iPad's (20 pt) does not.
+        .onAppear { labelUnderDock = Self.homeIndicatorStrip >= 30 }
         // A key saved or an account signed in changes what the model picker can offer.
         .task(id: app.revision("llm/adapters-updated", "settings/document-updated", "credentials/reference-updated", "credentials/record-updated")) {
             if let model { await context.load(model) }
@@ -238,6 +242,8 @@ struct ConversationView: View {
         }
         .background(Palette.background)
         .overlay { if blank { hero(model) } }
+        // Above the composer: the transcript and the ✕ while the bar is held to talk.
+        .overlay { VoiceHoldOverlay(voice: model.composer.voice) }
         .conversationDock {
             VStack(alignment: .leading, spacing: 0) {
                 if blank && !composerFocused && model.composer.isEmpty {
@@ -269,10 +275,27 @@ struct ConversationView: View {
                     )
                     .allowsHitTesting(presentedInteractionId(model) == nil)
                 }
+                // A Bot's title already carries a second line (what it is doing, its members), so the
+                // label goes under the input. Where the home indicator's strip is too thin for it
+                // (an iPad, a phone with a home button) it takes a row of its own.
+                if bot != nil && !labelUnderDock {
+                    AIContentLabel().frame(maxWidth: .infinity).padding(.top, 6)
+                }
             }
             .padding(.horizontal, 12)
             .padding(.top, 6)
             .padding(.bottom, 8)
+            // In the home indicator's strip under the dock: the input stays where it was. The
+            // keyboard covers it while up.
+            .overlay(alignment: .bottom) {
+                if bot != nil && labelUnderDock {
+                    AIContentLabel()
+                        .alignmentGuide(.bottom) { $0[.top] }
+                        // The bar's glass reaches a little past the dock's bottom padding.
+                        .offset(y: 10)
+                        .allowsHitTesting(false)
+                }
+            }
             .readableWidth()
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { app.composerHeight = $0 }
         }
@@ -1647,5 +1670,26 @@ private struct WorkbenchBeside<Page: View>: ViewModifier {
             }
             .animation(.snappy(duration: 0.3), value: shown && regular)
         }
+    }
+}
+
+extension ConversationView {
+    /// The key window's bottom inset: the home indicator's strip, 0 on a phone with a home button.
+    /// The window's own, so the keyboard does not count.
+    static var homeIndicatorStrip: CGFloat {
+        let windows = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap(\.windows)
+        return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.bottom ?? 0
+    }
+}
+
+/// The explicit label that the replies are AI generated (《人工智能生成合成内容标识办法》 第四条:
+/// a prompt on the interaction screen). Under a started conversation's title, as a subtitle;
+/// in a Bot's chat, whose title has a line of its own, in the strip under the input.
+struct AIContentLabel: View {
+    var body: some View {
+        Text("内容由 AI 生成")
+            .font(.caption2)
+            .foregroundStyle(Palette.secondary)
+            .lineLimit(1)
     }
 }

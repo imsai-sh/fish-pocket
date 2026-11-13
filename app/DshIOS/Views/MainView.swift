@@ -252,7 +252,14 @@ struct MainView: View {
             }
         }
         // Windows take turns: what is read is the one in front.
-        .onChange(of: scenePhase) { _, phase in if phase == .active { app.currentSession = selection } }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                app.currentSession = selection
+                ReadAloud.shared.scope = onScreen
+            }
+        }
+        // Reading aloud belongs to the conversation on screen: moving to another one stops it.
+        .onChange(of: onScreen, initial: true) { _, session in ReadAloud.shared.scope = session }
         .onChange(of: selection) { _, id in
             app.currentSession = id
             if launchedUnderBot { launchedUnderBot = false } else { botOpen = false }
@@ -607,6 +614,16 @@ struct MainView: View {
             searchRequest: searchRequest,
             openInWindow: supportsMultipleWindows ? { openWindow(id: DshIOSApp.window, value: SessionWindow(session: $0)) } : nil
         )
+    }
+
+    /// The session on screen: a Bot's chat or a group when the Bot pages are open, else the conversation.
+    private var onScreen: String? {
+        guard botOpen else { return selection }
+        switch botPath.last {
+        case .bot(let id): return app.botTeam.bot(id)?.sessionId ?? "bot:\(id)"
+        case .room(let id): return app.botTeam.room(id)?.sessionId ?? "room:\(id)"
+        case nil: return "bots"
+        }
     }
 
     /// The Bot list, with a Bot's chat or a group pushed on it.

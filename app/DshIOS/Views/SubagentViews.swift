@@ -27,9 +27,12 @@ struct SubagentSwitcher: View {
                 Section("下级子智能体") { entries(children) }
             }
         } label: {
-            HStack(spacing: 6) {
-                Text(app.lineageTitle(of: sessionId)).font(.callout.weight(.semibold)).foregroundStyle(Palette.ink).lineLimit(1)
-                Image(systemName: "chevron.up.chevron.down").font(.caption2.weight(.bold)).foregroundStyle(Palette.secondary)
+            VStack(spacing: 0) {
+                HStack(spacing: 6) {
+                    Text(app.lineageTitle(of: sessionId)).font(.callout.weight(.semibold)).foregroundStyle(Palette.ink).lineLimit(1)
+                    Image(systemName: "chevron.up.chevron.down").font(.caption2.weight(.bold)).foregroundStyle(Palette.secondary)
+                }
+                AIContentLabel()
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 44)
