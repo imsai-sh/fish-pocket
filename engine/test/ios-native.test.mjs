@@ -1077,6 +1077,8 @@ test('browser renders the page with what was done first, and says when it cut it
   const long = render({ action: 'read' }, { header: 'h', content: 'x'.repeat(30000), footer: '', loading: true });
   assert.match(long, /page cut at 24000 of 30000 characters/);
   assert.match(long, /still loading/);
+  assert.doesNotMatch(long, /desktop version/);
+  assert.match(render({ action: 'read' }, { header: 'h', content: '', desktop: true }), /site's desktop version/);
 
   assert.match(render({ action: 'evaluate' }, { result: null }), /returned nothing/);
   assert.equal(render({ action: 'evaluate' }, { result: '{"a":1}' }), '{"a":1}');

@@ -21,6 +21,10 @@ final class BrowserModel: NSObject {
     private(set) var lastURL: String?
     /// What is on screen now, for the bar's menu.
     private(set) var page: URL?
+    /// The page on screen came as the site's desktop version, as WebKit settled it.
+    private(set) var desktop = false
+    /// The agent is in the middle of an operation on this page.
+    private(set) var agentBusy = false
 
     @ObservationIgnored let webView: WKWebView
     @ObservationIgnored private let storageKey: String
@@ -36,7 +40,18 @@ final class BrowserModel: NSObject {
     // MARK: One per conversation
 
     /// The open conversations' browsers. A few at most: each page is a web process of its own.
-    private static var open: [String: BrowserModel] = [:]
+    /// Observed, so a conversation can show that its browser has a page.
+    @MainActor @Observable final class Registry {
+        fileprivate(set) var models: [String: BrowserModel] = [:]
+    }
+    static let registry = Registry()
+    private static var open: [String: BrowserModel] {
+        get { registry.models }
+        set { registry.models = newValue }
+    }
+
+    /// This conversation's browser if it has one, without making one.
+    static func existing(_ sessionId: String) -> BrowserModel? { registry.models[sessionId] }
     private static var recent: [String] = []
     private static let kept = 3
 
@@ -75,6 +90,7 @@ final class BrowserModel: NSObject {
         if let script = Self.controllerScript { configuration.userContentController.addUserScript(script) }
         configuration.userContentController.add(
             BrowserPresence.Listener(presence), contentWorld: Self.agentWorld, name: BrowserPresence.Listener.name)
+        configuration.userContentController.addUserScript(Self.desktopViewport)
         webView = WKWebView(frame: .zero, configuration: configuration)
         lastURL = UserDefaults.standard.string(forKey: storageKey)
         super.init()
@@ -123,6 +139,8 @@ final class BrowserModel: NSObject {
         let previous = tail
         let task = Task { @MainActor in
             await previous?.value
+            agentBusy = true
+            defer { agentBusy = false }
             return try await work()
         }
         tail = Task { _ = try? await task.value }
@@ -171,6 +189,79 @@ final class BrowserModel: NSObject {
         webView.callAsyncJavaScript(
             "await globalThis.__dshBrowser?.presence(state)", arguments: ["state": state], in: nil, in: Self.agentWorld
         ) { _ in }
+    }
+
+    // MARK: Desktop or mobile version
+
+    /// The version asked for by site, as Safari's 「请求桌面网站」: kept across launches and shared by every
+    /// conversation's browser, the agent's too. A site with no choice gets WebKit's own (mobile on a phone).
+    private static let contentModesKey = "dsh.browser.contentModes"
+
+    /// The name a choice is kept under: `www.` and `m.` are one site dressed two ways, and a site with a
+    /// desktop and a mobile host often sends a browser from one to the other.
+    static func site(of url: URL) -> String? {
+        guard var host = url.host()?.lowercased(), !host.isEmpty else { return nil }
+        for prefix in ["www.", "m.", "mobile.", "wap."] where host.hasPrefix(prefix) && host.split(separator: ".").count > 2 {
+            host.removeFirst(prefix.count)
+            break
+        }
+        return host
+    }
+
+    /// The choice for this address: its site's, or that of a site it is under.
+    static func asksForDesktop(_ url: URL) -> Bool? {
+        guard let site = site(of: url) else { return nil }
+        let modes = UserDefaults.standard.dictionary(forKey: contentModesKey) as? [String: Bool] ?? [:]
+        var labels = site.split(separator: ".")
+        while labels.count >= 2 {
+            if let desktop = modes[labels.joined(separator: ".")] { return desktop }
+            labels.removeFirst()
+        }
+        return nil
+    }
+
+    static func setDesktop(_ desktop: Bool, for url: URL) {
+        guard let site = site(of: url) else { return }
+        var modes = UserDefaults.standard.dictionary(forKey: contentModesKey) as? [String: Bool] ?? [:]
+        modes[site] = desktop
+        UserDefaults.standard.set(modes, forKey: contentModesKey)
+    }
+
+    /// On a phone, WebKit's desktop version sends a Mac's user agent but still lays the page out as wide as
+    /// the screen when the page asks for `width=device-width`, so a desktop layout spills off the side. As
+    /// Safari does, lay it out as wide as a small laptop and let it zoom out to fit; a pinch zooms back in.
+    /// Only for a desktop version on a narrow screen: an iPad's own desktop pages are left alone.
+    static let desktopViewport = WKUserScript(source: """
+    (() => {
+      if (!/Macintosh/.test(navigator.userAgent) || screen.width >= 1024) return;
+      const content = 'width=1024';
+      const fix = () => {
+        const metas = document.querySelectorAll('meta[name="viewport" i]');
+        if (metas.length === 0) {
+          const meta = document.createElement('meta');
+          meta.name = 'viewport';
+          meta.content = content;
+          (document.head || document.documentElement).appendChild(meta);
+        }
+        for (const meta of metas) if (meta.content !== content) meta.content = content;
+      };
+      fix();
+      // A script-built page adds or rewrites its viewport later; only the head is watched.
+      const watch = () => {
+        fix();
+        if (document.head) new MutationObserver(fix).observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ['content'] });
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch, { once: true }); else watch();
+    })();
+    """, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: agentWorld)
+
+    /// Switch the page on screen to the other version and load it again.
+    func setDesktop(_ desktop: Bool) {
+        guard let url = page else { return }
+        Self.setDesktop(desktop, for: url)
+        failure = nil
+        loadFailure = nil
+        webView.reload()
     }
 
     func back() { webView.goBack() }
@@ -233,7 +324,25 @@ final class BrowserModel: NSObject {
 }
 
 extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
-    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { clearFailure() }
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        clearFailure()
+        desktop = navigation.effectiveContentMode == .desktop
+    }
+
+    /// Each page goes out as the version its site was asked for, which is what the server sees in the
+    /// user agent and how wide the page lays out. Frames inside it follow the page.
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        preferences: WKWebpagePreferences,
+        decisionHandler: @escaping @MainActor (WKNavigationActionPolicy, WKWebpagePreferences) -> Void
+    ) {
+        if navigationAction.targetFrame?.isMainFrame ?? true, let url = navigationAction.request.url,
+           let desktop = Self.asksForDesktop(url) {
+            preferences.preferredContentMode = desktop ? .desktop : .mobile
+        }
+        decisionHandler(.allow, preferences)
+    }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { sendEffects() }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { failed(error) }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { failed(error) }
@@ -310,6 +419,14 @@ struct WorkbenchBrowser: View {
                 Label(model.loading ? "停止" : "刷新", systemImage: model.loading ? "xmark" : "arrow.clockwise")
             }
             .disabled(!model.started && model.lastURL == nil)
+            Button { model.setDesktop(!model.desktop) } label: {
+                if model.desktop {
+                    Label("请求移动版网站", systemImage: "iphone")
+                } else {
+                    Label("请求电脑版网站", systemImage: "desktopcomputer")
+                }
+            }
+            .disabled(model.page == nil)
             Button {
                 if let url = model.page { UIApplication.shared.open(url) }
             } label: {
