@@ -1145,10 +1145,17 @@ struct AssistantTurnView: View {
         let finished = !inProgress && endedAt != nil
         let showWork = choice ?? stayOpen
         let ownChat = if case .bot? = botChat { true } else { false }
+        // A Bot's own chat at work shows nothing of the turn: the Bot's line below says what it is
+        // doing, and its reply arrives whole when the turn ends. Words it ends on a card with show
+        // at once, since the card waits on the user.
+        let quiet = inProgress && ownChat
+        let tailShown = !quiet || blocks.dropFirst(finalStart).contains { block in
+            if case .tool(let call) = block { BotTurnEvents.cards.contains(call.displayName) } else { false }
+        }
         VStack(alignment: .leading, spacing: 8) {
             // While working the step line always shows (the one loading indicator of the turn);
             // a streamed answer with no work before it needs none.
-            if finalStart > 0 || (inProgress && !ownChat && (blocks.isEmpty || liveCount == 0)) {
+            if !quiet, finalStart > 0 || (inProgress && !ownChat && (blocks.isEmpty || liveCount == 0)) {
                 Button {
                     withAnimation(.easeInOut(duration: 0.18)) { choice = !showWork }
                 } label: {
@@ -1179,14 +1186,16 @@ struct AssistantTurnView: View {
                 }
             }
             // In a Bot's chat: what it did while working, above its words; a card it ended on, below them.
-            if bot != nil { BotTurnEvents(blocks: Array(blocks.prefix(finalStart))) }
-            ForEach(Array(blocks.enumerated().dropFirst(finalStart)), id: \.element.id) { index, block in
-                if case .tool = block {} else {
-                    BlockView(block: block, live: isLive(index), closing: finished).equatable()
-                        .environment(\.fileMentions, finished ? mentions : [:])
+            if bot != nil && !quiet { BotTurnEvents(blocks: Array(blocks.prefix(finalStart))) }
+            if tailShown {
+                ForEach(Array(blocks.enumerated().dropFirst(finalStart)), id: \.element.id) { index, block in
+                    if case .tool = block {} else {
+                        BlockView(block: block, live: isLive(index), closing: finished).equatable()
+                            .environment(\.fileMentions, finished ? mentions : [:])
+                    }
                 }
+                if bot != nil { BotTurnEvents(blocks: Array(blocks.dropFirst(finalStart))) }
             }
-            if bot != nil { BotTurnEvents(blocks: Array(blocks.dropFirst(finalStart))) }
             if finished {
                 ForEach(plans, id: \.plan) { plan in PlanCard(title: plan.title, plan: plan.plan) }
                 if let files = info?.deliverables, !files.isEmpty { DeliverableCards(files: files) }
