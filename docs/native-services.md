@@ -642,7 +642,7 @@ audit: { capability, op, callerClaim, at, summary? }   # callerClaim = 自报的
 
 代价和应对：
 
-- **入口不好找，能力就永远开不起来。** 所以它在侧边栏有自己的一行（`DrawerView.capabilitiesRow`），不只藏在设置里。
+- **入口不好找，能力就永远开不起来。** 所以它不藏在设置里：在侧边栏「连接器」页里排第一个分类（`BotConnectorsPage.device`）。
 - **拒绝消息里不能引用界面上的标题。** addon 那几个文件不翻译，而界面是三语的；写死「本机能力」四个字迟早和屏幕上的字对不上。所以消息描述位置（"the app's sidebar"），让模型自己用用户的语言说。
 
 实现上只有一个入口会弹框：`DshNativeRequestPermission`（`ios_native.m`），它读的是和分发器同一张能力表，表里没有的 `systemPermission` 会被明确拒绝，而不是悄悄什么都不做。能力侧对应改成 `DshEventKitRequireAccess` / `require_authorization`——名字从 Request 改成 Require，就是为了让"这里不会弹框"这件事在调用点上看得见。

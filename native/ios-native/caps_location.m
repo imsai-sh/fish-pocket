@@ -20,7 +20,7 @@ static NSString *const kDeniedMessage =
      "> Location Services";
 static NSString *const kNotEnabledMessage =
     @"the user has not switched location on for this app yet. Nothing was read. Tell them they can "
-     "turn it on themselves under Device capabilities, which is in the app's sidebar — only they "
+     "turn it on themselves under Connectors → Device capabilities, which is in the app's sidebar — only they "
      "can grant it, and iOS asks once per app, so the app will not ask on its own.";
 
 /// One manager for the process; it owns the delegate callbacks for a fix.

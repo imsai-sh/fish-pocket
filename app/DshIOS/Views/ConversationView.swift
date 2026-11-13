@@ -421,14 +421,6 @@ struct ConversationView: View {
                 switch sheet {
                 case .subagents: SubagentCatalogSheet(rootId: sessionId)
                 case .jobs: JobsSheet(sessionId: sessionId, jobs: jobs)
-                case .reminders:
-                    SheetStack {
-                        SchedulesView(sessionId: sessionId) { id in
-                            headerSheet = nil
-                            selection = id
-                        }
-                    }
-                    .environment(\.systemLists, true)
                 case .logExport: SessionLogExportSheet(sessionId: sessionId)
                 }
             }

@@ -34,7 +34,7 @@ NSString *DshISO8601(NSDate *date) {
 /// translated and a quoted title here would drift from the one on screen.
 static NSString *const kNotEnabledMessage =
     @"the user has not switched this capability on for this app yet. Nothing was read or changed. "
-     "Tell them they can turn it on themselves under Device capabilities, which is in the app's "
+     "Tell them they can turn it on themselves under Connectors → Device capabilities, which is in the app's "
      "sidebar — only they can grant it, and iOS asks once per app, so the app will not ask on its own.";
 
 /// Shared tail of both entry points: iOS answered, so turn that answer into

@@ -20,7 +20,14 @@ import UserNotifications
 /// 判定调用和展示清单读同一张表，两者就不会悄悄对不上（§9.3）。这里只负责文案：
 /// 没有文案的能力照样列出来（显示 id），所以原生加了能力而忘了加中文名时，页面会
 /// 少个名字，但不会漏掉它。
+///
+/// 它是「连接器」里的第一个分类：选中「本机能力」时，连接器页把分类胶囊作为 `top`
+/// 交给这一页、标题沿用「连接器」，整页内容就地显示；「全部」里那一行推进来的是单独的这一页。
 struct NativeCapabilitiesView: View {
+    /// 列表最上面的一段，没有底色和边距：连接器页的分类胶囊。
+    var top: AnyView? = nil
+    var title = Text("本机能力")
+
     @State private var capabilities: [NativeCapability] = []
     /// 按 `systemPermission` 存，所以新增一项要授权的能力时这里不用再加分支。
     @State private var permissions: [String: CapabilityPermission] = [:]
@@ -39,6 +46,11 @@ struct NativeCapabilitiesView: View {
 
     var body: some View {
         List {
+            if let top {
+                Section { top }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+            }
             // 先回答「我的数据去哪了」：这页开的都是私人数据，用户最先要知道的是
             // 它们只在本机和模型服务商之间走，开发者这边一个字节也收不到。
             Section {
@@ -88,21 +100,6 @@ struct NativeCapabilitiesView: View {
             }
             .groupedRow()
 
-            // 闹钟和通知响之前，iOS 哪里都不列（「时钟」App 只列它自己的），所以从这里也能
-            // 进到那张列表，和「自动化 › 提醒」是同一页。
-            Section {
-                NavigationLink {
-                    AgentRemindersList()
-                        .navigationTitle("闹钟和通知")
-                        .navigationBarTitleDisplayMode(.inline)
-                } label: {
-                    Label("闹钟和通知", systemImage: "alarm")
-                }
-            } footer: {
-                Text("智能体设的闹钟和定时通知，响之前只能在这里或「自动化 › 提醒」里看到和删除。")
-            }
-            .groupedRow()
-
             if needsPermission {
                 Section {
                     NavigationLink { NativeAuditView() } label: {
@@ -123,7 +120,7 @@ struct NativeCapabilitiesView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("本机能力")
+        .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .task { load() }
         // 从系统设置改完授权切回来时刷新，否则这页会一直显示旧状态。

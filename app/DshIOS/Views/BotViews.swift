@@ -123,9 +123,12 @@ struct BotDrawerEntry: View {
             Haptics.tap()
             team.openRequest = BotOpenRequest(route: nil)
         } label: {
+            // The faces are the name: no "Bot" beside them, and nothing on the right
+            // unless something is going on.
             HStack(spacing: 12) {
                 faces
-                Text("Bot").font(.subheadline).foregroundStyle(Palette.ink).layoutPriority(1)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(Text("Bot"))
                 Spacer(minLength: 8)
                 status
             }
@@ -185,8 +188,6 @@ struct BotDrawerEntry: View {
                 Circle().fill(Palette.ink).frame(width: 7, height: 7)
                 Text("有新消息").font(.footnote).foregroundStyle(Palette.ink)
             }
-        } else {
-            Text("\(team.bots.count) 个 Bot · \(team.rooms.count) 个群聊").font(.footnote).foregroundStyle(Palette.secondary)
         }
     }
 

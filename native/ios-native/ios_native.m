@@ -487,7 +487,7 @@ static napi_value invoke(napi_env env, napi_callback_info info) {
     finish(call, nil,
            [NSString stringWithFormat:
             @"the user has not switched '%@' on for this app yet. Nothing was read or changed. Tell "
-             "them they can turn it on themselves under Device capabilities, which is in the app's "
+             "them they can turn it on themselves under Connectors → Device capabilities, which is in the app's "
              "sidebar — only they can do it.", capabilityName]);
     return promise;
   }

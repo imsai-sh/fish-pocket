@@ -155,12 +155,6 @@ struct MainView: View {
             botPath = request.route.map { route in request.push && botPath.last != route ? botPath + [route] : [route] } ?? []
             setDrawer(false)
         }
-        // The sidebar's own row; the page is also still under Settings.
-        .onChange(of: app.nativeCapabilitiesRequest) { _, token in
-            guard token != nil, scenePhase != .background else { return }
-            app.nativeCapabilitiesRequest = nil
-            sheet = .capabilities
-        }
         .onChange(of: app.remoteRequest) { _, token in
             guard token != nil, scenePhase != .background else { return }
             app.remoteRequest = nil

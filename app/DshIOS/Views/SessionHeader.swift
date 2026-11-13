@@ -2,7 +2,7 @@ import SwiftUI
 
 /// The sheets the conversation's top bar opens.
 enum SessionHeaderSheet: String, Identifiable {
-    case subagents, jobs, reminders, logExport
+    case subagents, jobs, logExport
     var id: String { rawValue }
 }
 
@@ -61,9 +61,9 @@ struct SessionTitleMenu: View {
     }
 }
 
-/// Top-bar entries that only appear when there is something to show: subagents and this
-/// session's reminders (`conversation.session.header.actions`, `.utilities`); a running one
-/// carries a dot. Background jobs float over the conversation instead (`ConversationActivity`).
+/// Top-bar entries that only appear when there is something to show: subagents
+/// (`conversation.session.header.actions`, `.utilities`); a running one carries a dot.
+/// Automations have one place, the sidebar's 自动化 row, not an icon per conversation. Background jobs float over the conversation instead (`ConversationActivity`).
 struct SessionHeaderActions: View {
     let sessionId: String
     let open: (SessionHeaderSheet) -> Void
@@ -81,12 +81,8 @@ struct SessionHeaderActions: View {
         var entries: [Entry] = []
         let subagents = app.subagentEntries(of: sessionId)
         let running = app.runningSubagentCount(of: sessionId)
-        let schedules = app.activeSchedules(of: sessionId)
         if !subagents.isEmpty {
             entries.append(Entry(sheet: .subagents, icon: "person.2", dot: running > 0, label: running > 0 ? Text("\(subagents.count) 个子智能体，正在运行") : Text("\(subagents.count) 个子智能体")))
-        }
-        if !schedules.isEmpty {
-            entries.append(Entry(sheet: .reminders, icon: "clock", dot: false, label: Text("\(schedules.count) 个提醒")))
         }
         return entries
     }

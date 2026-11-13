@@ -54,7 +54,7 @@ static NSString *const kUnavailableMessage =
 /// title.
 static NSString *const kNotEnabledMessage =
     @"the user has not switched health on for this app yet. Nothing was read. Tell them they can "
-     "turn it on themselves under Device capabilities, which is in the app's sidebar — only they "
+     "turn it on themselves under Connectors → Device capabilities, which is in the app's sidebar — only they "
      "can grant it, and iOS asks once per app, so the app will not ask on its own.";
 
 /// What an empty answer means, said out loud, because the agent cannot work it
@@ -64,7 +64,7 @@ static NSString *const kEmptyMeansMessage =
     @"HealthKit returns nothing both when the user has not allowed this type and when there is "
      "genuinely nothing recorded in that range; iOS does not distinguish the two, by design, and "
      "no API here can. Do not tell the user they have no data, and do not tell them access is off "
-     "— say it could be either, and that they can check it under Device capabilities, which is in "
+     "— say it could be either, and that they can check it under Connectors → Device capabilities, which is in "
      "the app's sidebar.";
 
 #pragma mark - The types this app declares

@@ -5051,6 +5051,108 @@
         }
       }
     },
+    "DSH 插件" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH Plugins"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complementos de DSH"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH プラグイン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH 플러그인"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH 外掛"
+          }
+        }
+      }
+    },
+    "DSH 网页" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH Web"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH Web"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH Web"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH 웹"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSH 網頁"
+          }
+        }
+      }
+    },
+    "GitHub、Notion 这类服务的连接器由 DS Bot 插件提供，插件准备好之后会出现在这里。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connectors for services like GitHub and Notion come from the DS Bot plugin. They’ll show up here once the plugin is ready."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los conectores de servicios como GitHub y Notion los proporciona el complemento DS Bot. Aparecerán aquí cuando el complemento esté listo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub や Notion などのサービスのコネクタは DS Bot プラグインが提供します。プラグインの準備ができると、ここに表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub, Notion 같은 서비스의 커넥터는 DS Bot 플러그인이 제공해요. 플러그인이 준비되면 여기에 표시돼요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub、Notion 這類服務的連接器由 DS Bot 外掛提供，外掛準備好之後會出現在這裡。"
+          }
+        }
+      }
+    },
     "TestFlight 版" : {
       "localizations" : {
         "en" : {
@@ -6547,36 +6649,36 @@
         }
       }
     },
-    "智能体设的闹钟和定时通知，响之前只能在这里或「自动化 › 提醒」里看到和删除。" : {
+    "日历、照片、闹钟、健康等这台手机上的功能" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alarms and timed notifications the agent set. Until they go off, you can only see and delete them here or in Automations › Alerts."
+            "value" : "Calendar, Photos, alarms, Health and more on this phone"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alarmas y notificaciones programadas que configuró el agente. Hasta que suenen, solo puedes verlas y eliminarlas aquí o en Automatizaciones › Avisos."
+            "value" : "Calendario, Fotos, alarmas, Salud y más en este teléfono"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エージェントが設定したアラームと予約通知です。鳴るまでは、ここか「オートメーション › アラート」でしか確認・削除できません。"
+            "value" : "カレンダー、写真、アラーム、ヘルスケアなど、このデバイスの機能"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "에이전트가 설정한 알람과 예약 알림이에요. 울리기 전에는 여기나 ‘자동화 › 예약 알림’에서만 보고 삭제할 수 있어요."
+            "value" : "캘린더, 사진, 알람, 건강 등 이 기기의 기능"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI 代理設定的鬧鐘和定時通知，響之前只能在這裡或「自動化 › 提醒」裡看到和刪除。"
+            "value" : "行事曆、照片、鬧鐘、健康等這支手機上的功能"
           }
         }
       }
@@ -86027,40 +86129,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "鬧鐘"
-          }
-        }
-      }
-    },
-    "闹钟和通知" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alarms and notifications"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alarmas y notificaciones"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アラームと通知"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "알람과 알림"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鬧鐘和通知"
           }
         }
       }

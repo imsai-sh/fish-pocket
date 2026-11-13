@@ -13,7 +13,6 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var app
     @EnvironmentObject private var engine: NodeEngine
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.openSession) private var openSession
     @State private var defaultModel: String?
     @State private var pluginCount: Int?
     @State private var engineVersion: String?
@@ -64,9 +63,6 @@ struct SettingsView: View {
                 Section {
                     NavigationLink { PluginsView() } label: {
                         row("插件", "puzzlepiece.extension", pluginCount.map { String(localized: "\($0) 个") } ?? "")
-                    }
-                    NavigationLink { SchedulesView(openSession: openSession) } label: {
-                        row("自动化", "clock.arrow.2.circlepath", app.scheduleCount.map { String(localized: "\($0) 个") } ?? "")
                     }
                 }
 

@@ -45,7 +45,7 @@ static NSString *const kDeniedMessage =
 
 static NSString *const kNotEnabledMessage =
     @"the user has not switched contacts access on for this app yet. Nothing was read. Tell them they "
-     "can turn it on themselves under Device capabilities, which is in the app's sidebar — only "
+     "can turn it on themselves under Connectors → Device capabilities, which is in the app's sidebar — only "
      "they can grant it, and iOS asks once per app, so the app will not ask on its own.";
 
 /// Said out loud on every limited reply. Without it an empty search reads as a

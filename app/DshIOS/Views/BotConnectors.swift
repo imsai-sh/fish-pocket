@@ -127,51 +127,85 @@ struct BotConnectorsPage: View {
     var body: some View {
         let team = app.botTeam
         let needle = query.trimmingCharacters(in: .whitespaces).lowercased()
-        let all = team.connectors.filter { !Self.hidden.contains($0["id"].string ?? "") }
+        // The services come from the Bot plugin; the phone's own capabilities do not, so the page
+        // opens before the plugin is ready and then shows only those.
+        let all = team.status == .ready ? team.connectors.filter { !Self.hidden.contains($0["id"].string ?? "") } : []
         let rows = all.filter { row in
             needle.isEmpty || ConnectorBrand.name(row).lowercased().contains(needle) || (row["name"].string ?? "").lowercased().contains(needle)
                 || ConnectorBrand.about(row).lowercased().contains(needle)
         }
+        // A search looks through every kind but 本机能力, whose page has no search of its own.
+        let picked = category == Self.device && !needle.isEmpty ? nil : category
         // In use, or on the way there: the ones that need a hand first.
         let mine = rows.filter { $0["state"].string != "off" }.sorted { Self.rank($0) < Self.rank($1) }
-        let kinds = Self.order.filter { kind in all.contains { Self.kind($0) == kind } }
-        List {
-            if needle.isEmpty, kinds.count > 1 {
-                Section { pills(kinds) }
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-            }
-            if category == nil, !mine.isEmpty {
-                Section(needle.isEmpty ? String(localized: "已连接") : String(localized: "已连接里找到的")) { ForEach(mine, id: \.["id"]) { link($0) } }
-                    .groupedRow()
-            }
-            ForEach(Self.order.filter { category == nil || $0 == category }, id: \.self) { kind in
-                // With every kind shown, the ones in use are above already.
-                let group = rows.filter { Self.kind($0) == kind && (category != nil || $0["state"].string == "off") }
-                if !group.isEmpty {
-                    Section(Self.title(kind)) { ForEach(group, id: \.["id"]) { link($0) } }
+        let kinds = [Self.device] + Self.order.filter { kind in all.contains { Self.kind($0) == kind } }
+        let device = (picked == nil || picked == Self.device) && Self.deviceMatches(needle)
+        Group {
+            if picked == Self.device {
+                // The capabilities page itself, under the same capsules.
+                NativeCapabilitiesView(top: AnyView(pills(kinds)), title: Text("连接器"))
+            } else {
+                List {
+                    if needle.isEmpty, kinds.count > 1 {
+                        Section { pills(kinds) }
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
+                    }
+                    if device {
+                        Section(String(localized: "本机能力")) {
+                            NavigationLink { NativeCapabilitiesView() } label: { DeviceCapabilitiesRow() }
+                        }
                         .groupedRow()
+                    }
+                    if picked == nil, !mine.isEmpty {
+                        Section(needle.isEmpty ? String(localized: "已连接") : String(localized: "已连接里找到的")) { ForEach(mine, id: \.["id"]) { link($0) } }
+                            .groupedRow()
+                    }
+                    ForEach(Self.order.filter { picked == nil || $0 == picked }, id: \.self) { kind in
+                        // With every kind shown, the ones in use are above already.
+                        let group = rows.filter { Self.kind($0) == kind && (picked != nil || $0["state"].string == "off") }
+                        if !group.isEmpty {
+                            Section(Self.title(kind)) { ForEach(group, id: \.["id"]) { link($0) } }
+                                .groupedRow()
+                        }
+                    }
+                    if !needle.isEmpty, rows.isEmpty, !device {
+                        Section { Text("没有找到「\(query)」").font(.footnote).foregroundStyle(Palette.secondary) }
+                            .groupedRow()
+                    }
+                    if team.status != .ready, needle.isEmpty {
+                        Section {
+                            Text("GitHub、Notion 这类服务的连接器由 DS Bot 插件提供，插件准备好之后会出现在这里。")
+                                .font(.footnote).foregroundStyle(Palette.secondary)
+                        }
+                        .groupedRow()
+                    }
+                    if team.status == .ready, needle.isEmpty, picked == nil || picked == "custom" {
+                        Section {
+                            Button { adding = true } label: { Label("添加自定义连接器", systemImage: "plus") }
+                        } footer: {
+                            Text("连上的服务，普通会话和 Bot 都能用。连接器是 MCP 服务，iOS 上只能用网址形式的，需要启动本地命令的那种只能在电脑上用。")
+                        }
+                        .groupedRow()
+                    }
                 }
-            }
-            if !needle.isEmpty, rows.isEmpty {
-                Section { Text("没有找到「\(query)」").font(.footnote).foregroundStyle(Palette.secondary) }
-                    .groupedRow()
-            }
-            if needle.isEmpty, category == nil || category == "custom" {
-                Section {
-                    Button { adding = true } label: { Label("添加自定义连接器", systemImage: "plus") }
-                } footer: {
-                    Text("连上的服务，普通会话和 Bot 都能用。连接器是 MCP 服务，iOS 上只能用网址形式的，需要启动本地命令的那种只能在电脑上用。")
-                }
-                .groupedRow()
+                .groupedList()
             }
         }
-        .groupedList()
         .navigationTitle("连接器")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $query, prompt: "搜索服务")
         .sheet(isPresented: $adding) { CustomConnectorSheet() }
-        .task { await team.refreshState() }
+        .task { if team.status == .ready { await team.refreshState() } }
+    }
+
+    /// The category of the phone's own capabilities: first, and not one the plugin sends.
+    static let device = "device"
+
+    /// 本机能力 answers a search for its name, or for one of the capabilities in it (闹钟, 照片…).
+    private static func deviceMatches(_ needle: String) -> Bool {
+        needle.isEmpty || String(localized: "本机能力").lowercased().contains(needle)
+            || NativeCapability.all.contains { $0.title.lowercased().contains(needle) }
     }
 
     private func link(_ row: JSON) -> some View {
@@ -221,6 +255,7 @@ struct BotConnectorsPage: View {
 
     static func title(_ category: String) -> String {
         switch category {
+        case Self.device: String(localized: "本机能力")
         case "dev": String(localized: "开发")
         case "docs": String(localized: "文档与资料")
         case "work": String(localized: "协作办公")
@@ -247,6 +282,27 @@ private struct ConnectorRow: View {
             Spacer(minLength: 8)
             // One not in use says nothing: the list would be forty lines of 「未连接」.
             if row["state"].string != "off" { ConnectorState(row: row) }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+/// The way into 本机能力 from the connectors' list, in a connector's shape.
+private struct DeviceCapabilitiesRow: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            let shape = RoundedRectangle(cornerRadius: 40 * 0.26, style: .continuous)
+            Image(systemName: "iphone")
+                .font(.system(size: 19, weight: .medium))
+                .foregroundStyle(Palette.onInk)
+                .frame(width: 40, height: 40)
+                .background(Palette.ink, in: shape)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("本机能力").foregroundStyle(Palette.ink)
+                Text("日历、照片、闹钟、健康等这台手机上的功能").font(.caption).foregroundStyle(Palette.secondary).lineLimit(1)
+            }
+            Spacer(minLength: 8)
         }
         .padding(.vertical, 2)
     }

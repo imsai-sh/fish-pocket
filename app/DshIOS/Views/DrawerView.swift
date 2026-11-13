@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The left drawer (the iPad sidebar) is for finding a session. One list: the feature rows
-/// (插件 … 远程控制), the sessions under a header that carries the view menu (by time, by
+/// (DSH 插件 … 远程控制), the sessions under a header that carries the view menu (by time, by
 /// workspace, by device), and 「已归档」 at the end. The app's name and the search button float
 /// over its top, settings and the new conversation button over its bottom; search itself is a
 /// page of its own over everything (docs/design/README.md 4.2).
@@ -74,7 +74,7 @@ struct DrawerView: View {
                     .plainRow()
                 pluginsRow
                 connectorsRow
-                capabilitiesRow
+                schedulesRow
                 webRow
                 remoteControlRow
                 sessionsHeader
@@ -273,113 +273,51 @@ struct DrawerView: View {
 
     /// Plugins are found here rather than three levels down in settings.
     private var pluginsRow: some View {
-        Button { Haptics.tap(); app.pluginStoreRequest = UUID() } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "puzzlepiece.extension").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
-                Text("插件").font(.subheadline.weight(pluginsSelected ? .medium : .regular)).foregroundStyle(Palette.ink)
-                Spacer()
-                if !pluginsSelected { Text("发现").font(.footnote).foregroundStyle(Palette.secondary) }
-            }
-            .padding(.horizontal, 12)
-            .frame(minHeight: 46)
-            .background(pluginsSelected ? Palette.bubble : .clear, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .padding(.bottom, 2)
-        .plainRow()
+        featureRow("DSH 插件", icon: "puzzlepiece.extension", selected: pluginsSelected) { app.pluginStoreRequest = UUID() }
     }
 
-    /// The services an agent can reach over MCP (GitHub, Notion…). They come with the Bot
-    /// plugin but every conversation gets their tools, so the way in is here, not only in the
-    /// Bot team's settings; the row shows once that plugin answers.
-    @ViewBuilder
+    /// The services an agent can reach over MCP (GitHub, Notion…), and first among them what
+    /// it may reach on this phone (本机能力). Every conversation gets their tools, so the way in
+    /// is here, not only in the Bot team's settings. The services come with the Bot plugin;
+    /// the phone's own do not, so the row is always here.
     private var connectorsRow: some View {
-        let team = app.botTeam
-        if team.status == .ready {
-            let connected = team.connectors.filter { $0["state"].string == "ready" }.count
-            Button { Haptics.tap(); app.connectorsRequest = UUID() } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "point.3.connected.trianglepath.dotted").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
-                    Text("连接器").font(.subheadline).foregroundStyle(Palette.ink)
-                    Spacer()
-                    Text(connected > 0 ? String(localized: "\(connected) 个已连接") : String(localized: "连接服务")).font(.footnote).foregroundStyle(Palette.secondary)
-                }
-                .padding(.horizontal, 12)
-                .frame(minHeight: 46)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .padding(.bottom, 2)
-            .plainRow()
-        }
+        featureRow("连接器", icon: "point.3.connected.trianglepath.dotted") { app.connectorsRequest = UUID() }
     }
 
-    /// What the agent may reach on this phone, and the switch for each one.
-    ///
-    /// A row of its own rather than a line in settings: nothing asks for these
-    /// permissions on its own any more (docs/native-services.md §5.5), so if this
-    /// is hard to find, the capabilities are simply never turned on.
-    private var capabilitiesRow: some View {
-        Button { Haptics.tap(); app.nativeCapabilitiesRequest = UUID() } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "iphone").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
-                Text("本机能力").font(.subheadline).foregroundStyle(Palette.ink)
-                Spacer()
-                Text("授权").font(.footnote).foregroundStyle(Palette.secondary)
-            }
-            .padding(.horizontal, 12)
-            .frame(minHeight: 46)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .padding(.bottom, 2)
-        .plainRow()
+    /// Everything the agent scheduled: tasks, and the alarms and notifications it set. Its only
+    /// way in, so it is a row of its own rather than a line in settings.
+    private var schedulesRow: some View {
+        featureRow("自动化", icon: "clock.arrow.2.circlepath", action: openSchedules)
     }
 
     /// The web version: plugin interfaces are not shown natively, so it gets a row of its own.
     private var webRow: some View {
-        Button { Haptics.tap(); app.webRequest = UUID() } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "globe").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
-                Text("网页版").font(.subheadline).foregroundStyle(Palette.ink)
-                Spacer()
-                Text("插件界面").font(.footnote).foregroundStyle(Palette.secondary)
-            }
-            .padding(.horizontal, 12)
-            .frame(minHeight: 46)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .padding(.bottom, 2)
-        .plainRow()
+        featureRow("DSH 网页", icon: "globe") { app.webRequest = UUID() }
     }
 
     /// The computers of the user's Agents Anywhere account: signing in, then the machines themselves.
     /// A row here, not a line in settings: until it is found, nothing of it shows anywhere else.
+    /// An expired sign-in says so in its own row above the sessions.
     private var remoteControlRow: some View {
-        Button { Haptics.tap(); app.remoteRequest = UUID() } label: {
+        featureRow("远程控制", icon: "laptopcomputer.and.iphone") { app.remoteRequest = UUID() }
+    }
+
+    /// One of the rows above the sessions: an icon and a name, nothing on the right.
+    private func featureRow(_ title: LocalizedStringKey, icon: String, selected: Bool = false, action: @escaping () -> Void) -> some View {
+        Button { Haptics.tap(); action() } label: {
             HStack(spacing: 12) {
-                Image(systemName: "laptopcomputer.and.iphone").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
-                Text("远程控制").font(.subheadline).foregroundStyle(Palette.ink)
+                Image(systemName: icon).font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
+                Text(title).font(.subheadline.weight(selected ? .medium : .regular)).foregroundStyle(Palette.ink)
                 Spacer()
-                Text(remoteControlNote).font(.footnote).foregroundStyle(remote.expired ? Palette.waiting : Palette.secondary)
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 46)
+            .background(selected ? Palette.bubble : .clear, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .padding(.bottom, 2)
         .plainRow()
-    }
-
-    private var remoteControlNote: String {
-        if remote.expired { return String(localized: "重新登录") }
-        // Signed in with no computer on the account yet (or the last one removed): the same invitation.
-        guard remote.signedIn, !remote.devices.isEmpty else { return String(localized: "连接电脑") }
-        let online = remote.devices.filter(\.online).count
-        return online > 0 ? String(localized: "\(online) 台在线") : String(localized: "电脑离线")
     }
 
     /// What the list under it is, and how it is grouped: the view menu sits with the sessions it arranges.
@@ -430,18 +368,11 @@ struct DrawerView: View {
     }
 
     /// Settings on a tap. Holding it reaches what is not about finding a session:
-    /// automations (also in settings), the Cordis panel, signing in.
+    /// the Cordis panel, signing in.
     /// Signed in, it is Platform's picture, as the web sidebar's account button is.
     private var settingsButton: some View {
         Menu {
             Button(action: openSettings) { Label("设置", systemImage: "gearshape") }
-            Button(action: openSchedules) {
-                if let count = app.scheduleCount, count > 0 {
-                    Label("自动化（\(count)）", systemImage: "clock")
-                } else {
-                    Label("自动化", systemImage: "clock")
-                }
-            }
             if !app.cordis.rows.isEmpty {
                 Button(action: openCordis) {
                     if app.cordis.runningCount > 0 {

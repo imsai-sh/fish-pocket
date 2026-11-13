@@ -234,7 +234,7 @@ static void create_event(NSDictionary *args, DshNativeReply reply) {
 
       DshWritePolicy policy = DshNativeWritePolicyFor(@"calendar");
       if (policy == DshWritePolicyBlocked) {
-        reply(nil, @"the user has set 'calendar' to read-only under Device capabilities, which is in "
+        reply(nil, @"the user has set 'calendar' to read-only under Connectors → Device capabilities, which is in "
                     "the app's sidebar. Nothing was added. Only they can change that setting.");
         return;
       }

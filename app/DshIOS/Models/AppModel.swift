@@ -153,10 +153,7 @@ final class AppModel {
     var pluginStoreRequest: UUID?
     /// Open the engine's web version, where plugin interfaces live (the root view consumes it).
     var webRequest: UUID?
-    /// Open the device-capability screen, where the user grants and reviews them
-    /// (the root view consumes it).
-    var nativeCapabilitiesRequest: UUID?
-    /// Open the connectors (the root view consumes it).
+    /// Open the connectors, device capabilities first among them (the root view consumes it).
     var connectorsRequest: UUID?
     /// A credential step to open (set through `requestCredentials`; the root view consumes it).
     var credentialRequest: (step: CredentialStep, token: UUID)?
