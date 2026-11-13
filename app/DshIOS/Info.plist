@@ -77,7 +77,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>让智能体在你问「我在哪」「附近有什么」时读取一次当前位置。只在用到时读，不会持续记录。为回答你的问题，位置会随对话发送给你选择的模型服务商。</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>把分享海报保存到相册。</string>
+	<string>把分享海报和交流群二维码保存到相册。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>让智能体在你问起时查看相册里有哪些照片、导出照片给本机识别，并按你在「本机能力」里设的写入方式帮你整理相册。为回答你的问题，相关信息会随对话发送给你选择的模型服务商。删除照片前 iOS 会再问你一次。</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
