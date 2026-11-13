@@ -57,12 +57,11 @@ struct SessionTitleMenu: View {
     }
 }
 
-/// Top-bar entries that only appear when there is something to show: subagents,
-/// background jobs, this session's reminders (`conversation.session.header.actions`,
-/// `.utilities`); a running one carries a dot.
+/// Top-bar entries that only appear when there is something to show: subagents and this
+/// session's reminders (`conversation.session.header.actions`, `.utilities`); a running one
+/// carries a dot. Background jobs float over the conversation instead (`ConversationActivity`).
 struct SessionHeaderActions: View {
     let sessionId: String
-    let jobs: JobsModel
     let open: (SessionHeaderSheet) -> Void
     @Environment(AppModel.self) private var app
 
@@ -81,9 +80,6 @@ struct SessionHeaderActions: View {
         let schedules = app.activeSchedules(of: sessionId)
         if !subagents.isEmpty {
             entries.append(Entry(sheet: .subagents, icon: "person.2", dot: running > 0, label: running > 0 ? Text("\(subagents.count) 个子智能体，正在运行") : Text("\(subagents.count) 个子智能体")))
-        }
-        if jobs.visibleCount > 0 {
-            entries.append(Entry(sheet: .jobs, icon: "list.bullet.rectangle", dot: !jobs.live.isEmpty, label: jobs.live.isEmpty ? Text("\(jobs.visibleCount) 个后台任务") : Text("\(jobs.live.count) 个后台任务运行中")))
         }
         if !schedules.isEmpty {
             entries.append(Entry(sheet: .reminders, icon: "clock", dot: false, label: Text("\(schedules.count) 个提醒")))

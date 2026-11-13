@@ -1782,7 +1782,9 @@ const browser = (ctx) => defineTool({
     + 'cheaper. `open` and every action return the page again: its URL and title, then its text with '
     + 'every element you can act on numbered like [3]. Pass that number as `index`; numbers change '
     + 'whenever the page does, so always use the ones from the latest result. `screenshot` shows '
-    + 'what is on screen, for layout, images and charts the text cannot tell you. Sign-ins are kept '
+    + 'what is on screen, for layout, images and charts the text cannot tell you. Sites see a phone; '
+    + 'pass `desktop: true` with `open` or `reload` for a site\'s desktop (PC) version, `false` to go '
+    + 'back — the choice stays with that site, for the user too. Sign-ins are kept '
     + 'across app launches. The user can watch and take over at any time. Never type a password, '
     + 'card number or other secret into a page — ask the user to do that part in the workbench.',
   parameters: {
@@ -1795,6 +1797,11 @@ const browser = (ctx) => defineTool({
       required: true,
     },
     url: { type: 'string', description: 'open: the address; a bare host means https, localhost means http' },
+    desktop: {
+      type: 'boolean',
+      description: 'open, reload: true for the site\'s desktop version, false for its mobile one; '
+        + 'remembered for that site. Leave it out to keep the site\'s current choice',
+    },
     index: { type: 'number', description: 'click, type, select: the element\'s number from the latest result; scroll: optionally the scrollable element to scroll inside' },
     text: { type: 'string', description: 'type: what to put in the field; it replaces what is there' },
     option: { type: 'string', description: 'select: the visible text of the option to choose' },
@@ -1831,6 +1838,7 @@ const browser = (ctx) => defineTool({
       lines.push(cut(value.content, PAGE_LIMIT, 'page'));
       if (value.footer) lines.push(value.footer);
       if (value.loading) lines.push('(The page is still loading; `read` again to see the rest.)');
+      if (value.desktop === true) lines.push('(This is the site\'s desktop version.)');
       return text(lines.join('\n'));
     },
   },

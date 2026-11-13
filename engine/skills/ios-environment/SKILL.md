@@ -159,6 +159,7 @@ The `browser` tool drives this conversation's own browser: a real WebKit page, t
 - `open` and every action return the page as text, with each element you can act on numbered like `[3]`. Pass that number as `index`. Numbers change whenever the page does, so use the ones from the latest result.
 - `screenshot` shows the visible part of the page as an image: use it for layout, pictures and charts, not to read text. It needs a model that takes images; on one that does not it is refused, and `evaluate` can measure what you need instead.
 - One page, no tabs: a link that would open a new tab opens in the same page.
+- Sites see a phone and usually send their mobile version. For the desktop (PC) version, pass `desktop: true` with `open` or `reload`; `desktop: false` goes back. The choice is kept for that site, and the user can switch it from the browser's menu too.
 - Sign-ins are kept across app launches and shared by every conversation's browser, but not with Safari. If a site wants a login, ask the user to sign in in the workbench once. Never type a password, card number or other secret yourself.
 - The user can watch and take over at any time; when you stop, say what is on the page.
 

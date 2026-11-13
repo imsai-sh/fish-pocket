@@ -45,8 +45,13 @@ struct ToolPresentation {
     private var browserLine: String {
         let arguments = call.arguments
         let element = arguments["index"].int.map { " [\($0)]" } ?? ""
+        let version = switch arguments["desktop"].bool {
+        case true?: " · " + String(localized: "电脑版")
+        case false?: " · " + String(localized: "移动版")
+        case nil: ""
+        }
         let what: String = switch arguments["action"].string {
-        case "open": String(localized: "打开") + " " + (arguments["url"].string.map(ToolCall.firstLine) ?? "")
+        case "open": String(localized: "打开") + " " + (arguments["url"].string.map(ToolCall.firstLine) ?? "") + version
         case "read": String(localized: "读取页面")
         case "click": String(localized: "点击") + element
         case "type": String(localized: "输入") + element
@@ -54,7 +59,7 @@ struct ToolPresentation {
         case "scroll": String(localized: "滚动")
         case "back": String(localized: "后退")
         case "forward": String(localized: "前进")
-        case "reload": String(localized: "刷新")
+        case "reload": String(localized: "刷新") + version
         case "evaluate": String(localized: "运行脚本")
         case "screenshot": String(localized: "截图")
         default: ""

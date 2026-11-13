@@ -27,10 +27,10 @@ import WebKit
         let browser = BrowserModel.session(owner(of: session, in: app), origin: app.client.origin)
         return try await browser.serially {
             switch op {
-            case "open": return try await browser.agentOpen(args["url"] as? String ?? "")
+            case "open": return try await browser.agentOpen(args["url"] as? String ?? "", desktop: args["desktop"] as? Bool)
             case "read": return try await browser.agentRead()
             case "click", "type", "select", "scroll": return try await browser.agentAct(op, args)
-            case "back", "forward", "reload": return try await browser.agentNavigate(op)
+            case "back", "forward", "reload": return try await browser.agentNavigate(op, desktop: args["desktop"] as? Bool)
             case "evaluate": return try await browser.agentEvaluate(args["script"] as? String ?? "")
             case "screenshot": return try await browser.agentScreenshot()
             default: throw BrowserAgentError("browser has no operation '\(op)'")
@@ -87,12 +87,15 @@ extension BrowserModel {
         return WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: agentWorld)
     }()
 
-    func agentOpen(_ input: String) async throws -> [String: Any] {
+    /// `desktop` asks for the site's desktop or mobile version, and the choice stays with the site, as
+    /// the user's own from the bar's menu does.
+    func agentOpen(_ input: String, desktop: Bool?) async throws -> [String: Any] {
         let url: URL
         switch Self.parse(input, applicationOrigin: origin) {
         case .success(let parsed): url = parsed
         case .failure(let refusal): throw BrowserAgentError(refusal.agentMessage)
         }
+        if let desktop { Self.setDesktop(desktop, for: url) }
         attachIfDetached()
         go(url.absoluteString)
         await settle(navigating: true)
@@ -117,6 +120,7 @@ extension BrowserModel {
             throw BrowserAgentError("The page could not be read. It may not be an HTML page.")
         }
         state["loading"] = webView.isLoading
+        state["desktop"] = desktop
         return state
     }
 
@@ -172,7 +176,7 @@ extension BrowserModel {
         return state
     }
 
-    func agentNavigate(_ op: String) async throws -> [String: Any] {
+    func agentNavigate(_ op: String, desktop: Bool?) async throws -> [String: Any] {
         attachIfDetached()
         switch op {
         case "back":
@@ -185,6 +189,7 @@ extension BrowserModel {
             guard webView.url != nil || lastURL != nil else {
                 throw BrowserAgentError("No page is open in this conversation's browser yet. Use `open` with a URL first.")
             }
+            if let desktop, let url = page ?? lastURL.flatMap(URL.init(string:)) { Self.setDesktop(desktop, for: url) }
             reload()
         }
         await settle(navigating: true)

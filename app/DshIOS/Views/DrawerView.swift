@@ -1312,18 +1312,6 @@ private extension View {
         }
     }
 
-    /// A floating control's surface: the system's glass from iOS 26, the outlined page colour before.
-    @ViewBuilder
-    func floatingGlass(in shape: some Shape) -> some View {
-        if #available(iOS 26.0, *) {
-            glassEffect(.regular.interactive(), in: shape)
-        } else {
-            background(Palette.background, in: shape)
-                .overlay(shape.stroke(Palette.stroke))
-                .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
-        }
-    }
-
     /// From iOS 26 the search field sits at the bottom, by the keyboard, as the system's own apps have it.
     @ViewBuilder
     func searchFieldAtBottom() -> some View {

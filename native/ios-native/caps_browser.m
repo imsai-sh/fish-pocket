@@ -69,6 +69,16 @@ static NSString *missing_argument(NSString *op, NSDictionary *args) {
   if ([op isEqualToString:@"select"] && !has_string(args, @"option")) {
     return @"select needs 'option': the visible text of the option to choose";
   }
+  if (args[@"desktop"] != nil) {
+    // A JSON true or false; NSNumber also holds plain numbers, which are not a choice.
+    if (!([args[@"desktop"] isKindOfClass:NSNumber.class] &&
+          CFGetTypeID((__bridge CFTypeRef)args[@"desktop"]) == CFBooleanGetTypeID())) {
+      return @"'desktop' must be true or false";
+    }
+    if (!([op isEqualToString:@"open"] || [op isEqualToString:@"reload"])) {
+      return @"'desktop' goes with open or reload";
+    }
+  }
   if ([op isEqualToString:@"evaluate"] && !has_string(args, @"script")) {
     return @"evaluate needs 'script'";
   }
