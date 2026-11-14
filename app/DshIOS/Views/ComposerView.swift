@@ -400,9 +400,12 @@ struct ComposerView: View {
     /// One compact bar for a new conversation and an ongoing one: ＋, the text, the main button.
     private var field: some View {
         VStack(alignment: .leading, spacing: 8) {
+            // Held, the bar *is* the recording bar: one 54 pt capsule with the waveform in it.
+            // The attachments step aside with the text, so the fill stays that capsule instead of
+            // growing into a tall black box with a thumbnail stranded in its corner.
             if composer.editingQueue != nil {
                 queueEditBanner
-            } else {
+            } else if voice.phase == .idle {
                 AttachmentRail(composer: composer)
                     .padding(.horizontal, 13)
                     .padding(.top, composer.attachments.isEmpty ? 0 : 6)
