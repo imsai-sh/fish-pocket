@@ -11,6 +11,17 @@
 - id: sandbox
   disabled: true
 
+# The PTC agent preset cannot work here, so it is not offered. Its only tool is
+# `run_code`, which starts a Node child over a subprocess `control` pipe; this
+# overlay's provider never creates one (plugins/subprocess-ios/index.mjs:
+# `control: undefined`), so every call ends as `code run failed (worker-exit):
+# subprocess provider did not supply the requested control and output pipes`
+# before any user code runs. Retrying, a new session or another model changes
+# nothing. Remove this entry once the provider can carry that channel (a
+# worker-port bootstrap, not an inherited fd).
+- id: preset-ptc
+  disabled: true
+
 # New sessions start in full access instead of the stock workspace-write + ask.
 # Only the default moves: the picker in 设置 still offers the other modes, and
 # a default the user chose there wins. A patch replaces an entry's whole
