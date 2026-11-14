@@ -4,14 +4,14 @@
 
 <h3 align="center">Fish Pocket</h3>
 
-<h1 align="center">DSH (DeepSeek Harness) running on your iPhone and iPad, with a fully native interface</h1>
+<h1 align="center">DSH (DeepSeek Harness) on your iPhone and iPad, plus remote control for Codex and Claude Code on your computer</h1>
 
 <p align="center">
-  <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI for a native experience on both iPhone and iPad.</b>
+  <b>An agent workbench in your pocket: the DSH engine running on the device, remote control for the agents on your computers and servers, a standing team of DS Bots and 30+ connectors, all in one native app.</b>
 </p>
 
 <p align="center">
-  <b>It matches the official DSH Web UI feature for feature, and the agent can also use what your iPhone already has: Calendar, Reminders, Health, Photos and Maps.</b>
+  <b>The on-device engine needs no computer and no server, matches the official DSH Web UI feature for feature, and can use your iPhone's Calendar, Reminders, Health and Photos. Every screen is rebuilt in SwiftUI, not a web wrapper.</b>
 </p>
 
 <p align="center">Want an agent in your pocket too? <a href="https://testflight.apple.com/join/2SCftb2M"><b>Join the TestFlight beta</b></a> (recommended, available worldwide) or <a href="https://apps.apple.com/app/id6830703602">get it on the App Store</a> (outside mainland China), and a ⭐ helps.</p>
@@ -64,20 +64,49 @@
 
 ## What it does
 
-- **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
+Fish Pocket started as the DSH engine moved onto a phone. It is now four things in one app:
+
+| | What it is | Needs a computer? |
+|---|---|---|
+| [**DSH on the device**](#dsh-on-the-device) | The DSH engine runs inside the app, with a terminal, Node, Python, Git, FFmpeg and a plugin store | No |
+| [**Remote control**](#remote-control) | Manage Codex, Claude Code and DSH on your computers and servers from the phone | That machine has to be on |
+| [**DS Bot**](#ds-bot-and-connectors) | A standing team of Bots: direct chats, group chats, scheduled work | No |
+| [**Connectors**](#ds-bot-and-connectors) | GitHub, Notion, Linear, Figma and 30+ services in all; connect once, and conversations and Bots can both use them | No |
+
+### DSH on the device
+
+- **The engine lives in the app.** No computer, no server: take out your phone and the agent edits files, runs scripts and uses Git.
 - **Everything the official Web UI does.** Chat, tool calls, file editing, search, plan mode, approvals, subagents, scheduled tasks and plugins: what the official DSH Web UI can do, this can do.
-- **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
+- **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
 - **A terminal that works.** Built-in bash, `node`, `pnpm`, `python3`, `pip`, `git` and `ffmpeg`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
 - **Built-in Python.** Python 3.15 is embedded in the app with the full standard library. `pip install` works for pure-Python packages, and so does `venv`. Packages with compiled extensions (numpy, pandas and the like) do not install yet.
 - **Built-in Git.** Statically linked libgit2, no child processes. `clone`, `commit`, `branch`, `merge`, `stash`, `pull`, `push` and the rest of everyday git work, with output that matches real git so the agent reads it as usual. Private repositories authenticate over HTTPS with a token.
 - **Built-in FFmpeg.** `ffmpeg` and `ffprobe` are compiled into the app. They read nearly every audio and video format (iPhone HEVC video, MKV and WebM included), extract frames and audio, cut and convert, and every built-in FFmpeg filter works. H.264 and HEVC encoding uses the phone's hardware encoder. There is no x264, VP9 or MP3 encoding.
 - **A built-in DSH plugin store.** A DSH ecosystem plugin market comes preset: browse and search on the phone, install with one tap, and the plugin is ready to use, no computer involved. Add store sources you trust under Index Sources, or install pure JavaScript plugins straight from npm.
 - **A workbench.** Terminal, file preview, built-in browser and change review in one panel.
+- **More private.** Sessions on the device and their workspaces stay on your device.
+
+### Remote control
+
+- **One sidebar for every session.** Sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) and the Codex, Claude Code and DeepSeek Harness sessions on your computers and servers appear in the sidebar next to the ones on the phone, grouped by device, project or time.
+- **Decide without going back to your desk.** Follow progress, keep the conversation going, answer approvals and questions, stop a run, or start a new session on a machine. For a session started on the computer, tap Take Over to message it from the phone.
+- **Treated like sessions on the device.** Remote sessions you start or take over from the phone get the Lock Screen, the Dynamic Island, widgets and Apple Watch too, and you can approve right from the Lock Screen.
+- **Computers and servers.** Your computer needs no public IP, and a Linux server with no desktop works by running the Connector. Use the official relay service or host one yourself.
+
+It is optional, and nothing changes until you sign in. See [Connecting remote control](#connecting-remote-control).
+
+### DS Bot and connectors
+
+- **A standing team of Bots.** Each Bot has its own look, memory and working folder; chat with one, put several in a group, or let them start work on a schedule. Hand one a job and it searches the web, opens pages and reports back. The backend is the open-source [DS Bot](https://github.com/Fei2411/DS-Bot), built in; the interface is rebuilt natively.
+- **30+ connectors.** GitHub, Notion, Linear, Jira and Confluence, Sentry, Figma, Slack, Stripe, Vercel, Supabase, Cloudflare, Amap and more: connect a service once under Connectors in the sidebar, and both ordinary conversations and Bots can use it. Connectors are MCP servers; on iOS only the ones at a web address work, and the ones that start a local command need a computer.
+
+### Native on iOS
+
+- **A fully native interface.** Chat, approvals, the workbench, Bots, connectors, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
 - **Made for iOS.** Dynamic Island and Lock Screen Live Activities, Home Screen and Lock Screen widgets, a Control Center button, Siri and Shortcuts, sharing from WeChat and other apps into a new conversation, a Bot or a group chat, and tasks that continue in the background.
 - **Made for iPad too.** A persistent sidebar, a side workbench, multiple windows, file drag and drop, and keyboard shortcuts.
-- **Reaches the agents on your computer too.** Sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) and the Codex, Claude Code and DeepSeek Harness sessions on your computers appear in the same sidebar: follow their progress, keep the conversation going, answer approvals, stop a run. It is optional, and nothing changes until you sign in.
-- **More private.** Sessions and workspaces stay on your device.
-- **Bot mode:** a standing team of Bots. Each Bot has its own look, memory and working folder; chat with one, put several in a group, or let them start work on a schedule. Connect services such as GitHub and Notion once, and both ordinary conversations and Bots can use them. The backend is the open-source [DS Bot](https://github.com/Fei2411/DS-Bot); the interface is rewritten natively.
+- **iPhone Duo and Apple Watch.** Use the cover screen of a closed Duo, then unfold and the same session fills the inner screen; on the watch, follow progress, approve, and get a tap when the work is done.
+- **Six interface languages.** Simplified Chinese, Traditional Chinese, English, Spanish, Japanese and Korean, switchable in Settings.
 
 Model calls still need a network connection. Use a DeepSeek account or an API key.
 
@@ -89,19 +118,32 @@ The engine runs on the phone, so the agent can use what your iPhone already has.
 
 You turn on each one yourself under Device capabilities in the sidebar, and the agent cannot use what is off. Once on, plugins you install can use it too, and there is a record of what was used.
 
+## Connecting remote control
+
+The engine lives on the phone, so you can leave the computer at home; when the computer is on, Fish Pocket handles the agents on it too. Fish Pocket is the controller: Codex, Claude Code and DeepSeek Harness keep running on that machine, with the open-source [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) relaying in between.
+
+Connecting a personal computer takes three steps:
+
+1. Install the [Agents Anywhere desktop app](https://www.agents-anywhere.com/download) on the computer and sign in. It connects out to the server, so the computer needs no public IP and no open ports.
+2. In the desktop app, open Settings → Connect Phone and choose Start Connection; a QR code appears on the computer.
+3. In the Fish Pocket sidebar, tap Remote Control → Sign In with QR Code, scan the code, then confirm on the computer.
+
+For cloud servers with no desktop, hosting your own relay server, taking over and handing back sessions, limits and privacy, see the [remote control guide](docs/remote-control.md) (in Chinese).
+
 ## Compared with the official DSH Web UI
 
-The features match the official DSH Web UI: what it can do, this can do, with the interface rebuilt from scratch in SwiftUI and adapted separately for iPhone and iPad. On top of that come things the official client does not have: device capabilities, the Dynamic Island and Lock Screen Live Activities, widgets, Siri and Shortcuts, tasks that continue in the background, and multiple windows on iPad.
+The features match the official DSH Web UI: what it can do, this can do, with the interface rebuilt from scratch in SwiftUI and adapted separately for iPhone and iPad. On top of that come things the official client does not have: device capabilities, remote control for Codex and Claude Code, a native Bot interface, the Dynamic Island and Lock Screen Live Activities, widgets, Siri and Shortcuts, tasks that continue in the background, multiple windows on iPad, and Apple Watch.
 
 ## Compared with other approaches
 
-Remote clients need a computer left running. Fish Pocket does not: the engine lives on your phone, ready anytime, anywhere. Among approaches that run right on the phone, it is also the fastest today: Node, Git, Python and FFmpeg all run as native code, with no emulator in between.
+Most approaches make you pick one: remote into a computer that stays on, or run an emulator on the phone. Fish Pocket does both. The engine lives on your phone, so you can leave the computer at home; when the computer is on, Fish Pocket handles the Codex and Claude Code on it too. Among approaches that run right on the phone, it is also the fastest today: Node, Git, Python and FFmpeg all run as native code, with no emulator in between.
 
 |  | Fish Pocket | Remote clients | Web UI on the phone | Linux emulators on iOS (iSH, UTM SE) |
 |---|---|---|---|---|
-| Where the engine runs | Phone | Computer or server | Phone | Phone |
+| Where the engine runs | On the phone; remote sessions on a computer or server | Computer or server | Phone | Phone |
 | Interface | Fully native SwiftUI | Depends on the project | Official Web UI | Terminal or official Web UI |
-| Computer must stay on | No: your phone is enough, anytime, anywhere | Yes, it has to stay on and online | No | No |
+| Computer must stay on | Not for sessions on the phone; remote sessions need that machine on | Yes, it has to stay on and online | No | No |
+| Works with Codex and Claude Code on your computer | Yes, through Agents Anywhere | Depends on the project | No | No |
 | Dynamic Island and Lock Screen status | Yes | Depends on the project | Depends on the project | No |
 | Calendar, Reminders, Health and other device capabilities | Yes, each one turned on by you | Depends on the project | Depends on the project | No |
 | Full Linux tools | No, only built-in commands, Node, Python and FFmpeg | Yes | Depends on the project | Yes |
@@ -171,7 +213,7 @@ We took the 50 most-downloaded community DSH plugins as a sample and ran each on
 
 ### What is Fish Pocket?
 
-Fish Pocket is an open-source iOS app that puts the whole DeepSeek Harness (DSH) agent engine on your iPhone and iPad and runs it on the device. There is no computer to connect and no server to rent, and the interface is rebuilt natively in SwiftUI.
+Fish Pocket is an open-source iOS app that puts the whole DeepSeek Harness (DSH) agent engine on your iPhone and iPad and runs it on the device. There is no computer to connect and no server to rent. It can also remote-control Codex, Claude Code and DSH on your computers and servers, and it comes with DS Bot and 30+ connectors built in. The interface is rebuilt natively in SwiftUI.
 
 ### How is Fish Pocket different from the official DSH Web UI?
 
@@ -179,7 +221,15 @@ The features match: what the official Web UI can do, Fish Pocket can do. The dif
 
 ### Do I need to keep a computer running?
 
-No. Remote clients need a computer that stays on and online. Fish Pocket runs the engine inside the app, so your phone is enough. Only model calls need a network connection.
+No. Fish Pocket runs the engine inside the app, so for sessions on the phone your phone is enough; only model calls need a network connection. A computer has to stay on only while you use remote control to work with the agents on it.
+
+### Can I control Codex and Claude Code on my computer from the phone?
+
+Yes. Sign in to Agents Anywhere, and the Codex, Claude Code and DSH sessions on your computers and servers appear in the sidebar: keep the conversation going, answer approvals and questions, stop a run, or start a new session. Sessions you start or take over from the phone show on the Lock Screen, the Dynamic Island and Apple Watch. See [Connecting remote control](#connecting-remote-control).
+
+### How is a Bot different from an ordinary conversation?
+
+An ordinary conversation is a DSH chat about the task at hand. A Bot stays around: it has its own look, memory and working folder, you can chat with it directly or in a group, and it can start work on a schedule. Connectors work for both.
 
 ### Is Fish Pocket free?
 

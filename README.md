@@ -4,14 +4,14 @@
 
 <h3 align="center">Fish Pocket</h3>
 
-<h1 align="center">在 iPhone 和 iPad 上本机运行 DSH（DeepSeek Harness），界面完全原生</h1>
+<h1 align="center">在 iPhone 和 iPad 上运行 DSH（DeepSeek Harness），也能远程控制电脑上的 Codex 和 Claude Code</h1>
 
 <p align="center">
-  <b>不连电脑，不连服务器，不是网页套壳。引擎就跑在 App 里，每个页面都用 SwiftUI 重写，iPhone 和 iPad 都是原生体验。</b>
+  <b>口袋里的 Agent 工作台：本机跑的 DSH 引擎、远程控制电脑和服务器上的智能体、常驻的 DS Bot 团队、三十多个连接器，都在一个原生 App 里。</b>
 </p>
 
 <p align="center">
-  <b>功能对齐 DSH 官方 Web UI，官方有的这里都有。智能体还能直接用 iPhone 自带的日历、提醒事项、健康、照片和地图。</b>
+  <b>本机引擎不连电脑、不连服务器，功能对齐 DSH 官方 Web UI，还能用 iPhone 自带的日历、提醒事项、健康和照片。每个页面都用 SwiftUI 重写，不是网页套壳。</b>
 </p>
 
 <p align="center">如果你也想把大肥鱼装进口袋，<a href="https://testflight.apple.com/join/2SCftb2M"><b>加入 TestFlight 公测</b></a>（推荐，全球可用）或<a href="https://apps.apple.com/app/id6830703602">从 App Store 下载</a>（非中国大陆），再点个 ⭐ 支持一下吧。</p>
@@ -64,20 +64,49 @@
 
 ## 能做什么
 
-- **能用 iPhone 自带的能力：** 智能体直接查日历、建提醒、读健康数据、找联系人、搜地图，每一项都由你自己开启。见[本机能力](#本机能力)。
+Fish Pocket 一开始只是把 DSH 引擎搬进手机，现在是四块合在一起：
+
+| | 是什么 | 要电脑吗 |
+|---|---|---|
+| [**本机 DSH**](#本机运行-dsh) | DSH 引擎跑在 App 里，自带终端、Node、Python、Git、FFmpeg 和插件商店 | 不要 |
+| [**远程控制**](#远程控制) | 在手机上管电脑和服务器里的 Codex、Claude Code 和 DSH | 要那台机器开着 |
+| [**DS Bot**](#ds-bot-和连接器) | 常驻的 Bot 团队，私聊、群聊、定时开工 | 不要 |
+| [**连接器**](#ds-bot-和连接器) | GitHub、Notion、Linear、Figma 等三十多个服务，连一次，普通会话和 Bot 都能用 | 不要 |
+
+### 本机运行 DSH
+
+- **引擎就在 App 里：** 不连电脑，不连服务器，掏出手机就能让智能体改文件、跑脚本、用 Git。
 - **功能对齐官方 Web UI：** 对话、工具调用、文件编辑、搜索、计划模式、审批、子智能体、定时任务和插件，DSH 官方 Web UI 能做的这里都能做。
-- **完全原生的界面：** 对话、审批、工作台、插件和设置都用 SwiftUI 重写，交互按 iOS 习惯设计，不是把网页塞进 WebView。支持深色模式，可以跟随系统，也可以在设置里手动切换。官方 Web UI 也保留着，需要时可以在设置里打开。
+- **能用 iPhone 自带的能力：** 智能体直接查日历、建提醒、读健康数据、找联系人、搜地图，每一项都由你自己开启。见[本机能力](#本机能力)。
 - **真能用的终端：** 内置 bash、`node`、`pnpm`、`python3`、`pip`、`git`、`ffmpeg`，还有 `rg`、`jq`、`curl`、`sed`、`awk` 等常用命令。
 - **内置 Python：** Python 3.15 直接嵌在 App 里，标准库齐全，`pip install` 能装纯 Python 的包，`venv` 也能用。带编译扩展的包（numpy、pandas 等）暂时装不了。
 - **内置 Git：** 基于静态链接的 libgit2，不靠子进程。`clone`、`commit`、`branch`、`merge`、`stash`、`pull`、`push` 等日常操作都能用，输出和真 git 一致，Agent 照常读懂。私有仓库用 HTTPS 加 Token 认证。
 - **内置 FFmpeg：** `ffmpeg` 和 `ffprobe` 编进 App，能读几乎所有音视频格式（包括 iPhone 拍的 HEVC 视频和 MKV、WebM），能抽帧、抽音轨、剪辑、转码，FFmpeg 自带的滤镜都能用。H.264、HEVC 编码走手机的硬件编码器。没有 x264、VP9、MP3 编码。
 - **内置 DSH 插件商店：** 预置 DSH 生态插件市场，在手机上浏览、搜索，一键安装，装完就能用，不用回到电脑前。也可以在「索引源」里添加自己信任的商店源，或者直接从 npm 安装纯 JavaScript 插件。
 - **工作台：** 终端、文件预览、内置浏览器和改动查看都放在一个面板里。
+- **更私密：** 本机会话和工作区留在设备上。
+
+### 远程控制
+
+- **一个侧边栏管所有会话：** 登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 后，电脑和服务器上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在侧边栏，和本机会话放在一起，可以按设备、项目或时间分组。
+- **不回电脑也能拍板：** 跟进进度、接着聊、回应审批和提问、随时打断，也能在某台机器上新建会话。电脑上开的会话点「接管」就能从手机发消息。
+- **和本机会话同等待遇：** 从手机发起或接管的远程会话，同样上锁屏、灵动岛、小组件和 Apple Watch，审批在锁屏上就能点。
+- **电脑和服务器都能连：** 电脑不需要公网 IP；没有图形界面的 Linux 服务器跑 Connector 也行。中转服务器可以用官方云服务，也可以自己部署。
+
+这是可选功能，不登录就和原来一样。怎么连见[远程控制怎么连](#远程控制怎么连)。
+
+### DS Bot 和连接器
+
+- **一支常驻的 Bot 团队：** 每个 Bot 有自己的形象、记忆和工作文件夹，可以私聊，可以拉群一起商量，也可以到点自己开工。交代一件事，它自己联网搜索、打开网页，做完把结果发回来。后台是内置的开源 [DS Bot](https://github.com/Fei2411/DS-Bot)，界面用原生重写。
+- **三十多个连接器：** GitHub、Notion、Linear、Jira 和 Confluence、Sentry、Figma、Slack、Stripe、Vercel、Supabase、Cloudflare、高德地图等服务，在侧边栏的「连接器」里连一次，普通会话和 Bot 都能用。连接器是 MCP 服务，iOS 上只能用网址形式的，要在本地启动命令的那种只能在电脑上用。
+
+### 原生的 iOS 体验
+
+- **完全原生的界面：** 对话、审批、工作台、Bot、连接器、插件和设置都用 SwiftUI 重写，交互按 iOS 习惯设计，不是把网页塞进 WebView。支持深色模式，可以跟随系统，也可以在设置里手动切换。官方 Web UI 也保留着，需要时可以在设置里打开。
 - **iOS 专属体验：** 灵动岛和锁屏 Live Activity，主屏幕和锁屏小组件，控制中心按钮，Siri 和快捷指令，从微信等 App 分享进新对话、Bot 或群聊，切到后台任务也能继续。
 - **iPad 适配：** 常驻侧栏、右侧工作台、多窗口、拖放文件，外接键盘支持常用快捷键。
-- **也能管电脑上的智能体：** 登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 后，电脑上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在同一个侧边栏里，可以跟进进度、接着聊、回应审批、随时打断。这是可选功能，不登录就和原来一样。
-- **更私密：** 会话和工作区留在设备上。
-- **Bot 模式：** 一支常驻的 Bot 团队。每个 Bot 有自己的形象、记忆和工作文件夹，可以私聊，可以拉群一起商量，也可以到点自己开工。GitHub、Notion 这些服务在连接器里连一次，普通会话和 Bot 都能用。后台是开源的 [DS Bot](https://github.com/Fei2411/DS-Bot)，界面是原生重写的。
+- **iPhone Duo 和 Apple Watch：** Duo 合上时在外屏用，展开后同一个会话铺满内屏；手表上看进度、点审批，跑完提醒你。
+- **六种界面语言：** 简体中文、繁体中文、英文、西班牙语、日语和韩语，可以在设置里切换。
 
 模型调用仍然需要联网，用 DeepSeek 账号或 API Key 都可以。
 
@@ -89,19 +118,32 @@
 
 每一项都要你自己在侧边栏的「本机能力」里开启，没开的智能体用不了。开启后你装的插件也能用，用过哪些有记录可查。
 
+## 远程控制怎么连
+
+引擎在手机里，出门不用带电脑；电脑开着的时候，上面的智能体也能一起管。Fish Pocket 是控制端，Codex、Claude Code 和 DeepSeek Harness 仍然跑在那台机器上，由开源的 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 在中间转发。
+
+连一台个人电脑只要三步：
+
+1. 在电脑上安装 [Agents Anywhere 桌面应用](https://www.agents-anywhere.com/download)并登录。它会主动连到服务器，电脑不需要公网 IP，也不用开端口。
+2. 在桌面应用的「设置 → 连接手机」里点「开始连接」，电脑上出现一个二维码。
+3. 在 Fish Pocket 侧边栏点「远程控制 → 扫码登录」，扫码后到电脑上确认。
+
+没有图形界面的云服务器、自己部署中转服务器、接管和交还、限制和隐私，见[远程控制说明](docs/remote-control.md)。
+
 ## 和 DSH 官方 Web UI 的对比
 
-功能和 DSH 官方 Web UI 对齐，官方能做的这里都能做，界面则用 SwiftUI 完全重写，iPhone 和 iPad 各按自己的习惯适配。在这之上还有官方没有的：本机能力、灵动岛和锁屏 Live Activity、小组件、Siri 和快捷指令、切到后台继续跑、iPad 多窗口。
+功能和 DSH 官方 Web UI 对齐，官方能做的这里都能做，界面则用 SwiftUI 完全重写，iPhone 和 iPad 各按自己的习惯适配。在这之上还有官方没有的：本机能力、远程控制 Codex 和 Claude Code、原生的 Bot 界面、灵动岛和锁屏 Live Activity、小组件、Siri 和快捷指令、切到后台继续跑、iPad 多窗口、Apple Watch。
 
 ## 和其他方案的区别
 
-远程客户端要电脑一直开着，Fish Pocket 不用：引擎就在手机里，掏出来随时随地都能用。在手机上直接运行的方案里，它也是目前最快的：Node、Git、Python 和 FFmpeg 都是原生代码，不经过模拟器。
+别的方案大多二选一：要么远程连一台一直开着的电脑，要么在手机上跑模拟器。Fish Pocket 两样都做：引擎就在手机里，出门不用带电脑；电脑开着的时候，上面的 Codex、Claude Code 也能一起管。在手机上直接运行的方案里，它也是目前最快的：Node、Git、Python 和 FFmpeg 都是原生代码，不经过模拟器。
 
 |  | Fish Pocket | 远程客户端 | 手机里跑网页版 | iOS 上的 Linux 模拟器（iSH、UTM SE） |
 |---|---|---|---|---|
-| 引擎在哪里 | 手机 | 电脑或服务器 | 手机 | 手机 |
+| 引擎在哪里 | 手机本机；远程会话在电脑或服务器上 | 电脑或服务器 | 手机 | 手机 |
 | 界面 | 完全原生 SwiftUI | 看具体项目 | 官方 Web UI | 终端或官方 Web UI |
-| 电脑要开着吗 | 不用，有手机就行，随时随地 | 要，电脑得一直开着联网 | 不用 | 不用 |
+| 电脑要开着吗 | 本机会话不用，有手机就行；远程会话要那台机器开着 | 要，电脑得一直开着联网 | 不用 | 不用 |
+| 管电脑上的 Codex、Claude Code | 能，通过 Agents Anywhere | 看具体项目 | 不能 | 不能 |
 | 灵动岛和锁屏状态 | 有 | 看具体项目 | 看具体项目 | 没有 |
 | 调用日历、提醒事项、健康等本机能力 | 能，逐项由你开启 | 看具体项目 | 看具体项目 | 不能 |
 | 完整的 Linux 工具 | 没有，只有内置命令、Node、Python 和 FFmpeg | 有 | 看具体项目 | 有 |
@@ -171,7 +213,7 @@ iOS 不允许起子进程，所以这些运行时的“进程”都是 App 里�
 
 ### Fish Pocket 是什么？
 
-Fish Pocket 是一款开源的 iOS App，把 DeepSeek Harness（简称 DSH）的整个 Agent 引擎装进 iPhone 和 iPad，在本机运行。不用连电脑，也不用连服务器，界面用 SwiftUI 原生重写。
+Fish Pocket 是一款开源的 iOS App，把 DeepSeek Harness（简称 DSH）的整个 Agent 引擎装进 iPhone 和 iPad，在本机运行，不用连电脑，也不用连服务器。它也能远程控制电脑和服务器上的 Codex、Claude Code 和 DSH，还内置了 DS Bot 和三十多个连接器。界面用 SwiftUI 原生重写。
 
 ### Fish Pocket 和 DSH 官方 Web UI 有什么区别？
 
@@ -179,7 +221,15 @@ Fish Pocket 是一款开源的 iOS App，把 DeepSeek Harness（简称 DSH）的
 
 ### 用 Fish Pocket 要开着电脑吗？
 
-不用。远程客户端需要一台一直开着联网的电脑，Fish Pocket 的引擎就在 App 里，有手机就能用。只有调用模型时需要联网。
+不用。Fish Pocket 的引擎就在 App 里，本机会话有手机就能用，只有调用模型时需要联网。只有用远程控制管电脑上的智能体时，那台电脑才要开着。
+
+### 能在手机上控制电脑上的 Codex 和 Claude Code 吗？
+
+能。登录 Agents Anywhere 后，电脑和服务器上的 Codex、Claude Code 和 DSH 会话会出现在侧边栏，可以接着聊、回应审批和提问、随时打断，也能新建会话。从手机发起或接管的会话会上锁屏、灵动岛和 Apple Watch。怎么连见[远程控制怎么连](#远程控制怎么连)。
+
+### Bot 和普通会话有什么区别？
+
+普通会话就是 DSH 的对话，围绕手头的任务来回聊。Bot 是常驻的：有自己的形象、记忆和工作文件夹，可以私聊、拉群一起商量，也能按时间表自己开工。连接器两边都能用。
 
 ### Fish Pocket 收费吗？
 
