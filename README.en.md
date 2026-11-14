@@ -67,7 +67,7 @@
 - **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
 - **Everything the official Web UI does.** Chat, tool calls, file editing, search, plan mode, approvals, subagents, scheduled tasks and plugins: what the official DSH Web UI can do, this can do.
 - **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
-- **A terminal that works.** Built-in bash, `node`, `pnpm`, `python3`, `pip`, `git` and `ffmpeg`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands.
+- **A terminal that works.** Built-in bash, `node`, `pnpm`, `python3`, `pip`, `git` and `ffmpeg`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands. Node, Git, Python and FFmpeg run as native code with no emulator in between, so they are far faster than Linux emulators on iOS (iSH, UTM SE).
 - **Built-in Python.** Python 3.15 is embedded in the app with the full standard library. `pip install` works for pure-Python packages, and so does `venv`. Packages with compiled extensions (numpy, pandas and the like) do not install yet.
 - **Built-in Git.** Statically linked libgit2, no child processes. `clone`, `commit`, `branch`, `merge`, `stash`, `pull`, `push` and the rest of everyday git work, with output that matches real git so the agent reads it as usual. Private repositories authenticate over HTTPS with a token.
 - **Built-in FFmpeg.** `ffmpeg` and `ffprobe` are compiled into the app. They read nearly every audio and video format (iPhone HEVC video, MKV and WebM included), extract frames and audio, cut and convert, and every built-in FFmpeg filter works. H.264 and HEVC encoding uses the phone's hardware encoder. There is no x264, VP9 or MP3 encoding.
@@ -92,20 +92,6 @@ You turn on each one yourself under Device capabilities in the sidebar, and the 
 ## Compared with the official DSH Web UI
 
 The features match the official DSH Web UI: what it can do, this can do, with the interface rebuilt from scratch in SwiftUI and adapted separately for iPhone and iPad. On top of that come things the official client does not have: device capabilities, the Dynamic Island and Lock Screen Live Activities, widgets, Siri and Shortcuts, tasks that continue in the background, and multiple windows on iPad.
-
-## Compared with other approaches
-
-Remote clients need a computer left running. Fish Pocket does not: the engine lives on your phone, ready anytime, anywhere. Among approaches that run right on the phone, it is also the fastest today: Node, Git, Python and FFmpeg all run as native code, with no emulator in between.
-
-|  | Fish Pocket | Remote clients | Web UI on the phone | Linux emulators on iOS (iSH, UTM SE) |
-|---|---|---|---|---|
-| Where the engine runs | Phone | Computer or server | Phone | Phone |
-| Interface | Fully native SwiftUI | Depends on the project | Official Web UI | Terminal or official Web UI |
-| Computer must stay on | No: your phone is enough, anytime, anywhere | Yes, it has to stay on and online | No | No |
-| Dynamic Island and Lock Screen status | Yes | Depends on the project | Depends on the project | No |
-| Calendar, Reminders, Health and other device capabilities | Yes, each one turned on by you | Depends on the project | Depends on the project | No |
-| Full Linux tools | No, only built-in commands, Node, Python and FFmpeg | Yes | Depends on the project | Yes |
-| Speed | Fastest of the on-phone approaches: Node, Git, Python and FFmpeg run as native code | Depends on that computer | Depends on the project | Very slow: CPU instructions are interpreted one by one |
 
 ## Quick start
 
@@ -250,7 +236,6 @@ Fish Pocket also stands on the shoulders of these projects.
 
 **Ideas we learned from:**
 
-- [dsh-mobile](https://github.com/saya-ch/dsh-mobile): remote access for DSH
 - [a-Shell](https://github.com/holzschu/a-shell): proof that iOS can have a genuinely useful local terminal
 - [OpenMinis](https://github.com/OpenMinis/OpenMinis): an AI agent that runs on the phone; our device capability categories and permission levels follow its design
 

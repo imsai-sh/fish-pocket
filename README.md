@@ -67,7 +67,7 @@
 - **能用 iPhone 自带的能力：** 智能体直接查日历、建提醒、读健康数据、找联系人、搜地图，每一项都由你自己开启。见[本机能力](#本机能力)。
 - **功能对齐官方 Web UI：** 对话、工具调用、文件编辑、搜索、计划模式、审批、子智能体、定时任务和插件，DSH 官方 Web UI 能做的这里都能做。
 - **完全原生的界面：** 对话、审批、工作台、插件和设置都用 SwiftUI 重写，交互按 iOS 习惯设计，不是把网页塞进 WebView。支持深色模式，可以跟随系统，也可以在设置里手动切换。官方 Web UI 也保留着，需要时可以在设置里打开。
-- **真能用的终端：** 内置 bash、`node`、`pnpm`、`python3`、`pip`、`git`、`ffmpeg`，还有 `rg`、`jq`、`curl`、`sed`、`awk` 等常用命令。
+- **真能用的终端：** 内置 bash、`node`、`pnpm`、`python3`、`pip`、`git`、`ffmpeg`，还有 `rg`、`jq`、`curl`、`sed`、`awk` 等常用命令。Node、Git、Python 和 FFmpeg 都是原生代码，不经过模拟器，比 iOS 上的 Linux 模拟器（iSH、UTM SE）快得多。
 - **内置 Python：** Python 3.15 直接嵌在 App 里，标准库齐全，`pip install` 能装纯 Python 的包，`venv` 也能用。带编译扩展的包（numpy、pandas 等）暂时装不了。
 - **内置 Git：** 基于静态链接的 libgit2，不靠子进程。`clone`、`commit`、`branch`、`merge`、`stash`、`pull`、`push` 等日常操作都能用，输出和真 git 一致，Agent 照常读懂。私有仓库用 HTTPS 加 Token 认证。
 - **内置 FFmpeg：** `ffmpeg` 和 `ffprobe` 编进 App，能读几乎所有音视频格式（包括 iPhone 拍的 HEVC 视频和 MKV、WebM），能抽帧、抽音轨、剪辑、转码，FFmpeg 自带的滤镜都能用。H.264、HEVC 编码走手机的硬件编码器。没有 x264、VP9、MP3 编码。
@@ -92,20 +92,6 @@
 ## 和 DSH 官方 Web UI 的对比
 
 功能和 DSH 官方 Web UI 对齐，官方能做的这里都能做，界面则用 SwiftUI 完全重写，iPhone 和 iPad 各按自己的习惯适配。在这之上还有官方没有的：本机能力、灵动岛和锁屏 Live Activity、小组件、Siri 和快捷指令、切到后台继续跑、iPad 多窗口。
-
-## 和其他方案的区别
-
-远程客户端要电脑一直开着，Fish Pocket 不用：引擎就在手机里，掏出来随时随地都能用。在手机上直接运行的方案里，它也是目前最快的：Node、Git、Python 和 FFmpeg 都是原生代码，不经过模拟器。
-
-|  | Fish Pocket | 远程客户端 | 手机里跑网页版 | iOS 上的 Linux 模拟器（iSH、UTM SE） |
-|---|---|---|---|---|
-| 引擎在哪里 | 手机 | 电脑或服务器 | 手机 | 手机 |
-| 界面 | 完全原生 SwiftUI | 看具体项目 | 官方 Web UI | 终端或官方 Web UI |
-| 电脑要开着吗 | 不用，有手机就行，随时随地 | 要，电脑得一直开着联网 | 不用 | 不用 |
-| 灵动岛和锁屏状态 | 有 | 看具体项目 | 看具体项目 | 没有 |
-| 调用日历、提醒事项、健康等本机能力 | 能，逐项由你开启 | 看具体项目 | 看具体项目 | 不能 |
-| 完整的 Linux 工具 | 没有，只有内置命令、Node、Python 和 FFmpeg | 有 | 看具体项目 | 有 |
-| 运行速度 | 手机上直接运行的方案里最快：Node、Git、Python、FFmpeg 都是原生代码 | 取决于那台电脑 | 看具体项目 | 特别慢，CPU 指令要逐条解释执行 |
 
 ## 快速开始
 
@@ -250,7 +236,6 @@ Fish Pocket 站在这些优秀项目的肩膀上:
 - [libgit2](https://github.com/libgit2/libgit2)：App 内的 git 能力
 - [FFmpeg](https://ffmpeg.org)：App 内的音视频处理，按 LGPL 以动态框架使用
 - [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)：终端界面
-- [dsh-mobile](https://github.com/saya-ch/dsh-mobile)：DSH 的远程访问方案
 - [a-Shell](https://github.com/holzschu/a-shell)：证明了 iOS 上可以有真正好用的本地终端
 - [OpenMinis](https://github.com/OpenMinis/OpenMinis)：跑在手机上的 AI Agent，本机能力的分类和权限档位参考了它的设计
 
