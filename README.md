@@ -7,11 +7,15 @@
 <h1 align="center">在 iPhone 和 iPad 上本机运行 DSH（DeepSeek Harness），界面完全原生</h1>
 
 <p align="center">
-  <b>不连电脑，不连服务器，不是网页套壳。引擎就跑在 App 里，每个页面都用 SwiftUI 重写，iPhone 和 iPad 都是原生体验。</b>
+  <b>本机运行不靠电脑，不靠服务器，不是网页套壳。引擎就跑在 App 里，每个页面都用 SwiftUI 重写，iPhone 和 iPad 都是原生体验。</b>
 </p>
 
 <p align="center">
   <b>功能对齐 DSH 官方 Web UI，官方有的这里都有。智能体还能直接用 iPhone 自带的日历、提醒事项、健康、照片和地图。</b>
+</p>
+
+<p align="center">
+  <b>还有两个大功能：<a href="#bot-模式">Bot 模式</a>，一支原生界面的常驻 Bot 团队；<a href="#远程控制">远程控制</a>，在手机上管电脑和服务器里的 Codex、Claude Code 和 DSH 会话。</b>
 </p>
 
 <p align="center">如果你也想把大肥鱼装进口袋，<a href="https://testflight.apple.com/join/2SCftb2M"><b>加入 TestFlight 公测</b></a>（推荐，全球可用）或<a href="https://apps.apple.com/app/id6830703602">从 App Store 下载</a>（非中国大陆），再点个 ⭐ 支持一下吧。</p>
@@ -65,6 +69,8 @@
 ## 能做什么
 
 - **能用 iPhone 自带的能力：** 智能体直接查日历、建提醒、读健康数据、找联系人、搜地图，每一项都由你自己开启。见[本机能力](#本机能力)。
+- **Bot 模式：** 一支常驻的 Bot 团队。每个 Bot 有自己的形象、记忆和工作文件夹，可以私聊，可以拉群一起商量，也可以到点自己开工。后台是开源的 [DS Bot](https://github.com/Fei2411/DS-Bot)，界面全部原生重写。见 [Bot 模式](#bot-模式)。
+- **远程控制：** 电脑和服务器上的 Codex、Claude Code 和 DeepSeek Harness 会话也能在手机上管，和本机会话放在同一个侧边栏里，跟进进度、接着聊、回应审批、随时打断。见[远程控制](#远程控制)。
 - **功能对齐官方 Web UI：** 对话、工具调用、文件编辑、搜索、计划模式、审批、子智能体、定时任务和插件，DSH 官方 Web UI 能做的这里都能做。
 - **完全原生的界面：** 对话、审批、工作台、插件和设置都用 SwiftUI 重写，交互按 iOS 习惯设计，不是把网页塞进 WebView。支持深色模式，可以跟随系统，也可以在设置里手动切换。官方 Web UI 也保留着，需要时可以在设置里打开。
 - **真能用的终端：** 内置 bash、`node`、`pnpm`、`python3`、`pip`、`git`、`ffmpeg`，还有 `rg`、`jq`、`curl`、`sed`、`awk` 等常用命令。Node、Git、Python 和 FFmpeg 都是原生代码，不经过模拟器，比 iOS 上的 Linux 模拟器（iSH、UTM SE）快得多。
@@ -75,9 +81,7 @@
 - **工作台：** 终端、文件预览、内置浏览器和改动查看都放在一个面板里。
 - **iOS 专属体验：** 灵动岛和锁屏 Live Activity，主屏幕和锁屏小组件，控制中心按钮，Siri 和快捷指令，从微信等 App 分享进新对话、Bot 或群聊，切到后台任务也能继续。
 - **iPad 适配：** 常驻侧栏、右侧工作台、多窗口、拖放文件，外接键盘支持常用快捷键。
-- **也能管电脑上的智能体：** 登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 后，电脑上的 Codex、Claude Code 和 DeepSeek Harness 会话出现在同一个侧边栏里，可以跟进进度、接着聊、回应审批、随时打断。这是可选功能，不登录就和原来一样。
 - **更私密：** 会话和工作区留在设备上。
-- **Bot 模式：** 一支常驻的 Bot 团队。每个 Bot 有自己的形象、记忆和工作文件夹，可以私聊，可以拉群一起商量，也可以到点自己开工。GitHub、Notion 这些服务在连接器里连一次，普通会话和 Bot 都能用。后台是开源的 [DS Bot](https://github.com/Fei2411/DS-Bot)，界面是原生重写的。
 
 模型调用仍然需要联网，用 DeepSeek 账号或 API Key 都可以。
 
@@ -89,9 +93,23 @@
 
 每一项都要你自己在侧边栏的「本机能力」里开启，没开的智能体用不了。开启后你装的插件也能用，用过哪些有记录可查。
 
+## Bot 模式
+
+一支常驻在口袋里的 Bot 团队。每个 Bot 有自己的形象、记忆和工作文件夹：可以单独私聊派活，可以拉几个进群一起商量，也可以设好时间让它到点自己开工。干活时头像跟着状态动，正在思考、在搜索还是等你答复，一眼就能看出来。
+
+GitHub、Notion 这些服务在连接器里连一次，普通会话和 Bot 都能用。在微信、相册、Safari 里点「分享」，内容也能直接交给某个 Bot 或群聊。
+
+后台是开源的 [DS Bot](https://github.com/Fei2411/DS-Bot)。Fish Pocket 只用它的接口，建 Bot、私聊、群聊、定时任务和连接器的界面都用 SwiftUI 原生重写，不用打开网页版。
+
+## 远程控制
+
+电脑和服务器上的智能体也能在手机上管。登录 [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) 后，那台机器上的 Codex、Claude Code 和 DeepSeek Harness 会话和本机会话出现在同一个侧边栏里：跟进进度、接着聊、回应审批、随时打断，也能直接在那台机器上开新会话。锁屏、灵动岛和小组件对远程会话一视同仁。
+
+个人电脑装上 Agents Anywhere 桌面应用，在 App 里扫码登录就行，不需要公网 IP；没有图形界面的云服务器跑它的 Connector。手机和那台机器之间经 Agents Anywhere 的服务器转发，可以用官方云服务，也可以自己部署。这是可选功能，不登录什么都不会发生，本机会话始终留在手机上。详细步骤见[远程控制说明](docs/remote-control.md)。
+
 ## 和 DSH 官方 Web UI 的对比
 
-功能和 DSH 官方 Web UI 对齐，官方能做的这里都能做，界面则用 SwiftUI 完全重写，iPhone 和 iPad 各按自己的习惯适配。在这之上还有官方没有的：本机能力、灵动岛和锁屏 Live Activity、小组件、Siri 和快捷指令、切到后台继续跑、iPad 多窗口。
+功能和 DSH 官方 Web UI 对齐，官方能做的这里都能做，界面则用 SwiftUI 完全重写，iPhone 和 iPad 各按自己的习惯适配。在这之上还有官方没有的：本机能力、灵动岛和锁屏 Live Activity、小组件、Siri 和快捷指令、切到后台继续跑、iPad 多窗口、原生界面的 Bot 模式，以及远程控制。
 
 ## 快速开始
 

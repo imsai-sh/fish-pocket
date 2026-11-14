@@ -7,11 +7,15 @@
 <h1 align="center">DSH (DeepSeek Harness) running on your iPhone and iPad, with a fully native interface</h1>
 
 <p align="center">
-  <b>No computer. No server. Not a web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI for a native experience on both iPhone and iPad.</b>
+  <b>Runs on its own, with no computer, no server and no web wrapper. The engine runs inside the app, and every screen is rebuilt in SwiftUI for a native experience on both iPhone and iPad.</b>
 </p>
 
 <p align="center">
   <b>It matches the official DSH Web UI feature for feature, and the agent can also use what your iPhone already has: Calendar, Reminders, Health, Photos and Maps.</b>
+</p>
+
+<p align="center">
+  <b>Two more big features: <a href="#bot-mode">Bot mode</a>, a standing team of Bots with a native interface, and <a href="#remote-control">Remote control</a>, for the Codex, Claude Code and DSH sessions on your computers and servers.</b>
 </p>
 
 <p align="center">Want an agent in your pocket too? <a href="https://testflight.apple.com/join/2SCftb2M"><b>Join the TestFlight beta</b></a> (recommended, available worldwide) or <a href="https://apps.apple.com/app/id6830703602">get it on the App Store</a> (outside mainland China), and a ⭐ helps.</p>
@@ -65,6 +69,8 @@
 ## What it does
 
 - **Uses what your iPhone already has.** The agent checks your calendar, adds reminders, reads health data, looks up contacts and searches maps, each one turned on by you. See [Device capabilities](#device-capabilities).
+- **Bot mode.** A standing team of Bots. Each Bot has its own look, memory and working folder; chat with one, put several in a group, or let them start work on a schedule. The backend is the open-source [DS Bot](https://github.com/Fei2411/DS-Bot), and the interface is rebuilt natively. See [Bot mode](#bot-mode).
+- **Remote control.** Manage the Codex, Claude Code and DeepSeek Harness sessions on your computers and servers from the phone, in the same sidebar as the sessions on the device: follow their progress, keep the conversation going, answer approvals, stop a run. See [Remote control](#remote-control).
 - **Everything the official Web UI does.** Chat, tool calls, file editing, search, plan mode, approvals, subagents, scheduled tasks and plugins: what the official DSH Web UI can do, this can do.
 - **A fully native interface.** Chat, approvals, the workbench, plugins and settings are all rebuilt in SwiftUI and designed for iOS, not a web page in a WebView. Dark mode is supported: follow the system, or pick light or dark in Settings. The official Web UI is still there in Settings if you want it.
 - **A terminal that works.** Built-in bash, `node`, `pnpm`, `python3`, `pip`, `git` and `ffmpeg`, plus `rg`, `jq`, `curl`, `sed`, `awk` and other everyday commands. Node, Git, Python and FFmpeg run as native code with no emulator in between, so they are far faster than Linux emulators on iOS (iSH, UTM SE).
@@ -75,9 +81,7 @@
 - **A workbench.** Terminal, file preview, built-in browser and change review in one panel.
 - **Made for iOS.** Dynamic Island and Lock Screen Live Activities, Home Screen and Lock Screen widgets, a Control Center button, Siri and Shortcuts, sharing from WeChat and other apps into a new conversation, a Bot or a group chat, and tasks that continue in the background.
 - **Made for iPad too.** A persistent sidebar, a side workbench, multiple windows, file drag and drop, and keyboard shortcuts.
-- **Reaches the agents on your computer too.** Sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) and the Codex, Claude Code and DeepSeek Harness sessions on your computers appear in the same sidebar: follow their progress, keep the conversation going, answer approvals, stop a run. It is optional, and nothing changes until you sign in.
 - **More private.** Sessions and workspaces stay on your device.
-- **Bot mode:** a standing team of Bots. Each Bot has its own look, memory and working folder; chat with one, put several in a group, or let them start work on a schedule. Connect services such as GitHub and Notion once, and both ordinary conversations and Bots can use them. The backend is the open-source [DS Bot](https://github.com/Fei2411/DS-Bot); the interface is rewritten natively.
 
 Model calls still need a network connection. Use a DeepSeek account or an API key.
 
@@ -89,9 +93,23 @@ The engine runs on the phone, so the agent can use what your iPhone already has.
 
 You turn on each one yourself under Device capabilities in the sidebar, and the agent cannot use what is off. Once on, plugins you install can use it too, and there is a record of what was used.
 
+## Bot mode
+
+A standing team of Bots in your pocket. Each Bot has its own look, memory and working folder: chat with one to hand it a task, put several in a group to talk things over, or give one a schedule and let it start work on time. Its avatar moves with what it is doing, so you can see at a glance whether it is thinking, searching or waiting on you.
+
+Connect services such as GitHub and Notion once under Connectors, and both ordinary conversations and Bots can use them. Tap Share in WeChat, Photos or Safari, and the content can go straight to a Bot or a group chat.
+
+The backend is the open-source [DS Bot](https://github.com/Fei2411/DS-Bot). Fish Pocket only talks to its API: creating Bots, chats, group chats, scheduled tasks and connectors are all rebuilt natively in SwiftUI, with no need to open its web version.
+
+## Remote control
+
+The agents on your computers and servers are in reach too. Sign in to [Agents Anywhere](https://github.com/anywhere-labs/Agents-Anywhere) and the Codex, Claude Code and DeepSeek Harness sessions on those machines appear in the same sidebar as the sessions on the device: follow their progress, keep the conversation going, answer approvals, stop a run, or start a new session on that machine. The Lock Screen, Dynamic Island and widgets treat remote sessions the same as local ones.
+
+On a personal computer, install the Agents Anywhere desktop app and sign in from Fish Pocket with a QR code; no public IP needed. A cloud server without a desktop runs its Connector instead. The phone and the machine talk through an Agents Anywhere server, either its cloud service or one you host. It is optional: nothing happens until you sign in, and sessions on the device stay on the device. For the steps, see the [remote control guide](docs/remote-control.md) (in Chinese).
+
 ## Compared with the official DSH Web UI
 
-The features match the official DSH Web UI: what it can do, this can do, with the interface rebuilt from scratch in SwiftUI and adapted separately for iPhone and iPad. On top of that come things the official client does not have: device capabilities, the Dynamic Island and Lock Screen Live Activities, widgets, Siri and Shortcuts, tasks that continue in the background, and multiple windows on iPad.
+The features match the official DSH Web UI: what it can do, this can do, with the interface rebuilt from scratch in SwiftUI and adapted separately for iPhone and iPad. On top of that come things the official client does not have: device capabilities, the Dynamic Island and Lock Screen Live Activities, widgets, Siri and Shortcuts, tasks that continue in the background, multiple windows on iPad, Bot mode with a native interface, and remote control.
 
 ## Quick start
 
