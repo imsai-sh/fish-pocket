@@ -31,6 +31,10 @@ struct FishPocketInvitePage: View {
                     case .closed: EmptyView()
                     }
                     rules(invites)
+                } else if account.invitesOff {
+                    // Switched off while the page was open.
+                    ContentUnavailableView("邀请活动暂未开放。", systemImage: "gift")
+                        .frame(minHeight: 240)
                 } else {
                     ProgressView().frame(maxWidth: .infinity, minHeight: 240)
                 }

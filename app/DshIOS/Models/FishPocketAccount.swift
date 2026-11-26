@@ -97,6 +97,8 @@ final class FishPocketAccount {
     private(set) var expiring: (credits: Int, date: Date)?
     /// Invites, once read; nil while the service has them off.
     private(set) var invites: FishPocketInvites?
+    /// The service has invites switched off (or has none): the entry is hidden and an open page says so.
+    private(set) var invitesOff = false
     /// The server credits this account's sandbox purchases.
     private(set) var sandboxPurchases = false
     private(set) var packs: [FishPocketPack] = []
@@ -294,9 +296,11 @@ final class FishPocketAccount {
         guard signedIn else { return }
         do {
             invites = FishPocketInvites(try await authorized("GET", "v1/invites"))
+            invitesOff = false
         } catch let error as FishPocketError where error.code == "unavailable" || error.status == 404 {
             // Off on the service (or a service from before invites): no invite page.
             invites = nil
+            invitesOff = true
         } catch {
             // A failed read keeps what was shown.
         }
@@ -325,6 +329,9 @@ final class FishPocketAccount {
         case "inviter_full": String(localized: "这个邀请码的邀请人数已满。")
         case "already_redeemed": String(localized: "你已经填过邀请码了。")
         case "not_eligible": String(localized: "邀请码只能在注册后 7 天内填写。")
+        case "daily_full": String(localized: "今天的邀请名额已经发完了，明天再来吧。")
+        case "rate_limited": String(localized: "请求太频繁，稍后再试")
+        case "unavailable": String(localized: "邀请活动暂未开放。")
         case "network": error.message
         default: String(localized: "暂时无法领取，请稍后再试。")
         }
@@ -367,6 +374,7 @@ final class FishPocketAccount {
         balance = nil
         expiring = nil
         invites = nil
+        invitesOff = false
         sandboxPurchases = false
         quotaPrompt = false
         _ = try? await engine.call("credentials/unset", ["ref": .string(FishPocketAPI.runtimeKeyRef)])

@@ -8450,40 +8450,6 @@
         }
       }
     },
-    "在 Fish Pocket 账号里点「邀请好友」，把邀请码分享出去。好友注册后填写你的邀请码，你们立刻各得 1,000 积分。老用户也可以填一次好友的邀请码。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In your Fish Pocket Account, tap Invite Friends and share your invite code. When a friend signs up and enters it, you each get 1,000 credits right away. Existing users can also enter a friend’s code once."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En tu cuenta de Fish Pocket, toca Invitar amigos y comparte tu código. Cuando un amigo se registre y lo introduzca, cada uno recibirá 1000 créditos al instante. Quienes ya tenían cuenta también pueden introducir una vez el código de un amigo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fish Pocket アカウントで「友だちを招待」をタップして、招待コードを共有しましょう。友だちが登録してコードを入力すると、すぐにそれぞれ 1,000 クレジットがもらえます。既存のユーザーも友だちのコードを 1 回入力できます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fish Pocket 계정에서 친구 초대를 탭하고 초대 코드를 공유하세요. 친구가 가입 후 코드를 입력하면 바로 각자 1,000 크레딧을 받아요. 기존 사용자도 친구의 코드를 한 번 입력할 수 있어요."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 Fish Pocket 帳號裡點「邀請好友」，把邀請碼分享出去。好友註冊後填寫你的邀請碼，你們立刻各得 1,000 積分。既有使用者也可以填一次好友的邀請碼。"
-          }
-        }
-      }
-    },
     "在「快捷指令」里用 Fish Pocket 的操作，或者设成自动化，到点、到地方就打开某个 Bot 或 Mini App。" : {
       "localizations" : {
         "en" : {
@@ -18780,40 +18746,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "邀請好友，各得 %lld 積分"
-          }
-        }
-      }
-    },
-    "邀请好友，各得 1,000 积分" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invite Friends, Get 1,000 Credits Each"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invita a amigos y recibid 1000 créditos cada uno"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "友だちを招待して、それぞれ 1,000 クレジット"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "친구 초대하고 각자 1,000 크레딧 받기"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "邀請好友，各得 1,000 積分"
           }
         }
       }
@@ -117189,6 +117121,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "邀請獎勵"
+          }
+        }
+      }
+    },
+    "今天的邀请名额已经发完了，明天再来吧。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's invite rewards have all been claimed. Try again tomorrow."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las recompensas por invitación de hoy ya se agotaron. Vuelve a intentarlo mañana."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本日の招待特典は上限に達しました。明日もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 초대 보상이 모두 소진됐어요. 내일 다시 시도해 주세요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天的邀請名額已經發完了，明天再來吧。"
+          }
+        }
+      }
+    },
+    "邀请活动暂未开放。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invites aren't available right now."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las invitaciones no están disponibles por ahora."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待は現在ご利用いただけません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금은 초대 기능을 이용할 수 없어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請活動暫未開放。"
           }
         }
       }
