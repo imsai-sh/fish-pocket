@@ -93,7 +93,7 @@ struct FishPocketUsageMonth: Equatable {
 
 /// One line of `GET /v1/credit-history`: credits added, or taken back by a refund.
 struct FishPocketCreditEntry: Identifiable, Equatable {
-    enum Kind: String { case purchase, subscription, promotion, admin, refund }
+    enum Kind: String { case purchase, subscription, promotion, admin, refund, invite }
 
     let id: String
     let kind: Kind

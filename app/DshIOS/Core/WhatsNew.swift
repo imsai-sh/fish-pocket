@@ -44,9 +44,20 @@ enum WhatsNew {
         ]
     }
 
+    /// Invites live on the Fish Pocket account, so only a build that has the account says so.
+    private static var invites: [Feature] {
+        guard FishPocketAPI.available else { return [] }
+        return [
+            Feature(symbol: "gift",
+                    title: "邀请好友，各得 1,000 积分",
+                    detail: "在 Fish Pocket 账号里点「邀请好友」，把邀请码分享出去。好友注册后填写你的邀请码，你们立刻各得 1,000 积分。老用户也可以填一次好友的邀请码。"),
+        ]
+    }
+
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
+        Release(version: "1.2.2", build: 126, features: invites),
         Release(version: "1.2.2", build: 125, features: [
             Feature(symbol: "phone.and.waveform",
                     title: "和智能体打电话",
@@ -229,7 +240,8 @@ enum WhatsNew {
 
     /// The entries this build has reached, newest first.
     private static var reached: [Release] {
-        releases.filter { !isAfter($0.version, $0.build ?? 0, than: version, build) }
+        // An entry with nothing to say in this build (the account's, in a build without it) is skipped.
+        releases.filter { !$0.features.isEmpty && !isAfter($0.version, $0.build ?? 0, than: version, build) }
     }
 
     private static func merged(_ entries: [Release], version: String, build: Int?) -> Release {

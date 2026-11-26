@@ -13,6 +13,39 @@ struct FishPocketPack: Identifiable {
     var id: String { product.id }
 }
 
+/// Invites: this account's code and how many it has brought in, and whether it may still enter
+/// someone else's (`GET /v1/invites`). The rules are the server's; the app only shows them.
+struct FishPocketInvites: Equatable {
+    enum Redeem: Equatable {
+        /// May enter a code, until the deadline (none for accounts from before invites opened).
+        case open(deadline: Date?)
+        case used
+        case closed
+    }
+
+    let code: String
+    let invited: Int
+    let limit: Int
+    /// Credits each side gets, and how many days they last.
+    let reward: Int
+    let rewardDays: Int
+    let redeem: Redeem
+
+    init?(_ json: JSON) {
+        guard let code = json["code"].string, !code.isEmpty else { return nil }
+        self.code = code
+        invited = json["invited"].int ?? 0
+        limit = json["limit"].int ?? 0
+        reward = json["reward"].int ?? 0
+        rewardDays = json["rewardDays"].int ?? 0
+        switch json["redeem"]["status"].string {
+        case "open": redeem = .open(deadline: json["redeem"]["deadline"].double.map { Date(timeIntervalSince1970: $0 / 1000) })
+        case "used": redeem = .used
+        default: redeem = .closed
+        }
+    }
+}
+
 /// The Fish Pocket account: sign-in (Apple or a phone code), the credit balance,
 /// credit packs bought through In-App Purchase, and the runtime key the
 /// engine's `fish-pocket` model route spends credits with.
@@ -60,6 +93,10 @@ final class FishPocketAccount {
     private(set) var user: User?
     /// Spendable credits; nil until read.
     private(set) var balance: Int?
+    /// The part of the balance that expires soonest (invite rewards), when any does within a year.
+    private(set) var expiring: (credits: Int, date: Date)?
+    /// Invites, once read; nil while the service has them off.
+    private(set) var invites: FishPocketInvites?
     /// The server credits this account's sandbox purchases.
     private(set) var sandboxPurchases = false
     private(set) var packs: [FishPocketPack] = []
@@ -232,7 +269,65 @@ final class FishPocketAccount {
         guard signedIn, let reply = try? await authorized("GET", "v1/me") else { return }
         user = User(reply["user"])
         balance = reply["balance"]["total"].int
+        expiring = Self.soonestExpiring(reply["balance"]["buckets"].array)
         sandboxPurchases = reply["sandboxPurchases"].bool ?? false
+    }
+
+    /// Purchased credits last for decades; what runs out within a year is a reward.
+    private static func soonestExpiring(_ buckets: [JSON]) -> (credits: Int, date: Date)? {
+        let horizon = Date().addingTimeInterval(365 * 24 * 3600)
+        let dated = buckets.compactMap { bucket -> (Int, Date)? in
+            guard let credits = bucket["remaining"].int, credits > 0, let ms = bucket["expiresAt"].double else { return nil }
+            let date = Date(timeIntervalSince1970: ms / 1000)
+            return date < horizon ? (credits, date) : nil
+        }
+        guard let soonest = dated.map(\.1).min() else { return nil }
+        // Rewards issued the same day expire within the same day: one line for them.
+        let day = Calendar.current.startOfDay(for: soonest)
+        let credits = dated.filter { Calendar.current.startOfDay(for: $0.1) == day }.reduce(0) { $0 + $1.0 }
+        return (credits, soonest)
+    }
+
+    // MARK: Invites
+
+    func loadInvites() async {
+        guard signedIn else { return }
+        do {
+            invites = FishPocketInvites(try await authorized("GET", "v1/invites"))
+        } catch let error as FishPocketError where error.code == "unavailable" || error.status == 404 {
+            // Off on the service (or a service from before invites): no invite page.
+            invites = nil
+        } catch {
+            // A failed read keeps what was shown.
+        }
+    }
+
+    /// Enter someone's code: both accounts get the reward. Throws with a message to show.
+    func redeemInvite(_ code: String) async throws {
+        do {
+            let reply = try await authorized("POST", "v1/invites/redeem", body: ["code": .string(code)])
+            if let granted = reply["granted"].int { toast = String(localized: "已到账 \(granted) 积分") }
+            Haptics.success()
+        } catch let error as FishPocketError {
+            await loadInvites()
+            throw FishPocketError(status: error.status, code: error.code, message: Self.inviteMessage(error))
+        }
+        async let balance: Void = refresh()
+        async let invites: Void = loadInvites()
+        _ = await (balance, invites)
+    }
+
+    private static func inviteMessage(_ error: FishPocketError) -> String {
+        switch error.code {
+        case "invalid_code": String(localized: "邀请码不存在，请检查后再试。")
+        case "own_code": String(localized: "不能填自己的邀请码。")
+        case "mutual": String(localized: "对方已经填过你的邀请码，不能互相填写。")
+        case "inviter_full": String(localized: "这个邀请码的邀请人数已满。")
+        case "already_redeemed": String(localized: "你已经填过邀请码了。")
+        case "not_eligible": String(localized: "邀请码只能在注册后 7 天内填写。")
+        case "network": error.message
+        default: String(localized: "暂时无法领取，请稍后再试。")
+        }
     }
 
     /// A purchase in a TestFlight build is a sandbox one. The service credits those only to
@@ -270,6 +365,8 @@ final class FishPocketAccount {
         signedIn = false
         user = nil
         balance = nil
+        expiring = nil
+        invites = nil
         sandboxPurchases = false
         quotaPrompt = false
         _ = try? await engine.call("credentials/unset", ["ref": .string(FishPocketAPI.runtimeKeyRef)])
