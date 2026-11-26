@@ -144,6 +144,7 @@ struct FishPocketInvitePage: View {
             HStack(spacing: 10) {
                 TextField("邀请码", text: $entry)
                     .font(.system(.title3, design: .monospaced).weight(.semibold))
+                    .keyboardType(.asciiCapable)
                     .textInputAutocapitalization(.characters)
                     .autocorrectionDisabled()
                     .submitLabel(.done)
