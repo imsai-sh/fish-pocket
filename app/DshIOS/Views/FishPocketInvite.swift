@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// Fish Pocket 账号 → 邀请好友: this account's invite code to share, and a place to enter a friend's.
-/// When someone enters a code, both accounts get the reward. Every rule (the amount, the limit, who
-/// may still enter a code) is the service's: the page shows what `GET /v1/invites` says.
+/// Whoever enters a code gets the reward at once; the code's owner gets it once that friend really
+/// uses Fish Pocket. Every rule (the amounts, the limit, what counts as using it, who may still
+/// enter a code) is the service's: the page shows what `GET /v1/invites` says.
 struct FishPocketInvitePage: View {
     @Environment(AppModel.self) private var app
     @Environment(\.systemLists) private var systemLists
@@ -72,7 +73,13 @@ struct FishPocketInvitePage: View {
                 .multilineTextAlignment(.center)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.top, 16)
-            Text("好友注册 Fish Pocket 账号后，填写你的邀请码，你们都能得到 \(invites.reward) 积分。")
+            Group {
+                if let spend = invites.unlockSpend {
+                    Text("好友填写你的邀请码，立刻得到 \(invites.reward) 积分；好友买过积分，或者在对话里用掉 \(spend) 积分后，你也得到 \(invites.reward) 积分。")
+                } else {
+                    Text("好友填写你的邀请码，立刻得到 \(invites.reward) 积分；好友买过积分后，你也得到 \(invites.reward) 积分。")
+                }
+            }
                 .font(.subheadline)
                 .foregroundStyle(Palette.secondary)
                 .multilineTextAlignment(.center)
@@ -126,6 +133,30 @@ struct FishPocketInvitePage: View {
             }
             .padding(.horizontal, 16)
             .frame(minHeight: 50)
+            if invites.invited > 0 {
+                Divider().padding(.leading, 16)
+                HStack {
+                    Text("奖励已到账").foregroundStyle(Palette.ink)
+                    Spacer(minLength: 12)
+                    Text("\(invites.unlocked) 人")
+                        .monospacedDigit()
+                        .foregroundStyle(Palette.secondary)
+                }
+                .padding(.horizontal, 16)
+                .frame(minHeight: 50)
+            }
+            if invites.waiting > 0 {
+                Divider().padding(.leading, 16)
+                HStack {
+                    Text("等好友用起来").foregroundStyle(Palette.ink)
+                    Spacer(minLength: 12)
+                    Text("\(invites.waiting) 人")
+                        .monospacedDigit()
+                        .foregroundStyle(Palette.secondary)
+                }
+                .padding(.horizontal, 16)
+                .frame(minHeight: 50)
+            }
         }
         .frame(maxWidth: .infinity)
         .cardSurface()
@@ -133,7 +164,7 @@ struct FishPocketInvitePage: View {
 
     private func shareButton(_ invites: FishPocketInvites) -> some View {
         // The App Store, not a page of ours: the friend types the code in after signing up.
-        ShareLink(item: String(localized: "我在用 Fish Pocket，在 iPhone 上就能和 DeepSeek 对话，还能让它帮我干活。下载后登录 Fish Pocket 账号，在「邀请好友」里填我的邀请码 \(invites.code)，我们各得 \(invites.reward) 积分。\n\(AppLinks.appStore.absoluteString)")) {
+        ShareLink(item: String(localized: "我在用 Fish Pocket，在 iPhone 上就能和 DeepSeek 对话，还能让它帮我干活。下载后登录 Fish Pocket 账号，在「邀请好友」里填我的邀请码 \(invites.code)，就能得到 \(invites.reward) 积分。\n\(AppLinks.appStore.absoluteString)")) {
             Label("分享邀请", systemImage: "square.and.arrow.up")
         }
         .buttonStyle(.capsule())
@@ -205,10 +236,15 @@ struct FishPocketInvitePage: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("规则").font(.footnote.weight(.semibold))
             Group {
-                Text("• 好友填了你的邀请码，你们立刻各得 \(invites.reward) 积分。")
+                Text("• 好友填了你的邀请码，立刻得到 \(invites.reward) 积分。")
+                if let spend = invites.unlockSpend {
+                    Text("• 好友买过积分，或者在对话里用掉 \(spend) 积分后，你得到 \(invites.reward) 积分。")
+                } else {
+                    Text("• 好友买过积分后，你得到 \(invites.reward) 积分。")
+                }
                 Text("• 每个邀请码最多邀请 \(invites.limit) 人，满了就不能再用。")
                 Text("• 每个账号只能填一次邀请码，新注册的账号要在 7 天内填写；不能和对方互相填写。")
-                Text("• 奖励的积分 \(invites.rewardDays) 天内有效，对话时先扣它。")
+                Text("• 奖励的积分到账后 \(invites.rewardDays) 天内有效，对话时先扣它。")
             }
             .fixedSize(horizontal: false, vertical: true)
         }
@@ -252,9 +288,9 @@ struct FishPocketInviteRow: View {
                     Text("邀请好友").font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
                     Group {
                         if case .open = invites.redeem {
-                            Text("邀请好友或填写好友的邀请码，双方各得 \(invites.reward) 积分。")
+                            Text("邀请好友或填写好友的邀请码，都能得到 \(invites.reward) 积分。")
                         } else {
-                            Text("好友填了你的邀请码，你们各得 \(invites.reward) 积分。")
+                            Text("好友填你的邀请码就得 \(invites.reward) 积分，好友用起来后你也得 \(invites.reward) 积分。")
                         }
                     }
                     .font(.footnote)

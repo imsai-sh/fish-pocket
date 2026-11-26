@@ -15,6 +15,10 @@ struct FishPocketPack: Identifiable {
 
 /// Invites: this account's code and how many it has brought in, and whether it may still enter
 /// someone else's (`GET /v1/invites`). The rules are the server's; the app only shows them.
+///
+/// The friend gets the reward when entering the code; the inviter's comes once that friend has
+/// bought credits or spent `unlockSpend` of them (only a purchase counts when it is nil). The
+/// service issues it when either of them reads this, and says how much this read just added.
 struct FishPocketInvites: Equatable {
     enum Redeem: Equatable {
         /// May enter a code, until the deadline (none for accounts from before invites opened).
@@ -24,7 +28,15 @@ struct FishPocketInvites: Equatable {
     }
 
     let code: String
+    /// Friends who entered this code; of them, those whose reward to this account has come,
+    /// and those not using Fish Pocket enough yet.
     let invited: Int
+    let unlocked: Int
+    let waiting: Int
+    /// Credits this read just added to this account, from friends who now qualify.
+    let justRewarded: Int
+    /// What a friend must spend for the inviter's reward; nil: only buying credits counts.
+    let unlockSpend: Int?
     let limit: Int
     /// Credits each side gets, and how many days they last.
     let reward: Int
@@ -35,6 +47,10 @@ struct FishPocketInvites: Equatable {
         guard let code = json["code"].string, !code.isEmpty else { return nil }
         self.code = code
         invited = json["invited"].int ?? 0
+        unlocked = json["unlocked"].int ?? 0
+        waiting = json["waiting"].int ?? 0
+        justRewarded = json["justRewarded"].int ?? 0
+        unlockSpend = json["unlockSpend"].int
         limit = json["limit"].int ?? 0
         reward = json["reward"].int ?? 0
         rewardDays = json["rewardDays"].int ?? 0
@@ -295,8 +311,13 @@ final class FishPocketAccount {
     func loadInvites() async {
         guard signedIn else { return }
         do {
-            invites = FishPocketInvites(try await authorized("GET", "v1/invites"))
+            let read = FishPocketInvites(try await authorized("GET", "v1/invites"))
+            invites = read
             invitesOff = false
+            if let earned = read?.justRewarded, earned > 0 {
+                toast = String(localized: "好友的邀请奖励已到账 \(earned) 积分")
+                await refresh()
+            }
         } catch let error as FishPocketError where error.code == "unavailable" || error.status == 404 {
             // Off on the service (or a service from before invites): no invite page.
             invites = nil
@@ -306,7 +327,7 @@ final class FishPocketAccount {
         }
     }
 
-    /// Enter someone's code: both accounts get the reward. Throws with a message to show.
+    /// Enter someone's code: this account gets the reward now. Throws with a message to show.
     func redeemInvite(_ code: String) async throws {
         do {
             let reply = try await authorized("POST", "v1/invites/redeem", body: ["code": .string(code)])
