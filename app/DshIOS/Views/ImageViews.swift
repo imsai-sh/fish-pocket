@@ -143,6 +143,10 @@ struct ReplyImage: View {
         .task(id: destination) {
             image = nil
             failed = false
+            if let scope, let deviceId = scope.deviceId {
+                await loadRemote(deviceId: deviceId, root: scope.root)
+                return
+            }
             guard let url = Self.file(destination, root: scope?.root) else { failed = true; return }
             let modified = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate?.timeIntervalSince1970 ?? 0
             let key = "\(url.path)#\(modified)" as NSString
@@ -154,6 +158,20 @@ struct ReplyImage: View {
         .fullScreenCover(isPresented: $viewing) {
             if let image { ImageViewer(image: image, name: name) }
         }
+    }
+
+    /// A remote session's picture is on its computer: read from there once, then kept like the rest.
+    private func loadRemote(deviceId: String, root: String?) async {
+        guard let reference = RemoteFileLinks.reference(destination: destination) else { failed = true; return }
+        let key = "remote:\(deviceId):\(root ?? ""):\(reference.path)" as NSString
+        if let hit = Self.cache.object(forKey: key) { image = hit; return }
+        guard let data = try? await RemoteFile.device(deviceId: deviceId, root: root, path: reference.path).data(),
+              let decoded = await Task.detached(priority: .userInitiated, operation: { AnimatedPicture.picture(data) }).value else {
+            failed = true
+            return
+        }
+        Self.cache.setObject(decoded, forKey: key, cost: max(AnimatedPicture.cost(decoded), (decoded.cgImage?.bytesPerRow ?? 0) * (decoded.cgImage?.height ?? 0)))
+        image = decoded
     }
 
     /// Where `destination` is on disk, if it is there. The model writes paths as they are

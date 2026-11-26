@@ -225,7 +225,7 @@ struct RemoteFilesSheet: View {
                         RemoteDirectoryPage(deviceId: deviceId, root: root, path: entry.path, title: entry.name)
                             .closeButton(dismiss)
                     } else {
-                        RemoteFilePage(deviceId: deviceId, root: root, entry: entry)
+                        RemoteFileView(file: .device(deviceId: deviceId, root: root, path: entry.path), size: entry.size)
                             .closeButton(dismiss)
                     }
                 }
@@ -339,101 +339,6 @@ private struct RemoteDirectoryPage: View {
                 if lhs.isDirectory != rhs.isDirectory { return lhs.isDirectory }
                 return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
             }
-        } catch {
-            failure = RemoteError(error).message
-        }
-    }
-}
-
-private struct RemoteFilePage: View {
-    let deviceId: String
-    let root: String
-    let entry: RemoteFileEntry
-    @Environment(AppModel.self) private var app
-    @State private var text: String?
-    @State private var truncated = false
-    @State private var failure: String?
-    @State private var binary = false
-    @State private var rendered = true
-
-    private var isMarkdown: Bool { ["md", "markdown"].contains((entry.name as NSString).pathExtension.lowercased()) }
-
-    var body: some View {
-        Group {
-            if let text {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 10) {
-                        if truncated {
-                            Text("文件较大，只显示开头的 1 MB。").font(.footnote).foregroundStyle(Palette.secondary)
-                        }
-                        if isMarkdown, rendered {
-                            MarkdownView(text: text).modifier(LinkOpening())
-                        } else {
-                            Text(text).font(.system(.footnote, design: .monospaced)).foregroundStyle(Palette.ink).textSelection(.enabled)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                    .padding(16)
-                }
-            } else if binary {
-                // Not text: Quick Look on the phone takes PDFs, pictures, Office documents…
-                VStack(spacing: 20) {
-                    FileGlyph(name: entry.name, height: 96)
-                    VStack(spacing: 6) {
-                        Text(entry.name).font(.headline).foregroundStyle(Palette.ink).multilineTextAlignment(.center).lineLimit(3)
-                        Text(FileFormat.caption(entry.name, bytes: entry.size)).font(.subheadline).foregroundStyle(Palette.secondary)
-                    }
-                    RemoteFileButton(name: entry.name) {
-                        guard let client = app.remote.client else { throw RemoteError(kind: .unauthorized, message: String(localized: "尚未登录")) }
-                        return try await RemoteFileFetch.device(path: entry.path, root: root, client: client, deviceId: deviceId)
-                    } label: { loading in
-                        Group {
-                            if loading { ProgressView().controlSize(.small) } else { Text("用快速查看打开") }
-                        }
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(Palette.ink)
-                        .padding(.horizontal, 20)
-                        .frame(minWidth: 140, minHeight: 44)
-                        .overlay(Capsule().strokeBorder(Palette.stroke))
-                    }
-                }
-                .padding(32)
-            } else if let failure {
-                ContentUnavailableView("打不开这个文件", systemImage: "doc.questionmark", description: Text(failure))
-            } else {
-                ProgressView()
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
-        .navigationTitle(entry.name)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if let text {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    if isMarkdown {
-                        Button { rendered.toggle() } label: { Image(systemName: rendered ? "chevron.left.forwardslash.chevron.right" : "doc.richtext") }
-                            .accessibilityLabel(rendered ? "查看源文本" : "查看排版")
-                    }
-                    Button { copyToPasteboard(text) } label: { Image(systemName: "doc.on.doc") }
-                        .accessibilityLabel("复制")
-                }
-            }
-        }
-        .task { if text == nil { await load() } }
-    }
-
-    private func load() async {
-        guard let client = app.remote.client else { return }
-        do {
-            let value = try await client.post("/connectors/\(RemoteClient.encode(deviceId))/fs/readText",
-                                              ["path": .string(entry.path), "maxBytes": 1_048_576], query: ["root": root])
-            if value["binary"].bool == true {
-                binary = true
-                return
-            }
-            truncated = value["truncated"].bool ?? false
-            text = value["content"].string ?? ""
         } catch {
             failure = RemoteError(error).message
         }

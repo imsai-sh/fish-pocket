@@ -122,12 +122,12 @@ struct SentFileCard: View {
 
     var body: some View {
         let card = FileCard(name: attachment.name ?? String(localized: "附件"), bytes: attachment.bytes)
-        if let scope, let path = attachment.storedPath {
+        if let scope, !scope.isRemote, let path = attachment.storedPath {
             Button { Haptics.tap(); open = true } label: { card.contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous)) }
                 .buttonStyle(.plain)
                 .accessibilityHint(Text("打开预览"))
                 .sheet(isPresented: $open) {
-                    FilePreviewSheet(sessionId: scope.sessionId, path: path, root: nil, lines: nil)
+                    FilePreviewSheet(scope: FileLinkScope(sessionId: scope.sessionId, root: nil), path: path)
                 }
         } else {
             card

@@ -186,6 +186,8 @@ final class VoiceCall {
     /// Something the screen says besides the conversation.
     enum Notice: Equatable {
         case reconnecting
+        /// The system took the audio (a phone call, Siri, an alarm); the call goes on after.
+        case paused
         case problem(String)
     }
 
@@ -231,6 +233,8 @@ final class VoiceCall {
     /// The last time the user was heard, or did something, or she was busy.
     @ObservationIgnored private var lastActivity = Date()
     @ObservationIgnored private var idleTimerWas = false
+    /// The system has the audio (a phone call, Siri, an alarm): nothing is heard or played.
+    @ObservationIgnored private var pausedBySystem = false
     /// What the user is saying, or said last (for the diagnostics).
     @ObservationIgnored private var heard = ""
 
@@ -316,6 +320,7 @@ final class VoiceCall {
                 }
             }
         }
+        audio.onPause = { [weak self] paused in Task { @MainActor in self?.setPaused(paused) } }
         self.audio = audio
         do {
             try await audio.start()
@@ -537,8 +542,9 @@ final class VoiceCall {
             hangUp()
             return
         }
-        // Only her silence counts: working on an answer or saying it is the call going on.
-        guard phase == .listening else {
+        // Only her silence counts: working on an answer or saying it is the call going on. Not
+        // while the system has paused the call, though: then she is not heard either.
+        guard phase == .listening || pausedBySystem else {
             lastActivity = now
             return
         }
@@ -612,6 +618,9 @@ final class VoiceCall {
             deliver(text)
         case .unstable:
             reconnectNotice?.cancel()
+            // Nothing is sent while the call is paused, and Volcengine may close the idle
+            // connection: that is not the network.
+            guard !pausedBySystem else { return }
             // A blip is not worth a word; a connection still down after two seconds is.
             reconnectNotice = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(2))
@@ -639,6 +648,24 @@ final class VoiceCall {
         armed = false
         watchdog?.cancel()
         phase = .listening
+    }
+
+    /// The system took the audio for a while, or gave it back. Nobody can talk in between,
+    /// so the quiet before she asks whether anyone is there keeps counting: a call left
+    /// paused (a long phone call) still ends, as a quiet one would.
+    private func setPaused(_ value: Bool) {
+        guard !ended else { return }
+        log(value ? "paused by the system" : "resumed after the system")
+        pausedBySystem = value
+        noticeExpiry?.cancel()
+        reconnectNotice?.cancel()
+        if value {
+            notice = .paused
+        } else {
+            // The quiet counts again from the moment the call can hear.
+            lastActivity = Date()
+            if notice == .paused { notice = nil }
+        }
     }
 
     private func stopSpeaking() {

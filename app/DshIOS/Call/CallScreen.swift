@@ -555,6 +555,9 @@ private struct CallNoticeCapsule: View {
             case .reconnecting:
                 ProgressView().controlSize(.small)
                 Text("网络不稳定，正在重连…")
+            case .paused:
+                Image(systemName: "pause.fill").imageScale(.small)
+                Text("通话被系统暂停，结束后自动继续")
             case .problem(let message):
                 Circle().fill(Palette.waiting).frame(width: 7, height: 7)
                 Text(message).lineLimit(2)

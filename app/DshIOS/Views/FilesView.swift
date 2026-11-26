@@ -458,18 +458,24 @@ private extension View {
     }
 }
 
-/// A file link opened from a reply (C-23): the preview in its own sheet.
+/// A file link opened from a reply (C-23): the preview in its own sheet. A remote session's
+/// file is read from its computer.
 struct FilePreviewSheet: View {
-    let sessionId: String
+    let scope: FileLinkScope
     let path: String
-    let root: String?
-    let lines: ClosedRange<Int>?
+    var lines: ClosedRange<Int>? = nil
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
-            FileContentView(sessionId: sessionId, path: path, root: root, lines: lines)
-                .closeButton(dismiss)
+            Group {
+                if let deviceId = scope.deviceId {
+                    RemoteFileView(file: .device(deviceId: deviceId, root: scope.root, path: path), lines: lines)
+                } else {
+                    FileContentView(sessionId: scope.sessionId, path: path, root: scope.root, lines: lines)
+                }
+            }
+            .closeButton(dismiss)
         }
     }
 }

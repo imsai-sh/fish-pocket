@@ -1,4 +1,3 @@
-import QuickLook
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -39,65 +38,5 @@ enum RemoteFileFetch {
         let url = folder.appending(path: file)
         try data.write(to: url)
         return url
-    }
-}
-
-/// A file in a remote conversation: fetched on a tap and shown in Quick Look, whose toolbar
-/// shares and saves it. The copy on the phone goes when the preview closes.
-struct RemoteFileButton<Label: View>: View {
-    let name: String
-    var mediaType: String?
-    let fetch: () async throws -> Data
-    /// Drawn with whether the file is on its way.
-    @ViewBuilder let label: (_ loading: Bool) -> Label
-    @State private var loading = false
-    @State private var preview: URL?
-    @State private var failure: String?
-
-    var body: some View {
-        Button { open() } label: {
-            label(loading).contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .disabled(loading)
-        .accessibilityHint(Text("打开预览"))
-        .quickLookPreview($preview)
-        .onChange(of: preview) { old, new in
-            if new == nil, let old { try? FileManager.default.removeItem(at: old.deletingLastPathComponent()) }
-        }
-        .alert("打不开这个文件", isPresented: Binding(get: { failure != nil }, set: { if !$0 { failure = nil } })) {
-            Button("好", role: .cancel) {}
-        } message: {
-            Text(failure ?? "")
-        }
-    }
-
-    private func open() {
-        Haptics.tap()
-        loading = true
-        Task {
-            defer { loading = false }
-            do {
-                let data = try await fetch()
-                preview = try RemoteFileFetch.temporaryCopy(data, name: name, mediaType: mediaType)
-            } catch {
-                let error = RemoteError(error)
-                if error.kind != .cancelled { failure = error.message }
-            }
-        }
-    }
-}
-
-/// A file card with its fetch in progress said at its end.
-struct RemoteFileCard: View {
-    let name: String
-    var bytes: Int?
-    let loading: Bool
-
-    var body: some View {
-        FileCard(name: name, bytes: bytes)
-            .overlay(alignment: .trailing) {
-                if loading { ProgressView().controlSize(.small).padding(.trailing, 12) }
-            }
     }
 }

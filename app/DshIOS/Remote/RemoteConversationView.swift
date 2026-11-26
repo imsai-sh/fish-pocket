@@ -184,6 +184,9 @@ struct RemoteConversationView: View {
         } message: {
             Text(model.error ?? "")
         }
+        // Files a reply, a tool or a plan names are on the computer: links and paths open them from
+        // there, in the timeline and in the sheets over it.
+        .environment(\.fileLinkScope, FileLinkScope(sessionId: sessionId, root: model.cwd, deviceId: model.meta?.deviceId ?? ""))
     }
 
     private func takeoverMessage(_ enable: Bool, _ model: RemoteSessionModel) -> String {
@@ -578,18 +581,20 @@ private struct RemoteImageThumb: View {
     }
 }
 
-/// A document a message carries, opened in Quick Look on a tap.
+/// A document a message carries, shown in place on a tap: Markdown laid out, PDFs, Office documents.
 private struct RemoteAttachmentCard: View {
     let attachment: RemoteAttachment
     let model: RemoteSessionModel
-    @Environment(AppModel.self) private var app
+    @State private var open = false
 
     var body: some View {
-        RemoteFileButton(name: attachment.name, mediaType: attachment.mediaType) {
-            guard let client = app.remote.client else { throw RemoteError(kind: .unauthorized, message: String(localized: "尚未登录")) }
-            return try await RemoteFileFetch.data(attachment, client: client, deviceId: model.meta?.deviceId, cwd: model.cwd, online: model.meta?.deviceOnline ?? true)
-        } label: { loading in
-            RemoteFileCard(name: attachment.name, bytes: attachment.size, loading: loading)
+        Button { Haptics.tap(); open = true } label: {
+            FileCard(name: attachment.name, bytes: attachment.size).contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(Text("打开预览"))
+        .sheet(isPresented: $open) {
+            RemoteFilePreviewSheet(file: .attachment(attachment, deviceId: model.meta?.deviceId, cwd: model.cwd), size: attachment.size)
         }
     }
 }
@@ -598,21 +603,23 @@ private struct RemoteAttachmentCard: View {
 private struct RemoteMadeFile: View {
     let path: String
     let model: RemoteSessionModel
-    @Environment(AppModel.self) private var app
+    @State private var open = false
 
-    private var name: String { (path as NSString).lastPathComponent }
+    private var name: String { RemoteFileLinks.displayName(path) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("生成了文件").font(.footnote).foregroundStyle(Palette.secondary)
-            RemoteFileButton(name: name) {
-                guard let client = app.remote.client else { throw RemoteError(kind: .unauthorized, message: String(localized: "尚未登录")) }
-                return try await RemoteFileFetch.device(path: path, root: model.cwd, client: client, deviceId: model.meta?.deviceId, online: model.meta?.deviceOnline ?? true)
-            } label: { loading in
-                RemoteFileCard(name: name, loading: loading)
+            Button { Haptics.tap(); open = true } label: {
+                FileCard(name: name).contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
+            .buttonStyle(.plain)
+            .accessibilityHint(Text("打开预览"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .sheet(isPresented: $open) {
+            RemoteFilePreviewSheet(file: .device(deviceId: model.meta?.deviceId ?? "", root: model.cwd, path: path))
+        }
     }
 }
 

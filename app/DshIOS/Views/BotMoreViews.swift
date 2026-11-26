@@ -565,7 +565,7 @@ struct BotDiagnosticsPage: View {
                 Button("清空问题记录", role: .destructive) {
                     Task { _ = try? await team.call("diagnostics-clear"); value = (try? await team.call("diagnostics")) ?? value }
                 }
-            } footer: { Text("报告里已经去掉密钥和个人路径，可以直接贴到问题反馈里。") }
+            } footer: { Text("报告和错误日志里去掉了密钥和个人路径，但仍可能含有隐私信息。分享前请先检查，只发给你信任的人。") }
             .groupedRow()
             Section("最近的问题") {
                 if value["entries"].array.isEmpty { Text("没有记录到问题").font(.footnote).foregroundStyle(Palette.secondary) }

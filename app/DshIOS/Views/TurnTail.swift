@@ -234,7 +234,7 @@ struct DeliverableCards: View {
             }
         }
         .sheet(item: $preview) { file in
-            if let scope { FilePreviewSheet(sessionId: scope.sessionId, path: file.path, root: scope.root, lines: nil) }
+            if let scope { FilePreviewSheet(scope: scope, path: file.path) }
         }
     }
 

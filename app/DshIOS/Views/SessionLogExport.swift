@@ -21,7 +21,7 @@ struct SessionLogExportSheet: View {
                 if let failure {
                     Text(failure)
                 } else if file != nil {
-                    Text("ZIP 含当前会话、子会话和附件，分享前请确认接收方。")
+                    Text("日志可能含有隐私信息，分享前请先检查，只发给你信任的人。")
                 } else {
                     Text("正在打包当前会话、子会话和附件。")
                 }

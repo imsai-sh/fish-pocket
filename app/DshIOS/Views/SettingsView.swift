@@ -647,6 +647,13 @@ private struct EngineLogView: View {
         }
         .defaultScrollAnchor(.bottom)
         .background(Palette.grouped)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            LogPrivacyNote()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(.bar)
+        }
         .navigationTitle("引擎日志")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

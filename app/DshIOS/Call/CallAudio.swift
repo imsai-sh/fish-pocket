@@ -20,7 +20,8 @@ final class CallAudio: @unchecked Sendable {
 
     /// Why the call cannot go on.
     enum Halt: Sendable {
-        /// Another app took the audio: a phone call, FaceTime, an alarm.
+        /// Another app took the audio (a phone call, FaceTime, an alarm) and it could not be
+        /// taken back when that ended.
         case interrupted
         case failed(String)
     }
@@ -36,6 +37,9 @@ final class CallAudio: @unchecked Sendable {
     /// Whether the sound now comes out of the phone's own speaker (headphones and Bluetooth say no).
     var onRoute: (@Sendable (_ speaker: Bool, _ external: Bool) -> Void)?
     var onHalt: (@Sendable (Halt) -> Void)?
+    /// The system took the audio for a while (true) or gave it back (false): the call waits
+    /// in between, neither hearing nor playing.
+    var onPause: (@Sendable (Bool) -> Void)?
 
     /// Half a second at the speaker's rate: the most placed at once, and the most placed ahead.
     private static let ahead = CallSpeaker.rate / 2
@@ -52,6 +56,8 @@ final class CallAudio: @unchecked Sendable {
     private var pending = Data()
     private var muted = false
     private var running = false
+    /// Between an interruption's start and end: the engine is stopped, the call is not.
+    private var paused = false
     /// A byte left over from a piece that split a sample.
     private var carry: UInt8?
     private var wantsSpeaker = true
@@ -115,9 +121,15 @@ final class CallAudio: @unchecked Sendable {
         let session = AVAudioSession.sharedInstance()
         // `.default`, not `.voiceChat`: no system call processing in front of the echo canceller.
         // Bluetooth headsets with a microphone (HFP) count as a way to talk.
+        // Started like a phone call: activating a session that does not mix stops whatever was
+        // playing (music would otherwise go into the microphone, and the echo canceller only
+        // knows her voice). Then it turns mixable, so audio the user starts in another app during
+        // the call plays alongside instead of interrupting it, as in a WeChat call. What stopped
+        // at the start resumes at hang-up (`notifyOthersOnDeactivation`).
         try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetoothHFP])
         try session.setPreferredIOBufferDuration(0.02)
         try session.setActive(true)
+        try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetoothHFP, .mixWithOthers])
         applySpeaker()
     }
 
@@ -163,7 +175,7 @@ final class CallAudio: @unchecked Sendable {
     /// starts again here with the new route. The speaker's clock stops with it and goes on from
     /// where it was, with what was placed on it.
     private func rebuild() {
-        guard running else { return }
+        guard running, !paused else { return }
         CallDiagnostics.note("audio configuration changed: rebuilding")
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
@@ -182,13 +194,11 @@ final class CallAudio: @unchecked Sendable {
         observers = [
             center.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: nil) { [weak self] note in
                 let type = (note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt).flatMap(AVAudioSession.InterruptionType.init)
-                guard type == .began, let self else { return }
-                self.queue.async {
-                    guard self.running else { return }
-                    self.running = false
-                    self.teardown()
-                    self.onHalt?(.interrupted)
-                }
+                guard let type, let self else { return }
+                let began = type == .began
+                let options = (note.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt).map(AVAudioSession.InterruptionOptions.init)
+                let shouldResume = options?.contains(.shouldResume) ?? false
+                self.queue.async { began ? self.pause() : self.resume(allowed: shouldResume) }
             },
             center.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: nil) { [weak self] _ in
                 guard let self else { return }
@@ -214,6 +224,49 @@ final class CallAudio: @unchecked Sendable {
                 }
             },
         ]
+    }
+
+    /// An interruption began. Mixing with other apps keeps their sound from interrupting the
+    /// call; what still does is a phone call, FaceTime, Siri or an alarm. The call waits for it
+    /// to end instead of hanging up: the reply stays where it was, on the speaker's stopped clock.
+    private func pause() {
+        guard running, !paused else { return }
+        paused = true
+        CallDiagnostics.note("audio interrupted: pausing")
+        engine.inputNode.removeTap(onBus: 0)
+        engine.stop()
+        lock.withLock { pending = Data() }
+        onInputLevel?(0)
+        stream.async { self.onOutputLevel?(0) }
+        onPause?(true)
+    }
+
+    /// The interruption ended. The audio comes back only when the system says so
+    /// (`shouldResume`, as after a phone call or Siri). Without it the user moved on to other
+    /// audio on purpose, and the call ends as it used to; so it does when taking the audio back fails.
+    private func resume(allowed: Bool) {
+        guard running, paused else { return }
+        paused = false
+        guard allowed else {
+            CallDiagnostics.note("interruption ended without shouldResume: hanging up")
+            running = false
+            teardown()
+            onHalt?(.interrupted)
+            return
+        }
+        CallDiagnostics.note("interruption ended: resuming")
+        do {
+            try AVAudioSession.sharedInstance().setActive(true)
+            applySpeaker()
+            try build()
+            reportRoute()
+            onPause?(false)
+        } catch {
+            CallDiagnostics.note("could not resume: \(error.localizedDescription)")
+            running = false
+            teardown()
+            onHalt?(.interrupted)
+        }
     }
 
     // MARK: Controls

@@ -207,6 +207,18 @@ private struct StartupView: View {
     }
 }
 
+/// Said wherever the engine's log is copied or shared. Plugins write into it what
+/// they please, so it is not safe to post as it is; the app cannot clean every
+/// plugin's lines, so it says so instead.
+struct LogPrivacyNote: View {
+    var body: some View {
+        Label("日志可能含有隐私信息，分享前请先检查，只发给你信任的人。", systemImage: "hand.raised")
+            .font(.footnote)
+            .foregroundStyle(Palette.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
 /// The engine never reached the interface: it is still being waited for long past a
 /// normal launch, or it has exited. `engine.log` says which and why, and it was only
 /// reachable through 设置 → 引擎日志 — behind the interface that is missing. A launch that
@@ -233,7 +245,6 @@ private struct EngineTrouble: View {
                 } else if let since {
                     Text("已等待 ") + Text(since, style: .timer).monospacedDigit() + Text("，还在等")
                 }
-                Text("下面是引擎日志。复制或分享出去，就能看出卡在哪一步。")
             }
             .font(.subheadline)
             .foregroundStyle(Palette.secondary)
@@ -253,6 +264,8 @@ private struct EngineTrouble: View {
             if let repair {
                 EngineRepair(engine: repair)
             }
+
+            LogPrivacyNote()
 
             HStack(spacing: 12) {
                 Button("复制报告") { copyToPasteboard(report()) }

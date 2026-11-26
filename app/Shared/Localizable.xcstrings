@@ -6221,6 +6221,47 @@
         }
       }
     },
+    "ZIP 含当前会话、子会话和附件，可能有个人信息。分享前请先检查，只发给你信任的人。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The ZIP contains this session, its child sessions and attachments, which may include personal information. Check it before sharing, and send it only to people you trust."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ZIP contiene esta sesión, sus subsesiones y archivos adjuntos, que pueden incluir información personal. Revísalo antes de compartirlo y envíalo solo a personas de confianza."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZIP には現在のセッション、子セッション、添付ファイルが含まれ、個人情報が入っている可能性があります。共有する前に確認し、信頼できる相手にだけ送ってください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZIP에는 현재 세션, 하위 세션, 첨부 파일이 포함돼 있어 개인 정보가 들어 있을 수 있어요. 공유하기 전에 확인하고, 신뢰하는 사람에게만 보내세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZIP 含当前会话、子会话和附件，可能有个人信息。分享前请先检查，只发给你信任的人。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZIP 含目前對話、子對話和附件，可能有個人資訊。分享前請先檢查，只傳給你信任的人。"
+          }
+        }
+      }
+    },
     "iCTRL 服务" : {
       "localizations" : {
         "en" : {
@@ -9170,6 +9211,40 @@
         }
       }
     },
+    "复制内容" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Contents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar contenido"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内容をコピー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내용 복사"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拷貝內容"
+          }
+        }
+      }
+    },
     "复制文字" : {
       "localizations" : {
         "en" : {
@@ -11064,6 +11139,87 @@
         }
       }
     },
+    "报告和错误日志里去掉了密钥和个人路径，但仍可能含有隐私信息。分享前请先检查，只发给你信任的人。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secrets and personal paths are removed from the report and the error log, but they may still contain private information. Check them before sharing, and send them only to people you trust."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El informe y el registro de errores no incluyen secretos ni rutas personales, pero aún pueden contener información privada. Revísalos antes de compartirlos y envíalos solo a personas de confianza."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レポートとエラーログからはシークレットと個人のパスが取り除かれていますが、プライベートな情報が残っている可能性があります。共有する前に確認し、信頼できる相手にだけ送ってください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보고서와 오류 로그에서 비밀 키와 개인 경로는 제거했지만, 여전히 개인 정보가 들어 있을 수 있어요. 공유하기 전에 확인하고, 신뢰하는 사람에게만 보내세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "报告和错误日志里去掉了密钥和个人路径，但仍可能含有隐私信息。分享前请先检查，只发给你信任的人。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "報告和錯誤日誌已移除金鑰和個人路徑，但仍可能含有隱私資訊。分享前請先檢查，只傳給你信任的人。"
+          }
+        }
+      }
+    },
+    "报告和错误日志里去掉了密钥和个人路径，但可能仍有你和 Bot 的对话、记忆等个人信息。分享前请先检查并去掉隐私内容，只发给你信任的人。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secrets and personal paths are removed from the report and the error log, but they may still contain personal information, such as your conversations with Bots and their memories. Before sharing, check them and remove anything private, and send them only to people you trust."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El informe y el registro de errores no incluyen secretos ni rutas personales, pero aún pueden contener información personal, como tus conversaciones con los Bots y sus recuerdos. Antes de compartirlos, revísalos, quita lo que sea privado y envíalos solo a personas de confianza."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レポートとエラーログからはシークレットと個人のパスが取り除かれていますが、Bot との会話や記憶などの個人情報が残っている可能性があります。共有する前に内容を確認してプライベートな部分を取り除き、信頼できる相手にだけ送ってください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보고서와 오류 로그에서 비밀 키와 개인 경로는 제거했지만, Bot과의 대화나 기억 같은 개인 정보가 남아 있을 수 있어요. 공유하기 전에 내용을 확인해 사적인 부분을 지우고, 신뢰하는 사람에게만 보내세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "报告和错误日志里去掉了密钥和个人路径，但可能仍有你和 Bot 的对话、记忆等个人信息。分享前请先检查并去掉隐私内容，只发给你信任的人。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "報告和錯誤日誌已移除金鑰和個人路徑，但可能仍有你和 Bot 的對話、記憶等個人資訊。分享前請先檢查並移除隱私內容，只傳給你信任的人。"
+          }
+        }
+      }
+    },
     "抬腕看会话" : {
       "localizations" : {
         "en" : {
@@ -11916,6 +12072,87 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "行事曆、提醒事項、聯絡人、照片這類事，AI 代理會直接用本機能力處理，又快又準。只有必須打開別的 App 才能完成時，它才會用 iCTRL。"
+          }
+        }
+      }
+    },
+    "日志可能含有隐私信息，分享前请先检查，只发给你信任的人。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The log may contain private information. Check it before sharing, and send it only to people you trust."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El registro puede contener información privada. Revísalo antes de compartirlo y envíalo solo a personas de confianza."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ログにはプライベートな情報が含まれている可能性があります。共有する前に確認し、信頼できる相手にだけ送ってください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그에 개인 정보가 들어 있을 수 있어요. 공유하기 전에 확인하고, 신뢰하는 사람에게만 보내세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日志可能含有隐私信息，分享前请先检查，只发给你信任的人。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日誌可能含有隱私資訊，分享前請先檢查，只傳給你信任的人。"
+          }
+        }
+      }
+    },
+    "日志可能包含你和 Bot 的对话、记忆等个人信息。分享前请先检查并去掉隐私内容，只发给你信任的人。" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The log may contain personal information, such as your conversations with Bots and their memories. Before sharing it, check it and remove anything private, and send it only to people you trust."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El registro puede contener información personal, como tus conversaciones con los Bots y sus recuerdos. Antes de compartirlo, revísalo, quita lo que sea privado y envíalo solo a personas de confianza."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ログには、Bot との会話や記憶などの個人情報が含まれている可能性があります。共有する前に内容を確認してプライベートな部分を取り除き、信頼できる相手にだけ送ってください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그에는 Bot과의 대화나 기억 같은 개인 정보가 들어 있을 수 있어요. 공유하기 전에 내용을 확인해 사적인 부분을 지우고, 신뢰하는 사람에게만 보내세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日志可能包含你和 Bot 的对话、记忆等个人信息。分享前请先检查并去掉隐私内容，只发给你信任的人。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日誌可能包含你和 Bot 的對話、記憶等個人資訊。分享前請先檢查並移除隱私內容，只傳給你信任的人。"
           }
         }
       }
@@ -13556,6 +13793,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在上傳 %lld%%"
+          }
+        }
+      }
+    },
+    "正在下载…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloading…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargando…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロード中…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다운로드 중…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在下載…"
+          }
+        }
+      }
+    },
+    "正在从电脑读取…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading from the computer…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leyendo desde el ordenador…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パソコンから読み込み中…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에서 읽는 중…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在從電腦讀取…"
           }
         }
       }
@@ -21417,6 +21722,7 @@
       }
     },
     "ZIP 含当前会话、子会话和附件，分享前请确认接收方。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23669,6 +23975,7 @@
       }
     },
     "下面是引擎日志。复制或分享出去，就能看出卡在哪一步。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -58834,6 +59141,7 @@
       }
     },
     "报告里已经去掉密钥和个人路径，可以直接贴到问题反馈里。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -103131,6 +103439,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "通話被系統打斷，已結束通話"
+          }
+        }
+      }
+    },
+    "通话被系统暂停，结束后自动继续" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The system paused the call. It will continue afterward."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El sistema pausó la llamada. Continuará después."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "システムにより通話が一時停止中です。終わると自動で再開します"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시스템이 통화를 일시 정지했어요. 끝나면 자동으로 이어져요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通話被系統暫停，結束後會自動繼續"
           }
         }
       }

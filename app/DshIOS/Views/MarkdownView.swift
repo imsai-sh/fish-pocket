@@ -12,6 +12,8 @@ struct MarkdownView: View {
     /// Off in the timeline: there a long press is the reply's menu, which has 「选择文本」.
     var selectable = true
     @Environment(\.fileMentions) private var fileMentions
+    /// A remote session: code spans naming a file on the computer open it, as in its own clients.
+    @Environment(\.fileLinkScope) private var linkScope
     /// Formulas are drawn at the text's size, so they are redrawn when it changes.
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     /// A formula with colours of its own is drawn for each.
@@ -93,6 +95,7 @@ struct MarkdownView: View {
     private func inline(_ text: String, _ style: UIFont.TextStyle = .body) -> some View {
         var string = cached ? MarkdownCache.inline(text) : MarkdownCache.render(text)
         if linksFiles && !fileMentions.isEmpty { string = Self.linkMentions(string, fileMentions) }
+        if linkScope?.isRemote == true { string = Self.linkRemotePaths(string) }
         // Links are blue, as in every chat app; the app's own tint is the text's ink.
         return MathText.text(string, size: UIFont.preferredFont(forTextStyle: style).pointSize, dark: colorScheme == .dark, linkMarks: true)
             .tint(Palette.link)
@@ -107,6 +110,20 @@ struct MarkdownView: View {
                 string[run.range].link = LinkTarget.fileURL(path)
                 string[run.range].backgroundColor = nil
             }
+        }
+        return string
+    }
+}
+
+extension MarkdownView {
+    /// Code spans that name a file on a remote session's computer (`` `out/报告.docx` ``) link to it.
+    static func linkRemotePaths(_ source: AttributedString) -> AttributedString {
+        var string = source
+        for run in source.runs where run.inlinePresentationIntent?.contains(.code) == true && run.link == nil {
+            let value = String(source[run.range].characters)
+            guard let reference = RemoteFileLinks.reference(code: value), let url = RemoteFileLinks.url(reference) else { continue }
+            string[run.range].link = url
+            string[run.range].backgroundColor = nil
         }
         return string
     }
@@ -230,6 +247,10 @@ enum MarkdownCache {
 struct FileLinkScope: Equatable {
     let sessionId: String
     let root: String?
+    /// A remote session's computer: its files are read from there, not from this phone's engine.
+    var deviceId: String? = nil
+
+    var isRemote: Bool { deviceId != nil }
 }
 
 extension EnvironmentValues {
@@ -289,7 +310,7 @@ struct LinkOpening: ViewModifier {
                 case .web, .app:
                     EmptyView()
                 case .file(let path, let lines, let scope):
-                    FilePreviewSheet(sessionId: scope.sessionId, path: path, root: scope.root, lines: lines)
+                    FilePreviewSheet(scope: scope, path: path, lines: lines)
                 }
             }
     }
@@ -334,9 +355,19 @@ enum LinkTarget: Identifiable {
             guard let id = url.host(), !id.isEmpty else { return nil }
             self = .app(id)
         case nil, "file":
+            guard let scope else { return nil }
+            if scope.isRemote {
+                guard let reference = RemoteFileLinks.reference(url) else { return nil }
+                self = .file(path: reference.path, lines: reference.lines, scope: scope)
+                return
+            }
             let path = url.path(percentEncoded: false)
-            guard let scope, !path.isEmpty else { return nil }
+            guard !path.isEmpty else { return nil }
             self = .file(path: path, lines: Self.lines(url.fragment(percentEncoded: false)), scope: scope)
+        case let scheme? where scheme.count == 1 && scope?.isRemote == true:
+            // A Windows path on the computer (`C:\…`): the drive letter reads as a scheme.
+            guard let scope, let reference = RemoteFileLinks.reference(url) else { return nil }
+            self = .file(path: reference.path, lines: reference.lines, scope: scope)
         default:
             return nil
         }
