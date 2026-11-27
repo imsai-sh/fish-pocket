@@ -82,7 +82,8 @@ struct PluginInstallSheet: View {
             .pageBackground()
         }
         .inkTint()
-        .overlay(alignment: .top) { ShellNotices() }
+        // Presented over whatever is on screen: the notices are this sheet's, like any sheet's.
+        .sheetNotices()
         // A lost answer is asked about again on every reconnect.
         .task(id: app.generation) { await task.reconcile() }
     }
