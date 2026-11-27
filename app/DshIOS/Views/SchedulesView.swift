@@ -823,14 +823,59 @@ struct EngineWebView: UIViewRepresentable {
         forMainFrameOnly: true
     )
 
+    /// The page's first frames are white until its own theme stylesheet has painted the canvas.
+    /// Keep the canvas transparent only for that window, then take the override away: the page
+    /// keeps its own theme colour, which can differ from the app's.
+    private static let clearPageCanvas = WKUserScript(
+        source: """
+        (function () {
+            function clear() {
+                if (!document.documentElement) { setTimeout(clear, 1); return; }
+                var style = document.createElement('style');
+                style.id = 'dsh-clear-page-canvas';
+                style.textContent = 'html, body { background: transparent !important }';
+                document.documentElement.appendChild(style);
+                var removed = false;
+                function restore() {
+                    if (removed) { return; }
+                    removed = true;
+                    var node = document.getElementById('dsh-clear-page-canvas');
+                    if (node) { node.remove(); }
+                }
+                if (document.readyState === 'complete') { restore(); }
+                else { window.addEventListener('load', restore, { once: true }); }
+                // A page that never finishes loading still must not keep the app's colour.
+                setTimeout(restore, 5000);
+            }
+            clear();
+        })();
+        """,
+        injectionTime: .atDocumentStart,
+        forMainFrameOnly: true
+    )
+
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.userContentController.addUserScript(Self.keepShellSurface)
+        configuration.userContentController.addUserScript(Self.clearPageCanvas)
         let view = WKWebView(frame: .zero, configuration: configuration)
         view.isInspectable = true
+        // The page paints its own surface. Before it does, the web view must not lay a white sheet
+        // over the app: it stays clear, and what shows through is the app's own background.
+        view.isOpaque = false
+        view.backgroundColor = .clear
+        view.scrollView.backgroundColor = .clear
+        view.scrollView.isOpaque = false
+        view.underPageBackgroundColor = UIColor(Palette.background)
         view.load(URLRequest(url: url))
         return view
     }
 
-    func updateUIView(_ view: WKWebView, context: Context) {}
+    func updateUIView(_ view: WKWebView, context: Context) {
+        // What shows through before the page paints, and when it rubber-bands, follows the app's
+        // appearance; switching light/dark while the web version is open updates it.
+        let style: UIUserInterfaceStyle = context.environment.colorScheme == .dark ? .dark : .light
+        view.underPageBackgroundColor = UIColor(Palette.background)
+            .resolvedColor(with: UITraitCollection(userInterfaceStyle: style))
+    }
 }
