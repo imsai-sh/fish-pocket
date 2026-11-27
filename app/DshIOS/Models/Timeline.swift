@@ -613,6 +613,7 @@ struct TimelineBuilder {
     /// Older pages exist, so a `todo_write` without a recorded list has an unknown baseline.
     var historyComplete = true
     private var toolIndex: [String: (item: Int, block: Int)] = [:]
+    private var voiceRequestId: String?
     private var currentTurn: Int?
     private var turnStartSeq: Int?
     /// Last recorded `todo/write` list.
@@ -646,6 +647,7 @@ struct TimelineBuilder {
             currentStep = data["step"].int
             return false
         case "turn/start":
+            voiceRequestId = nil
             let turn = data["turn"].int ?? currentTurn.map { $0 + 1 } ?? 0
             currentTurn = turn
             running = true
@@ -739,6 +741,7 @@ struct TimelineBuilder {
             items.append(.trigger(TurnTrigger(seq: seq, time: time, source: source, body: text, content: data["content"])))
             return true
         }
+        if kind == "user" { voiceRequestId = source["rpcId"].string }
         // Taken from the next-step inbox: it joined a running turn.
         if let turn = currentTurn, let id, nextStepInbox.claimed.contains(id) { turnInfo[turn, default: TurnInfo()].steered = true }
         let attachments = content.filter { $0["type"].string != "text" }.map(Attachment.init(block:))
@@ -871,7 +874,20 @@ struct TimelineBuilder {
         call.errorName = data["error"]["name"].string
         call.errorReason = data["error"]["reason"].string
         call.meta = data["meta"]
-        blocks[location.block] = .tool(call)
+        if call.name == "bash", call.isError != true, t == currentTurn,
+           CallFarewell.suppliesSpeech(call.arguments["command"].string) == true,
+           let speech = CallFarewell.Speech.read(call.result, call: callId), speech.requestId == voiceRequestId {
+            // The successful command carries the spoken answer. Keep it visible in both kinds of chat.
+            if location.block == blocks.count - 1, location.block > 0, case .text(_, let previous) = blocks[location.block - 1],
+               previous.trimmingCharacters(in: .whitespacesAndNewlines).hasSuffix(speech.text) {
+                blocks.removeLast()
+            } else {
+                blocks[location.block] = .text(id: callId, text: speech.text)
+            }
+            toolIndex.removeValue(forKey: callId)
+        } else {
+            blocks[location.block] = .tool(call)
+        }
         items[location.item] = .assistant(turn: t, blocks: blocks, startedAt: started, endedAt: ended)
         // What a closing message may refer to by name (C-24).
         if !call.isError, ["write", "edit", "str_replace_editor"].contains(call.displayName),

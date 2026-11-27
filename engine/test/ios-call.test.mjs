@@ -82,3 +82,46 @@ test('a malformed request is refused', async () => {
   assert.equal((await state(plugin.routes, { sessionId: '', active: true })).status, 400);
   assert.equal((await state(plugin.routes, { sessionId: 's1' })).status, 400);
 });
+
+test('the fixed action is offered only to a genuine voice request belonging to this call', async () => {
+  const plugin = fakeContext();
+  dispose = plugin.dispose;
+  await state(plugin.routes, { sessionId: 'one', active: true, callId: 'current', revision: 1 });
+  const enter = (id, kind = 'user') => plugin.preStep({
+    agent: { session: { id: 'one', seq: 12 } }, turn: 4, step: 1, signal: new AbortController().signal,
+  }, async () => ({ kind: 'enter', messages: [{ source: { kind, rpcId: id } }] }));
+  assert.match((await enter('voice-call:current:new')).messages.at(-1).content[0].text, /end-call/);
+  const { liveCall } = await import('../plugins/ios-call/index.mjs');
+  assert.equal(liveCall('one').voice.requestId, 'voice-call:current:new');
+  await plugin.preStep({ agent: { session: { id: 'one' } }, turn: 4, step: 2 }, async () => ({
+    kind: 'enter', messages: [{ source: { kind: 'user', rpcId: 'steer' } }],
+  }));
+  assert.equal(liveCall('one').voice, undefined);
+  assert.doesNotMatch((await enter('voice-call:old:new')).messages.at(-1).content[0].text, /end-call/);
+  assert.doesNotMatch((await enter('voice-call:current:new', 'schedule')).messages.at(-1).content[0].text, /end-call/);
+  assert.doesNotMatch((await enter('text-message')).messages.at(-1).content[0].text, /end-call/);
+});
+
+test('late reports and confirmation queries cannot move a farewell to another turn or call', async () => {
+  const plugin = fakeContext();
+  dispose = plugin.dispose;
+  const update = (callId, revision, active) => state(plugin.routes, { sessionId: 'ordinary', callId, revision, active });
+  const query = async data => (await (await plugin.routes.get('/api/ios-call/farewell').fetch(
+    new Request('http://x/api/ios-call/farewell', { method: 'POST', body: JSON.stringify(data) }),
+  )).json()).confirmed;
+  const { liveCall } = await import('../plugins/ios-call/index.mjs');
+  await update('first', 1, true);
+  const receipt = { sessionId: 'ordinary', callId: 'first', turn: 2, step: 1, requestId: 'speech', toolCallId: 'tool-one' };
+  liveCall('ordinary').voice = { turn: 2, requestId: 'speech', receipt: { step: 1, toolCallId: 'tool-one' } };
+  assert.equal(await query(receipt), true);
+  assert.equal(await query({ ...receipt, turn: 3 }), false);
+  assert.equal(await query({ ...receipt, toolCallId: 'forged' }), false);
+  await update('second', 4, true);
+  await update('first', 3, false);
+  await update('first', 2, true);
+  assert.equal(liveCall('ordinary').id, 'second');
+  assert.equal(await query(receipt), false);
+  assert.equal(await query({ ...receipt, callId: 'second' }), false);
+  await update('second', 5, false);
+  assert.equal(await query(receipt), false);
+});

@@ -468,21 +468,20 @@ final class ComposerModel {
 
     /// Send a written question at once (询问 AI). Whatever the reader had typed or attached in
     /// this conversation stays in the input; a refused question comes back there to send again.
-    func send(prompt: String) {
+    func send(prompt: String, requestId: String = UUID().uuidString.lowercased()) {
         let draft = text, kept = attachments
         attachments = []
-        sendMessage(prompt, quotes: [], steer: false, running: session?.running ?? false)
+        sendMessage(prompt, quotes: [], steer: false, running: session?.running ?? false, requestId: requestId)
         text = draft
         attachments = kept
     }
 
     /// Quotes keep their own place in the draft and join the text only here, the way the web
     /// serializes its quote nodes: what the echo shows is what the engine receives.
-    private func sendMessage(_ draft: String, quotes sentQuotes: [String], steer: Bool, running: Bool) {
+    private func sendMessage(_ draft: String, quotes sentQuotes: [String], steer: Bool, running: Bool, requestId: String = UUID().uuidString.lowercased()) {
         let trimmed = MessageQuotes.compose(quotes: sentQuotes, text: expandMentions(draft))
         let shown = MessageQuotes.compose(quotes: sentQuotes, text: draft)
         let sent = attachments
-        let requestId = UUID().uuidString.lowercased()
         let stored = sent.compactMap(\.stored)
         let submission = PendingSubmission(
             id: requestId, text: shown, attachments: sent.map(\.name),

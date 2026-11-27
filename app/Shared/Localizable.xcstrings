@@ -8049,6 +8049,40 @@
         }
       }
     },
+    "和智能体通话时，你可以请它做完事情再挂断。它说完道别后才挂，你在道别时开口就能接着聊。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "During a call, you can ask the agent to finish a task before hanging up. It finishes saying goodbye first. Speak during the goodbye to keep talking."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durante una llamada, puedes pedirle al agente que termine una tarea antes de colgar. Espera a terminar de despedirse. Si hablas mientras se despide, la conversación continúa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通話中、用事が済んでから電話を切るようにエージェントに頼めます。エージェントは挨拶を言い終えてから通話を終了します。挨拶の途中で話しかけると会話を続けられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "통화 중에 에이전트에게 일을 마치고 전화를 끊어 달라고 할 수 있어요. 에이전트가 작별 인사를 끝낸 뒤 전화를 끊으며, 인사 도중 말을 걸면 대화가 계속돼요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "和智慧體通話時，你可以請它做完事情再掛斷。它說完道別後才掛，你在道別時開口就能接著聊。"
+          }
+        }
+      }
+    },
     "和语音通话、语音消息是同一个声音，在这里改了那边也跟着变。试听按火山引擎的价格计费。" : {
       "localizations" : {
         "en" : {
@@ -46174,6 +46208,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "金鑰至少要 %@ 個字元"
+          }
+        }
+      }
+    },
+    "对方已挂断" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The other party hung up"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La otra persona ha colgado"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相手が通話を終了しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상대방이 통화를 종료했어요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "對方已掛斷"
           }
         }
       }
@@ -92379,6 +92447,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "說句話也能接著聊"
+          }
+        }
+      }
+    },
+    "说完再挂" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Say goodbye before hanging up"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una despedida antes de colgar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "挨拶を終えてから通話を終了"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인사를 마친 뒤 통화 종료"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "說完再掛"
           }
         }
       }

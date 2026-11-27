@@ -22,6 +22,7 @@ Anything not listed here should be assumed missing.
 - **Network:** `curl`
 - **Development:** `git node pnpm pnpx`
 - **Video and audio:** `ffmpeg ffprobe` (see the Video and audio section below)
+- **Voice calls:** `end-call` speaks the supplied goodbye and ends the current call after playback. Follow the live call's instructions.
 - **Links:** `open xdg-open` hand a URL to the phone, so code that opens the system browser (a plugin's sign-in, a CLI's docs link) works. URLs only, the same schemes as the open_url tool; a file path fails. To take the user somewhere yourself, use that tool
 - **Shell:** `bash sh env printenv which type command date sleep timeout time xargs yes true false expr whoami hostname pwd history alias unalias clear help`
 

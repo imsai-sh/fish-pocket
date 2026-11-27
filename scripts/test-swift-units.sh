@@ -13,3 +13,4 @@ run() {
 }
 
 run BrowserOwnershipTests app/DshIOS/Browser/BrowserOwnership.swift
+run CallFarewellTests app/DshIOS/Call/CallFarewell.swift

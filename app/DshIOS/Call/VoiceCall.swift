@@ -5,10 +5,12 @@ import UIKit
 
 /// What a conversation tells its voice call (`SessionModel.callListener`).
 enum CallSignal {
-    case turnStarted
-    /// A piece of the answer's text, as the model writes it.
-    case text(String)
-    case turnEnded(failed: Bool)
+    case turnStarted(Int)
+    case admitted(String)
+    case text(String, turn: Int, step: Int)
+    case farewell(turn: Int, step: Int, toolCallId: String, suppliesSpeech: Bool)
+    case farewellSpeech(CallFarewell.Speech, turn: Int, step: Int)
+    case turnEnded(turn: Int, completed: Bool, failed: Bool)
 }
 
 /// The voices a call can speak in: Volcengine's 豆包语音合成模型 2.0 voices that suit a
@@ -245,9 +247,12 @@ final class VoiceCall {
     /// The reply being spoken (`CallSynthesizer`), and whether all of it has been made.
     @ObservationIgnored private var reply: Int?
     @ObservationIgnored private var replyMade = false
-    /// Sentences of the reply in the order they are made, with their sound still to be heard.
-    @ObservationIgnored private var sentence = 0
-    @ObservationIgnored private var unheard: [Int: Int] = [:]
+    // Buffer tags never repeat in this call, even after an interrupted reply is flushed.
+    @ObservationIgnored private var nextBuffer = 0
+    @ObservationIgnored private var unheard = Set<Int>()
+    @ObservationIgnored private var farewell = CallFarewell()
+    @ObservationIgnored private var observedTurn: Int?
+    private static var reportRevision = 0
     /// The conversation so far, for recognition's context.
     @ObservationIgnored private var lastUserText = ""
     @ObservationIgnored private var replyText = ""
@@ -268,6 +273,7 @@ final class VoiceCall {
     // MARK: Start and end
 
     func start() async {
+        guard !ended else { return }
         guard let credential = VolcSpeech.shared.credential else {
             fail(CallError.noKey.localizedDescription)
             return
@@ -286,6 +292,8 @@ final class VoiceCall {
         session.callListener = { [weak self] signal in self?.conversation(signal) }
         lastUserText = session.items.lastUserText ?? ""
         replyText = session.items.lastAssistantText ?? ""
+        await report(active: true).value
+        guard !ended else { return }
         renew()
 
         let recognizer = CallRecognizer(credential: credential)
@@ -364,6 +372,7 @@ final class VoiceCall {
     }
 
     private func teardown() {
+        farewell.cancel()
         levels.stopSampling()
         recognizer?.stop()
         recognizer = nil
@@ -557,8 +566,7 @@ final class VoiceCall {
             let id = synthesizer.begin()
             reply = id
             replyMade = false
-            sentence = 0
-            unheard = [:]
+            unheard.removeAll()
             synthesizer.say(String(localized: "还在吗？没声音的话我先挂了"), reply: id)
             synthesizer.end(reply: id)
         }
@@ -579,23 +587,25 @@ final class VoiceCall {
     private func renew() {
         renewal = Task { [weak self] in
             while !Task.isCancelled {
-                self?.report(active: true)
                 try? await Task.sleep(for: .seconds(30))
+                guard !Task.isCancelled, let self, !self.ended else { return }
+                await self.report(active: true).value
             }
         }
     }
 
-    private func report(active: Bool) {
+    @discardableResult
+    private func report(active: Bool) -> Task<Void, Never> {
+        Self.reportRevision += 1
         let client = app.client
-        let sessionId = sessionId
-        Task.detached {
-            var request = client.request(client.origin.appendingPathComponent("api/ios-call/state"))
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "content-type")
-            request.httpBody = try? JSONSerialization.data(withJSONObject: ["sessionId": sessionId, "active": active])
-            request.timeoutInterval = 10
-            _ = try? await client.session.data(for: request)
-        }
+        var request = client.request(client.origin.appendingPathComponent("api/ios-call/state"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "sessionId": sessionId, "active": active, "callId": farewell.callId, "revision": Self.reportRevision,
+        ])
+        request.timeoutInterval = 5
+        return Task { _ = try? await client.session.data(for: request) }
     }
 
     // MARK: Hearing the user
@@ -638,6 +648,7 @@ final class VoiceCall {
     /// The user talks over the answer, or while it is being worked on: it stops, and so does the
     /// turn. What they said comes next.
     private func interrupt() {
+        farewell.cancel()
         guard phase == .speaking || phase == .thinking else { return }
         log("interrupted while \(phase)")
         stopSpeaking()
@@ -672,7 +683,7 @@ final class VoiceCall {
         if let reply { synthesizer?.cancel(reply: reply) }
         reply = nil
         audio?.flush()
-        unheard = [:]
+        unheard.removeAll()
         levels.output = 0
     }
 
@@ -684,7 +695,7 @@ final class VoiceCall {
         phase = .thinking
         // Sent like a message typed into the conversation (its bubble shows at once); while the
         // stopped turn winds down it waits in the queue.
-        session.composer.send(prompt: text)
+        session.composer.send(prompt: text, requestId: farewell.newRequest())
         recognizer?.setContext(context())
         watchdog?.cancel()
         watchdog = Task { [weak self] in
@@ -701,28 +712,28 @@ final class VoiceCall {
     private func conversation(_ signal: CallSignal) {
         guard !ended else { return }
         switch signal {
-        case .turnStarted:
-            guard armed else { return }
+        case .turnStarted(let turn):
+            observedTurn = turn
+        case .admitted(let id):
+            guard armed, let turn = observedTurn, farewell.admit(id, turn: turn) else { return }
             log("turn started")
             armed = false
             inTurn = true
             speakable = SpeakableStream()
             watchdog?.cancel()
-        case .text(let text):
-            guard inTurn, let synthesizer else { return }
-            // Code is for reading, not for hearing: a fenced block stays in the conversation only.
-            let spoken = speakable.take(text)
-            guard !spoken.isEmpty else { return }
-            if reply == nil {
-                reply = synthesizer.begin()
-                replyMade = false
-                sentence = 0
-                unheard = [:]
+        case .text(let text, let turn, let step):
+            guard inTurn, farewell.turn == turn else { return }
+            speak(text, step: step)
+        case .farewell(let turn, let step, let toolCallId, let suppliesSpeech):
+            farewell.proposed(turn: turn, step: step, toolCallId: toolCallId, suppliesSpeech: suppliesSpeech)
+        case .farewellSpeech(let speech, let turn, let step):
+            guard inTurn, farewell.accept(speech, turn: turn, step: step) else { return }
+            if !replyText.trimmingCharacters(in: .whitespacesAndNewlines).hasSuffix(speech.text) {
+                speak(speech.text, step: step)
             }
-            replyText += spoken
-            synthesizer.say(spoken, reply: reply!)
-        case .turnEnded(let failed):
-            guard inTurn else { return }
+        case .turnEnded(let turn, let completed, let failed):
+            guard inTurn, farewell.turn == turn else { return }
+            farewell.ended(turn: turn, successfully: completed)
             log("turn ended, failed: \(failed), spoken: \(reply != nil)")
             inTurn = false
             if let reply {
@@ -737,17 +748,31 @@ final class VoiceCall {
 
     // MARK: Speaking
 
+    private func speak(_ text: String, step: Int) {
+        guard let synthesizer else { return }
+        let spoken = speakable.take(text)
+        guard !spoken.isEmpty else { return }
+        if !spoken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { farewell.spoke(step: step) }
+        if reply == nil {
+            reply = synthesizer.begin()
+            replyMade = false
+            unheard.removeAll()
+        }
+        replyText += spoken
+        synthesizer.say(spoken, reply: reply!)
+    }
+
     private func synthesized(_ event: CallSynthesizer.Event) {
         guard !ended else { return }
         switch event {
-        case .sentenceStart(let id):
-            guard id == reply else { return }
-            sentence += 1
+        case .sentenceStart:
+            break
         case .audio(let id, let pcm):
             guard id == reply, let audio else { return }
-            let tag = sentence
-            unheard[tag, default: 0] += 1
-            audio.play(pcm, tag: tag)
+            guard !pcm.isEmpty else { return }
+            nextBuffer += 1
+            unheard.insert(nextBuffer)
+            audio.play(pcm, tag: nextBuffer)
             if phase != .speaking {
                 log("speaking")
                 phase = .speaking
@@ -757,7 +782,7 @@ final class VoiceCall {
         case .finished(let id):
             guard id == reply else { return }
             replyMade = true
-            if unheard.values.allSatisfy({ $0 == 0 }) { doneSpeaking() }
+            if unheard.isEmpty { doneSpeaking() }
         case .failed(let id, let error):
             log("synthesis failed (\(String(describing: id))): \(error.localizedDescription)")
             if error as? CallError == .synthesisRefused {
@@ -766,17 +791,18 @@ final class VoiceCall {
             }
             show(.problem(String(localized: "语音合成出错：\(error.localizedDescription)")))
             if id == nil || id == reply {
+                farewell.failedToSpeak()
                 reply = nil
-                if unheard.values.allSatisfy({ $0 == 0 }) && !inTurn { phase = .listening }
+                if unheard.isEmpty && !inTurn { phase = .listening }
             }
         }
     }
 
     private func played(_ tag: Int) {
         levels.lastSound = Date()
-        guard reply != nil, let count = unheard[tag] else { return }
-        unheard[tag] = max(count - 1, 0)
-        if replyMade, unheard.values.allSatisfy({ $0 == 0 }) { doneSpeaking() }
+        guard reply != nil, unheard.remove(tag) != nil else { return }
+        farewell.playedAudio()
+        if replyMade, unheard.isEmpty { doneSpeaking() }
     }
 
     private func doneSpeaking() {
@@ -784,6 +810,36 @@ final class VoiceCall {
         reply = nil
         levels.output = 0
         if !inTurn && !armed { phase = .listening }
+        if let action = farewell.ready(in: observedTurn) { Task { await finishFarewell(action) } }
+    }
+
+    /// A committed tool call is only a proposal. The engine issues its receipt after actual,
+    /// successful execution. Speech or a new call can still supersede it during this lookup.
+    private func finishFarewell(_ action: CallFarewell.Action) async {
+        guard !ended, farewell.ready(in: observedTurn) == action else { return }
+        let client = app.client
+        var request = client.request(client.origin.appendingPathComponent("api/ios-call/farewell"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "sessionId": sessionId, "callId": farewell.callId, "requestId": action.requestId,
+            "turn": action.turn, "step": action.step, "toolCallId": action.toolCallId,
+        ])
+        request.timeoutInterval = 10
+        log("checking farewell receipt for turn \(action.turn), step \(action.step)")
+        let response = try? await client.session.data(for: request)
+        let confirmed = response.flatMap { try? JSON.parse($0.0) }?["confirmed"].bool == true
+        guard !ended, farewell.ready(in: observedTurn) == action else {
+            log("discarded superseded farewell receipt (confirmed: \(confirmed))")
+            return
+        }
+        farewell.cancel()
+        guard confirmed else { return }
+        log("farewell played; remote hangup")
+        let reason = String(localized: "对方已挂断")
+        endReason = reason
+        app.showToast(reason)
+        hangUp()
     }
 
     // MARK: Helpers

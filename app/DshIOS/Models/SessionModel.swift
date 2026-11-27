@@ -73,6 +73,7 @@ final class SessionModel {
     @ObservationIgnored private var cursor = -1
     @ObservationIgnored private var followTask: Task<Void, Never>?
     @ObservationIgnored private var projectionTask: Task<Void, Never>?
+    @ObservationIgnored private var liveCallPosition: (turn: Int, step: Int)?
     @ObservationIgnored private var liveAttempt: String?
     @ObservationIgnored private var livePartials: [Int: (kind: String, text: String, toolId: String?, toolName: String?)] = [:]
     /// Pending publish of `live`: chunks arrive per token, the view redraws at most this often.
@@ -193,8 +194,31 @@ final class SessionModel {
             }
             if let callListener {
                 switch event["type"].string {
-                case "turn/start": callListener(.turnStarted)
-                case "turn/end": callListener(.turnEnded(failed: TurnFailure(reason: event["data"]["reason"]) != nil))
+                case "turn/start":
+                    if let turn = event["data"]["turn"].int { callListener(.turnStarted(turn)) }
+                case "user/message":
+                    let source = event["data"]["source"]
+                    if source["kind"].string == "user", let id = source["rpcId"].string { callListener(.admitted(id)) }
+                case "tool/call":
+                    let data = event["data"]
+                    if data["name"].string == "bash", let raw = data["arguments"].string,
+                       let arguments = try? JSON.parse(Data(raw.utf8)),
+                       let suppliesSpeech = CallFarewell.suppliesSpeech(arguments["command"].string),
+                       let turn = data["turn"].int, let step = data["step"].int, let id = data["callId"].string {
+                        callListener(.farewell(turn: turn, step: step, toolCallId: id, suppliesSpeech: suppliesSpeech))
+                    }
+                case "tool/result":
+                    let data = event["data"], message = data["message"]
+                    if message["isError"].bool != true, let id = message["toolCallId"].string,
+                       let turn = data["turn"].int, let step = data["step"].int,
+                       let speech = CallFarewell.Speech.read(message["content"].array.first?["text"].string, call: id) {
+                        callListener(.farewellSpeech(speech, turn: turn, step: step))
+                    }
+                case "turn/end":
+                    let reason = event["data"]["reason"]
+                    if let turn = event["data"]["turn"].int {
+                        callListener(.turnEnded(turn: turn, completed: reason["kind"].string == "completed", failed: TurnFailure(reason: reason) != nil))
+                    }
                 default: break
                 }
             }
@@ -218,6 +242,7 @@ final class SessionModel {
         case "start":
             resetLive()
             liveAttempt = frame["attemptId"].string
+            if let turn = frame["turn"].int, let step = frame["step"].int { liveCallPosition = (turn, step) }
             running = true
         case "chunk":
             guard frame["attemptId"].string == liveAttempt else { return }
@@ -229,7 +254,9 @@ final class SessionModel {
                 var partial = livePartials[index] ?? (kind, "", nil, nil)
                 partial.text += chunk["text"].string ?? ""
                 livePartials[index] = partial
-                if kind == "text", let text = chunk["text"].string, !text.isEmpty { callListener?(.text(text)) }
+                if kind == "text", let text = chunk["text"].string, !text.isEmpty, let position = liveCallPosition {
+                    callListener?(.text(text, turn: position.turn, step: position.step))
+                }
             case "tool-call-delta":
                 var partial = livePartials[index] ?? ("tool", "", nil, nil)
                 partial.toolId = chunk["id"].string ?? partial.toolId
@@ -274,6 +301,7 @@ final class SessionModel {
         livePublish?.cancel()
         livePublish = nil
         liveAttempt = nil
+        liveCallPosition = nil
         livePartials = [:]
         if !live.isEmpty { live = [] }
     }

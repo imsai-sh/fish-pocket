@@ -3,6 +3,11 @@
 # its service seams instead of patching engine files. Patches can disable an
 # entry but not rename its plugin, so replacements are disabled + inserted.
 
+# Keep the native executor's descriptions and dispatch. A confirmed voice farewell
+# can finish its own model turn after the original bash batch settles.
+- id: tool-executor-native
+  disabled: true
+
 # ctx.subprocess: commands run in-process (just-bash; `node` in a worker).
 - id: subprocess
   disabled: true
@@ -97,6 +102,8 @@
     commandShield: false
 
 - insert:
+    - id: ios-call-executor
+      name: ./plugins/ios-call/executor.mjs
     - id: subprocess-ios
       name: ./plugins/subprocess-ios/index.mjs
     - id: sandbox-ios
