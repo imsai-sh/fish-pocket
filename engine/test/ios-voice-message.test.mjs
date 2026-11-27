@@ -75,9 +75,9 @@ test('never in a group, a subagent, a call, or without a speech service', () => 
   assert.equal(allowed({ session: session('group') }), false);
   assert.equal(allowed({ session: session('member') }), false);
   assert.equal(allowed({ session: session('s1', { origin: 'subagent' }) }), false);
-  setCall('s1', true);
+  setCall('s1', 'call1', true);
   assert.equal(allowed({ session: session('s1') }), false);
-  setCall('s1', false);
+  setCall('s1', 'call1', false);
   assert.equal(allowed({ session: session('s1') }), true);
   applySettings({ ...base, allowSessions: true, ready: false });
   assert.equal(allowed({ session: session('s1') }), false);

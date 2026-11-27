@@ -456,8 +456,11 @@ final class SessionModel {
 
     /// `session/prompt` as the web sends it: attachments before the text, the
     /// client's request id (it comes back as `source.rpcId` on the durable message).
-    func prompt(content: [JSON], steer: Bool, requestId: String) async throws {
+    func prompt(content: [JSON], steer: Bool, requestId: String, voiceCallId: String? = nil) async throws {
+        if let voiceCallId { try CallCenter.shared.checkActive(callId: voiceCallId) }
         await modelCatalog?.adoptRoutableModel(self)
+        // Model selection can suspend while the call ends or this session is redialed.
+        if let voiceCallId { try CallCenter.shared.checkActive(callId: voiceCallId) }
         if let subagentAddress {
             try await client.call("subagents/prompt", ["request": [
                 "requestId": .string(requestId),

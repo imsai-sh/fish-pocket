@@ -32,8 +32,10 @@ final class CallAudio: @unchecked Sendable {
     var onInputLevel: (@Sendable (Float) -> Void)?
     /// The reply's level as it is heard, 0…1.
     var onOutputLevel: (@Sendable (Float) -> Void)?
-    /// A buffer of `play(_:tag:)` was heard to its end.
+    /// A buffer queued by `play` was heard to its end.
     var onPlayed: (@Sendable (_ tag: Int) -> Void)?
+    /// The first audible sample of an idle reminder reached the output.
+    var onReminderStarted: (@Sendable (_ reply: Int) -> Void)?
     /// Whether the sound now comes out of the phone's own speaker (headphones and Bluetooth say no).
     var onRoute: (@Sendable (_ speaker: Bool, _ external: Bool) -> Void)?
     var onHalt: (@Sendable (Halt) -> Void)?
@@ -65,7 +67,7 @@ final class CallAudio: @unchecked Sendable {
     private var lastOutputLevel: TimeInterval = 0
     private var observers: [NSObjectProtocol] = []
 
-    // On `stream`: the reply not yet placed on the speaker, and the tags of `play(_:tag:)` waiting
+    // On `stream`: the reply not yet placed on the speaker, and the tags of `play` waiting
     // to be heard. A tag's offset counts the samples queued up to its piece's end; once that
     // sample is placed, its position on the speaker's clock, and the tag is reported once the
     // clock has passed it by the output's latency.
@@ -76,6 +78,8 @@ final class CallAudio: @unchecked Sendable {
     private var cursor = 0
     private var unplaced: [(tag: Int, offset: Int)] = []
     private var unheard: [(tag: Int, end: Int)] = []
+    /// The first non-silent sample of a reminder, in the queue and then on the speaker's clock.
+    private var reminderPlayback: (id: Int, offset: Int, start: Int?, started: Bool)?
     /// Samples between being rendered and being heard.
     private var outputDelay = 0
     private var pump: DispatchSourceTimer?
@@ -308,7 +312,7 @@ final class CallAudio: @unchecked Sendable {
     // MARK: Playback
 
     /// Queue 24 kHz mono 16-bit PCM; `tag` comes back through `onPlayed` once it has been heard.
-    func play(_ pcm: Data, tag: Int) {
+    func play(_ pcm: Data, tag: Int, reminder: Int?) {
         let samples = lock.withLock { () -> [Float] in
             var bytes = [UInt8](pcm)
             if let carry { bytes.insert(carry, at: 0) }
@@ -318,6 +322,10 @@ final class CallAudio: @unchecked Sendable {
             }
         }
         stream.async {
+            if let reminder, self.reminderPlayback?.id != reminder,
+               let first = samples.firstIndex(where: { $0 != 0 }) {
+                self.reminderPlayback = (reminder, self.queued + first, nil, false)
+            }
             self.reply.append(contentsOf: samples)
             self.queued += samples.count
             self.unplaced.append((tag, self.queued))
@@ -325,19 +333,37 @@ final class CallAudio: @unchecked Sendable {
         }
     }
 
-    /// Everything not heard yet is dropped at once: the user cut in.
-    func flush() {
+    func hasStartedReminder(_ id: Int) -> Bool {
+        stream.sync { heardReminder(id, rendered: speaker.clock) }
+    }
+
+    /// Drop queued audio on interruption. If a reminder is pending, check it at the cut so
+    /// the caller can record it even when the playback notification is still on its way.
+    func flush(reminder: Int?) -> Bool {
         lock.withLock { carry = nil }
-        stream.async {
-            self.dropReply()
-            self.onOutputLevel?(0)
+        let cut: @Sendable () -> Bool = { [self] in
+            let heard = dropReply(reminder: reminder)
+            onOutputLevel?(0)
+            return heard
         }
+        if reminder != nil { return stream.sync(execute: cut) }
+        stream.async { _ = cut() }
+        return false
+    }
+
+    private func heardReminder(_ id: Int, rendered: Int) -> Bool {
+        guard let reminderPlayback, reminderPlayback.id == id else { return false }
+        if reminderPlayback.started { return true }
+        guard let start = reminderPlayback.start else { return false }
+        return start < rendered - outputDelay
     }
 
     /// Silences what is placed and not played, takes it out of the canceller's reference (what
     /// already played stays there, for its echo), and forgets the rest of the reply.
-    private func dropReply() {
+    @discardableResult
+    private func dropReply(reminder: Int? = nil) -> Bool {
         let now = speaker.cut()
+        let heard = reminder.map { heardReminder($0, rendered: now) } ?? false
         echo?.truncatePlayback(at: now)
         cursor = now
         reply = []
@@ -345,6 +371,8 @@ final class CallAudio: @unchecked Sendable {
         placed = 0
         unplaced = []
         unheard = []
+        reminderPlayback = nil
+        return heard
     }
 
     private func startPump() {
@@ -362,6 +390,10 @@ final class CallAudio: @unchecked Sendable {
     /// bit of the reply on the speaker and hands the same samples to the canceller.
     private func pumpReply() {
         let now = speaker.clock
+        if let reminderPlayback, !reminderPlayback.started, heardReminder(reminderPlayback.id, rendered: now) {
+            self.reminderPlayback?.started = true
+            onReminderStarted?(reminderPlayback.id)
+        }
         while let first = unheard.first, first.end <= now - outputDelay {
             unheard.removeFirst()
             onPlayed?(first.tag)
@@ -374,6 +406,9 @@ final class CallAudio: @unchecked Sendable {
             let first = placed
             placed += piece.count
             cursor = start + piece.count
+            if let reminderPlayback, reminderPlayback.start == nil, reminderPlayback.offset < placed {
+                self.reminderPlayback?.start = start + reminderPlayback.offset - first
+            }
             while let tag = unplaced.first, tag.offset <= placed {
                 unplaced.removeFirst()
                 unheard.append((tag.tag, start + max(0, tag.offset - first)))
