@@ -267,11 +267,20 @@ private struct ToolDetail: View {
         switch call.displayName {
         case "bash", "pwsh":
             TerminalCard(call: call, status: row.exit, state: row.state, cwd: row.cwd)
+        case "run_code":
+            if (call.arguments["code"].string ?? "").isEmpty, (call.result ?? "").isEmpty, call.subCalls.isEmpty {
+                generic
+            } else {
+                RunCodeCard(call: call, cwd: row.cwd)
+            }
         case "read":
             if row.state == .ok, let read = ReadMeta(call.meta) { ReadCard(call: call, read: read) } else { generic }
         case "read_image":
-            ReadImageCard(call: call)
-            if row.state != .ok { generic }
+            if !call.resultImages.isEmpty || (row.state == .ok && (!call.meta["path"].isNull || !call.arguments["file_path"].isNull)) {
+                ReadImageCard(call: call)
+            } else {
+                generic
+            }
         case "write", "write_file", "edit", "str_replace", "str_replace_editor", "multi_edit", "create":
             if let lines = row.diff, row.state != .error, row.state != .stopped {
                 DiffCard(call: call, lines: lines)
@@ -281,9 +290,9 @@ private struct ToolDetail: View {
         case "grep", "glob":
             if row.state == .ok, let search = SearchMeta(call.meta) { SearchCard(search: search, recovery: call.result ?? "") } else { generic }
         case "web_search":
-            if row.state == .ok, !call.meta.isNull { WebSearchCard(meta: call.meta) } else { generic }
+            if row.state == .ok, let search = WebSearchCard(call.meta) { search } else { generic }
         case "web_fetch":
-            if row.state == .ok, !call.meta.isNull { WebFetchCard(meta: call.meta) } else { generic }
+            if row.state == .ok, let page = WebFetchCard(call.meta) { page } else { generic }
         case "todo_write":
             if row.state == .error || row.state == .stopped { generic } else { TodoDiffCard(diff: TodoDiff(call: call)) }
         case "ask_user_question":
@@ -300,6 +309,10 @@ private struct ToolDetail: View {
     @ViewBuilder
     private var generic: some View {
         if !row.argumentsText.isEmpty { OutputBlock(title: "参数", text: row.argumentsText) }
+        // `error.reason` is what a card may show beyond the result text (C-60).
+        if call.isError, let reason = call.errorReason, !reason.isEmpty {
+            OutputBlock(title: "错误", text: reason, tint: Palette.removed)
+        }
         if let result = call.result, !result.isEmpty {
             OutputBlock(title: call.isError ? "错误" : "结果", text: result, tint: call.isError ? Palette.removed : nil)
         }

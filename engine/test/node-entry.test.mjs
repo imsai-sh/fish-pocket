@@ -34,3 +34,20 @@ test('spawning the placeholder runs a Node program', async () => {
   });
   assert.equal(out.trim(), '42');
 });
+
+test('node options reach the worker, not just the argv parser', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dsh-ios-node-entry-'));
+  const out = await new Promise((resolve, reject) => {
+    cp.execFile(process.execPath, ['--experimental-vm-modules', '-e', 'console.log(typeof require("node:vm").SourceTextModule)'], { cwd: root }, (error, stdout) => (error ? reject(error) : resolve(stdout)));
+  });
+  assert.equal(out.trim(), 'function');
+});
+
+test('a heap cap becomes the worker resource limit', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dsh-ios-node-entry-'));
+  const out = await new Promise((resolve, reject) => {
+    cp.execFile(process.execPath, ['--max-old-space-size=64', '-e', 'console.log(require("node:v8").getHeapStatistics().heap_size_limit)'], { cwd: root }, (error, stdout) => (error ? reject(error) : resolve(stdout)));
+  });
+  const limit = Number(out.trim());
+  assert.ok(Number.isSafeInteger(limit) && limit > 0 && limit < 256 * 1024 * 1024, out);
+});

@@ -16,6 +16,8 @@ struct ToolCall: Identifiable, Hashable {
     var errorReason: String?
     /// `tool/result.data.meta`: the tool's `presentationMeta(args, value)`, present only on success.
     var meta: JSON = .null
+    /// `tool/ptc-dispatch*`: what a `run_code` program called, in dispatch order.
+    var subCalls: [ToolCall] = []
     /// For `todo_write`: the list recorded before this call; nil when there was none in the loaded window.
     var previousTodos: [TodoItem]?
     /// The loaded events reach the start of the session, so no earlier list can exist.
@@ -665,6 +667,10 @@ struct TimelineBuilder {
             // Pruning rewrites old results for the model under the same call id; the card keeps the original.
             if !event["surfaceOp"].isNull, event["surfaceOp"].string != "append" { return false }
             return applyToolResult(data)
+        case "tool/ptc-dispatch-start":
+            return applyPtcDispatchStart(data)
+        case "tool/ptc-dispatch":
+            return applyPtcDispatch(data)
         case "todo/write":
             lastTodos = data["todos"].array.map { TodoItem(content: $0["content"].string ?? "", status: $0["status"].string ?? "pending") }
             return false
@@ -769,6 +775,7 @@ struct TimelineBuilder {
                     call.isError = true
                     call.errorCode = "interrupted"
                     call.errorName = "Interrupted"
+                    interruptSubcalls(&call)
                     blocks[position] = .tool(call)
                 }
             }
@@ -871,6 +878,8 @@ struct TimelineBuilder {
         call.errorName = data["error"]["name"].string
         call.errorReason = data["error"]["reason"].string
         call.meta = data["meta"]
+        // The program is over; anything it started that never reported did not finish.
+        if call.displayName == "run_code" { interruptSubcalls(&call) }
         blocks[location.block] = .tool(call)
         items[location.item] = .assistant(turn: t, blocks: blocks, startedAt: started, endedAt: ended)
         // What a closing message may refer to by name (C-24).
@@ -881,6 +890,98 @@ struct TimelineBuilder {
             turnInfo[t] = info
         }
         return true
+    }
+
+    /// A PTC subcall starts: put it under its root `run_code` call until its result arrives.
+    private mutating func applyPtcDispatchStart(_ data: JSON) -> Bool {
+        guard let root = data["rootCallId"].string,
+              let id = data["subCallId"].string,
+              let location = toolIndex[root],
+              case .assistant(let turn, var blocks, let started, let ended) = items[location.item],
+              case .tool(var call) = blocks[location.block] else { return false }
+        let name = data["name"].string ?? "tool"
+        let sub = ToolCall(id: id, name: name, arguments: dispatchedArguments(data["arguments"]), rawArguments: "")
+        if !updateSubcall(id, in: &call, { _ in }) {
+            let parent = data["parentCallId"].string ?? root
+            if !attach(sub, to: parent, in: &call) { call.subCalls.append(sub) }
+        }
+        blocks[location.block] = .tool(call)
+        items[location.item] = .assistant(turn: turn, blocks: blocks, startedAt: started, endedAt: ended)
+        return true
+    }
+
+    /// A PTC subcall settles: its content, error and `meta` are all a card may use (C-59/C-60).
+    private mutating func applyPtcDispatch(_ data: JSON) -> Bool {
+        guard let root = data["rootCallId"].string,
+              let id = data["subCallId"].string,
+              let location = toolIndex[root],
+              case .assistant(let turn, var blocks, let started, let ended) = items[location.item],
+              case .tool(var call) = blocks[location.block] else { return false }
+        let content = data["content"].array
+        let text = content.compactMap { $0["type"].string == "text" ? $0["text"].string : nil }.joined(separator: "\n")
+        let images = content.filter { $0["type"].string == "image" }.map(Attachment.init(block:))
+        let error = data["error"]
+        let update: (inout ToolCall) -> Void = { sub in
+            sub.result = text
+            sub.resultImages = images
+            sub.isError = data["isError"].bool ?? false
+            sub.errorCode = error["code"].string
+            sub.errorName = error["name"].string
+            sub.errorReason = error["reason"].string
+            sub.meta = data["meta"]
+        }
+        if !updateSubcall(id, in: &call, update) {
+            // A result whose start never reached this window still gets a row.
+            var sub = ToolCall(id: id, name: data["name"].string ?? "tool", arguments: dispatchedArguments(data["arguments"]), rawArguments: "")
+            update(&sub)
+            let parent = data["parentCallId"].string ?? root
+            if !attach(sub, to: parent, in: &call) { call.subCalls.append(sub) }
+        }
+        blocks[location.block] = .tool(call)
+        items[location.item] = .assistant(turn: turn, blocks: blocks, startedAt: started, endedAt: ended)
+        return true
+    }
+
+    /// `arguments` is the program's logged call arguments; older logs may hold them as JSON text.
+    private func dispatchedArguments(_ value: JSON) -> JSON {
+        guard let text = value.string else { return value }
+        return (try? JSON.parse(Data(text.utf8))) ?? value
+    }
+
+    /// Attach a subcall to `parent`, which may be the root or another subcall.
+    private func attach(_ sub: ToolCall, to parent: String, in call: inout ToolCall) -> Bool {
+        if call.id == parent {
+            call.subCalls.append(sub)
+            return true
+        }
+        for index in call.subCalls.indices {
+            if attach(sub, to: parent, in: &call.subCalls[index]) { return true }
+        }
+        return false
+    }
+
+    private func updateSubcall(_ id: String, in call: inout ToolCall, _ change: (inout ToolCall) -> Void) -> Bool {
+        for index in call.subCalls.indices {
+            if call.subCalls[index].id == id {
+                change(&call.subCalls[index])
+                return true
+            }
+            if updateSubcall(id, in: &call.subCalls[index], change) { return true }
+        }
+        return false
+    }
+
+    /// A `run_code` program that ended leaves anything still running as interrupted.
+    private func interruptSubcalls(_ call: inout ToolCall) {
+        for index in call.subCalls.indices {
+            if !call.subCalls[index].finished {
+                call.subCalls[index].result = ""
+                call.subCalls[index].isError = true
+                call.subCalls[index].errorCode = "interrupted"
+                call.subCalls[index].errorName = "Interrupted"
+            }
+            interruptSubcalls(&call.subCalls[index])
+        }
     }
 
     private mutating func applyRetry(_ data: JSON, time: Date) -> Bool {

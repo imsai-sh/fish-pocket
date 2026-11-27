@@ -14,7 +14,9 @@ export function installWorkerDefaults() {
   workerThreads.Worker = class Worker extends Base {
     constructor(filename, options) {
       // A worker inherits execArgv, preload included; a given one replaces it.
-      const execArgv = options?.execArgv && { execArgv: [...PRELOAD, ...options.execArgv] };
+      // startNodeWorker and this wrapper can both supply PRELOAD; dedupe keeps
+      // the preload from running twice.
+      const execArgv = options?.execArgv && { execArgv: [...new Set([...PRELOAD, ...options.execArgv])] };
       super(filename, { trackUnmanagedFds: false, ...options, ...execArgv });
     }
   };

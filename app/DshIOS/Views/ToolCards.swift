@@ -591,6 +591,13 @@ struct SearchCard: View {
 struct WebSearchCard: View {
     let meta: JSON
 
+    init?(_ meta: JSON) {
+        let keys = meta.object.keys
+        // An empty result still carries `sources`; anything else is not this shape (C-60).
+        guard keys.contains("sources") || keys.contains("answer") else { return nil }
+        self.meta = meta
+    }
+
     var body: some View {
         let sources = meta["sources"].array
         let answer = meta["answer"].string ?? ""
@@ -623,6 +630,11 @@ struct WebSearchCard: View {
 /// web_fetch (C-69).
 struct WebFetchCard: View {
     let meta: JSON
+
+    init?(_ meta: JSON) {
+        guard meta["url"].string != nil else { return nil }
+        self.meta = meta
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -884,5 +896,120 @@ struct ReadImageCard: View {
             return String(localized: "\(width)x\(height)px（由 \(ow)x\(oh)px 缩小），\(bytes) 字节")
         }
         return String(localized: "\(width)x\(height)px，\(bytes) 字节")
+    }
+}
+
+/// `run_code` (C-77): the program, what it printed, and the tools it called (C-59).
+struct RunCodeCard: View {
+    let call: ToolCall
+    var cwd: String?
+    @State private var selected: ToolCall?
+    @State private var fullCode = false
+
+    private var code: String { call.arguments["code"].string ?? "" }
+    private var lines: [String] { code.components(separatedBy: "\n") }
+    private var shown: String {
+        guard !fullCode, lines.count > 24 else { return code }
+        return lines.prefix(24).joined(separator: "\n")
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let description = call.arguments["description"].string, !description.isEmpty {
+                Text(description).font(.subheadline).foregroundStyle(Palette.secondary)
+            }
+            if !code.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(shown)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundStyle(Palette.ink)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Palette.field, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    if lines.count > 24 {
+                        Button { fullCode.toggle() } label: {
+                            Text(fullCode ? "收起" : "展开全部（\(lines.count) 行）")
+                                .font(.caption).foregroundStyle(Palette.secondary).hitTarget()
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            if let result = call.result, !result.isEmpty {
+                OutputBlock(title: call.isError ? "错误" : "输出", text: result, tint: call.isError ? Palette.removed : nil)
+            } else if call.isError, let reason = call.errorReason, !reason.isEmpty {
+                OutputBlock(title: "错误", text: reason, tint: Palette.removed)
+            }
+            if !call.subCalls.isEmpty {
+                PTCSubcallTree(calls: call.subCalls, cwd: cwd, open: { selected = $0 })
+            }
+        }
+        .modifier(ToolCardBox())
+        .sheet(item: $selected) { sub in
+            ToolDetailSheet(call: sub, model: nil, current: { _ in sub })
+        }
+    }
+}
+
+/// The tools one `run_code` program called: a thin line and one row per call (C-59).
+struct PTCSubcallTree: View {
+    let calls: [ToolCall]
+    var cwd: String?
+    let open: (ToolCall) -> Void
+    @Environment(\.fileLinkScope) private var scope
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("工具调用").font(.caption).foregroundStyle(Palette.secondary)
+            HStack(alignment: .top, spacing: 10) {
+                Rectangle().fill(Palette.stroke).frame(width: 0.5)
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(calls) { call in
+                        PTCSubcallRow(call: call, cwd: cwd ?? scope?.root, open: open)
+                    }
+                }
+            }
+            .padding(.leading, 14)
+        }
+    }
+}
+
+/// One subcall: its row opens the full card; a terminal or image result shows inline.
+private struct PTCSubcallRow: View {
+    let call: ToolCall
+    var cwd: String?
+    let open: (ToolCall) -> Void
+    @Environment(\.fileLinkScope) private var scope
+
+    var body: some View {
+        let row = ToolPresentation(call: call, live: false, cwd: cwd ?? scope?.root)
+        let tint: Color = row.state == .error ? Palette.removed : row.state == .stopped ? Palette.waiting : Palette.secondary
+        VStack(alignment: .leading, spacing: 6) {
+            Button { open(call) } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: ToolStyle.icon(for: call.name)).frame(width: 20).foregroundStyle(tint)
+                    Text(row.line).font(.subheadline).foregroundStyle(Palette.secondary).lineLimit(1)
+                    Spacer(minLength: 0)
+                    if !call.finished {
+                        ProgressView().controlSize(.mini)
+                    } else if let outcome = row.outcome(row.state) {
+                        Text(outcome).font(.footnote.weight(.medium)).foregroundStyle(tint).fixedSize()
+                    }
+                    Image(systemName: "chevron.right").font(.caption2.weight(.semibold)).foregroundStyle(Palette.faint)
+                }
+                .frame(minHeight: 36)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            if call.finished, ["bash", "pwsh"].contains(call.displayName) {
+                TerminalCard(call: call, status: row.exit, state: row.state, cwd: cwd)
+            } else if call.finished, call.displayName == "read_image" {
+                ReadImageCard(call: call)
+            }
+            if !call.subCalls.isEmpty {
+                PTCSubcallTree(calls: call.subCalls, cwd: cwd, open: open)
+            }
+        }
     }
 }

@@ -133,7 +133,8 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
     const onAbort = () => abort.abort();
     spec.signal?.addEventListener('abort', onAbort, { once: true });
 
-    const served = direct ? this.runDirect(direct, spec, stdin, out, err, abort.signal) : native ? this.runNative(native, spec, stdin, out, err, abort.signal) : undefined;
+    const started = direct ? this.runDirect(direct, spec, stdin, out, err, abort.signal) : undefined;
+    const served = started ? started.done : native ? this.runNative(native, spec, stdin, out, err, abort.signal) : undefined;
     const done = served ? served.finally(() => spec.signal?.removeEventListener('abort', onAbort)) : (async () => {
       const input = await stdin.text;
       try {
@@ -163,7 +164,7 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
       stdin: stdin.stream,
       stdout: out.stream,
       stderr: err.stream,
-      control: undefined,
+      control: started?.control,
       collected: {
         ...(out.collector ? { stdout: out.collector } : {}),
         ...(err.collector ? { stderr: err.collector } : {}),
@@ -183,14 +184,28 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
   }
 
   /** Run a planned Node program as a worker, streaming its output into the sinks. */
-  async runDirect(direct, spec, stdin, out, err, signal) {
+  runDirect(direct, spec, stdin, out, err, signal) {
     if (direct.version) {
       out.write(Buffer.from(`${process.version}\n`));
       out.end();
       err.end();
-      return { exitCode: 0, signal: null };
+      return { done: Promise.resolve({ exitCode: 0, signal: null }) };
     }
-    const child = startNodeWorker({ ...direct, cwd: spec.cwd, env: direct.env, stdin: true });
+    let child;
+    try {
+      child = startNodeWorker({
+        ...direct,
+        cwd: spec.cwd,
+        env: direct.env,
+        stdin: true,
+        // PTC's `run_code` asks for this; the worker's fd 7 is served over its port.
+        control: spec.stdio.control === 'pipe',
+      });
+    } catch (error) {
+      out.end();
+      err.end();
+      return { done: Promise.reject(error) };
+    }
     if (stdin.stream) stdin.stream.pipe(child.stdin);
     else child.stdin.end(typeof spec.stdio.stdin === 'object' ? spec.stdio.stdin.data : undefined);
     const drained = Promise.all([child.stdout, child.stderr].map((stream) => new Promise((resolve) => stream.once('end', resolve))));
@@ -198,12 +213,15 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
     child.stderr.on('data', (chunk) => err.write(chunk));
     const stop = () => child.worker.terminate();
     signal.addEventListener('abort', stop, { once: true });
-    const code = await child.exited;
-    await Promise.race([drained, new Promise((resolve) => setTimeout(resolve, 100))]);
-    signal.removeEventListener('abort', stop);
-    out.end();
-    err.end();
-    return signal.aborted ? { exitCode: null, signal: 'SIGTERM' } : { exitCode: code, signal: null };
+    const done = (async () => {
+      const code = await child.exited;
+      await Promise.race([drained, new Promise((resolve) => setTimeout(resolve, 100))]);
+      signal.removeEventListener('abort', stop);
+      out.end();
+      err.end();
+      return signal.aborted ? { exitCode: null, signal: 'SIGTERM' } : { exitCode: code, signal: null };
+    })();
+    return { control: child.control, done };
   }
 
   /** Run a planned process of a linked program, streaming its output into the sinks. */

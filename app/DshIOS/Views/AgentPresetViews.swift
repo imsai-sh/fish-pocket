@@ -1,30 +1,5 @@
 import SwiftUI
 
-/// PTC (`ptc`) is held back on iOS: its only tool, `run_code`, asks the subprocess provider
-/// for a control pipe the iOS provider cannot supply, so every call fails before any code
-/// runs (#171). Only the entries are hidden — the preset still exists, so a session already
-/// in it keeps opening. Drop this once `subprocess-ios` carries that channel.
-enum PtcMode {
-    static let id = "ptc"
-    static let hidden = true
-
-    static func isHidden(_ presetId: String?) -> Bool { hidden && presetId == id }
-
-    /// A new-task default left on PTC from before it was held back moves to Standard, or
-    /// every new session would start in a mode that cannot run a tool.
-    /// True when it moved the default.
-    @MainActor
-    @discardableResult
-    static func leaveIfDefault(_ app: AppModel, current: String) async -> Bool {
-        guard isHidden(current) else { return false }
-        let ns = "agent-preset-registry"
-        return (try? await app.settings.update(ns, patch: ["selectedDefault": "standard"], expectedRevision: app.settings.namespace(ns)?["revision"].int)) != nil
-    }
-}
-
-/// Presets whose entries iOS does not offer, as a default or for a new session.
-func presetHeldBack(_ presetId: String?) -> Bool { PtcMode.isHidden(presetId) }
-
 /// The Agent preset roster (`agentPresets/list`) with the display copy the web keeps
 /// for shipped presets: a preset that publishes no name is one of these.
 @MainActor
@@ -51,7 +26,7 @@ final class AgentPresetCatalog {
     private(set) var fallback = ""
     private(set) var codingTools = true
 
-    var visible: [Option] { options.filter { (codingTools || !$0.needsCodingTools) && !presetHeldBack($0.id) } }
+    var visible: [Option] { options.filter { codingTools || !$0.needsCodingTools } }
 
     func name(of id: String) -> String { options.first { $0.id == id }?.name ?? id }
 
@@ -114,12 +89,7 @@ struct AgentPresetChip: View {
         .sheet(isPresented: $choosing) { AgentPresetSheet(catalog: catalog, chosen: chosen, select: select) }
         .task(id: "\(sessionId)-\(app.revision("agent-preset/selected", "settings/document-updated"))") {
             await catalog.load(app.client)
-            await PtcMode.leaveIfDefault(app, current: catalog.fallback)
             await readCurrent()
-            // A blank session that took PTC as its default before it was held back.
-            if PtcMode.isHidden(chosen), let standard = catalog.options.first(where: { $0.id == "standard" }) {
-                _ = await select(standard)
-            }
         }
     }
 

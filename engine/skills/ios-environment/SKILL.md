@@ -76,6 +76,8 @@ Node 24 runs in jitless mode: pure JavaScript is several times slower than on a 
 
 - `child_process` works, but it reaches this same emulated shell. Only the commands on this page can be spawned.
 - `process.execPath` is the app, not a binary named `node`. Spawning it, `node` or `/usr/bin/node` starts a Node child, which runs as a worker thread in the same process (its `process.pid` is the app's).
+- `node` options: `--experimental-vm-modules` and `--max-old-space-size` are honored (the cap becomes the worker's heap limit). Everything else is ignored.
+- `ctx.subprocess.spawn` with `stdio.control: 'pipe'` gets a duplex control stream, carried over the worker's message port rather than an inherited descriptor. PTC's `run_code` uses it, including its `net.Socket({ fd: 7 })`; the fd number is a stand-in, so do not use other descriptor numbers for this. The child is still a worker thread, not a process: a native crash takes the app down with it.
 - `http.createServer` works, and dev servers listen on `127.0.0.1`.
 - WebAssembly works but runs interpreted, so wasm tools are slow.
 - A plain `node` script can use the filesystem, network, `node:sqlite` and worker threads, and `node file.ts` runs TypeScript.

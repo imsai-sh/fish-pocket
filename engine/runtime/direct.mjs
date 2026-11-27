@@ -114,7 +114,8 @@ export function planDirect(argv, { cwd, env }) {
   const [program, ...args] = words;
   const runEnv = { ...env, ...assignments };
   const base = path.basename(program);
-  if (base === 'node') return { ...parseNodeArgv(args, cwd), env: runEnv };
+  // On iOS process.execPath is the app itself, not a binary named node.
+  if (base === 'node' || program === process.execPath) return { ...parseNodeArgv(args, cwd), env: runEnv };
   if (base === 'npx') return { script: NODE_CLIS.pnpx(), args: args.filter((a) => a !== '-y' && a !== '--yes'), env: runEnv };
   if (NODE_CLIS[base] && !program.includes('/')) return { script: NODE_CLIS[base](), args, env: runEnv };
   const file = lookup(program, cwd, runEnv);

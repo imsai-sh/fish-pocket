@@ -17,8 +17,7 @@ struct AgentPresetsPage: View {
     private var visible: [JSON] {
         (presets ?? []).filter {
             let id = $0["id"].string ?? ""
-            // PTC is held back on iOS (`PtcMode`): not offered as a default either.
-            return (codingTools || !["ptc", "minimal"].contains(id)) && !presetHeldBack(id)
+            return codingTools || !["ptc", "minimal"].contains(id)
         }
     }
 
@@ -118,12 +117,8 @@ struct AgentPresetsPage: View {
     private func load() async {
         failed = false
         do {
-            var all = try await app.client.call("agentPresets/list")["presets"].array
-            if let held = all.first(where: { $0["isDefault"].bool == true })?["id"].string,
-               await PtcMode.leaveIfDefault(app, current: held) {
-                all = try await app.client.call("agentPresets/list")["presets"].array
-            }
-            presets = all.sorted { ($0["order"].double ?? .infinity) < ($1["order"].double ?? .infinity) }
+            presets = try await app.client.call("agentPresets/list")["presets"].array
+                .sorted { ($0["order"].double ?? .infinity) < ($1["order"].double ?? .infinity) }
         } catch {
             failed = presets == nil
         }
