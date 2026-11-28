@@ -7,34 +7,34 @@ import SwiftUI
 struct ShellNotices: View {
     @Environment(AppModel.self) private var app
     @Environment(\.noticesHosted) private var hosted
+    /// The window's bottom docks: where the page in front has its composer.
+    @Environment(BottomDocks.self) private var docks: BottomDocks?
     /// The banner waits a moment so a quick reconnect never flashes it.
     @State private var showOffline = false
-    /// The area these notices fill, in the window (global coordinates).
-    @State private var area: ClosedRange<CGFloat>?
 
-    /// Over a sheet there is no composer, but there may be a bottom bar. Elsewhere, from the
-    /// composer's top: with the tab bar under the composer, its height alone fell short of it.
-    /// A composer top outside the area is not one on this screen (a page off to the side, or
-    /// left behind): the notices then keep to the bottom edge.
-    private var bottomInset: CGFloat {
+    /// Over a sheet there is no composer, but there may be a bottom bar. Elsewhere, from the top
+    /// of the dock on screen: with the tab bar under the composer, its height alone fell short of
+    /// it. A dock top outside the area is not on this screen (a page off to the side): the notices
+    /// then keep to the bottom edge, as on a page without a dock.
+    private func bottomInset(in area: CGRect) -> CGFloat {
         if hosted { return 56 }
-        guard let area, let top = app.composerTop, area.lowerBound < top, top < area.upperBound else { return 8 }
-        return area.upperBound - top + 8
+        guard let top = docks?.top, area.minY < top, top < area.maxY else { return 8 }
+        return area.maxY - top + 8
     }
 
     var body: some View {
-        // The area is measured on a layer the notices do not size: measured on the notices
-        // themselves, each inset moved the edge it was taken from, and the next one again,
-        // without end (a sheet closing over a conversation hung the app).
-        Color.clear
-            .onGeometryChange(for: ClosedRange<CGFloat>.self) { geometry in
-                let frame = geometry.frame(in: .global)
-                return frame.minY...max(frame.minY, frame.maxY)
-            } action: { area = $0 }
-            .overlay(alignment: .top) { notices }
+        // Placed from what is known from outside, in one direction: the area the shell hands
+        // down, read while laying out, and the dock's top its page reports. Nothing here is
+        // measured and kept: kept, an inset moved the edge it was taken from, and the next one
+        // again, without end (a sheet closing over a conversation hung the app).
+        GeometryReader { proxy in
+            let _ = LayoutLoopGuard.tick("ShellNotices.layout")
+            notices(inset: bottomInset(in: proxy.frame(in: .global)))
+                .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
+        }
     }
 
-    private var notices: some View {
+    private func notices(inset: CGFloat) -> some View {
         VStack(spacing: 8) {
             if showOffline {
                 Label("引擎已断开，正在重连…", systemImage: "wifi.exclamationmark")
@@ -60,7 +60,7 @@ struct ShellNotices: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, bottomInset)
+        .padding(.bottom, inset)
         .animation(.snappy, value: app.toast)
         .animation(.snappy, value: ReadAloud.shared.speaking)
         .animation(.snappy, value: showOffline)

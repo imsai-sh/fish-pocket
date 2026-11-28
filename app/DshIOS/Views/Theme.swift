@@ -268,12 +268,13 @@ extension View {
 
     /// A conversation's composer at the bottom. From iOS 26 it floats as the top bar does:
     /// the messages run on under it and soften at the edge. Before, on the page colour.
+    /// The dock tells its window where it starts (`BottomDocks`), for the notices above it.
     @ViewBuilder
     func conversationDock(@ViewBuilder _ dock: () -> some View) -> some View {
         if #available(iOS 26.0, *) {
-            safeAreaBar(edge: .bottom, spacing: 0, content: dock)
+            safeAreaBar(edge: .bottom, spacing: 0) { dock().modifier(DockReport()) }
         } else {
-            safeAreaInset(edge: .bottom, spacing: 0) { dock().background(Palette.background) }
+            safeAreaInset(edge: .bottom, spacing: 0) { dock().modifier(DockReport()).background(Palette.background) }
         }
     }
 
@@ -574,5 +575,18 @@ private struct FocusTap: UIViewRepresentable {
         var tapped: () -> Void
         init(tapped: @escaping () -> Void) { self.tapped = tapped }
         @objc func tap() { tapped() }
+    }
+}
+
+/// A dock reporting its place to its window's `BottomDocks`, while it is on screen.
+private struct DockReport: ViewModifier {
+    @Environment(BottomDocks.self) private var docks: BottomDocks?
+    @State private var id = UUID()
+
+    func body(content: Content) -> some View {
+        content
+            .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { docks?.move(id, to: $0) }
+            .onAppear { docks?.show(id) }
+            .onDisappear { docks?.hide(id) }
     }
 }

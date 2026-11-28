@@ -33,6 +33,8 @@ struct MainView: View {
     /// The sidebar, in regular width.
     @State private var sidebar = NavigationSplitViewVisibility.all
     @State private var windowWidth: CGFloat = 0
+    /// Where this window's page in front has its composer, for the notices above it.
+    @State private var docks = BottomDocks()
     /// The window's width as the app left the screen: the split view keeps it while out of sight (`split`).
     @State private var widthOnLeaving: CGFloat?
     @State private var searchRequest = 0
@@ -601,6 +603,8 @@ struct MainView: View {
             Text(app.lastError ?? "")
         }
         .environment(\.openSession, OpenSessionAction(openSessionBox) { open(session: $0) })
+        // This window's own: its pages' docks report here and its notices read here.
+        .environment(docks)
     }
 
     // MARK: Credentials

@@ -13,3 +13,4 @@ run() {
 }
 
 run BrowserOwnershipTests app/DshIOS/Browser/BrowserOwnership.swift
+run BottomDocksTests app/DshIOS/Core/BottomDocks.swift

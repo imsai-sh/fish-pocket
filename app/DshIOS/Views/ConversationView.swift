@@ -311,7 +311,6 @@ struct ConversationView: View {
             // safe area beside it: the status bar's column on iPhone Duo unfolded, the notch's side
             // in landscape. Cut at the sides only.
             .mask { Rectangle().padding(.vertical, -200) }
-            .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { app.composerTop = $0 }
         }
         .modifier(ComposerDrop(composer: model.composer, enabled: model.subagentReadOnly(parentAvailable: parentAvailable(model)) == nil))
         // Under the toolbar: what is inside an inspector's main view does not reach the navigation bar.
