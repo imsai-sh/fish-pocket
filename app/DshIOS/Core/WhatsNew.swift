@@ -229,7 +229,8 @@ enum WhatsNew {
 
     /// The entries this build has reached, newest first.
     private static var reached: [Release] {
-        releases.filter { !isAfter($0.version, $0.build ?? 0, than: version, build) }
+        // An entry with nothing to say in this build (the account's, in a build without it) is skipped.
+        releases.filter { !$0.features.isEmpty && !isAfter($0.version, $0.build ?? 0, than: version, build) }
     }
 
     private static func merged(_ entries: [Release], version: String, build: Int?) -> Release {

@@ -2333,6 +2333,74 @@
     "%lld" : {
       "shouldTranslate" : false
     },
+    "%lld / %lld 人" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %lld 人"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %lld명"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %lld 人"
+          }
+        }
+      }
+    },
+    "%lld 人" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 人"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld명"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 人"
+          }
+        }
+      }
+    },
     "%lld 个" : {
       "localizations" : {
         "en" : {
@@ -6303,6 +6371,216 @@
         }
       }
     },
+    "• 奖励的积分到账后 %lld 天内有效，对话时先扣它。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Reward credits last %lld days from when they arrive and are spent first."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Los créditos de recompensa duran %lld días desde que llegan y se gastan primero."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 特典のクレジットは受け取ってから %lld 日間有効で、会話では先に使われます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 보상 크레딧은 받은 날부터 %lld일 동안 유효하며 대화할 때 먼저 차감돼요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 獎勵的積分入帳後 %lld 天內有效，對話時先扣它。"
+          }
+        }
+      }
+    },
+    "• 好友填了你的邀请码，立刻得到 %lld 积分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• When a friend enters your code, they get %lld credits right away."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Cuando un amigo introduce tu código, recibe %lld créditos al instante."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 友だちがあなたの招待コードを入力すると、すぐに %lld クレジットがもらえます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 친구가 내 초대 코드를 입력하면 바로 %lld 크레딧을 받아요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 好友填了你的邀請碼，立刻得到 %lld 積分。"
+          }
+        }
+      }
+    },
+    "• 好友买过积分，或者在对话里用掉 %lld 积分后，你得到 %lld 积分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Once that friend buys credits or uses %1$lld credits in conversations, you get %2$lld credits."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Cuando ese amigo compre créditos o gaste %1$lld créditos en conversaciones, recibirás %2$lld créditos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• その友だちがクレジットを購入するか、会話で %1$lld クレジットを使うと、あなたに %2$lld クレジットが入ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 그 친구가 크레딧을 구매하거나 대화에서 %1$lld 크레딧을 쓰면 나도 %2$lld 크레딧을 받아요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 好友买过积分，或者在对话里用掉 %1$lld 积分后，你得到 %2$lld 积分。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 好友買過積分，或是在對話裡用掉 %1$lld 積分後，你得到 %2$lld 積分。"
+          }
+        }
+      }
+    },
+    "• 好友买过积分后，你得到 %lld 积分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Once that friend buys credits, you get %lld credits."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Cuando ese amigo compre créditos, recibirás %lld créditos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• その友だちがクレジットを購入すると、あなたに %lld クレジットが入ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 그 친구가 크레딧을 구매하면 나도 %lld 크레딧을 받아요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 好友買過積分後，你得到 %lld 積分。"
+          }
+        }
+      }
+    },
+    "• 每个账号只能填一次邀请码，新注册的账号要在 7 天内填写；不能和对方互相填写。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Each account can enter one invite code, and new accounts have 7 days to do it. You can’t enter each other’s codes."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Cada cuenta puede introducir un solo código, y las cuentas nuevas tienen 7 días para hacerlo. No se pueden intercambiar códigos entre dos personas."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 招待コードは 1 アカウントにつき 1 回だけ入力でき、新しいアカウントは登録から 7 日以内に入力してください。お互いのコードを入力し合うことはできません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 초대 코드는 계정당 한 번만 입력할 수 있고, 새 계정은 7일 안에 입력해야 해요. 서로의 코드를 주고받아 입력할 수는 없어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 每個帳號只能填一次邀請碼，新註冊的帳號要在 7 天內填寫；不能和對方互相填寫。"
+          }
+        }
+      }
+    },
+    "• 每个邀请码最多邀请 %lld 人，满了就不能再用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Each code works for up to %lld people, then it stops working."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Cada código sirve para un máximo de %lld personas; después deja de funcionar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 1 つの招待コードで招待できるのは最大 %lld 人で、上限に達すると使えなくなります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 초대 코드 하나로 최대 %lld명까지 초대할 수 있고, 다 차면 더 이상 쓸 수 없어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• 每個邀請碼最多邀請 %lld 人，滿了就不能再用。"
+          }
+        }
+      }
+    },
     "一个余额，处处通用" : {
       "localizations" : {
         "en" : {
@@ -6401,6 +6679,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "一步打開常用的地方"
+          }
+        }
+      }
+    },
+    "不能填自己的邀请码。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can’t enter your own invite code."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No puedes introducir tu propio código de invitación."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分の招待コードは入力できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 초대 코드는 입력할 수 없어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不能填自己的邀請碼。"
           }
         }
       }
@@ -6645,6 +6957,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "習慣打卡"
+          }
+        }
+      }
+    },
+    "你已经填过好友的邀请码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You’ve entered a friend’s invite code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya introdujiste el código de un amigo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちの招待コードは入力済みです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구의 초대 코드를 이미 입력했어요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已經填過好友的邀請碼"
+          }
+        }
+      }
+    },
+    "你已经填过邀请码了。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You’ve already entered an invite code."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya has introducido un código de invitación."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待コードはすでに入力済みです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 초대 코드를 입력했어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已經填過邀請碼了。"
           }
         }
       }
@@ -7363,6 +7743,40 @@
         }
       }
     },
+    "其中 %lld 积分将在 %@ 过期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of these expire on %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld de ellos caducan el %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "うち %lld クレジットは %@ に失効します"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그중 %lld 크레딧은 %@에 만료돼요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其中 %lld 積分將在 %@ 過期"
+          }
+        }
+      }
+    },
     "再做一个 Mini App…" : {
       "localizations" : {
         "en" : {
@@ -7563,6 +7977,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "分享錄影"
+          }
+        }
+      }
+    },
+    "分享邀请" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share Invite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir invitación"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待を共有"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "초대 공유"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享邀請"
           }
         }
       }
@@ -8695,6 +9143,74 @@
         }
       }
     },
+    "填写好友的邀请码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a Friend’s Code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce el código de un amigo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちの招待コードを入力"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구의 초대 코드 입력"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "填寫好友的邀請碼"
+          }
+        }
+      }
+    },
+    "复制邀请码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar código"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待コードをコピー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "초대 코드 복사"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拷貝邀請碼"
+          }
+        }
+      }
+    },
     "复制内容" : {
       "localizations" : {
         "en" : {
@@ -8797,6 +9313,126 @@
         }
       }
     },
+    "好友填你的邀请码就得 %lld 积分，好友用起来后你也得 %lld 积分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Friends get %1$lld credits for entering your code, and you get %2$lld once they start using Fish Pocket."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus amigos reciben %1$lld créditos al introducir tu código, y tú %2$lld cuando empiecen a usar Fish Pocket."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちは招待コードを入力すると %1$lld クレジット、使い始めるとあなたにも %2$lld クレジットが入ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구는 내 초대 코드를 입력하면 %1$lld 크레딧을 받고, 친구가 쓰기 시작하면 나도 %2$lld 크레딧을 받아요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好友填你的邀请码就得 %1$lld 积分，好友用起来后你也得 %2$lld 积分。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好友填你的邀請碼就得 %1$lld 積分，好友用起來後你也得 %2$lld 積分。"
+          }
+        }
+      }
+    },
+    "好友填写你的邀请码，立刻得到 %lld 积分；好友买过积分，或者在对话里用掉 %lld 积分后，你也得到 %lld 积分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A friend who enters your code gets %1$lld credits right away. Once they buy credits or use %2$lld credits in conversations, you get %3$lld credits too."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un amigo que introduzca tu código recibe %1$lld créditos al instante. Cuando compre créditos o gaste %2$lld créditos en conversaciones, tú también recibirás %3$lld créditos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちがあなたの招待コードを入力すると、すぐに %1$lld クレジットがもらえます。その友だちがクレジットを購入するか、会話で %2$lld クレジットを使うと、あなたにも %3$lld クレジットが入ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구가 내 초대 코드를 입력하면 바로 %1$lld 크레딧을 받아요. 그 친구가 크레딧을 구매하거나 대화에서 %2$lld 크레딧을 쓰면 나도 %3$lld 크레딧을 받아요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好友填写你的邀请码，立刻得到 %1$lld 积分；好友买过积分，或者在对话里用掉 %2$lld 积分后，你也得到 %3$lld 积分。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好友填寫你的邀請碼，立刻得到 %1$lld 積分；好友買過積分，或是在對話裡用掉 %2$lld 積分後，你也得到 %3$lld 積分。"
+          }
+        }
+      }
+    },
+    "好友填写你的邀请码，立刻得到 %lld 积分；好友买过积分后，你也得到 %lld 积分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A friend who enters your code gets %1$lld credits right away. Once they buy credits, you get %2$lld credits too."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un amigo que introduzca tu código recibe %1$lld créditos al instante. Cuando compre créditos, tú también recibirás %2$lld créditos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちがあなたの招待コードを入力すると、すぐに %1$lld クレジットがもらえます。その友だちがクレジットを購入すると、あなたにも %2$lld クレジットが入ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구가 내 초대 코드를 입력하면 바로 %1$lld 크레딧을 받아요. 그 친구가 크레딧을 구매하면 나도 %2$lld 크레딧을 받아요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好友填写你的邀请码，立刻得到 %1$lld 积分；好友买过积分后，你也得到 %2$lld 积分。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好友填寫你的邀請碼，立刻得到 %1$lld 積分；好友買過積分後，你也得到 %2$lld 積分。"
+          }
+        }
+      }
+    },
     "字标" : {
       "localizations" : {
         "en" : {
@@ -8861,6 +9497,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "完成 · 用時 %@"
+          }
+        }
+      }
+    },
+    "对方已经填过你的邀请码，不能互相填写。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They’ve already entered your code, so you can’t enter theirs."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esa persona ya introdujo tu código, así que no puedes introducir el suyo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相手がすでにあなたの招待コードを入力しているため、お互いに入力し合うことはできません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상대가 이미 내 초대 코드를 입력해서 서로 입력할 수는 없어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "對方已經填過你的邀請碼，不能互相填寫。"
           }
         }
       }
@@ -8997,6 +9667,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已經裝在 Apple Watch 上"
+          }
+        }
+      }
+    },
+    "已邀请" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invited"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invitados"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待済み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "초대한 친구"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已邀請"
+          }
+        }
+      }
+    },
+    "奖励已到账" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rewarded"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recompensados"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "特典を受け取り済み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보상 받음"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "獎勵已入帳"
+          }
+        }
+      }
+    },
+    "等好友用起来" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not using it yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no la usan"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだ使い始めていない"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 사용 전"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等好友用起來"
           }
         }
       }
@@ -9337,6 +10109,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "我們正在想辦法讓這類裝置也能使用，有進展會在之後的版本中更新。"
+          }
+        }
+      }
+    },
+    "我在用 Fish Pocket，在 iPhone 上就能和 DeepSeek 对话，还能让它帮我干活。下载后登录 Fish Pocket 账号，在「邀请好友」里填我的邀请码 %@，就能得到 %lld 积分。\n%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I’m using Fish Pocket to chat with DeepSeek on my iPhone and have it get things done for me. Download it, sign in to a Fish Pocket Account, and enter my invite code %1$@ under Invite Friends to get %2$lld credits.\n%3$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uso Fish Pocket para hablar con DeepSeek en mi iPhone y que me ayude con mis tareas. Descárgala, inicia sesión en una cuenta de Fish Pocket e introduce mi código de invitación %1$@ en Invitar amigos para recibir %2$lld créditos.\n%3$@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket を使うと、iPhone で DeepSeek と会話したり、作業を任せたりできます。ダウンロードして Fish Pocket アカウントにサインインし、「友だちを招待」で招待コード %1$@ を入力すると、%2$lld クレジットがもらえます。\n%3$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fish Pocket으로 iPhone에서 DeepSeek와 대화하고 일도 맡기고 있어요. 다운로드 후 Fish Pocket 계정에 로그인하고 친구 초대에서 내 초대 코드(%1$@)를 입력하면 %2$lld 크레딧을 받아요.\n%3$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我在用 Fish Pocket，在 iPhone 上就能和 DeepSeek 對話，還能讓它幫我做事。下載後登入 Fish Pocket 帳號，在「邀請好友」裡填我的邀請碼 %1$@，就能得到 %2$lld 積分。\n%3$@"
+          }
+        }
+      }
+    },
+    "我的邀请码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Invite Code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mi código de invitación"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたの招待コード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 초대 코드"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的邀請碼"
           }
         }
       }
@@ -11168,6 +12008,40 @@
         }
       }
     },
+    "新注册的账号要在 %@ 前填写，每个账号只能填一次。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New accounts must enter a code before %@. Each account can enter one."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las cuentas nuevas deben introducir un código antes del %@. Cada cuenta puede introducir uno solo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいアカウントは %@ までに入力してください。1 アカウントにつき 1 回だけ入力できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 계정은 %@ 전에 입력해야 하고, 계정당 한 번만 입력할 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新註冊的帳號要在 %@ 前填寫，每個帳號只能填一次。"
+          }
+        }
+      }
+    },
     "日历、提醒、通讯录、照片这类事，智能体会直接用本机能力去做，又快又准。只有必须点开别的 App 才能完成时，它才会用 iCTRL。" : {
       "localizations" : {
         "en" : {
@@ -11483,6 +12357,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "AI 代理看到的其他 App 畫面，會隨對話傳給你選的模型服務商。付款、刪除、幫你傳訊息前，它會先問你；密碼和驗證碼由你自己輸入。"
+          }
+        }
+      }
+    },
+    "暂时无法领取，请稍后再试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t claim the reward right now. Try again later."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede canjear ahora. Inténtalo más tarde."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在受け取れません。しばらくしてからもう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금은 받을 수 없어요. 잠시 후 다시 시도해 주세요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暫時無法領取，請稍後再試。"
           }
         }
       }
@@ -13463,6 +14371,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "回到上次的對話"
+          }
+        }
+      }
+    },
+    "每个账号只能填一次。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each account can enter one code."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada cuenta puede introducir un solo código."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 アカウントにつき 1 回だけ入力できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정당 한 번만 입력할 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每個帳號只能填一次。"
           }
         }
       }
@@ -17287,6 +18229,40 @@
         }
       }
     },
+    "这个邀请码的邀请人数已满。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This invite code has reached its limit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este código de invitación ya alcanzó su límite."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この招待コードは招待人数の上限に達しています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 초대 코드는 초대 인원이 다 찼어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這個邀請碼的邀請人數已滿。"
+          }
+        }
+      }
+    },
     "这台设备暂时用不了 Fish Pocket" : {
       "localizations" : {
         "en" : {
@@ -18201,6 +19177,210 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "連線成功，可以按住說話了"
+          }
+        }
+      }
+    },
+    "邀请好友" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invite Friends"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invitar amigos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちを招待"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구 초대"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請好友"
+          }
+        }
+      }
+    },
+    "邀请好友或填写好友的邀请码，都能得到 %lld 积分。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invite friends or enter a friend’s code to get %lld credits."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invita a amigos o introduce el código de un amigo para recibir %lld créditos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちを招待するか、友だちの招待コードを入力すると %lld クレジットがもらえます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구를 초대하거나 친구의 초대 코드를 입력하면 %lld 크레딧을 받아요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請好友或填寫好友的邀請碼，都能得到 %lld 積分。"
+          }
+        }
+      }
+    },
+    "邀请好友，各得 %lld 积分" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invite Friends, Get %lld Credits Each"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invita a amigos y recibid %lld créditos cada uno"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちを招待して、それぞれ %lld クレジット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구 초대하고 각자 %lld 크레딧 받기"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請好友，各得 %lld 積分"
+          }
+        }
+      }
+    },
+    "邀请码" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invite Code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Código"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待コード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "초대 코드"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請碼"
+          }
+        }
+      }
+    },
+    "邀请码不存在，请检查后再试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That invite code doesn’t exist. Check it and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese código de invitación no existe. Revísalo e inténtalo de nuevo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この招待コードは存在しません。確認してもう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "존재하지 않는 초대 코드예요. 확인 후 다시 시도해 주세요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請碼不存在，請檢查後再試。"
+          }
+        }
+      }
+    },
+    "邀请码只能在注册后 7 天内填写。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invite codes can only be entered within 7 days of signing up."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los códigos de invitación solo se pueden introducir en los 7 días siguientes al registro."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待コードは登録から 7 日以内にのみ入力できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "초대 코드는 가입 후 7일 안에만 입력할 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請碼只能在註冊後 7 天內填寫。"
           }
         }
       }
@@ -105331,6 +106511,40 @@
         }
       }
     },
+    "领取" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claim"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Canjear"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "受け取る"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받기"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "領取"
+          }
+        }
+      }
+    },
     "频率" : {
       "localizations" : {
         "en" : {
@@ -115872,6 +117086,40 @@
         }
       }
     },
+    "好友的邀请奖励已到账 %lld 积分" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld credits added from a friend’s invite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se añadieron %lld créditos por la invitación de un amigo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "友だちの招待特典 %lld クレジットを受け取りました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구 초대 보상 %lld 크레딧이 추가됐어요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好友的邀請獎勵已入帳 %lld 積分"
+          }
+        }
+      }
+    },
     "省 %@" : {
       "localizations" : {
         "en" : {
@@ -116517,6 +117765,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "活動贈送"
+          }
+        }
+      }
+    },
+    "邀请奖励" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invite Reward"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recompensa por invitación"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待特典"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "초대 보상"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請獎勵"
+          }
+        }
+      }
+    },
+    "今天的邀请名额已经发完了，明天再来吧。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's invite rewards have all been claimed. Try again tomorrow."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las recompensas por invitación de hoy ya se agotaron. Vuelve a intentarlo mañana."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本日の招待特典は上限に達しました。明日もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 초대 보상이 모두 소진됐어요. 내일 다시 시도해 주세요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天的邀請名額已經發完了，明天再來吧。"
+          }
+        }
+      }
+    },
+    "邀请活动暂未开放。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invites aren't available right now."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las invitaciones no están disponibles por ahora."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "招待は現在ご利用いただけません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금은 초대 기능을 이용할 수 없어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邀請活動暫未開放。"
           }
         }
       }

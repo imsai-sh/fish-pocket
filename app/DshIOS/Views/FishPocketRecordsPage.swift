@@ -327,6 +327,7 @@ struct FishPocketRecordsPage: View {
         case .refund: "App Store 退款"
         case .admin: "Fish Pocket 发放"
         case .promotion: "活动赠送"
+        case .invite: "邀请奖励"
         case .subscription: "订阅额度"
         }
     }

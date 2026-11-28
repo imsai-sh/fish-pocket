@@ -43,10 +43,11 @@ struct FishPocketPage: View {
             VStack(spacing: 24) {
                 if account.signedIn {
                     VStack(spacing: 10) {
-                        FishPocketBalance(balance: account.balance, depleted: topUp, sells: account.canPurchase)
+                        FishPocketBalance(balance: account.balance, expiring: account.expiring, depleted: topUp, sells: account.canPurchase)
                         if !topUp { recordsLink }
                     }
                     if account.canPurchase { packs } else { FishPocketNoPurchaseNote() }
+                    if !topUp, let invites = account.invites { FishPocketInviteRow(invites: invites) }
                     FishPocketUses(rate: account.tokensPerCredit)
                     FishPocketRules()
                     if !topUp { accountCard }
@@ -78,7 +79,10 @@ struct FishPocketPage: View {
         .task { if UserDefaults.standard.string(forKey: "dshOpen") == "credits", account.signedIn, !topUp { recordsOpen = true } }
         #endif
         .task { if account.packs.isEmpty { await account.loadPacks() } }
-        .task(id: account.signedIn) { if !account.signedIn { await account.loadSignInOptions() } }
+        // Signed out, the ways to sign in; signed in (after signing in too), the invites.
+        .task(id: account.signedIn) {
+            if account.signedIn { await account.loadInvites() } else { await account.loadSignInOptions() }
+        }
         .refreshable { await account.refresh() }
         .sheet(isPresented: $phoneSheet) { PhoneSignInSheet().environment(app) }
         .alert("退出登录", isPresented: $confirmingSignOut) {
@@ -290,7 +294,7 @@ extension View {
     }
 }
 
-private struct CardSurface: ViewModifier {
+struct CardSurface: ViewModifier {
     var selected = false
     @Environment(\.colorScheme) private var colorScheme
 
@@ -477,6 +481,8 @@ struct FishPocketIntro: View {
 /// The balance, as the page's heading: the number is what the account holds.
 struct FishPocketBalance: View {
     let balance: Int?
+    /// The part that expires soonest (invite rewards).
+    var expiring: (credits: Int, date: Date)?
     /// The conversation that opened the page ran out.
     var depleted = false
     /// Packs are sold on this page: running out says to buy one.
@@ -495,6 +501,12 @@ struct FishPocketBalance: View {
             .contentTransition(.numericText())
             .lineLimit(1)
             .minimumScaleFactor(0.5)
+            if let expiring, !depleted {
+                Text("其中 \(expiring.credits) 积分将在 \(expiring.date.formatted(date: .abbreviated, time: .omitted)) 过期")
+                    .font(.footnote)
+                    .foregroundStyle(Palette.secondary)
+                    .multilineTextAlignment(.center)
+            }
             if depleted, sells {
                 Text("购买额度后，把刚才的消息重新发送一次。")
                     .font(.footnote)
