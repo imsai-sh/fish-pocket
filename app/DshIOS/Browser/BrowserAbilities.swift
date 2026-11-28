@@ -33,9 +33,9 @@ enum EnginePath {
     }
 
     /// A file not yet there: a name not taken in `directory` (an engine path), its folder made.
-    static func fresh(_ name: String, in directory: String) throws -> String {
+    static func fresh(_ name: String, in directory: String, createDirectory: Bool = true) throws -> String {
         let realDirectory = try real(directory)
-        try FileManager.default.createDirectory(atPath: realDirectory, withIntermediateDirectories: true)
+        if createDirectory { try FileManager.default.createDirectory(atPath: realDirectory, withIntermediateDirectories: true) }
         let safe = name.replacingOccurrences(of: "/", with: "_").trimmingCharacters(in: .whitespaces)
         let base = safe.isEmpty ? "download" : safe
         let stem = (base as NSString).deletingPathExtension
@@ -364,7 +364,7 @@ extension BrowserPage {
         return agent
     }
 
-    func agentRequest(_ args: [String: Any], caller: String) async throws -> [String: Any] {
+    func agentRequest(_ args: [String: Any], caller: String, shellOutput: String? = nil) async throws -> [String: Any] {
         let input = args["url"] as? String ?? ""
         guard let url = URL(string: input), let scheme = url.scheme?.lowercased(), scheme == "http" || scheme == "https",
               url.host() != nil else {
@@ -411,7 +411,7 @@ extension BrowserPage {
 
         if let path = args["path"] as? String {
             let target = EnginePath.absolute(path, cwd: cwd)
-            try EnginePath.write(try Data(contentsOf: temporary), to: target)
+            try EnginePath.write(try Data(contentsOf: temporary), to: shellOutput ?? target)
             answer["savedTo"] = target
         } else if textual, bytes <= 2_000_000, let data = try? Data(contentsOf: temporary),
                   let body = String(data: data, encoding: .utf8) {
@@ -422,8 +422,8 @@ extension BrowserPage {
             }
         } else {
             let name = http.suggestedFilename ?? url.lastPathComponent
-            let target = try EnginePath.fresh(name.isEmpty ? "download" : name, in: EnginePath.downloads(of: caller))
-            try EnginePath.write(try Data(contentsOf: temporary), to: target)
+            let target = try EnginePath.fresh(name.isEmpty ? "download" : name, in: EnginePath.downloads(of: caller), createDirectory: shellOutput == nil)
+            try EnginePath.write(try Data(contentsOf: temporary), to: shellOutput ?? target)
             answer["savedTo"] = target
         }
         return answer
@@ -536,16 +536,16 @@ extension BrowserPage {
         }
     }
 
-    func agentPDF(path: String?, caller: String) async throws -> [String: Any] {
+    func agentPDF(path: String?, caller: String, shellOutput: String? = nil) async throws -> [String: Any] {
         let data = try await pagePDF()
         let target: String
         if let path {
             target = EnginePath.absolute(path, cwd: EnginePath.workingDirectory(of: caller))
         } else {
             let title = (webView.title?.isEmpty == false ? webView.title : page?.host()) ?? "page"
-            target = try EnginePath.fresh(String(title.prefix(80)) + ".pdf", in: EnginePath.downloads(of: caller))
+            target = try EnginePath.fresh(String(title.prefix(80)) + ".pdf", in: EnginePath.downloads(of: caller), createDirectory: shellOutput == nil)
         }
-        try EnginePath.write(data, to: target)
+        try EnginePath.write(data, to: shellOutput ?? target)
         let pages = CGDataProvider(data: data as CFData).flatMap(CGPDFDocument.init)?.numberOfPages ?? 0
         return ["savedTo": target, "bytes": data.count, "pages": pages, "url": webView.url?.absoluteString ?? ""]
     }

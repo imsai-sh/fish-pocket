@@ -12,6 +12,8 @@ import { Service } from '@deepseek-ai/cordis';
 import { capabilities, invoke } from './binding.mjs';
 import { callerClaim } from './caller.mjs';
 import { TOOLS } from './tools.mjs';
+import { registerDeviceTools } from './cli.mjs';
+import { explainScheduleDeletion } from './schedule-notice.mjs';
 
 /**
  * `ctx.iosNative` — the same path the engine's own tools take.
@@ -80,15 +82,19 @@ export default function IosNative(ctx) {
     },
   );
 
+  if (available.notify) ctx.on('agent/pre-step', explainScheduleDeletion);
+
   // One tool per capability the addon actually implements. A tool whose
   // capability is missing is never registered, so the addon's table stays the
   // single source of truth for what exists.
   ctx.inject(['tools'], (toolsCtx) => {
+    const definitions = [];
     for (const [capability, tool] of Object.entries(TOOLS)) {
       if (available[capability] === undefined) continue;
       const definition = typeof tool === 'function' ? tool(toolsCtx) : tool;
-      toolsCtx.effect(() => toolsCtx.tools.register(definition), `ios-native ${capability} tool`);
+      definitions.push(definition);
     }
+    registerDeviceTools(toolsCtx, definitions);
     toolsCtx.logger.info('native capabilities: %s', Object.keys(available).join(', '));
   });
 }

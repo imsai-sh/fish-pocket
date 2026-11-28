@@ -1,6 +1,6 @@
 ---
 name: mini-apps
-description: Make or change an app for Mini Apps - a small tool or game the user keeps on this phone and opens full screen, from the app or a home-screen widget. Load this skill whenever the user asks for a mini app, a small tool, utility, calculator, tracker, timer or game they want to keep and use, or asks to change or fix one under ~/apps.
+description: Build or fix Fish Pocket Mini Apps in ~/apps, such as launchable utilities, calculators, trackers or games.
 ---
 
 # Mini apps
@@ -22,7 +22,7 @@ The app ships three examples, `~/apps/days` and `~/apps/pomodoro` (tools) and `~
 
 ## Working copy and published copy
 
-Your files are the working copy. The user opens the published copy, which the app makes from them, compiled, when your turn ends (or the first time the app is opened). So the user never sees an app you are halfway through, and your changes reach them once you finish. `.build` and `.build-previous` in the app's folder are those copies: leave them alone, and do not read them for the app's code. The `browser` tool at `fishapp://<id>/` shows your working copy as it is now.
+Your files are the working copy. The user opens the published copy, which the app makes from them, compiled, when your turn ends (or the first time the app is opened). So the user never sees an app you are halfway through, and your changes reach them once you finish. `.build` and `.build-previous` in the app's folder are those copies: leave them alone, and do not read them for the app's code. The workbench browser at `fishapp://<id>/` shows your working copy as it is now.
 
 ## How code runs
 
@@ -59,7 +59,7 @@ node /opt/dsh/nodejs-project/skills/mini-apps/scripts/check.mjs <id>
 
 It reads `app.json`, compiles every module with the same compiler the app uses, and resolves every import. Do not install React, esbuild, Sucrase or a bundler, and do not write a preview page or start a server: the app itself can be opened.
 
-To see it running, open `fishapp://<id>/` with the `browser` tool and take a screenshot. That is the real app, served the way the user's phone serves it. Run-time errors are in the page's console. Its storage there belongs to the browser, not to the user's copy, so what you click or save while testing does not reach the user.
+To see it running, load `browser-cli`, run `browser open fishapp://<id>/` and take a screenshot. That is the real app, served the way the user's phone serves it. Run-time errors are in the page's console. Its storage there belongs to the browser, not to the user's copy, so what you click or save while testing does not reach the user.
 
 If the app fails when the user opens it, they see the error with a button that starts a new conversation asking you to fix it, with the error and the app's path.
 

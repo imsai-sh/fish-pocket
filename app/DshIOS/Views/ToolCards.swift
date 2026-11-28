@@ -425,6 +425,7 @@ struct TerminalCard: View {
             } else {
                 WrappedOutput(text: output, tint: state == .error ? Palette.removed : nil)
             }
+            if !call.resultImages.isEmpty { ImageGroup(attachments: call.resultImages) }
             if let badge = status?.badge { Text(badge).font(.caption.weight(.medium)).foregroundStyle(Palette.removed) }
         }
         .modifier(ToolCardBox())

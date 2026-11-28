@@ -6,6 +6,7 @@
 import { defineTool } from '@deepseek-ai/dsh-tools';
 import { describe, invoke as invokeNative } from './binding.mjs';
 import { ENGINE_CLAIM } from './caller.mjs';
+import { browserFileWriter } from '../../runtime/action-command.mjs';
 
 // These are the engine's own tools, so every call from here claims the engine.
 // It is still only a claim — nothing downstream treats it as proof.
@@ -1918,7 +1919,9 @@ const browser = (ctx, catalog = describe('browser') ?? NO_CATALOG) => defineTool
       if (attachments === undefined) throw new Error('browser: this engine has no attachment store, so it cannot show images');
       await assertSeesImages(ctx, exec);
     }
-    const value = await invoke('browser', action, { ...rest, session });
+    const perform = params => invoke('browser', action, { ...params, session });
+    const writer = (action === 'pdf' || action === 'request') && browserFileWriter(exec.agent);
+    const value = writer ? await writer(rest, perform) : await perform(rest);
     if (typeof value?.image?.data !== 'string') return value;
 
     // The picture goes to the attachment store; the model gets a reference.

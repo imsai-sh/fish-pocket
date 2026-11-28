@@ -21,6 +21,18 @@ test('the catalog description sends plugin work here', () => {
   assert.match(/^description: (.+)$/m.exec(text)[1], /\bplugin\b/);
 });
 
+test('the skill catalog distinguishes phone notifications from scheduled agent work', () => {
+  const description = /^description: (.+)$/m.exec(text)[1];
+  assert.match(description, /device notify schedule --after-seconds/);
+  assert.match(description, /schedule_create/);
+});
+
+test('the loaded skill leaves the notification delay and message to the current request', () => {
+  const section = /## Device capabilities\n([\s\S]*?)\n## /.exec(text)[1];
+  const examples = [...section.matchAll(/`device notify schedule ([^`]+)`/g)].map(match => match[1]);
+  assert.deepEqual(examples, ["--after-seconds SECONDS --body 'MESSAGE'"]);
+});
+
 test('every command listed as existing exists', () => {
   const section = /## Commands that exist\n([\s\S]*?)\n## /.exec(text)[1];
   const listed = [...section.matchAll(/`([^`]+)`/g)].flatMap((m) => m[1].split(' '));
@@ -28,7 +40,7 @@ test('every command listed as existing exists', () => {
   // Shell builtins are not commands of the world.
   const builtin = new Set(['type', 'command']);
   // FFmpeg and open (the native addon) exist in the app only: a development machine has no binding for them.
-  const appOnly = new Set([...FFMPEG_COMMANDS, ...OPEN_COMMANDS]);
+  const appOnly = new Set([...FFMPEG_COMMANDS, ...OPEN_COMMANDS, 'browser', 'device']);
   assert.deepEqual(listed.filter((name) => !COMMANDS.has(name) && !builtin.has(name) && !appOnly.has(name)), []);
 });
 

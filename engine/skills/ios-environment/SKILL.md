@@ -1,6 +1,6 @@
 ---
 name: ios-environment
-description: This session runs inside an iOS app, not on a desktop, and many commands do not exist. Load this skill before relying on a shell command you are unsure of, whenever one fails or behaves unexpectedly, before writing or changing a DSH plugin, because the app's native interface does not run a plugin's browser code, so plugins here get no UI, and before operating another app on this phone.
+description: When the current request asks for a reminder later, load this skill and use `device notify schedule --after-seconds N --body TEXT` in bash. Leave an existing or canceled reminder alone unless the user asks to change it. Use `schedule_create` when the agent must do work at that time. Also load for calendar, Reminders lists, photos, opening apps, unfamiliar iOS shell commands and DSH plugin work.
 ---
 
 # Working on iOS
@@ -22,7 +22,9 @@ Anything not listed here should be assumed missing.
 - **Network:** `curl`
 - **Development:** `git node pnpm pnpx`
 - **Video and audio:** `ffmpeg ffprobe` (see the Video and audio section below)
-- **Links:** `open xdg-open` hand a URL to the phone, so code that opens the system browser (a plugin's sign-in, a CLI's docs link) works. URLs only, the same schemes as the open_url tool; a file path fails. To take the user somewhere yourself, use that tool
+- **Phone capabilities:** `device` (calendar, photos, notifications and other system services)
+- **Workbench browser:** `browser` (load the browser-cli skill for usage)
+- **Links:** `open xdg-open` hand a URL to the phone, so code that opens the system browser (a plugin's sign-in, a CLI's docs link) works. URLs only, the same schemes as device open_url; a file path fails.
 - **Shell:** `bash sh env printenv which type command date sleep timeout time xargs yes true false expr whoami hostname pwd history alias unalias clear help`
 
 Python and pip also exist: see the Python section below.
@@ -157,7 +159,11 @@ Services the user has connected under 连接器 (Connectors) on the app's 探索
 
 ## Device capabilities
 
-You have tools onto the phone itself. They are not shell commands: `device_info`, `notify`, `open_url`, `text_analysis`, `maps`, `image_analysis`, `clipboard`, `location`, `calendar`, `reminders`, `transcribe_audio`, `health`, `photos`, `homekit`, `alarm`, `contacts`, `compose`, `files`, `music`, `weather`, `browser`. **Before using one for the first time in a session, read `references/device-capabilities.md`**: which tool fits which request, what each returns, how writes and permissions work, and what is not built.
+Run `device --help` through `bash` to list this conversation's capabilities. Use `device calendar list` for appointments and `device <capability> --help` for actions and flags. Permissions and results are in `references/device-capabilities.md`.
+
+A scheduler notice with `change: deleted` closes the old task. A replacement phone notification needs a new request from the user. The old task title and an updated Skill catalog are context. If the user's latest message is just an acknowledgment, reply to it. If they ask to set it again, follow that new request.
+
+For a phone alert the user is asking for now, use `device notify schedule --after-seconds SECONDS --body 'MESSAGE'` with the delay and message from that request. The phone can alert them even if the app is closed. For an item in the Reminders app, use `device reminders create --title 'TITLE'`.
 
 Three rules hold even before you read it:
 
@@ -178,31 +184,16 @@ You cannot tap through other apps by yourself. If the user has set up **iCTRL** 
 
 Rules that hold even before you read it:
 
-- Use it last: device capabilities, `open_url` and the `browser` tool come first, because they are faster and do not take over the screen.
+- Use it last: `device` commands, `device open_url` and the workbench browser come first, because they are faster and do not take over the screen.
 - Whenever you stop to talk to the user (done, a question, a go-ahead, something only they can do, an error), first return to this app (`${FISH_POCKET_URL_SCHEME:-fishpocket}://`, through the service's own `open_url`), then write. They are looking at the other app and cannot see this conversation.
 - Payments, deletions, sending messages and account changes need the user's go-ahead first. Passwords, codes and captchas are theirs.
 - Never switch on its remote access or nearby discovery.
 
 ## Web browser
 
-The `browser` tool drives this conversation's own browser: real WebKit pages, the ones the user sees under Workbench → Browser. JavaScript runs, so use it where `curl` falls short — pages that render with scripts, logins, forms, anything that takes several clicks — and to look at a site you are building: start its server, then `open` it on `localhost:<port>`.
+Load `browser-cli` for interactive pages and screenshots in the conversation's workbench. Use `web_fetch` for public page text. Run `browser --help` for the installed actions.
 
-- `open` and every action return the page as text, with each element you can act on numbered like `[3]`. Pass that number as `index`. Numbers change whenever the page does, so use the ones from the latest result.
-- `screenshot` shows the visible part of the page as an image (`fullPage: true` for all of it): use it for layout, pictures and charts, not to read text. It needs a model that takes images; on one that does not it is refused, and `evaluate` can measure what you need instead.
-- Beyond clicking and typing: `evaluate` runs a script once; `addScript` keeps one running before the site's own scripts on every page load (to intercept requests or prepare the page), listed by `scripts` and removed by `removeScript`. `logs` returns the page's console output, uncaught errors and the requests its scripts made, recorded all the time.
-- `request` sends an HTTP request as this browser — its cookies and user agent, no CORS — and can save the body to a file. `cookies`, `setCookie` and `deleteCookie` reach every cookie, HttpOnly ones and other sites' included. What they return can include sign-in tokens: use them for the task, never repeat them to the user.
-- Files: a link or response the page cannot show is downloaded into `downloads/` of the working directory (`downloads` lists them); `upload` puts workspace files into a numbered file field without the picker; `pdf` saves the page as a PDF. Relative paths are from the working directory.
-- `type` and `click` are script events, which a site that checks `isTrusted` ignores. `keys` types through the system keyboard instead: the page gets trusted `beforeinput` and `input` events (no `keydown`), and a newline presses Return.
-- What it cannot do: real taps (find another way in, such as the data the page embeds), or keeping `addScript` scripts across an app restart.
 - Whose browser: a subagent uses the one of the conversation that started it. A Bot's own chat uses the Bot's, kept when the chat moves on to a new part, so pages opened in an earlier part are still there: call `tabs` before opening them again.
-- It has tabs, and you and the user share them: there are no "user's" and "agent's" tabs. `tabs` lists them with their ids (`t1`, `t2`…), which one is in front (what the user sees) and which one you last used. `new_tab` opens one (with `url` to load a page), `select_tab` brings one to the front, `close_tab` closes one.
-- Every other action works in the tab you pass as `tab`, or else the one you last used. So the user switching tabs or opening links does not move you; results say when the user has another tab in front. Before your first `open`, `open` takes a blank tab in front or opens a new one, never replacing a page the user is on.
-- To take over a page the user opened, call `tabs` and `select_tab` it (or pass its id as `tab`). To hand one to the user, `select_tab` it so it is in front.
-- A link inside a page that would open a new window opens in the same tab.
-- Sites see a phone and usually send their mobile version. For the desktop (PC) version, pass `desktop: true` with `open` or `reload`; `desktop: false` goes back. The choice is kept for that site, and the user can switch it from the browser's menu too.
-- Sign-ins are kept across app launches and shared by every conversation's browser, but not with Safari. If a site wants a login, ask the user to sign in in the workbench once. Never type a password, card number or other secret yourself.
-- The user can watch and take over at any time; when you stop, say what is on the page.
-- A web link the user taps in your reply opens in a new tab of this browser, in front. So a Markdown link to `http://localhost:<port>` lets them look at a server you started, signed in as you are.
 
 ## Not possible at all
 

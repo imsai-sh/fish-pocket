@@ -20,6 +20,8 @@ import {
 import { CONFINE } from '../sandbox-ios/index.mjs';
 import { BIN, COMMANDS, planArgv, shell, stringEnv } from '../../runtime/shell.mjs';
 import { planDirect } from '../../runtime/direct.mjs';
+import { scopeOf } from '@deepseek-ai/dsh-scope';
+import { withActionCaller } from '../../runtime/action-command.mjs';
 import { startNodeWorker } from '../../runtime/node-worker.mjs';
 import { drained, planNative, startNative } from '../../runtime/native-programs.mjs';
 import { LineEditor, keys } from '../../runtime/line-editor.mjs';
@@ -233,6 +235,8 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
 
   /** A line-editing terminal whose lines run through just-bash, keeping cwd and exported variables between lines. */
   async spawnTerminal(spec) {
+    const agent = scopeOf(this.ctx);
+    const owner = agent && { agent, agents: this.ctx.get('agents'), tools: this.ctx.get('tools') };
     const output = new PassThrough();
     let cwd = spec.cwd;
     let env = stringEnv({ ...scrubbedParentEnv(), ...spec.env });
@@ -255,7 +259,8 @@ export class IosSubprocessRuntime extends SubprocessRuntime {
       current = new AbortController();
       revision++;
       try {
-        const result = await shell().exec(`${text}\nprintf '\\0%s' "$PWD"`, { cwd, env, replaceEnv: true, signal: current.signal });
+        const result = await withActionCaller(owner && { ...owner, signal: current.signal }, () =>
+          shell().exec(`${text}\nprintf '\\0%s' "$PWD"`, { cwd, env, replaceEnv: true, signal: current.signal }));
         const marker = result.stdout.lastIndexOf('\0');
         const shown = marker >= 0 ? result.stdout.slice(0, marker) : result.stdout;
         // just-bash reports PWD without its leading slash when rooted at /.

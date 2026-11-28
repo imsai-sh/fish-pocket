@@ -1,8 +1,8 @@
 # Device capabilities
 
-You have tools onto the phone itself. They are not shell commands — there is no `apple-*` binary to run, and the shell cannot reach any of this.
+Use the built-in shell command `device <capability> [action] [flags]`. Run `device --help` for available capabilities and `device <capability> --help` for its actions, parameters and types. Pass arrays as quoted JSON, for example `device files export --paths '["/path/to/file"]'`.
 
-| Tool | What it does | Worth knowing |
+| Capability | What it does | Worth knowing |
 |---|---|---|
 | `device_info` | Model, iOS version, battery, low power mode, thermal state, free storage | Read it before long or storage-hungry work. Low power mode and a `serious`/`critical` thermal state are good reasons to stop and say so |
 | `notify` | Schedule, list and cancel local notifications | This is the right answer to "remind me in 20 minutes": it alerts the user with the app closed. Needs the user to switch notifications on under Device capabilities first; until then it refuses, and the refusal says so |
@@ -25,7 +25,7 @@ You have tools onto the phone itself. They are not shell commands — there is n
 | `music` | Search their own music library (songs, albums, artists, playlists), start one playing in the Music app, pause, skip, and say what is playing | **Their library only, not the Apple Music catalogue** — a song they never added cannot be found or played, so never promise "any song"; when `search` comes back empty, say it is not in their library. `play` takes ids, not names: `search` or `playlists` first, then pass the id back as the string it came as. `search` returns every match in library order, not best first — when several match, say which you picked or ask. `play` replaces their queue in Music and keeps going after this app closes. A `cloud` song needs a connection. After `next`/`previous`, call `now` to see what is playing |
 | `weather` | Current conditions, an hourly forecast (up to 240 h) and a daily forecast (up to 10 days) for a coordinate, from Apple Weather | No permission and it never reads where the user is: **every call takes `latitude`/`longitude`, not a place name**. "Here" means `location current` first; a named place means `location geocode` or `maps search`, then pick the result. Units are fixed — °C, km/h, hPa, km, mm; humidity, cloud cover and precipitation chance are 0–1. **All times are UTC**, not local to the place: convert before saying an hour, and expect a `daily` date to read one day early east of Greenwich (it is that day's local midnight written in UTC). No alerts, no minute-by-minute rain, no past weather. Keep the final `Weather data: …` line when you relay a forecast — Apple's licence requires the credit. If it says weather is not enabled for this build, do not retry; tell the user it is not available in this version |
 
-The `browser` tool is described in the main skill file under **Web browser**: it drives the conversation's browser in the workbench, not the phone.
+Load `browser-cli` to use the separate `browser` shell command for the workbench browser.
 
 These only exist inside the app. They are absent on a development machine, so do not write a plugin that assumes them without checking.
 

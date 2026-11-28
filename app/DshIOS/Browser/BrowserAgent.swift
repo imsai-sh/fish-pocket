@@ -22,6 +22,13 @@ import WebKit
     @MainActor
     private static func perform(_ op: String, _ args: [String: Any]) async throws -> [String: Any] {
         guard let session = args["session"] as? String else { throw BrowserAgentError("missing session") }
+        var args = args
+        var shellOutput: String?
+        if (op == "pdf" || op == "request"), let file = args["shellOutputFile"] as? String,
+           file.wholeMatch(of: #/\/tmp\/fish-pocket-browser-[a-zA-Z0-9]{6}\/output/#) != nil {
+            shellOutput = file
+            args.removeValue(forKey: "shellOutputFile")
+        }
         try BrowserCatalog.check(op, args)
         guard let app = EngineConnection.shared.app else {
             throw BrowserAgentError("the app is still connecting to its engine; try again in a moment")
@@ -99,12 +106,12 @@ import WebKit
             case "evaluate": return try await page.agentEvaluate(args["script"] as? String ?? "")
             case "screenshot":
                 return try await (args["fullPage"] as? Bool == true ? page.agentFullPageScreenshot() : page.agentScreenshot())
-            case "pdf": return try await page.agentPDF(path: args["path"] as? String, caller: session)
+            case "pdf": return try await page.agentPDF(path: args["path"] as? String, caller: session, shellOutput: shellOutput)
             case "logs":
                 return page.agentLogs(
                     kind: args["kind"] as? String ?? "all", limit: (args["limit"] as? NSNumber)?.intValue ?? 100,
                     clear: args["clear"] as? Bool ?? false)
-            case "request": return try await page.agentRequest(args, caller: session)
+            case "request": return try await page.agentRequest(args, caller: session, shellOutput: shellOutput)
             case "cookies": return try await page.agentCookies(url: args["url"] as? String, domain: args["domain"] as? String)
             case "setCookie": return try await page.agentSetCookie(args)
             case "deleteCookie": return try await page.agentDeleteCookie(name: args["name"] as? String ?? "", domain: args["domain"] as? String)
