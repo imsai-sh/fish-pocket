@@ -587,7 +587,7 @@ struct ConversationView: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .contentShape(Rectangle())
         .onTapGesture { dismissKeyboard() }
-        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { LayoutLoopGuard.tick("ConversationHero.height"); heroHeight = $0 }
         .onGeometryChange(for: CGFloat?.self) { proxy in
             proxy.fold.flatMap { $0.width > $0.height ? $0.minY : nil }
         } action: { heroFold = $0 }
@@ -2002,7 +2002,7 @@ private struct CommandBlock: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
-                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height = $0 }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { LayoutLoopGuard.tick("CommandBlock.height"); height = $0 }
             }
             .frame(height: min(height, limit))
             .scrollBounceBehavior(.basedOnSize)

@@ -51,7 +51,7 @@ struct MiniAppsPage: View {
         // The page's own size, not its content's: a grid laid out for a wider page (a sheet's first
         // pass at the window's width, an iPad turned upright) would hold the content at that width.
         // The size is already what shows between the bars and beside the screen's edges.
-        .onGeometryChange(for: CGSize.self) { $0.size } action: { page = $0 }
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { LayoutLoopGuard.tick("MiniAppsPage.size"); page = $0 }
         // As in a conversation: any drag on the page or a tap on it puts the bar's keyboard away.
         // The tap a moment later, so an icon under the finger opens first.
         .scrollDismissesKeyboard(.immediately)

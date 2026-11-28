@@ -1647,7 +1647,7 @@ private struct PastTheFold: ViewModifier {
             .onGeometryChange(for: CGFloat.self) { proxy in
                 guard let fold = proxy.fold, fold.height > fold.width, fold.midX < proxy.size.width / 2 else { return 0 }
                 return max(0, fold.maxX)
-            } action: { inset = $0 }
+            } action: { LayoutLoopGuard.tick("PastTheFold.inset"); inset = $0 }
     }
 }
 
