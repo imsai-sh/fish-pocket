@@ -973,19 +973,30 @@ extension SessionModel {
         return nil
     }
 
-    /// A reasoning block's text as it stands now, so an open sheet follows the stream.
+    /// A reasoning block's text as it stands now, so an open sheet follows the one it opened.
     func reasoningText(_ id: String) -> String? {
-        for block in live { if case .reasoning(id, let text) = block { return text } }
+        // Once the attempt settles, the same reasoning continues under the message part's id.
+        if let settled = settledReasoningId(id), let text = reasoningText(of: settled) { return text }
+        for block in live {
+            if case .reasoning(let blockId, let text) = block, blockId == id { return text }
+        }
+        return reasoningText(of: id)
+    }
+
+    private func reasoningText(of id: String) -> String? {
         for item in items.reversed() {
             guard case .assistant(_, let blocks, _, _) = item else { continue }
-            for block in blocks { if case .reasoning(id, let text) = block { return text } }
+            for block in blocks {
+                if case .reasoning(let blockId, let text) = block, blockId == id { return text }
+            }
         }
         return nil
     }
 
     /// Whether this reasoning block is still growing: its last paragraph is not finished yet.
     func reasoningStreaming(_ id: String) -> Bool {
-        if running, case .reasoning(id, _)? = live.last { return true }
+        if settledReasoningId(id) != nil { return false }
+        if running, case .reasoning(let blockId, _)? = live.last, blockId == id { return true }
         return false
     }
 }
@@ -1839,13 +1850,18 @@ struct ReasoningSheet: View {
     /// The 思考过程翻译 plugin's view of this block; only for this phone's sessions.
     @State private var translation: ReasoningTranslation?
     @State private var original = false
+    /// The last text this block resolved to. It outlives the live block, so a sheet opened
+    /// while the model was thinking keeps that thinking's text instead of another one's.
+    @State private var lastResolved: String?
 
-    private var latest: String { model?.reasoningText(id) ?? current?(id) ?? text }
+    /// This block's text as it stands now, from the live attempt or the timeline.
+    private var resolved: String? { model?.reasoningText(id) ?? current?(id) }
+    private var shownText: String { resolved ?? lastResolved ?? text }
 
     var body: some View {
-        let text = latest
+        let whole = shownText
         let translated = translation?.setup == nil ? nil : translation
-        let shown = translated.map { original || $0.failed ? text : $0.text } ?? text
+        let shown = translated.map { original || $0.failed ? whole : $0.text } ?? whole
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
@@ -1867,14 +1883,18 @@ struct ReasoningSheet: View {
         }
         .detailSheet()
         .task {
+            if let resolved { lastResolved = resolved }
             guard let model else { return }
             let translation = ReasoningTranslation(sessionId: model.sessionId, client: app.client)
             self.translation = translation
-            translation.update(latest, running: model.reasoningStreaming(id))
+            translation.update(shownText, running: model.reasoningStreaming(id))
             await translation.prepare()
         }
-        .onChange(of: text) { translation?.update(text, running: model?.reasoningStreaming(id) ?? false) }
-        .onChange(of: model?.reasoningStreaming(id)) { _, streaming in translation?.update(latest, running: streaming ?? false) }
+        .onChange(of: resolved) { _, now in
+            if let now { lastResolved = now }
+            translation?.update(now ?? lastResolved ?? whole, running: model?.reasoningStreaming(id) ?? false)
+        }
+        .onChange(of: model?.reasoningStreaming(id)) { _, streaming in translation?.update(shownText, running: streaming ?? false) }
         .onDisappear { translation?.cancel() }
     }
 }

@@ -203,7 +203,7 @@ final class RemoteSessionModel: Identifiable {
     }
 
     func reasoning(_ id: String) -> String? {
-        for case .reasoning(id, let text) in blocks.reversed() { return text }
+        for case .reasoning(let blockId, let text) in blocks.reversed() where blockId == id { return text }
         return nil
     }
 

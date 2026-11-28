@@ -75,6 +75,12 @@ final class SessionModel {
     @ObservationIgnored private var projectionTask: Task<Void, Never>?
     @ObservationIgnored private var liveAttempt: String?
     @ObservationIgnored private var livePartials: [Int: (kind: String, text: String, toolId: String?, toolName: String?)] = [:]
+    /// Bumped for each assistant attempt. A live block's id has to differ from the next
+    /// attempt's, or a sheet open on one thinking starts following the one after it.
+    @ObservationIgnored private var liveGeneration = 0
+    /// Live reasoning ids, to the durable block they settled into: an open sheet keeps its
+    /// text when the attempt's live blocks are replaced by the committed message's.
+    @ObservationIgnored private var reasoningSettlements: [String: String] = [:]
     /// Pending publish of `live`: chunks arrive per token, the view redraws at most this often.
     @ObservationIgnored private var livePublish: Task<Void, Never>?
     @ObservationIgnored private var waitClaims: [String: Task<Void, Never>] = [:]
@@ -168,7 +174,12 @@ final class SessionModel {
             cursor = seq
             composer.observe(event)
             events.append(event)
-            if timeline.apply(event) { publishTimeline() } else { publishTimelineState() }
+            if timeline.apply(event) {
+                bindSettledReasoning(event)
+                publishTimeline()
+            } else {
+                publishTimelineState()
+            }
             // Live only: recording what the agent does in other apps starts and stops with its turn.
             if subagentAddress == nil {
                 PhoneRecorder.shared.observe(event, session: sessionId, request: items.lastUserText)
@@ -217,6 +228,7 @@ final class SessionModel {
         switch frame["type"].string {
         case "start":
             resetLive()
+            liveGeneration += 1
             liveAttempt = frame["attemptId"].string
             running = true
         case "chunk":
@@ -258,14 +270,15 @@ final class SessionModel {
     }
 
     private func publishLive() {
+        let prefix = "live-\(liveGeneration)"
         live = livePartials.keys.sorted().compactMap { index in
             let partial = livePartials[index]!
             switch partial.kind {
-            case "text": return .text(id: "live-\(index)", text: partial.text)
-            case "reasoning": return .reasoning(id: "live-\(index)", text: partial.text)
+            case "text": return .text(id: "\(prefix)-\(index)", text: partial.text)
+            case "reasoning": return .reasoning(id: "\(prefix)-\(index)", text: partial.text)
             default:
                 let args = (try? JSONDecoder().decode(JSON.self, from: Data(partial.text.utf8))) ?? .null
-                return .tool(ToolCall(id: partial.toolId ?? "live-\(index)", name: partial.toolName ?? "…", arguments: args, rawArguments: partial.text))
+                return .tool(ToolCall(id: partial.toolId ?? "\(prefix)-\(index)", name: partial.toolName ?? "…", arguments: args, rawArguments: partial.text))
             }
         }
     }
@@ -277,6 +290,25 @@ final class SessionModel {
         livePartials = [:]
         if !live.isEmpty { live = [] }
     }
+
+    /// A reasoning block changes id when its attempt settles: live ids carry the attempt,
+    /// durable ids the message part. Pair them, so an open sheet stays on the same text.
+    private func bindSettledReasoning(_ event: JSON) {
+        guard event["type"].string == "assistant/message",
+              let seq = event["seq"].int else { return }
+        let parts = event["data"]["message"]["content"].array
+        for (index, part) in parts.enumerated() where part["type"].string == "reasoning" {
+            let liveId = "live-\(liveGeneration)-\(index)"
+            guard let settled = part["text"].string, !settled.isEmpty,
+                  let block = live.first(where: { $0.id == liveId }),
+                  case .reasoning(_, let text) = block,
+                  !text.isEmpty, settled.hasPrefix(text) else { continue }
+            reasoningSettlements[liveId] = "\(seq)-\(index)"
+        }
+    }
+
+    /// The durable block a live reasoning block settled into, when it has.
+    func settledReasoningId(_ id: String) -> String? { reasoningSettlements[id] }
 
     // MARK: Timeline
 
