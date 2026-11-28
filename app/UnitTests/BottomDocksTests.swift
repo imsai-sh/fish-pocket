@@ -48,6 +48,20 @@ enum BottomDocksTests {
         for _ in 0..<40 { let gone = UUID(); docks.move(gone, to: 1) }
         expect(docks.top, 650, "the dock on screen survives the clean-up")
 
+        // A tab's edge over the tab bar is the fallback: any dock on screen goes before it,
+        // whichever came on screen first.
+        let tabs = BottomDocks(), edge = UUID(), dock = UUID()
+        tabs.move(edge, to: 760)
+        tabs.show(edge, edge: true)
+        expect(tabs.top, 760, "no dock: above the tab bar")
+        tabs.move(dock, to: 690)
+        tabs.show(dock)
+        expect(tabs.top, 690, "a conversation's dock goes before the edge")
+        tabs.show(edge, edge: true)
+        expect(tabs.top, 690, "even when the edge comes on screen after it")
+        tabs.hide(dock)
+        expect(tabs.top, 760, "the conversation gone: back above the tab bar")
+
         print(failures == 0 ? "all passed" : "\(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

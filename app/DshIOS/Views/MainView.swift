@@ -891,19 +891,19 @@ struct MainView: View {
     private var tabLayout: some View {
         TabView(selection: $tab) {
             Tab(value: HomeTab.sessions) {
-                if sessionsSideBySide { sessionsSplit } else { sessionsStack }
+                Group { if sessionsSideBySide { sessionsSplit } else { sessionsStack } }.tabBarEdgeForNotices()
             } label: {
                 tabLabel(Text(DrawerView.sessionsTitle), "fp.message", custom: true)
             }
             .badge(badges.waiting)
             Tab(value: HomeTab.bot) {
-                if sessionsSideBySide { botSplit } else { botStack(openDrawer: nil) }
+                Group { if sessionsSideBySide { botSplit } else { botStack(openDrawer: nil) } }.tabBarEdgeForNotices()
             } label: {
                 tabLabel(Text(verbatim: "Bot"), "fp.bot", custom: true)
             }
             .badge(badges.botPending)
             Tab(value: HomeTab.explore) {
-                ExploreTabView(path: $explorePath)
+                ExploreTabView(path: $explorePath).tabBarEdgeForNotices()
             } label: {
                 tabLabel(Text("探索"), "square.grid.2x2")
             }
@@ -924,14 +924,17 @@ struct MainView: View {
     private var phoneTabLayout: some View {
         TabView(selection: $tab) {
             Group { if sessionsSideBySide { sessionsSplit } else { sessionsStack } }
+                .tabBarEdgeForNotices()
                 .tabItem { tabLabel(Text(DrawerView.sessionsTitle), "fp.message", custom: true) }
                 .tag(HomeTab.sessions)
                 .badge(badges.waiting)
             Group { if sessionsSideBySide { botSplit } else { botStack(openDrawer: nil) } }
+                .tabBarEdgeForNotices()
                 .tabItem { tabLabel(Text(verbatim: "Bot"), "fp.bot", custom: true) }
                 .tag(HomeTab.bot)
                 .badge(badges.botPending)
             ExploreTabView(path: $explorePath)
+                .tabBarEdgeForNotices()
                 .tabItem { tabLabel(Text("探索"), "square.grid.2x2") }
                 .tag(HomeTab.explore)
         }

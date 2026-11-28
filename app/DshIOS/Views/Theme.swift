@@ -580,13 +580,25 @@ private struct FocusTap: UIViewRepresentable {
 
 /// A dock reporting its place to its window's `BottomDocks`, while it is on screen.
 private struct DockReport: ViewModifier {
+    /// The fallback edge of a tab's pages rather than a dock of its own.
+    var edge = false
     @Environment(BottomDocks.self) private var docks: BottomDocks?
     @State private var id = UUID()
 
     func body(content: Content) -> some View {
         content
             .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { docks?.move(id, to: $0) }
-            .onAppear { docks?.show(id) }
+            .onAppear { docks?.show(id, edge: edge) }
             .onDisappear { docks?.hide(id) }
+    }
+}
+
+extension View {
+    /// The bottom of this page's room, over the tab bar where there is one, as the fallback place
+    /// for the notices (`BottomDocks`): on a page without a composer they sit above the bar.
+    func tabBarEdgeForNotices() -> some View {
+        overlay(alignment: .bottom) {
+            Color.clear.frame(height: 0).modifier(DockReport(edge: true)).allowsHitTesting(false).accessibilityHidden(true)
+        }
     }
 }
