@@ -551,6 +551,32 @@ final class BotModel {
         return sent
     }
 
+    /// Submit the first message to a fresh thread of this Bot. The engine checks the current part.
+    func startNewTopic(botID: String, sessionID: String, text: String, requestID: String) async throws {
+        let client = app.client
+        var request = client.request(client.origin.appendingPathComponent("api/ios-bot/new-topic"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        request.httpBody = try JSONEncoder().encode([
+            "botId": botID, "sessionId": sessionID, "requestId": requestID, "text": text,
+            "clientTimeZone": TimeZone.current.identifier,
+        ])
+        let (data, response) = try await client.session.data(for: request)
+        let reply = try? JSON.parse(data)
+        if (response as? HTTPURLResponse)?.statusCode == 200, reply?["sessionId"].string != nil {
+            await refreshState()
+            return
+        }
+        let message: String
+        switch reply?["error"].string {
+        case "busy": message = String(localized: "请等 Bot 完成当前任务后再开始新话题。")
+        case "stale": message = String(localized: "这段对话已经切换，请查看当前聊天。")
+        case "read-only": message = String(localized: "当前 Bot 团队为只读。")
+        default: message = String(localized: "未能开始新话题，请查看当前聊天后重试。")
+        }
+        throw EngineError(code: reply?["error"].string, message: message, detail: .null)
+    }
+
     /// Stop what the Bot does in its own chat.
     func stop(_ bot: BotInfo) async {
         Haptics.firm()

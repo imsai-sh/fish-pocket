@@ -1288,6 +1288,8 @@ private struct TimelineRow: View, Equatable {
             CredentialNotice(id: item.id, problem: problem, reason: reason, model: model)
         case .quota(_, let text):
             QuotaNotice(id: item.id, text: text, model: model)
+        case .contentPolicy(_, let text, let requestID):
+            ContentPolicyNotice(id: item.id, text: text, requestID: requestID, model: model)
         case .questionReply(let reply):
             QuestionReplyBubble(reply: reply)
         case .trigger(let trigger):

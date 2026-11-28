@@ -43349,6 +43349,46 @@
         }
       }
     },
+    "复制请求号" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy request ID"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar ID de solicitud"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエスト ID をコピー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청 ID 복사"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制请求号"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "複製請求編號"
+          }
+        }
+      }
+    },
     "复制路径" : {
       "localizations" : {
         "en" : {
@@ -52392,6 +52432,46 @@
         }
       }
     },
+    "开始新话题" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a new topic"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezar un tema nuevo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい話題を始める"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 주제 시작"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始新话题"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始新話題"
+          }
+        }
+      }
+    },
     "开源仓库" : {
       "localizations" : {
         "en" : {
@@ -53332,6 +53412,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "封存對話"
+          }
+        }
+      }
+    },
+    "当前 Bot 团队为只读。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Bot team is read-only."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este equipo de Bots es de solo lectura."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Bot チームは読み取り専用です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Bot 팀은 읽기 전용입니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前 Bot 团队为只读。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前的 Bot 團隊為唯讀。"
           }
         }
       }
@@ -64610,6 +64730,46 @@
         }
       }
     },
+    "新话题的第一句话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First message in the new topic"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Primer mensaje del nuevo tema"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい話題の最初のメッセージ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 주제의 첫 메시지"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新话题的第一句话"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新話題的第一則訊息"
+          }
+        }
+      }
+    },
     "旁支提问" : {
       "localizations" : {
         "en" : {
@@ -69764,6 +69924,46 @@
         }
       }
     },
+    "未能开始新话题，请查看当前聊天后重试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The new topic could not be started. Check the current chat and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo iniciar el nuevo tema. Revisa el chat actual y vuelve a intentarlo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい話題を始められませんでした。現在のチャットを確認してからもう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 주제를 시작하지 못했습니다. 현재 채팅을 확인한 뒤 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未能开始新话题，请查看当前聊天后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法開始新話題，請查看目前的對話後再試一次。"
+          }
+        }
+      }
+    },
     "未能获取安装结果" : {
       "localizations" : {
         "en" : {
@@ -72730,6 +72930,46 @@
         }
       }
     },
+    "模型服务的内容审核拦截了这次请求。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The model provider blocked this request during content review."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El proveedor del modelo bloqueó esta solicitud durante la revisión de contenido."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "モデル提供元のコンテンツ審査で、このリクエストがブロックされました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모델 제공업체의 콘텐츠 검토에서 이 요청이 차단되었습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "模型服务的内容审核拦截了这次请求。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "模型服務的內容審核已攔截這次請求。"
+          }
+        }
+      }
+    },
     "模型没有返回内容，再试一次" : {
       "localizations" : {
         "en" : {
@@ -75356,6 +75596,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "此對話屬於子 agent，永遠不會收到投遞的提醒"
+          }
+        }
+      }
+    },
+    "此前的聊天内容不会带入新话题。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The new topic starts without the previous chat history."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El nuevo tema comienza sin el historial del chat anterior."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい話題には、これまでのチャットの内容は引き継がれません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 주제에는 이전 채팅 내용이 포함되지 않습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此前的聊天内容不会带入新话题。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新話題不會帶入先前的對話內容。"
           }
         }
       }
@@ -93710,6 +93990,46 @@
         }
       }
     },
+    "请等 Bot 完成当前任务后再开始新话题。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wait for the Bot to finish its current task before starting a new topic."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espera a que el Bot termine su tarea antes de empezar un tema nuevo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot が今のタスクを終えてから、新しい話題を始めてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bot이 현재 작업을 마친 후 새 주제를 시작하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请等 Bot 完成当前任务后再开始新话题。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請等 Bot 完成目前的任務後再開始新話題。"
+          }
+        }
+      }
+    },
     "请输入 5 字段的 cron 表达式，例如 0 9 * * 1-5" : {
       "localizations" : {
         "en" : {
@@ -99946,6 +100266,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "這則通知觸發了本輪回覆。"
+          }
+        }
+      }
+    },
+    "这段对话已经切换，请查看当前聊天。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The conversation has changed. Check the current chat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La conversación ha cambiado. Revisa el chat actual."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話が切り替わりました。現在のチャットを確認してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대화가 전환되었습니다. 현재 채팅을 확인하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这段对话已经切换，请查看当前聊天。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這段對話已經切換，請查看目前的對話。"
           }
         }
       }

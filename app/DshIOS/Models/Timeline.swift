@@ -121,6 +121,7 @@ enum TimelineItem: Identifiable, Hashable {
     case credential(seq: Int, problem: TurnFailure.CredentialProblem, reason: String?)
     /// The turn ran out of balance; `text` is how the failure reads.
     case quota(seq: Int, text: String)
+    case contentPolicy(seq: Int, text: String, requestID: String?)
     case questionReply(QuestionReply)
     case trigger(TurnTrigger)
     case command(CommandRun)
@@ -136,6 +137,7 @@ enum TimelineItem: Identifiable, Hashable {
         case .maxTokens(let seq): return "m\(seq)"
         case .credential(let seq, _, _): return "k\(seq)"
         case .quota(let seq, _): return "b\(seq)"
+        case .contentPolicy(let seq, _, _): return "n\(seq)"
         case .questionReply(let reply): return "q\(reply.seq)"
         case .trigger(let trigger): return "t\(trigger.seq)"
         case .command(let command): return "c\(command.id)"
@@ -781,6 +783,8 @@ struct TimelineBuilder {
                 items.append(.credential(seq: seq, problem: problem, reason: reason.isEmpty ? nil : reason))
             } else if failure.isQuota {
                 items.append(.quota(seq: seq, text: failure.message))
+            } else if failure.code == "CONTENT_POLICY" {
+                items.append(.contentPolicy(seq: seq, text: failure.message, requestID: failure.requestID))
             } else {
                 items.append(.notice(seq: seq, text: failure.message, isError: true))
             }

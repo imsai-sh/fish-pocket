@@ -342,6 +342,7 @@ private func grouped(_ value: Decimal, _ rounding: NSDecimalNumber.RoundingMode)
 struct TurnFailure {
     let code: String?
     let message: String
+    let requestID: String?
     /// The provider's own words, as the engine recorded them.
     let raw: String
 
@@ -364,6 +365,11 @@ struct TurnFailure {
         // new-api and one-api refuse an exhausted balance with 401/403, which the engine reads as a
         // bad key. Their fixed codes and wording say otherwise; anything less certain stays as it is.
         if code == "AUTH", Self.relayQuotaMarkers.contains(where: raw.contains) { code = "QUOTA" }
+        if code?.uppercased() == "CONTENT_EXISTS_RISK" || raw.range(of: #"\bcontent[ _-]+exists[ _-]+risk\b"#, options: [.regularExpression, .caseInsensitive]) != nil {
+            code = "CONTENT_POLICY"
+        }
+        let error = reason["error"]
+        requestID = code == "CONTENT_POLICY" ? (error["requestId"].string ?? error["request_id"].string ?? Self.requestID(in: raw)) : nil
         self.code = code
         self.raw = raw
         switch code {
@@ -375,6 +381,8 @@ struct TurnFailure {
             message = raw.contains("Fish Pocket") ? String(localized: "Fish Pocket 余额不足，请充值后继续。") : String(localized: "当前请求的额度已用尽")
         case "AUTH":
             message = raw.contains("Fish Pocket") ? String(localized: "Fish Pocket 登录已失效，请重新登录。") : String(localized: "API 密钥无效")
+        case "CONTENT_POLICY":
+            message = String(localized: "模型服务的内容审核拦截了这次请求。")
         // DeepSeek's safety review stopped the answer: "… content safety review: <DeepSeek's reason, if any>".
         case "CONTENT_REFUSED":
             let reason = raw.range(of: "safety review:").map { raw[$0.upperBound...].trimmingCharacters(in: .whitespaces) } ?? ""
@@ -386,6 +394,13 @@ struct TurnFailure {
     }
 
     var isQuota: Bool { code == "QUOTA" || code == "ACCOUNT_QUOTA" }
+
+    private static func requestID(in text: String) -> String? {
+        let pattern = #"(?i)\b(?:x-)?request[-_ ]?id["'\s:=]+([a-z0-9]+(?:[._:-][a-z0-9]+)*)"#
+        guard let match = try? NSRegularExpression(pattern: pattern).firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+              let id = Range(match.range(at: 1), in: text) else { return nil }
+        return String(text[id])
+    }
 
     /// What the provider said: the `message` of the body the engine quotes ("401: {…}"), else the text as is.
     var providerMessage: String {
