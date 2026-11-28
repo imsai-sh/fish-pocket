@@ -1,6 +1,6 @@
 ---
 name: ios-environment
-description: This session runs inside an iOS app, not on a desktop, and many commands do not exist. Load this skill before relying on a shell command you are unsure of, whenever one fails or behaves unexpectedly, before writing or changing a DSH plugin, because the app's native interface does not run a plugin's browser code, so plugins here get no UI, and before operating another app on this phone.
+description: Load this skill for unfamiliar or failing iOS shell commands, DSH plugin development, and questions about iCTRL or operating another app on this phone. The native interface runs no plugin browser UI.
 ---
 
 # Working on iOS
@@ -174,7 +174,7 @@ Three rules hold even before you read it:
 
 ## Other apps
 
-You cannot tap through other apps by yourself. If the user has set up **iCTRL** (a separate automation app they install), you can: it taps, types and reads any app's screen through a service on `127.0.0.1:8200`. **Before operating another app, read `references/phone-control.md`**: how to check that it runs, connect and pair, what to tell the user when it does not, and how this app records what you do there.
+**iCTRL** is a separate app the user can install to tap, type and read other apps' screens. A Bot's `list_capabilities` lists the team's shared items. To find out whether iCTRL is available on this phone, read `references/phone-control.md` and check the local service's `/whoami` before answering. The same guide covers connecting, pairing when required, and how this app records your actions.
 
 Rules that hold even before you read it:
 

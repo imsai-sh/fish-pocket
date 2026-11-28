@@ -16,9 +16,11 @@ test('has the frontmatter the skill catalog needs', () => {
   assert.ok(/^description: (.+)$/m.exec(frontmatter)[1].length <= 500);
 });
 
-test('the catalog description sends plugin work here', () => {
+test('the catalog description routes plugin work and iCTRL discovery here', () => {
   // The skill only loads when its description matches the task at hand.
-  assert.match(/^description: (.+)$/m.exec(text)[1], /\bplugin\b/);
+  const description = /^description: (.+)$/m.exec(text)[1];
+  assert.match(description, /\bplugin\b/);
+  assert.match(description, /\biCTRL\b/);
 });
 
 test('every command listed as existing exists', () => {
