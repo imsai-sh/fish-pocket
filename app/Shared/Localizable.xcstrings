@@ -37968,6 +37968,40 @@
         }
       }
     },
+    "只显示前 %lld 个字，完整内容请复制查看" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Showing only the first %lld characters. Copy to see the full output."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se muestran los primeros %lld caracteres. Copia el contenido para verlo completo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最初の %lld 文字のみ表示しています。全文はコピーして確認してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "처음 %lld자만 표시해요. 전체 내용은 복사해서 확인하세요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只顯示前 %lld 個字，完整內容請複製查看"
+          }
+        }
+      }
+    },
     "只显示前 %lld 个结果，请缩小搜索范围。" : {
       "localizations" : {
         "en" : {

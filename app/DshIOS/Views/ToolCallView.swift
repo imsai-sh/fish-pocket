@@ -321,26 +321,32 @@ struct OutputBlock: View {
 }
 
 /// Monospaced output on the page's full width: lines wrap instead of scrolling sideways
-/// inside a sheet that scrolls down. A very long one opens on request.
+/// inside a sheet that scrolls down. A very long one opens on request, and only so far: laid out
+/// in one piece, a few megabytes of output (a minified file is a single line) held the app for
+/// seconds each time the sheet was drawn. All of it is still there to copy.
 struct WrappedOutput: View {
     let text: String
     var tint: Color?
     @State private var full = false
-    private let cap = 200
+    /// The text as shown, worked out once for each text rather than on every redraw.
+    @State private var cut = OutputCut.Memo()
 
     var body: some View {
-        let lines = text.components(separatedBy: "\n")
+        let shown = cut.of(text)
         VStack(alignment: .leading, spacing: 4) {
-            Text(full || lines.count <= cap ? text : lines.prefix(cap).joined(separator: "\n"))
+            Text(full ? shown.full : shown.folded)
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(tint ?? Palette.ink)
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            if lines.count > cap {
+            if shown.folds {
                 Button { full.toggle() } label: {
-                    Text(full ? "收起" : "展开全部（\(lines.count) 行）").font(.caption).foregroundStyle(Palette.secondary).hitTarget()
+                    Text(full ? "收起" : "展开全部（\(shown.lines) 行）").font(.caption).foregroundStyle(Palette.secondary).hitTarget()
                 }
                 .buttonStyle(.plain)
+            }
+            if full, shown.clipped {
+                Text("只显示前 \(OutputCut.fullLimit) 个字，完整内容请复制查看").font(.caption).foregroundStyle(Palette.secondary)
             }
         }
         .padding(12)
