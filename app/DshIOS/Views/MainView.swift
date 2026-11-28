@@ -33,6 +33,8 @@ struct MainView: View {
     /// The sidebar, in regular width.
     @State private var sidebar = NavigationSplitViewVisibility.all
     @State private var windowWidth: CGFloat = 0
+    /// Where this window's page in front has its composer, for the notices above it.
+    @State private var docks = BottomDocks()
     /// The window's width as the app left the screen: the split view keeps it while out of sight (`split`).
     @State private var widthOnLeaving: CGFloat?
     @State private var searchRequest = 0
@@ -601,6 +603,8 @@ struct MainView: View {
             Text(app.lastError ?? "")
         }
         .environment(\.openSession, OpenSessionAction(openSessionBox) { open(session: $0) })
+        // This window's own: its pages' docks report here and its notices read here.
+        .environment(docks)
     }
 
     // MARK: Credentials
@@ -887,19 +891,19 @@ struct MainView: View {
     private var tabLayout: some View {
         TabView(selection: $tab) {
             Tab(value: HomeTab.sessions) {
-                if sessionsSideBySide { sessionsSplit } else { sessionsStack }
+                Group { if sessionsSideBySide { sessionsSplit } else { sessionsStack } }.tabBarEdgeForNotices()
             } label: {
                 tabLabel(Text(DrawerView.sessionsTitle), "fp.message", custom: true)
             }
             .badge(badges.waiting)
             Tab(value: HomeTab.bot) {
-                if sessionsSideBySide { botSplit } else { botStack(openDrawer: nil) }
+                Group { if sessionsSideBySide { botSplit } else { botStack(openDrawer: nil) } }.tabBarEdgeForNotices()
             } label: {
                 tabLabel(Text(verbatim: "Bot"), "fp.bot", custom: true)
             }
             .badge(badges.botPending)
             Tab(value: HomeTab.explore) {
-                ExploreTabView(path: $explorePath)
+                ExploreTabView(path: $explorePath).tabBarEdgeForNotices()
             } label: {
                 tabLabel(Text("探索"), "square.grid.2x2")
             }
@@ -920,14 +924,17 @@ struct MainView: View {
     private var phoneTabLayout: some View {
         TabView(selection: $tab) {
             Group { if sessionsSideBySide { sessionsSplit } else { sessionsStack } }
+                .tabBarEdgeForNotices()
                 .tabItem { tabLabel(Text(DrawerView.sessionsTitle), "fp.message", custom: true) }
                 .tag(HomeTab.sessions)
                 .badge(badges.waiting)
             Group { if sessionsSideBySide { botSplit } else { botStack(openDrawer: nil) } }
+                .tabBarEdgeForNotices()
                 .tabItem { tabLabel(Text(verbatim: "Bot"), "fp.bot", custom: true) }
                 .tag(HomeTab.bot)
                 .badge(badges.botPending)
             ExploreTabView(path: $explorePath)
+                .tabBarEdgeForNotices()
                 .tabItem { tabLabel(Text("探索"), "square.grid.2x2") }
                 .tag(HomeTab.explore)
         }
@@ -1643,7 +1650,7 @@ private struct PastTheFold: ViewModifier {
             .onGeometryChange(for: CGFloat.self) { proxy in
                 guard let fold = proxy.fold, fold.height > fold.width, fold.midX < proxy.size.width / 2 else { return 0 }
                 return max(0, fold.maxX)
-            } action: { inset = $0 }
+            } action: { LayoutLoopGuard.tick("PastTheFold.inset"); inset = $0 }
     }
 }
 

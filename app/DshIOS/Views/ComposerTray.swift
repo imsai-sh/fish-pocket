@@ -221,6 +221,7 @@ private struct FittedTrayHeight: ViewModifier {
             content.onScrollGeometryChange(for: CGFloat.self) { geometry in
                 (geometry.contentSize.height + geometry.contentInsets.top + geometry.contentInsets.bottom).rounded(.up)
             } action: { _, new in
+                LayoutLoopGuard.tick("ComposerTray.height")
                 if new > 0 { height = new }
             }
         } else {

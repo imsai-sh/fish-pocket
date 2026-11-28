@@ -311,7 +311,6 @@ struct ConversationView: View {
             // safe area beside it: the status bar's column on iPhone Duo unfolded, the notch's side
             // in landscape. Cut at the sides only.
             .mask { Rectangle().padding(.vertical, -200) }
-            .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { app.composerTop = $0 }
         }
         .modifier(ComposerDrop(composer: model.composer, enabled: model.subagentReadOnly(parentAvailable: parentAvailable(model)) == nil))
         // Under the toolbar: what is inside an inspector's main view does not reach the navigation bar.
@@ -588,7 +587,7 @@ struct ConversationView: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .contentShape(Rectangle())
         .onTapGesture { dismissKeyboard() }
-        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroHeight = $0 }
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { LayoutLoopGuard.tick("ConversationHero.height"); heroHeight = $0 }
         .onGeometryChange(for: CGFloat?.self) { proxy in
             proxy.fold.flatMap { $0.width > $0.height ? $0.minY : nil }
         } action: { heroFold = $0 }
@@ -2003,7 +2002,7 @@ private struct CommandBlock: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
-                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height = $0 }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { LayoutLoopGuard.tick("CommandBlock.height"); height = $0 }
             }
             .frame(height: min(height, limit))
             .scrollBounceBehavior(.basedOnSize)

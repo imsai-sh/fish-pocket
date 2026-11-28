@@ -40,7 +40,7 @@ struct BotViewCard: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { LayoutLoopGuard.tick("BotViewCard.height"); contentHeight = $0 }
             }
             .scrollBounceBehavior(.basedOnSize)
             .frame(height: min(max(contentHeight, 1), 420))

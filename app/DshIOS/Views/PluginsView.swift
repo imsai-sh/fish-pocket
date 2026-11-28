@@ -49,9 +49,12 @@ struct OpenSessionAction: Equatable {
 }
 
 extension View {
-    /// Toasts and the connection banner over a sheet: the shell's own sit behind it.
+    /// Toasts and the connection banner over a sheet: the shell's own sit behind it. The overlay
+    /// is outside what the environment line reaches, so its notices are told they are hosted
+    /// themselves: otherwise they took the composer behind the sheet for one of their own.
     func sheetNotices() -> some View {
-        environment(\.noticesHosted, true).overlay(alignment: .top) { ShellNotices() }
+        environment(\.noticesHosted, true)
+            .overlay(alignment: .top) { ShellNotices().environment(\.noticesHosted, true) }
     }
 }
 

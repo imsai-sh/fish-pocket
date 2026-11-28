@@ -501,7 +501,7 @@ struct StoreInstallConfirm: View {
         }
         .padding(20)
         .fixedSize(horizontal: false, vertical: true)
-        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height = $0 }
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { LayoutLoopGuard.tick("PluginStoreDetail.height"); height = $0 }
         .frame(maxHeight: .infinity, alignment: .top)
         .background(Palette.background)
         .presentationDetents([.height(height)])
