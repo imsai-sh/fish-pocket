@@ -30,9 +30,9 @@ enum OutputCutTests {
         expect(took < 1, "cut in under a second (\(String(format: "%.3f", took)) s)")
 
         // Characters, not bytes: Chinese text folds at the same number of characters.
-        let chinese = OutputCut(String(repeating: "中", count: 30_000))
+        let chinese = OutputCut(String(repeating: "中", count: 8_000))
         expect(chinese.folds && chinese.folded.count == OutputCut.foldedLimit + 2, "characters counted, not bytes")
-        let underLimit = OutputCut(String(repeating: "中", count: 10_000))
+        let underLimit = OutputCut(String(repeating: "中", count: 3_000))
         expect(!underLimit.folds && underLimit.folded == underLimit.full, "under the limit in characters stays whole")
 
         let memo = OutputCut.Memo()

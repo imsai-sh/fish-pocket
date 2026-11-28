@@ -5,8 +5,8 @@ import Foundation
 /// the text, so a long output costs one pass over its bytes.
 struct OutputCut: Equatable {
     static let foldedLines = 200
-    static let foldedLimit = 20_000
-    static let fullLimit = 200_000
+    static let foldedLimit = 5_000
+    static let fullLimit = 50_000
 
     let folded: String
     let full: String
